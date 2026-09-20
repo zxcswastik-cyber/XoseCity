@@ -454,7 +454,6 @@ local XCConfig = {
     settingsAutoSave = false,
     menuKey = "RightShift",
     publicConfigSelection = "None",
-    publicConfigApiUrl = "",
 
     -- Sliders & Values
     rageFov = 360,
@@ -8249,18 +8248,8 @@ end))
 -- Public configuration catalog. The client exchanges JSON settings only;
 -- downloaded entries are filtered through XCConfig's existing keys and are
 -- never evaluated as Lua code.
-local savedPublicApi = tostring(XCConfig.publicConfigApiUrl or "")
-if savedPublicApi == "" and type(readfile) == "function" then
-    pcall(function()
-        if type(isfile) ~= "function" or isfile("XCConfigs/community_api.txt") then
-            savedPublicApi = tostring(readfile("XCConfigs/community_api.txt") or "")
-        end
-    end)
-end
 local XCPublicConfigs = {
-    ApiBase = tostring((type(getgenv) == "function" and getgenv().XC_PUBLIC_CONFIG_API)
-        or (savedPublicApi ~= "" and savedPublicApi)
-        or "https://YOUR-DOMAIN.example/api/v1"):gsub("/+$", ""),
+    ApiBase = "https://xosocity-api.zxcswastik.workers.dev/api/v1",
     Items = {},
 }
 
@@ -8295,7 +8284,7 @@ end
 function XCPublicConfigs.Serialize()
     local settings = {}
     for key, value in pairs(XCConfig) do
-        if key ~= "publicConfigSelection" and key ~= "publicConfigApiUrl" then
+        if key ~= "publicConfigSelection" then
             local safeValue = xcPublicJsonValue(value)
             if safeValue ~= nil then settings[key] = safeValue end
         end
@@ -8308,9 +8297,6 @@ function XCPublicConfigs.Serialize()
 end
 
 function XCPublicConfigs.Request(method, path, body)
-    if XCPublicConfigs.ApiBase:find("YOUR%-DOMAIN", 1, false) then
-        return false, "Set getgenv().XC_PUBLIC_CONFIG_API to your deployed API URL"
-    end
     local requestFn = xcPublicRequestFunction()
     if type(requestFn) ~= "function" then return false, "Executor HTTP request API unavailable" end
     local headers = {Accept = "application/json", ["Content-Type"] = "application/json"}
@@ -10902,9 +10888,7 @@ function buildXCUI()
     local publicName = publicTextBox(ConfigCommunity, "Public config name", "")
     local publicAuthor = publicTextBox(ConfigCommunity, "Author name", player.DisplayName or player.Name)
     local publicDescription = publicTextBox(ConfigCommunity, "Short description", "", 48)
-    local shownApi = XCPublicConfigs.ApiBase:find("YOUR%-DOMAIN") and "" or XCPublicConfigs.ApiBase
-    local publicApiUrl = publicTextBox(ConfigCommunity, "https://your-worker.workers.dev/api/v1", shownApi)
-    local publicStatus = addNote(ConfigCommunity, shownApi ~= "" and "Community API configured." or "Paste the Worker API URL above.")
+    local publicStatus = addNote(ConfigCommunity, "Community library is connected.")
 
     local communityLabels = {"None"}
     local communityByLabel = {}
@@ -10912,26 +10896,6 @@ function buildXCUI()
         publicStatus.Text = tostring(message)
         publicStatus.TextColor3 = success and C.Lime or Color3.fromRGB(218, 82, 82)
     end
-    local function savePublicApiUrl()
-        local value = tostring(publicApiUrl.Text or ""):match("^%s*(.-)%s*$"):gsub("/+$", "")
-        if value ~= "" and (not value:match("^https://") or not value:match("/api/v1$")) then
-            setPublicStatus("URL must use https:// and end with /api/v1", false)
-            return false
-        end
-        XCPublicConfigs.ApiBase = value ~= "" and value or "https://YOUR-DOMAIN.example/api/v1"
-        XCConfig.publicConfigApiUrl = value
-        if type(getgenv) == "function" then getgenv().XC_PUBLIC_CONFIG_API = value end
-        pcall(function()
-            if type(makefolder) == "function" and type(isfolder) == "function" and not isfolder("XCConfigs") then
-                makefolder("XCConfigs")
-            end
-            if type(writefile) == "function" then writefile("XCConfigs/community_api.txt", value) end
-        end)
-        setPublicStatus(value ~= "" and "Community API saved" or "Community API cleared", value ~= "")
-        return value ~= ""
-    end
-    publicApiUrl.FocusLost:Connect(savePublicApiUrl)
-    addButton(ConfigCommunity, "SAVE API URL", savePublicApiUrl)
     local function refreshCommunityCatalog()
         setPublicStatus("Loading community configs...", true)
         task.spawn(function()
@@ -11000,7 +10964,9 @@ function buildXCUI()
             XCNotify("Community config", "Loaded " .. tostring(result.name or selectedId), "success", 2)
         end)
     end)
+    addNote(ConfigCommunity, "Choose a config from the library list; no name or link is required for loading.")
     addNote(ConfigCommunity, "Only JSON settings are downloaded. Lua code from community entries is never executed.")
+    task.defer(refreshCommunityCatalog)
 
     applySearch = function()
         local query = searchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
