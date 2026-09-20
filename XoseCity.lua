@@ -8259,6 +8259,9 @@ local function xcPublicRequestFunction()
         or (type(request) == "function" and request)
         or (type(http_request) == "function" and http_request)
         or (syn and type(syn.request) == "function" and syn.request)
+        or (http and type(http.request) == "function" and http.request)
+        or (fluxus and type(fluxus.request) == "function" and fluxus.request)
+        or (krnl and type(krnl.request) == "function" and krnl.request)
 end
 
 local function xcPublicJsonValue(value, depth)
@@ -8298,20 +8301,62 @@ end
 
 function XCPublicConfigs.Request(method, path, body)
     local requestFn = xcPublicRequestFunction()
-    if type(requestFn) ~= "function" then return false, "Executor HTTP request API unavailable" end
     local headers = {Accept = "application/json", ["Content-Type"] = "application/json"}
-    local options = {Url = XCPublicConfigs.ApiBase .. path, Method = method, Headers = headers}
+    local requestUrl = XCPublicConfigs.ApiBase .. path
+    local options = {Url = requestUrl, URL = requestUrl, Method = method, Headers = headers}
     if body ~= nil then options.Body = HttpService:JSONEncode(body) end
-    local ok, response = pcall(requestFn, options)
-    if not ok or type(response) ~= "table" then return false, tostring(response or "Request failed") end
-    local statusCode = tonumber(response.StatusCode or response.Status or response.status_code) or 0
-    local rawBody = response.Body or response.body or ""
-    local decoded
-    if rawBody ~= "" then pcall(function() decoded = HttpService:JSONDecode(rawBody) end) end
-    if statusCode < 200 or statusCode >= 300 then
-        return false, type(decoded) == "table" and tostring(decoded.error or decoded.message) or ("HTTP " .. statusCode)
+
+    local ok, response
+    if type(requestFn) == "function" then
+        ok, response = pcall(requestFn, options)
+    elseif method == "GET" then
+        ok, response = pcall(function() return game:HttpGet(requestUrl) end)
+    else
+        return false, "Executor HTTP request API unavailable"
     end
-    return true, decoded or {}
+    if not ok then return false, "HTTP request failed: " .. tostring(response or "unknown error") end
+
+    local rawBody = ""
+    local statusCode
+    local successFlag
+    local statusMessage
+    if type(response) == "string" then
+        rawBody = response
+        statusCode = 200
+    elseif type(response) == "table" then
+        rawBody = response.Body or response.body or response.ResponseBody or response.response or response.Data or ""
+        local statusValue = response.StatusCode or response.status_code or response.Status or response.status or response.Code
+        statusCode = tonumber(statusValue) or tonumber(tostring(statusValue or ""):match("%d%d%d"))
+        successFlag = response.Success
+        if successFlag == nil then successFlag = response.success end
+        statusMessage = response.StatusMessage or response.status_message or response.Message
+    else
+        return false, "Executor returned an unsupported HTTP response"
+    end
+
+    local decoded
+    if type(rawBody) == "table" then
+        decoded = rawBody
+    else
+        if type(rawBody) ~= "string" then rawBody = tostring(rawBody or "") end
+        if rawBody ~= "" then pcall(function() decoded = HttpService:JSONDecode(rawBody) end) end
+    end
+    if decoded == nil and type(response) == "table"
+        and (response.items ~= nil or response.ok ~= nil or response.id ~= nil or response.error ~= nil) then
+        decoded = response
+    end
+
+    local serverMessage = type(decoded) == "table" and (decoded.error or decoded.message) or nil
+    if successFlag == false or (statusCode and (statusCode < 200 or statusCode >= 300)) then
+        return false, tostring(serverMessage or statusMessage or (statusCode and ("HTTP " .. statusCode)) or "Request failed")
+    end
+    if not statusCode and serverMessage then
+        return false, tostring(serverMessage)
+    end
+    if decoded == nil then
+        return false, "Server returned invalid JSON" .. (statusCode and (" (HTTP " .. statusCode .. ")") or "")
+    end
+    return true, decoded
 end
 
 function XCPublicConfigs.List(query)
