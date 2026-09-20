@@ -389,6 +389,7 @@ local XCConfig = {
     thirdPersonEnabled = false,
     skinChangerEnabled = false,
     triggerbotEnabled = false,
+    triggerbotMode = "Crosshair",
     antiAimEnabled = false,
     antiAimMode = "Spin",
     bunnyHopEnabled = false,
@@ -479,6 +480,7 @@ local XCConfig = {
     silentAimAimHead = true,
     pSilentEnabled = false,
     wallbangEnabled = false,
+    extremeWallbangEnabled = false,
     showSilentFovCircle = true,
 
     chamsFillTransparency = 0.45,
@@ -1177,8 +1179,8 @@ local function prepareXCSilentShotPayload(data, forceSendStage)
                 end
             end
 
-            if XCConfig.wallbangEnabled then
-                shotBullet.Penetration = 9999
+            if XCConfig.wallbangEnabled or XCConfig.extremeWallbangEnabled then
+                shotBullet.Penetration = XCConfig.extremeWallbangEnabled and 1000000000 or 9999
                 shotBullet.Wallbang = true
                 shotBullet.IgnoreEnvironment = true
             end
@@ -1736,7 +1738,7 @@ getSilentAimTarget = function()
         if not part or not part:IsA("BasePart") then continue end
         -- Visibility and wall penetration are independent controls. Turning
         -- Visible check off must never grant wallbang by itself.
-        if not XCConfig.wallbangEnabled or XCConfig.silentAimVisibleCheck then
+        if not (XCConfig.wallbangEnabled or XCConfig.extremeWallbangEnabled) or XCConfig.silentAimVisibleCheck then
             local visible = isVisibleThroughWalls(part, char)
             if not visible then continue end
         end
@@ -2121,6 +2123,9 @@ local function selectXCNativeSilentTarget(origin, properties)
             and (firstInstance == candidate.Part or firstInstance:IsDescendantOf(candidate.Character)))
 
         if visible then return candidate end
+        if XCConfig.extremeWallbangEnabled and not XCConfig.silentAimVisibleCheck then
+            return candidate
+        end
         if XCConfig.wallbangEnabled and not XCConfig.silentAimVisibleCheck then
             local penetrated = castXCNativeSilentShot(origin, offset.Unit, properties or {})
             if penetrated and type(penetrated.Hits) == "table" then
@@ -2159,7 +2164,24 @@ local function redirectXCNativeSilentShot(bullet, shot)
     local offset = aimPosition - shotOrigin
     if offset.Magnitude < 0.05 then return shot end
 
-    local redirected = castXCNativeSilentShot(shotOrigin, offset.Unit, bullet.Properties or {})
+    local redirected
+    if XCConfig.extremeWallbangEnabled then
+        -- Direct hit payload: map geometry is omitted entirely for this redirected shot.
+        redirected = {
+            Origin = shotOrigin,
+            Direction = offset.Unit,
+            Distance = offset.Magnitude,
+            Hits = {{
+                Position = aimPosition,
+                Instance = targetPart,
+                Material = targetPart.Material.Name,
+                Normal = -offset.Unit,
+                Exit = false,
+            }},
+        }
+    else
+        redirected = castXCNativeSilentShot(shotOrigin, offset.Unit, bullet.Properties or {})
+    end
     if not redirected then return shot end
     silentAimResolved = targetPart
     if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
@@ -6375,6 +6397,54 @@ function runMobileTriggerbot()
     local vp = cam.ViewportSize
     local origin = cam.CFrame.Position
     local rayDirection = cam.CFrame.LookVector * 1000
+    local triggerMode = tostring(XCConfig.triggerbotMode or "Crosshair")
+
+    -- Silent FOV mode deliberately shares Silent Aim's target selector/FOV/team/visibility settings.
+    if triggerMode == "Silent FOV" then
+        local targetPart = getSilentAimTarget and getSilentAimTarget() or nil
+        if targetPart and targetPart.Parent then
+            if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
+                lastTriggerTick = now
+                if triggerbotMobileAutoFire then triggerbotFire(vp) end
+            end
+        end
+        return
+    end
+
+    -- Trigger FOV mode fires on the closest valid enemy inside Trigger FOV,
+    -- without requiring the center ray to already touch the character.
+    if triggerMode == "Trigger FOV" then
+        local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
+        local radius = math.max(1, tonumber(XCConfig.triggerbotFov) or 160)
+        local bestPart, bestDist = nil, math.huge
+        for _, targetPlayer in ipairs(Players:GetPlayers()) do
+            if targetPlayer ~= player and isTargetEnemy(targetPlayer, targetPlayer.Character) then
+                local char = targetPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
+                    local part = char:FindFirstChild(XCConfig.triggerbotHeadOnly and "Head" or "Head")
+                        or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
+                    if part then
+                        local point, onScreen = cam:WorldToViewportPoint(part.Position)
+                        if onScreen and point.Z > 0 then
+                            local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
+                            if dist <= radius and dist < bestDist then
+                                local visible = isVisibleThroughWalls(part, char)
+                                if visible or XCConfig.wallbangEnabled or XCConfig.extremeWallbangEnabled then
+                                    bestPart, bestDist = part, dist
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        if bestPart then
+            lastTriggerTick = now
+            if triggerbotMobileAutoFire then triggerbotFire(vp) end
+        end
+        return
+    end
 
     -- First pass: only consider whatever is actually under the FOV center.
     triggerRayParams.FilterDescendantsInstances = {player.Character}
@@ -8643,14 +8713,16 @@ function buildXCUI()
     local CONTROL_HELP = {
         aimbotEnabled = "Tracks a valid target inside the configured field of view.",
         silentAimEnabled = "Redirects supported shot data without visibly snapping the camera.",
-        triggerbotEnabled = "Fires when a valid target is under the crosshair.",
+        triggerbotEnabled = "Automatically fires when the selected Triggerbot mode finds a valid enemy.",
+        triggerbotMode = "Crosshair uses the center ray; Trigger FOV scans the Trigger FOV; Silent FOV shares Silent Aim target selection and FOV.",
         triggerbotDelay = "Minimum delay between automatic trigger shots.",
         triggerbotScopedOnly = "Allows Triggerbot to fire only while a native scope is active.",
         triggerbotHeadOnly = "Triggerbot fires only when the detected hit part is the head.",
         rageBotEnabled = "Aggressive target selection using the Rage FOV and priority settings.",
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
-        wallbangEnabled = "Allows Silent Aim to select targets through surfaces; without it hidden targets are always rejected.",
+        wallbangEnabled = "Allows Silent Aim to penetrate surfaces using the game penetration path.",
+        extremeWallbangEnabled = "Extreme wallbang bypasses map surfaces for redirected Silent Aim shots and targets the enemy directly.",
         thirdPersonEnabled = "Moves the native camera behind the character.",
         bunnyHopEnabled = "Smooth XC Bhop with grounded timing and optional air control.",
         bhopMode = "Hold requires jump input; Automatic keeps hopping while movement is active.",
@@ -10377,9 +10449,11 @@ function buildXCUI()
     toggle(L, "Aim at head", "silentAimAimHead")
     toggle(L, "Perfect silent", "pSilentEnabled")
     toggle(L, "Wallbang", "wallbangEnabled")
+    toggle(L, "Extreme wallbang", "extremeWallbangEnabled")
 
     section(L, "Triggerbot")
     toggle(L, "Triggerbot", "triggerbotEnabled")
+    addChoice(L, "Trigger mode", "triggerbotMode", {"Crosshair", "Trigger FOV", "Silent FOV"})
     addSlider(L, "Trigger delay", "triggerbotDelay", 0.01, 0.5, 0.005, "s")
     addSlider(L, "Trigger FOV", "triggerbotFov", 10, 360, 1, "px")
     toggle(L, "Scoped only", "triggerbotScopedOnly")
