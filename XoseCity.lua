@@ -453,6 +453,8 @@ local XCConfig = {
     settingsCompactMode = false,
     settingsAutoSave = false,
     menuKey = "RightShift",
+    publicConfigSelection = "None",
+    publicConfigApiUrl = "",
 
     -- Sliders & Values
     rageFov = 360,
@@ -8244,6 +8246,115 @@ end))
 -- ==========================================
 -- UI BUILDER
 -- ==========================================
+-- Public configuration catalog. The client exchanges JSON settings only;
+-- downloaded entries are filtered through XCConfig's existing keys and are
+-- never evaluated as Lua code.
+local savedPublicApi = tostring(XCConfig.publicConfigApiUrl or "")
+if savedPublicApi == "" and type(readfile) == "function" then
+    pcall(function()
+        if type(isfile) ~= "function" or isfile("XCConfigs/community_api.txt") then
+            savedPublicApi = tostring(readfile("XCConfigs/community_api.txt") or "")
+        end
+    end)
+end
+local XCPublicConfigs = {
+    ApiBase = tostring((type(getgenv) == "function" and getgenv().XC_PUBLIC_CONFIG_API)
+        or (savedPublicApi ~= "" and savedPublicApi)
+        or "https://YOUR-DOMAIN.example/api/v1"):gsub("/+$", ""),
+    Items = {},
+}
+
+local function xcPublicRequestFunction()
+    local env = type(getgenv) == "function" and getgenv() or nil
+    return (env and (env.request or env.http_request))
+        or (type(request) == "function" and request)
+        or (type(http_request) == "function" and http_request)
+        or (syn and type(syn.request) == "function" and syn.request)
+end
+
+local function xcPublicJsonValue(value, depth)
+    depth = depth or 0
+    if depth > 8 then return nil end
+    local valueType = typeof(value)
+    if valueType == "boolean" or valueType == "number" or valueType == "string" then return value end
+    if valueType == "Color3" then return {__type="Color3",r=value.R,g=value.G,b=value.B} end
+    if valueType == "UDim2" then
+        return {__type="UDim2",xs=value.X.Scale,xo=value.X.Offset,ys=value.Y.Scale,yo=value.Y.Offset}
+    end
+    if valueType ~= "table" then return nil end
+    local copy = {}
+    for key, child in pairs(value) do
+        if type(key) == "string" or type(key) == "number" then
+            local safeChild = xcPublicJsonValue(child, depth + 1)
+            if safeChild ~= nil then copy[key] = safeChild end
+        end
+    end
+    return copy
+end
+
+function XCPublicConfigs.Serialize()
+    local settings = {}
+    for key, value in pairs(XCConfig) do
+        if key ~= "publicConfigSelection" and key ~= "publicConfigApiUrl" then
+            local safeValue = xcPublicJsonValue(value)
+            if safeValue ~= nil then settings[key] = safeValue end
+        end
+    end
+    if XCFeatureState.streamerSnapshot then
+        for key, value in pairs(XCFeatureState.streamerSnapshot) do settings[key] = xcPublicJsonValue(value) end
+        settings.streamerModeEnabled = false
+    end
+    return settings
+end
+
+function XCPublicConfigs.Request(method, path, body)
+    if XCPublicConfigs.ApiBase:find("YOUR%-DOMAIN", 1, false) then
+        return false, "Set getgenv().XC_PUBLIC_CONFIG_API to your deployed API URL"
+    end
+    local requestFn = xcPublicRequestFunction()
+    if type(requestFn) ~= "function" then return false, "Executor HTTP request API unavailable" end
+    local headers = {Accept = "application/json", ["Content-Type"] = "application/json"}
+    local options = {Url = XCPublicConfigs.ApiBase .. path, Method = method, Headers = headers}
+    if body ~= nil then options.Body = HttpService:JSONEncode(body) end
+    local ok, response = pcall(requestFn, options)
+    if not ok or type(response) ~= "table" then return false, tostring(response or "Request failed") end
+    local statusCode = tonumber(response.StatusCode or response.Status or response.status_code) or 0
+    local rawBody = response.Body or response.body or ""
+    local decoded
+    if rawBody ~= "" then pcall(function() decoded = HttpService:JSONDecode(rawBody) end) end
+    if statusCode < 200 or statusCode >= 300 then
+        return false, type(decoded) == "table" and tostring(decoded.error or decoded.message) or ("HTTP " .. statusCode)
+    end
+    return true, decoded or {}
+end
+
+function XCPublicConfigs.List(query)
+    local suffix = "?limit=50"
+    if query and query ~= "" then suffix ..= "&query=" .. HttpService:UrlEncode(query) end
+    local ok, response = XCPublicConfigs.Request("GET", "/configs" .. suffix)
+    if ok then XCPublicConfigs.Items = type(response.items) == "table" and response.items or {} end
+    return ok, response
+end
+
+function XCPublicConfigs.Publish(name, description, author)
+    name = tostring(name or ""):match("^%s*(.-)%s*$")
+    if name == "" then return false, "Config name is required" end
+    return XCPublicConfigs.Request("POST", "/configs", {
+        schema = 2,
+        product = "XC",
+        name = name:sub(1, 48),
+        description = tostring(description or ""):sub(1, 240),
+        author = tostring(author or "Anonymous"):sub(1, 32),
+        settings = XCPublicConfigs.Serialize(),
+    })
+end
+
+function XCPublicConfigs.Get(id)
+    id = tostring(id or "")
+    if not id:match("^[%w%-_]+$") then return false, "Invalid config id" end
+    return XCPublicConfigs.Request("GET", "/configs/" .. HttpService:UrlEncode(id))
+end
+
 function setAntiAfkEnabled(enabled)
     XCConfig.antiAfkEnabled = enabled
     if antiAfkConnection then
@@ -8562,7 +8673,8 @@ function buildXCUI()
         tab_Misc = "Utilities: session helpers, animations and viewmodel controls.",
         tab_Skins = "Inventory changer: weapon finishes, wear, knives and gloves.",
         tab_Players = "Players: target rules, priority player and ESP details.",
-        tab_Configs = "Settings: interface, quick actions and configuration profiles.",
+        tab_Settings = "Settings: interface, palette, module editor and quick actions.",
+        tab_Configs = "Configs: local profiles and the shared community catalog.",
     }
 
     local helpPopup = Instance.new("Frame")
@@ -10154,7 +10266,8 @@ function buildXCUI()
 
     local tabs = {
         {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"World", "world"},
-        {"Misc", "misc"}, {"Skins", "skins"}, {"Players", "players"}, {"Configs", "configs"},
+        {"Misc", "misc"}, {"Skins", "skins"}, {"Players", "players"},
+        {"Settings", "misc"}, {"Configs", "configs"},
     }
     local function switchPage(name)
         closeDropdown()
@@ -10527,7 +10640,7 @@ function buildXCUI()
     addSlider(R, "Grenade distance", "grenadeMaxDist", 200, 3000, 50, "")
 
     task.wait()
-    L, R = columns("Configs", "Interface", "Config manager")
+    L, R = columns("Settings", "Interface", "Advanced settings")
     local menuPresets={
         ["XC Lime"]={17,17,17,12,12,12,152,204,0,235,235,235},
         ["Midnight"]={10,13,20,8,10,17,65,142,255,232,238,248},
@@ -10615,7 +10728,8 @@ function buildXCUI()
     end)
     addNote(R,"Exact value editor: numbers, text and true/false. Palette colors are saved inside every profile.")
     task.defer(refreshAdvancedEditor)
-    section(R, "profiles")
+    local ConfigLocal, ConfigCommunity = columns("Configs", "Local profiles", "Community library")
+    section(ConfigLocal, "profiles")
 
     local configName = "Default"
     local function safeName(value)
@@ -10632,7 +10746,7 @@ function buildXCUI()
     nameBox.TextColor3 = C.Text
     nameBox.Font = Enum.Font.Code
     nameBox.TextSize = 10
-    nameBox.Parent = activeSectionByParent[R] or R
+    nameBox.Parent = activeSectionByParent[ConfigLocal] or ConfigLocal
     local status = Instance.new("TextLabel")
     status.Size = UDim2.new(1, 0, 0, 20)
     status.BackgroundTransparency = 1
@@ -10641,7 +10755,7 @@ function buildXCUI()
     status.Font = Enum.Font.Code
     status.TextSize = 9
     status.TextXAlignment = Enum.TextXAlignment.Left
-    status.Parent = activeSectionByParent[R] or R
+    status.Parent = activeSectionByParent[ConfigLocal] or ConfigLocal
     local function configPath() return "XCConfigs/" .. safeName(nameBox.Text) .. ".json" end
     local autoSaveSerial = 0
     local function saveCurrentConfig(prefix)
@@ -10708,10 +10822,10 @@ function buildXCUI()
         if camera then camera.FieldOfView = 70 end
         XCNotify("Camera", "Camera state restored", "success", 1.5)
     end)
-    addButton(R, "SAVE CONFIG", function()
+    addButton(ConfigLocal, "SAVE CONFIG", function()
         saveCurrentConfig("saved")
     end)
-    addButton(R, "LOAD CONFIG", function()
+    addButton(ConfigLocal, "LOAD CONFIG", function()
         local ok = pcall(function()
             setXCStreamerMode(false)
             assert(type(readfile) == "function", "File API unavailable")
@@ -10743,7 +10857,7 @@ function buildXCUI()
         end)
         status.Text = ok and ("loaded: " .. safeName(nameBox.Text)) or "load failed"
     end)
-    addButton(R, "RESET DEFAULTS", function()
+    addButton(ConfigLocal, "RESET DEFAULTS", function()
         setXCStreamerMode(false)
         for key, value in pairs(XCConfigDefaults) do XCConfig[key] = deepCopyConfigValue(value) end
         lazyFeatureRequests.fireRate = false
@@ -10754,10 +10868,139 @@ function buildXCUI()
         setAntiAfkEnabled(XCConfig.antiAfkEnabled)
         status.Text = "defaults restored"
     end)
-    addButton(R, "DELETE CONFIG", function()
+    addButton(ConfigLocal, "DELETE CONFIG", function()
         local ok = pcall(function() assert(type(delfile) == "function"); delfile(configPath()) end)
         status.Text = ok and "config deleted" or "delete failed"
     end)
+
+    section(ConfigCommunity, "publish current settings")
+    local function publicTextBox(parent, placeholder, value, height)
+        local box = Instance.new("TextBox")
+        box.Size = UDim2.new(1, 0, 0, height or 24)
+        box.BackgroundColor3 = C.Control
+        box.BorderColor3 = C.Black
+        box.BorderSizePixel = 1
+        box.ClearTextOnFocus = false
+        box.PlaceholderText = placeholder
+        box.PlaceholderColor3 = C.Muted
+        box.Text = value or ""
+        box.TextColor3 = C.Text
+        box.Font = Enum.Font.Code
+        box.TextSize = 10
+        box.TextWrapped = (height or 24) > 30
+        box.TextXAlignment = Enum.TextXAlignment.Left
+        box.TextYAlignment = Enum.TextYAlignment.Top
+        box.Parent = activeSectionByParent[parent] or parent
+        local padding = Instance.new("UIPadding")
+        padding.PaddingLeft = UDim.new(0, 7)
+        padding.PaddingRight = UDim.new(0, 7)
+        padding.PaddingTop = UDim.new(0, 5)
+        padding.Parent = box
+        return box
+    end
+
+    local publicName = publicTextBox(ConfigCommunity, "Public config name", "")
+    local publicAuthor = publicTextBox(ConfigCommunity, "Author name", player.DisplayName or player.Name)
+    local publicDescription = publicTextBox(ConfigCommunity, "Short description", "", 48)
+    local shownApi = XCPublicConfigs.ApiBase:find("YOUR%-DOMAIN") and "" or XCPublicConfigs.ApiBase
+    local publicApiUrl = publicTextBox(ConfigCommunity, "https://your-worker.workers.dev/api/v1", shownApi)
+    local publicStatus = addNote(ConfigCommunity, shownApi ~= "" and "Community API configured." or "Paste the Worker API URL above.")
+
+    local communityLabels = {"None"}
+    local communityByLabel = {}
+    local function setPublicStatus(message, success)
+        publicStatus.Text = tostring(message)
+        publicStatus.TextColor3 = success and C.Lime or Color3.fromRGB(218, 82, 82)
+    end
+    local function savePublicApiUrl()
+        local value = tostring(publicApiUrl.Text or ""):match("^%s*(.-)%s*$"):gsub("/+$", "")
+        if value ~= "" and (not value:match("^https://") or not value:match("/api/v1$")) then
+            setPublicStatus("URL must use https:// and end with /api/v1", false)
+            return false
+        end
+        XCPublicConfigs.ApiBase = value ~= "" and value or "https://YOUR-DOMAIN.example/api/v1"
+        XCConfig.publicConfigApiUrl = value
+        if type(getgenv) == "function" then getgenv().XC_PUBLIC_CONFIG_API = value end
+        pcall(function()
+            if type(makefolder) == "function" and type(isfolder) == "function" and not isfolder("XCConfigs") then
+                makefolder("XCConfigs")
+            end
+            if type(writefile) == "function" then writefile("XCConfigs/community_api.txt", value) end
+        end)
+        setPublicStatus(value ~= "" and "Community API saved" or "Community API cleared", value ~= "")
+        return value ~= ""
+    end
+    publicApiUrl.FocusLost:Connect(savePublicApiUrl)
+    addButton(ConfigCommunity, "SAVE API URL", savePublicApiUrl)
+    local function refreshCommunityCatalog()
+        setPublicStatus("Loading community configs...", true)
+        task.spawn(function()
+            local ok, result = XCPublicConfigs.List("")
+            if not ok then setPublicStatus(result, false); return end
+            communityLabels = {}
+            communityByLabel = {}
+            for _, item in ipairs(XCPublicConfigs.Items) do
+                local label = string.format("%s · %s [%s]", tostring(item.name or "Unnamed"),
+                    tostring(item.author or "Anonymous"), tostring(item.id or ""):sub(1, 8))
+                table.insert(communityLabels, label)
+                communityByLabel[label] = item.id
+            end
+            if #communityLabels == 0 then communityLabels = {"None"} end
+            XCConfig.publicConfigSelection = communityLabels[1]
+            refreshConfigControls("publicConfigSelection", communityLabels[1])
+            setPublicStatus(string.format("Loaded %d public configs", #XCPublicConfigs.Items), true)
+        end)
+    end
+
+    addButton(ConfigCommunity, "PUBLISH CURRENT CONFIG", function()
+        setPublicStatus("Publishing...", true)
+        task.spawn(function()
+            local ok, result = XCPublicConfigs.Publish(publicName.Text, publicDescription.Text, publicAuthor.Text)
+            if ok then
+                setPublicStatus("Published: " .. tostring(result.name or publicName.Text), true)
+                refreshCommunityCatalog()
+            else
+                setPublicStatus(result, false)
+            end
+        end)
+    end)
+
+    section(ConfigCommunity, "browse community")
+    addChoice(ConfigCommunity, "Public config", "publicConfigSelection", function() return communityLabels end)
+    addButton(ConfigCommunity, "REFRESH CATALOG", refreshCommunityCatalog)
+    addButton(ConfigCommunity, "LOAD SELECTED CONFIG", function()
+        local selectedId = communityByLabel[XCConfig.publicConfigSelection]
+        if not selectedId then setPublicStatus("Select a public config first", false); return end
+        setPublicStatus("Downloading config...", true)
+        task.spawn(function()
+            local ok, result = XCPublicConfigs.Get(selectedId)
+            if not ok then setPublicStatus(result, false); return end
+            if type(result.settings) ~= "table" then setPublicStatus("Server returned invalid settings", false); return end
+            setXCStreamerMode(false)
+            for key, value in pairs(result.settings) do
+                if XCConfig[key] ~= nil and key ~= "publicConfigSelection" then
+                    if type(value) == "table" and value.__type == "Color3" then
+                        XCConfig[key] = Color3.new(tonumber(value.r) or 1, tonumber(value.g) or 1, tonumber(value.b) or 1)
+                    elseif type(value) == "table" and value.__type == "UDim2" then
+                        XCConfig[key] = UDim2.new(tonumber(value.xs) or 0, tonumber(value.xo) or 0,
+                            tonumber(value.ys) or 0, tonumber(value.yo) or 0)
+                    else
+                        XCConfig[key] = deepCopyConfigValue(value)
+                    end
+                end
+            end
+            lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
+            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true
+            lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
+            refreshAll()
+            updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+            applyXCWeather(); applyXCSmokeState(); updateWorldChanger()
+            setAntiAfkEnabled(XCConfig.antiAfkEnabled)
+            setPublicStatus("Loaded: " .. tostring(result.name or selectedId), true)
+            XCNotify("Community config", "Loaded " .. tostring(result.name or selectedId), "success", 2)
+        end)
+    end)
+    addNote(ConfigCommunity, "Only JSON settings are downloaded. Lua code from community entries is never executed.")
 
     applySearch = function()
         local query = searchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
