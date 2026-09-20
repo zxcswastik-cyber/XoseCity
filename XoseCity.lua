@@ -479,6 +479,7 @@ local XCConfig = {
     silentAimVisibleCheck = false,
     silentAimAimHead = true,
     pSilentEnabled = false,
+    silentAimAutoWallEnabled = false,
     wallbangEnabled = false,
     extremeWallbangEnabled = false,
     showSilentFovCircle = true,
@@ -1043,6 +1044,7 @@ end
 local silentAimResolved = nil
 -- Forward declarations: the shoot hook is defined before the Silent Aim helpers.
 local getSilentAimTarget
+local canXCSilentAutoWallTarget
 local silentAimCamPosAim
 local registerXCLocalHitCandidate
 local hitmarkerPendingHits = {}
@@ -1736,11 +1738,20 @@ getSilentAimTarget = function()
         local part = char:FindFirstChild(XCConfig.silentAimAimHead and "Head" or "HumanoidRootPart")
             or char:FindFirstChild("Torso")
         if not part or not part:IsA("BasePart") then continue end
-        -- Visibility and wall penetration are independent controls. Turning
-        -- Visible check off must never grant wallbang by itself.
-        if not (XCConfig.wallbangEnabled or XCConfig.extremeWallbangEnabled) or XCConfig.silentAimVisibleCheck then
-            local visible = isVisibleThroughWalls(part, char)
+        -- Visibility and penetration are independent controls. Silent Aim only
+        -- accepts an obstructed target when a wall mode explicitly allows it.
+        local visible = isVisibleThroughWalls(part, char)
+        if XCConfig.silentAimVisibleCheck then
             if not visible then continue end
+        elseif not visible then
+            if XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled then
+                -- Extreme/forced wallbang intentionally accepts the target.
+            elseif XCConfig.silentAimAutoWallEnabled and type(canXCSilentAutoWallTarget) == "function" then
+                local origin = cam.CFrame.Position
+                if not canXCSilentAutoWallTarget(origin, part, char) then continue end
+            else
+                continue
+            end
         end
         local predictedPos = getKinematicAimPosition(part)
         local point, onScreen = cam:WorldToViewportPoint(predictedPos)
@@ -2012,10 +2023,120 @@ end
 
 -- Native Blox Strike Silent Aim path. Redirecting Bullet._performRaycast keeps
 -- Silent Aim independent from character LookYaw (Spin/Jitter anti-aim) and
--- from the weapon's FireRate. No Camera, Mouse or Send payload fallback is
--- allowed: if this native module is unavailable, Silent Aim stays in WAIT.
+-- from the weapon's FireRate. Normal Silent Aim does not need a Send rewrite;
+-- Extreme Wallbang adds one final Send-stage redirect to match Memesense behavior.
 local xcNativeRaycast = nil
 local xcNativeGetRayIgnore = nil
+
+-- Silent Aim Auto Wall uses the equipped weapon's real penetration value.
+-- Unlike forced Wallbang, this never inflates penetration: an obstructed target
+-- is accepted only when the native Blox Strike ray module can reach the target
+-- with the weapon's own Bullet.Properties.Penetration.
+local xcAutoWallGetWeapon = nil
+local xcAutoWallResolveAfter = 0
+
+local function resolveXCAutoWallProperties()
+    if type(xcAutoWallGetWeapon) == "function" then
+        local ok, weapon = pcall(xcAutoWallGetWeapon)
+        if ok and type(weapon) == "table" then
+            local bullet = rawget(weapon, "Bullet")
+            local properties = type(bullet) == "table" and rawget(bullet, "Properties") or nil
+            if type(properties) == "table" then return properties end
+        end
+    end
+
+    if os.clock() < xcAutoWallResolveAfter then return nil end
+    xcAutoWallResolveAfter = os.clock() + 0.75
+    pcall(function()
+        local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+        local inventoryScript = controllers and controllers:FindFirstChild("InventoryController")
+        local inventory = inventoryScript and require(inventoryScript)
+        if type(inventory) == "table" and type(inventory.peekCurrentEquippedForMovement) == "function" then
+            xcAutoWallGetWeapon = inventory.peekCurrentEquippedForMovement
+        end
+    end)
+
+    if type(xcAutoWallGetWeapon) == "function" then
+        local ok, weapon = pcall(xcAutoWallGetWeapon)
+        if ok and type(weapon) == "table" then
+            local bullet = rawget(weapon, "Bullet")
+            local properties = type(bullet) == "table" and rawget(bullet, "Properties") or nil
+            if type(properties) == "table" then return properties end
+        end
+    end
+    return nil
+end
+
+local function ensureXCAutoWallRaycast()
+    if xcNativeRaycast and type(xcNativeRaycast.cast) == "function"
+        and type(xcNativeRaycast.castThrough) == "function" and type(xcNativeGetRayIgnore) == "function" then
+        return true
+    end
+    pcall(function()
+        local sharedFolder = ReplicatedStorage:FindFirstChild("Shared")
+        local components = ReplicatedStorage:FindFirstChild("Components")
+        local common = components and components:FindFirstChild("Common")
+        local raycastScript = sharedFolder and sharedFolder:FindFirstChild("Raycast")
+        local ignoreScript = common and common:FindFirstChild("GetRayIgnore")
+        if raycastScript and ignoreScript then
+            xcNativeRaycast = require(raycastScript)
+            xcNativeGetRayIgnore = require(ignoreScript)
+        end
+    end)
+    return xcNativeRaycast and type(xcNativeRaycast.cast) == "function"
+        and type(xcNativeRaycast.castThrough) == "function" and type(xcNativeGetRayIgnore) == "function"
+end
+
+local function canXCAutoWallReach(origin, targetPart, targetCharacter, properties)
+    if typeof(origin) ~= "Vector3" or not targetPart or not targetPart.Parent or not ensureXCAutoWallRaycast() then
+        return false
+    end
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties()
+    local penetration = math.max(0, tonumber(properties and properties.Penetration) or 0)
+    if penetration <= 0 then return false end
+
+    local offset = targetPart.Position - origin
+    local distance = offset.Magnitude
+    if distance <= 0.05 then return true end
+    local direction = offset.Unit
+    local ignore = xcNativeGetRayIgnore()
+    local first = xcNativeRaycast.cast(origin, direction * (distance + 0.05), nil, ignore)
+    local firstInstance = type(first) == "table" and (first.instance or first.Instance) or nil
+    if not firstInstance then return true end
+    if typeof(firstInstance) == "Instance" and (firstInstance == targetPart
+        or (targetCharacter and firstInstance:IsDescendantOf(targetCharacter))) then
+        return true
+    end
+    if typeof(first.position) ~= "Vector3" then return false end
+
+    -- castThrough gets the full target distance, but the native penetration
+    -- budget stays untouched. This makes Auto Wall a real damage/penetration
+    -- check rather than another forced wallbang mode.
+    local hits = xcNativeRaycast.castThrough(
+        first.position - direction * 0.001,
+        direction * (distance + 0.05),
+        penetration,
+        ignore
+    )
+    if type(hits) ~= "table" then return false end
+
+    for index, hit in ipairs(hits) do
+        if type(hit) == "table" then
+            local instance = hit.instance or hit.Instance
+            local isExit = hit.Exit
+            if isExit == nil then isExit = index % 2 == 0 end
+            if typeof(instance) == "Instance" and not isExit
+                and (instance == targetPart or (targetCharacter and instance:IsDescendantOf(targetCharacter))) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+canXCSilentAutoWallTarget = function(origin, targetPart, targetCharacter, properties)
+    return canXCAutoWallReach(origin, targetPart, targetCharacter, properties)
+end
 
 local function castXCNativeSilentShot(origin, direction, properties)
     if not xcNativeRaycast or type(xcNativeRaycast.cast) ~= "function"
@@ -2124,6 +2245,10 @@ local function selectXCNativeSilentTarget(origin, properties)
 
         if visible then return candidate end
         if XCConfig.extremeWallbangEnabled and not XCConfig.silentAimVisibleCheck then
+            return candidate
+        end
+        if XCConfig.silentAimAutoWallEnabled and not XCConfig.silentAimVisibleCheck
+            and canXCAutoWallReach(origin, candidate.Part, candidate.Character, properties or {}) then
             return candidate
         end
         if XCConfig.wallbangEnabled and not XCConfig.silentAimVisibleCheck then
@@ -8721,8 +8846,9 @@ function buildXCUI()
         rageBotEnabled = "Aggressive target selection using the Rage FOV and priority settings.",
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
-        wallbangEnabled = "Allows Silent Aim to penetrate surfaces using the game penetration path.",
-        extremeWallbangEnabled = "Extreme wallbang bypasses map surfaces for redirected Silent Aim shots and targets the enemy directly.",
+        silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
+        wallbangEnabled = "Forced wallbang boosts the native penetration path so Silent Aim can shoot through otherwise blocked surfaces.",
+        extremeWallbangEnabled = "Extreme wallbang rewrites the final shot payload to the Silent Aim target, matching the direct-hit Send behavior used by Memesense-style scripts.",
         thirdPersonEnabled = "Moves the native camera behind the character.",
         bunnyHopEnabled = "Smooth XC Bhop with grounded timing and optional air control.",
         bhopMode = "Hold requires jump input; Automatic keeps hopping while movement is active.",
@@ -10448,6 +10574,7 @@ function buildXCUI()
     toggle(L, "Visible check", "silentAimVisibleCheck")
     toggle(L, "Aim at head", "silentAimAimHead")
     toggle(L, "Perfect silent", "pSilentEnabled")
+    toggle(L, "Auto wall", "silentAimAutoWallEnabled")
     toggle(L, "Wallbang", "wallbangEnabled")
     toggle(L, "Extreme wallbang", "extremeWallbangEnabled")
 
@@ -11711,11 +11838,81 @@ end
 
 if sharedXCEnv then sharedXCEnv.XCBeginSilentPayloadTransactionV31 = beginXCSilentPayloadTransactionV31 end
 
+-- Extreme Wallbang V37: Memesense-style final Send rewrite. The game is allowed
+-- to build its normal bullet payload first; immediately before Send(), XC points
+-- every existing hit record at the selected Silent Aim part, then restores the
+-- original tables after the synchronous call. This avoids poisoning automatic
+-- fire while making Extreme fundamentally different from forced penetration.
+local function beginXCExtremePayloadTransactionV37(data)
+    if not XCConfig.extremeWallbangEnabled or not isXCSilentAimRequested()
+        or type(data) ~= "table" or type(data.Bullets) ~= "table" then return nil end
+
+    local targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
+    if not targetPart or not targetPart.Parent then return nil end
+    local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+    if chance < 100 and math.random(1, 100) > chance then return nil end
+    local aimPos = targetPart.Position
+    local activeCamera = Workspace.CurrentCamera or camera
+    local fallbackOrigin = activeCamera and activeCamera.CFrame.Position or nil
+    local undo = {}
+
+    local function remember(tbl, key, value)
+        undo[#undo + 1] = {Table = tbl, Key = key, Value = value}
+    end
+
+    for _, bullet in pairs(data.Bullets) do
+        if type(bullet) == "table" then
+            local origin = bullet.Origin or bullet.StartingPoint or bullet.Position or fallbackOrigin
+            if typeof(origin) == "CFrame" then origin = origin.Position end
+            if typeof(origin) == "Vector3" then
+                local delta = aimPos - origin
+                if delta.Magnitude > 0.001 then
+                    if typeof(bullet.Direction) == "Vector3" then
+                        remember(bullet, "Direction", bullet.Direction)
+                        local magnitude = bullet.Direction.Magnitude
+                        bullet.Direction = delta.Unit * (magnitude > 0.001 and magnitude or 1)
+                    end
+                    if typeof(bullet.Ray) == "Ray" then
+                        remember(bullet, "Ray", bullet.Ray)
+                        bullet.Ray = Ray.new(bullet.Ray.Origin, delta.Unit * bullet.Ray.Direction.Magnitude)
+                    end
+                end
+            end
+
+            -- Match the reference script: do not invent a foreign packet shape;
+            -- rewrite the hit records the game itself created for this shot.
+            if type(bullet.Hits) == "table" then
+                for _, hitData in pairs(bullet.Hits) do
+                    if type(hitData) == "table" then
+                        remember(hitData, "Instance", hitData.Instance)
+                        remember(hitData, "Position", hitData.Position)
+                        hitData.Instance = targetPart
+                        hitData.Position = aimPos
+                    end
+                end
+            end
+        end
+    end
+
+    if #undo == 0 then return nil end
+    silentAimResolved = targetPart
+    if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
+
+    return function()
+        for index = #undo, 1, -1 do
+            local item = undo[index]
+            item.Table[item.Key] = item.Value
+        end
+    end
+end
+
+if sharedXCEnv then sharedXCEnv.XCBeginExtremePayloadTransactionV37 = beginXCExtremePayloadTransactionV37 end
+
 function setupXCSilentSendHook()
     if xcSilentSendHooked then return end
-    -- InventoryController is the authoritative and safer interception point.
-    -- Never install a second random/changing pass for the same shot.
-    if bloxStrikeShootHooked and not UserInputService.TouchEnabled then return end
+    -- Keep the Send hook available on desktop as well: normal Silent Aim still
+    -- prefers the native/InventoryController path, but Extreme Wallbang needs a
+    -- final payload rewrite just before serialization.
     if type(getgc) ~= "function" or type(hookfunction) ~= "function" then return end
 
     local sendFunc = nil
@@ -11740,7 +11937,7 @@ function setupXCSilentSendHook()
     end)
 
     if type(sendFunc) ~= "function" then return end
-    if shootContainer and rawget(shootContainer, "__XCSilentSendHookV31") then
+    if shootContainer and rawget(shootContainer, "__XCSilentSendHookV37") then
         xcSilentSendHooked = true
         return
     end
@@ -11749,12 +11946,23 @@ function setupXCSilentSendHook()
     oldSend = hookfunction(sendFunc, function(...)
         local args = {...}
         local restorePayload = nil
-        if UserInputService.TouchEnabled and type(args[1]) == "table" then
+
+        -- Always consult the shared V37 transaction first. This keeps an old
+        -- persistent hook usable after reinjection because the current script
+        -- replaces the shared callback even though the hook closure survives.
+        if type(args[1]) == "table" then
+            local beginExtreme = sharedXCEnv and sharedXCEnv.XCBeginExtremePayloadTransactionV37
+                or beginXCExtremePayloadTransactionV37
+            local okTransaction, restore = pcall(beginExtreme, args[1])
+            if okTransaction and type(restore) == "function" then restorePayload = restore end
+        end
+
+        if not restorePayload and UserInputService.TouchEnabled and type(args[1]) == "table" then
             local beginTransaction = sharedXCEnv and sharedXCEnv.XCBeginSilentPayloadTransactionV31
                 or beginXCSilentPayloadTransactionV31
             local okTransaction, restore = pcall(beginTransaction, args[1])
             if okTransaction and type(restore) == "function" then restorePayload = restore end
-        elseif type(args[1]) == "table" then
+        elseif not restorePayload and type(args[1]) == "table" and not xcNativeSilentHooked and not bloxStrikeShootHooked then
             local prepare = sharedXCEnv and sharedXCEnv.XCPrepareSilentSendPayloadV28
             local okPrepare, prepared = pcall(function()
                 if type(prepare) == "function" then return prepare(args[1]) end
@@ -11778,6 +11986,7 @@ function setupXCSilentSendHook()
     if shootContainer then rawset(shootContainer, "__XCSilentSendHookV23", true) end
     if shootContainer then rawset(shootContainer, "__XCSilentSendHookV28", true) end
     if shootContainer then rawset(shootContainer, "__XCSilentSendHookV31", true) end
+    if shootContainer then rawset(shootContainer, "__XCSilentSendHookV37", true) end
     xcSilentSendHooked = true
 end
 
@@ -11786,7 +11995,18 @@ end
 -- ==========================================
 pcall(setupXCNativeSilentHook)
 pcall(setupBloxStrikeShootHook)
+pcall(setupXCSilentSendHook)
 pcall(setupXCCharacterInputHook)
+task.spawn(function()
+    while xcSessionActive() and not xcSilentSendHooked do
+        if XCConfig.extremeWallbangEnabled then
+            pcall(setupXCSilentSendHook)
+            if not xcSilentSendHooked then task.wait(1.0) end
+        else
+            task.wait(0.5)
+        end
+    end
+end)
 pcall(setupXCCustomHandsHook)
 task.spawn(function()
     while xcSessionActive() do
