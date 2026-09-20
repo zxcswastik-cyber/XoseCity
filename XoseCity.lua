@@ -3051,6 +3051,12 @@ task.spawn(function()
 end)
 
 -- ==========================================
+-- XC stage-1 wrapper
+-- Split here so each Luau function stays well below the 200-local limit.
+-- ==========================================
+function XCInitStage1()
+
+-- ==========================================
 -- EXTRA XC MODULES
 -- Skin/knife/gloves are already handled above.
 -- These modules are intentionally self-contained so they do not
@@ -8005,6 +8011,12 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, targetYaw, 0)
 end))
 
+
+-- ==========================================
+-- XC stage-2 wrapper
+-- Keeps the main chunk below Luau's 200-local limit.
+-- ==========================================
+function XCInitStage2()
 -- ==========================================
 -- GROUND CHECK & MOBILE INPUT HOOKS
 -- ==========================================
@@ -12223,3 +12235,12 @@ end
 if type(getgenv) == "function" then
     pcall(function() getgenv().XCConfigSystem = XCConfigSystem end)
 end
+end
+
+XCInitStage2()
+XCInitStage2 = nil
+
+end -- XCInitStage1
+
+XCInitStage1()
+XCInitStage1 = nil
