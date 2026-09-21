@@ -398,11 +398,16 @@ local XCConfig = {
     triggerbotMode = "Crosshair",
     antiAimEnabled = false,
     antiAimMode = "Spin",
+    antiAimFreestanding = false,
+    antiAimAntiBruteforce = false,
     bunnyHopEnabled = false,
     slideEnabled = false,
     speedEnabled = false,
     flightEnabled = false,
     nametagsEnabled = false,
+    tagBackgroundEnabled = true,
+    tagOutlineEnabled = true,
+    tagHealthColorEnabled = true,
     boxEspEnabled = false,
     cornerBoxEnabled = false,
     healthBarEnabled = false,
@@ -422,8 +427,12 @@ local XCConfig = {
     nightModeEnabled = false,
     rageBotEnabled = false,
     rageAutoFire = true,
+    rageTargetLockEnabled = true,
+    rageAdaptiveHitbox = true,
+    rageLethalPriority = true,
+    ragePreferVisible = true,
 
-    -- HvH pack v39: Multipoint + Minimum Damage.
+    -- HvH pack: Multipoint + Minimum Damage.
     multipointEnabled = false,
     multipointScale = 0.62,
     minimumDamageEnabled = false,
@@ -473,6 +482,7 @@ local XCConfig = {
     -- Sliders & Values
     rageFov = 360,
     rageTargetMode = "Distance",
+    rageTargetLockTime = 0.35,
     priorityPlayerName = "None",
     aimFov = 160,
     triggerbotFov = 160,
@@ -538,6 +548,8 @@ local XCConfig = {
     antiAimYaw = 180,
     antiAimJitter = 60,
     antiAimInterval = 0.15,
+    antiAimFreestandingRange = 900,
+    antiAimBruteforceTime = 1.20,
     skeletonThickness = 1.5,
     bhopJumpPower = 52,
     bhopSpeedBoost = 1.35,
@@ -570,6 +582,9 @@ local XCConfig = {
     espMaxDist = 3000,
     espTextSize = 8.5,
     tagTransparency = 0.25,
+    tagNameMode = "Display name",
+    tagLayout = "Compact",
+    tagOffsetY = 5,
     espShowDistance = true,
     espShowHealth = true,
     tagShowWeapon = true,
@@ -876,6 +891,10 @@ function syncXCUserTheme()
     currentTheme.HEColor = xcConfigColor("grenadeHE", currentTheme.HEColor)
     currentTheme.SmokeColor = xcConfigColor("grenadeSmoke", currentTheme.SmokeColor)
     currentTheme.MolotovColor = xcConfigColor("grenadeMolotov", currentTheme.MolotovColor)
+
+    if type(XCRefreshWatermarkTheme) == "function" then
+        pcall(XCRefreshWatermarkTheme)
+    end
 end
 syncXCUserTheme()
 
@@ -2497,14 +2516,15 @@ getSilentAimTarget = function()
 end
 
 local function getXCSilentShotOrigin(activeCamera)
-    activeCamera = activeCamera or Workspace.CurrentCamera or camera
-    if XCConfig.thirdPersonEnabled then
-        local character = player.Character
-        local originPart = character and (character:FindFirstChild("CameraPart")
-            or character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart"))
-        if originPart and originPart:IsA("BasePart") then return originPart.Position end
-    end
-    return activeCamera and activeCamera.CFrame.Position or nil
+    -- Blox Strike resolves the shooting ray through the active camera.
+    -- Third person changes where the character is rendered, not the origin
+    -- used by Silent/Rage/Trigger target validation.
+    activeCamera = activeCamera
+        or Workspace.CurrentCamera
+        or camera
+    return activeCamera
+        and activeCamera.CFrame.Position
+        or nil
 end
 
 silentAimCamPosAim = function(targetPart)
@@ -2959,8 +2979,13 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
         Thickness = nil,
         ThicknessKnown = false,
         Surfaces = 0,
+        Blockers = 0,
+        NativeHitCount = 0,
+        TargetHitIndex = nil,
         FirstBlocker = nil,
+        PenetrationBudget = 0,
     }
+
     if typeof(origin) ~= "Vector3"
         or not targetPart
         or not targetPart.Parent then
@@ -2971,7 +2996,9 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
         and targetPosition
         or targetPart.Position
     local offset = position - origin
-    if offset.Magnitude <= 0.05 then
+    local distance = offset.Magnitude
+
+    if distance <= 0.05 then
         info.Visible = true
         info.Reachable = true
         info.Thickness = 0
@@ -2998,8 +3025,13 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
         or {}
 
     local direction = offset.Unit
-    local distance = offset.Magnitude
     local ignore = xcNativeGetRayIgnore()
+    local penetration = math.max(
+        0,
+        tonumber(properties.Penetration) or 0
+    )
+    info.PenetrationBudget = penetration
+
     local first = xcNativeRaycast.cast(
         origin,
         direction * (distance + 0.05),
@@ -3008,6 +3040,9 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
     )
     local firstInstance = type(first) == "table"
         and (first.instance or first.Instance)
+        or nil
+    local firstPosition = type(first) == "table"
+        and (first.position or first.Position)
         or nil
 
     if not firstInstance then
@@ -3030,28 +3065,31 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
         ) then
         info.Visible = true
         info.Reachable = true
+        info.TargetHitIndex = 0
         info.Thickness = 0
         info.ThicknessKnown = true
         return info
     end
 
     info.FirstBlocker = firstInstance
+    info.Blockers = 1
 
-    local penetration = math.max(
-        0,
-        tonumber(properties.Penetration) or 0
-    )
-    local firstPosition = type(first) == "table"
-        and (first.position or first.Position)
-        or nil
     if penetration <= 0
         or typeof(firstPosition) ~= "Vector3" then
         return info
     end
 
+    -- Use the same remaining-distance calculation as the redirected bullet.
+    -- This keeps target validation and Bullet._performRaycast aligned.
+    local traveled = (firstPosition - origin).Magnitude
+    local throughDistance = math.max(
+        distance - traveled + 0.05,
+        0.001
+    )
+
     local hits = xcNativeRaycast.castThrough(
         firstPosition - direction * 0.001,
-        direction * (distance + 0.05),
+        direction * throughDistance,
         penetration,
         ignore
     )
@@ -3059,52 +3097,63 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
         return info
     end
 
-    -- Reaching the target is binary and does not depend on guessing whether
-    -- the native module labels a target record as an entry or an exit.
-    for _, hit in ipairs(hits) do
-        if type(hit) == "table" then
-            local instance = hit.instance or hit.Instance
-            if typeof(instance) == "Instance"
-                and (
-                    instance == targetPart
-                    or (
-                        targetCharacter
-                        and instance:IsDescendantOf(
-                            targetCharacter
-                        )
-                    )
-                ) then
-                info.Reachable = true
-                break
-            end
-        end
-    end
-
-    -- Thickness is reported only when the native ray result explicitly
-    -- exposes entry/exit semantics. The previous implementation guessed by
-    -- odd/even index, which made Minimum Damage depend on an invented format.
     local entryPosition = nil
     local thickness = 0
     local sawExplicitExit = false
+    local lastBlocker = firstInstance
+
     for index, hit in ipairs(hits) do
-        if type(hit) == "table" then
-            local positionHit = hit.position or hit.Position
-            local isExit = XCReadRayHitExit(
-                hit,
-                index
-            )
-            if isExit ~= nil
-                and typeof(positionHit) == "Vector3" then
-                sawExplicitExit = true
-                if not isExit then
-                    entryPosition = positionHit
-                    info.Surfaces += 1
-                elseif entryPosition then
-                    thickness += (
-                        positionHit - entryPosition
-                    ).Magnitude
-                    entryPosition = nil
-                end
+        if type(hit) ~= "table" then
+            continue
+        end
+
+        local instance = hit.instance or hit.Instance
+        local positionHit = hit.position or hit.Position
+
+        if typeof(positionHit) == "Vector3"
+            and (positionHit - origin).Magnitude
+                > distance + 0.12 then
+            break
+        end
+
+        info.NativeHitCount += 1
+
+        if typeof(instance) == "Instance"
+            and (
+                instance == targetPart
+                or (
+                    targetCharacter
+                    and instance:IsDescendantOf(
+                        targetCharacter
+                    )
+                )
+            ) then
+            info.Reachable = true
+            info.TargetHitIndex = index
+            break
+        end
+
+        if typeof(instance) == "Instance"
+            and instance ~= lastBlocker then
+            info.Blockers += 1
+            lastBlocker = instance
+        end
+
+        local isExit = XCReadRayHitExit(
+            hit,
+            index
+        )
+        if isExit ~= nil
+            and typeof(positionHit) == "Vector3" then
+            sawExplicitExit = true
+            if not isExit then
+                entryPosition = positionHit
+                info.Surfaces += 1
+            elseif entryPosition then
+                thickness += (
+                    positionHit - entryPosition
+                ).Magnitude
+                entryPosition = nil
             end
         end
     end
@@ -3115,6 +3164,32 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
     end
 
     return info
+end
+
+function XCShotPathQuality(path)
+    if type(path) ~= "table" then
+        return math.huge
+    end
+    if path.Visible then
+        return 0
+    end
+    if not path.Reachable then
+        return math.huge
+    end
+
+    local score = 18
+        + math.max(0, tonumber(path.Blockers) or 0) * 3
+        + math.max(0, tonumber(path.Surfaces) or 0) * 2
+
+    if path.ThicknessKnown
+        and tonumber(path.Thickness) then
+        score += math.min(
+            20,
+            math.max(0, path.Thickness) * 1.5
+        )
+    end
+
+    return score
 end
 
 function XCShotPathAllowed(path, requireVisible)
@@ -3538,6 +3613,7 @@ local function selectXCNativeSilentTarget(origin, properties)
                 end
 
                 local score = radius
+                    + XCShotPathQuality(path)
                     + (multipoint.Rank or 0)
                         * 0.0001
 
@@ -3629,8 +3705,7 @@ local function redirectXCNativeSilentShot(bullet, shot)
     end
 
     local shotOrigin =
-        XCConfig.thirdPersonEnabled
-            and getXCSilentShotOrigin()
+        getXCSilentShotOrigin()
             or shot.Origin
 
     local target = selectXCNativeSilentTarget(
@@ -3771,8 +3846,7 @@ local function processXCNativeLocalShot(bullet, shot)
 
         if XCRollSilentHitChance() then
             local rageOrigin =
-                XCConfig.thirdPersonEnabled
-                    and getXCSilentShotOrigin()
+                getXCSilentShotOrigin()
                     or shot.Origin
 
             local rageTarget = getRageTarget(
@@ -3819,8 +3893,7 @@ local function processXCNativeLocalShot(bullet, shot)
             ) then
 
             local shotOrigin =
-                XCConfig.thirdPersonEnabled
-                    and getXCSilentShotOrigin()
+                getXCSilentShotOrigin()
                     or shot.Origin
 
             local targetPosition =
@@ -8093,6 +8166,37 @@ wmMetrics.Font = Enum.Font.GothamBold
 local fpsCounter = 0
 local lastFpsUpdate = tick()
 
+function XCRefreshWatermarkTheme()
+    if not wmCard
+        or not wmCard.Parent then
+        return
+    end
+
+    wmCard.BackgroundColor3 =
+        currentTheme.Background
+    wmCard.BackgroundTransparency =
+        math.clamp(
+            tonumber(
+                XCConfig.menuTransparency
+            ) or 0,
+            0,
+            0.45
+        ) * 0.55
+
+    wmStroke.Color =
+        currentTheme.Border
+    wmDot.BackgroundColor3 =
+        currentTheme.Accent
+    wmTitle.TextColor3 =
+        currentTheme.Accent
+    wmDivider.BackgroundColor3 =
+        currentTheme.Border
+    wmMetrics.TextColor3 =
+        currentTheme.TextSecondary
+end
+
+XCRefreshWatermarkTheme()
+
 -- ==========================================
 -- GRENADE TRAJECTORY ENGINE
 -- ==========================================
@@ -9061,10 +9165,48 @@ end
 -- ==========================================
 -- RAGEBOT TT
 -- ==========================================
+XCRageLockState = XCRageLockState or {
+    Player = nil,
+    Until = 0,
+}
+
+function XCGetRageAimParts(character)
+    if not character then return {} end
+
+    if not XCConfig.rageAdaptiveHitbox then
+        return XCGetAimParts(
+            character,
+            XCConfig.silentAimAimHead == true
+        )
+    end
+
+    local result = {}
+    local seen = {}
+
+    local function add(name)
+        local part = character:FindFirstChild(name)
+        if part
+            and part:IsA("BasePart")
+            and not seen[part] then
+            seen[part] = true
+            result[#result + 1] = part
+        end
+    end
+
+    add("Head")
+    add("UpperTorso")
+    add("Torso")
+    add("HumanoidRootPart")
+    add("LowerTorso")
+
+    return result
+end
+
 function getRageTarget(originOverride, propertiesOverride)
     local cam = Workspace.CurrentCamera or camera
     if not cam then return nil end
 
+    -- Blox Strike's shot ray is camera-driven.
     local origin = typeof(originOverride) == "Vector3"
         and originOverride
         or cam.CFrame.Position
@@ -9090,6 +9232,14 @@ function getRageTarget(originOverride, propertiesOverride)
     local look = cam.CFrame.LookVector
     local bestTarget = nil
     local bestScore = math.huge
+    local now = os.clock()
+
+    if type(XCRageLockState) ~= "table" then
+        XCRageLockState = {
+            Player = nil,
+            Until = 0,
+        }
+    end
 
     for _, plr in ipairs(
         Players:GetPlayers()
@@ -9110,10 +9260,7 @@ function getRageTarget(originOverride, propertiesOverride)
         end
 
         for _, part in ipairs(
-            XCGetAimParts(
-                char,
-                XCConfig.silentAimAimHead == true
-            )
+            XCGetRageAimParts(char)
         ) do
             for _, multipoint in ipairs(
                 XCBuildMultipoints(part)
@@ -9148,10 +9295,6 @@ function getRageTarget(originOverride, propertiesOverride)
                     position
                 )
 
-                -- Ragebot reuses Silent Aim's visibility semantics:
-                -- Visible Check ON means a hard direct-visibility gate.
-                -- With it OFF, hidden targets are accepted only by Auto Wall
-                -- or one of the explicit wallbang modes.
                 if not XCShotPathAllowed(
                     path,
                     XCConfig.silentAimVisibleCheck
@@ -9177,10 +9320,10 @@ function getRageTarget(originOverride, propertiesOverride)
                 local score
                 if XCConfig.rageTargetMode
                     == "Health" then
-                    score = hum.Health
+                    score = hum.Health * 8
                 elseif XCConfig.rageTargetMode
                     == "FOV" then
-                    score = angle
+                    score = angle * 1400
                 elseif XCConfig.rageTargetMode
                     == "Priority" then
                     local priorityName =
@@ -9206,6 +9349,38 @@ function getRageTarget(originOverride, propertiesOverride)
                     score = distance
                 end
 
+                -- Prefer a path that the current weapon can resolve cleanly.
+                score += XCShotPathQuality(path)
+
+                if XCConfig.ragePreferVisible
+                    and not path.Visible then
+                    score += 55
+                end
+
+                if XCConfig.rageLethalPriority
+                    and estimatedDamage
+                    and estimatedDamage
+                        >= hum.Health then
+                    score -= 2500
+                end
+
+                -- Head gets a mild preference only after path and lethal
+                -- validation. This avoids forcing a blocked head point while a
+                -- torso point is directly hittable.
+                if part.Name == "Head" then
+                    score -= 2.5
+                end
+
+                if XCConfig.rageTargetLockEnabled
+                    and XCRageLockState.Player == plr
+                    and now <= (
+                        tonumber(
+                            XCRageLockState.Until
+                        ) or 0
+                    ) then
+                    score -= 900
+                end
+
                 score += (
                     multipoint.Rank or 0
                 ) * 0.00001
@@ -9229,10 +9404,28 @@ function getRageTarget(originOverride, propertiesOverride)
                         Visible = path.Visible,
                         Reachable =
                             path.Reachable,
+                        Path = path,
                     }
                 end
             end
         end
+    end
+
+    if bestTarget
+        and XCConfig.rageTargetLockEnabled then
+        XCRageLockState.Player =
+            bestTarget.Player
+        XCRageLockState.Until =
+            now + math.clamp(
+                tonumber(
+                    XCConfig.rageTargetLockTime
+                ) or 0.35,
+                0.05,
+                1.5
+            )
+    elseif not bestTarget then
+        XCRageLockState.Player = nil
+        XCRageLockState.Until = 0
     end
 
     return bestTarget
@@ -9245,120 +9438,27 @@ local triggerRayParams = RaycastParams.new()
 triggerRayParams.FilterType = Enum.RaycastFilterType.Exclude
 triggerRayParams.IgnoreWater = true
 
--- Conservative BloxStrike material limits adapted from the existing
--- penetration model. Values are maximum accumulated thickness.
-local triggerMaterialLimits = {
-    [Enum.Material.Asphalt] = 0.25, [Enum.Material.Basalt] = 0.25,
-    [Enum.Material.Brick] = 0.25, [Enum.Material.Cobblestone] = 0.25,
-    [Enum.Material.Concrete] = 0.25, [Enum.Material.CrackedLava] = 0.25,
-    [Enum.Material.DiamondPlate] = 0.25, [Enum.Material.Foil] = 0.25,
-    [Enum.Material.Glacier] = 0.25, [Enum.Material.Granite] = 0.25,
-    [Enum.Material.Grass] = 0.25, [Enum.Material.Ground] = 0.25,
-    [Enum.Material.Ice] = 0.25, [Enum.Material.LeafyGrass] = 0.25,
-    [Enum.Material.Limestone] = 0.25, [Enum.Material.Marble] = 0.25,
-    [Enum.Material.Metal] = 0.25, [Enum.Material.Mud] = 0.25,
-    [Enum.Material.Pavement] = 0.25, [Enum.Material.Rock] = 0.25,
-    [Enum.Material.Salt] = 0.25, [Enum.Material.Sand] = 0.25,
-    [Enum.Material.Sandstone] = 0.25, [Enum.Material.Slate] = 0.25,
-    [Enum.Material.Snow] = 0.25, [Enum.Material.ForceField] = 0.25,
-    [Enum.Material.Neon] = 0.25, [Enum.Material.CorrodedMetal] = 0.25,
-    [Enum.Material.Pebble] = 0.25, [Enum.Material.CeramicTiles] = 0.25,
-    [Enum.Material.Plaster] = 0.25,
-    [Enum.Material.Plastic] = 7, [Enum.Material.SmoothPlastic] = 7,
-    [Enum.Material.Wood] = 7, [Enum.Material.WoodPlanks] = 7,
-    [Enum.Material.Cardboard] = 7, [Enum.Material.Glass] = 100,
-    [Enum.Material.Fabric] = 100,
-}
+-- v44: Triggerbot no longer carries a second hand-written material model.
+-- All hidden-target decisions go through XCInspectShotPath and the game's
+-- native Raycast.castThrough penetration budget.
 
-local triggerMaterialVariantLimits = {
-    IndoorWall = 0.25,
-    ["Sandy Brick"] = 0.25,
-}
-
-function triggerIsCharacterPart(part, targetModel)
-    return part and targetModel and part:IsDescendantOf(targetModel)
-end
-
-function triggerFindTargetAlongRay(origin, direction, targetModel)
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Exclude
-    params.IgnoreWater = true
-    local filter = {player.Character}
-    params.FilterDescendantsInstances = filter
-
-    local currentOrigin = origin
-    local remaining = direction.Unit * math.min(direction.Magnitude, 1000)
-    local accumulated = {}
-    local steps = 0
-
-    while remaining.Magnitude > 0.05 and steps < 100 do
-        steps += 1
-        local hit = Workspace:Raycast(currentOrigin, remaining, params)
-        if not hit or not hit.Instance then
-            return nil
-        end
-
-        if triggerIsCharacterPart(hit.Instance, targetModel) then
-            return hit
-        end
-
-        local part = hit.Instance
-        if not part:IsA("BasePart") then
-            table.insert(filter, part)
-            params.FilterDescendantsInstances = filter
-            currentOrigin = hit.Position + remaining.Unit * 0.01
-            remaining = direction.Unit * math.max(0, (origin + direction.Unit * math.min(direction.Magnitude, 1000) - currentOrigin).Magnitude)
-            continue
-        end
-
-        -- Find the exit point through THIS exact hit part.
-        local backParams = RaycastParams.new()
-        backParams.FilterType = Enum.RaycastFilterType.Include
-        backParams.IgnoreWater = true
-        backParams.FilterDescendantsInstances = {part}
-
-        local farPoint = hit.Position + remaining.Unit * 1000
-        local exitHit = Workspace:Raycast(farPoint, hit.Position - farPoint, backParams)
-        if not exitHit then
-            return nil
-        end
-
-        local thickness = (hit.Position - exitHit.Position).Magnitude
-        local variant = part.MaterialVariant
-        local limit = triggerMaterialVariantLimits[variant]
-        local key = variant ~= "" and variant or part.Material
-
-        if limit then
-            accumulated[key] = (accumulated[key] or 0) + thickness
-            if accumulated[key] > limit then
-                return nil
-            end
-        else
-            limit = triggerMaterialLimits[part.Material]
-            if limit == nil then
-                -- Unknown surfaces are treated conservatively rather than
-                -- allowing a blind shot through an arbitrary map object.
-                limit = 0.25
-            end
-            accumulated[key] = (accumulated[key] or 0) + thickness
-            if accumulated[key] > limit then
-                return nil
-            end
-        end
-
-        table.insert(filter, part)
-        params.FilterDescendantsInstances = filter
-
-        local endPoint = origin + direction.Unit * math.min(direction.Magnitude, 1000)
-        currentOrigin = exitHit.Position + direction.Unit * 0.01
-        local left = (endPoint - currentOrigin).Magnitude
-        if left <= 0.05 then
-            return nil
-        end
-        remaining = direction.Unit * left
+function XCEnsureCombatRedirectReady()
+    if xcNativeSilentHooked then
+        return true
     end
 
-    return nil
+    pcall(setupXCNativeSilentHook)
+    if xcNativeSilentHooked then
+        return true
+    end
+
+    if UserInputService.TouchEnabled then
+        pcall(setupXCBulletInterceptHookV29)
+        return xcBulletInterceptHooked
+            or xcMobileCameraSilentHooked
+    end
+
+    return false
 end
 
 function triggerbotFire(
@@ -9372,6 +9472,18 @@ function triggerbotFire(
         and not XCRollSilentHitChance() then
         -- Auto-fire does not fire an ordinary center-screen bullet when the
         -- Rage hit-chance roll fails. It simply waits for the next cycle.
+        return false
+    end
+
+    local needsRedirect =
+        typeof(forcedPart) == "Instance"
+        and redirectMode ~= "TriggerVisible"
+
+    -- Off-crosshair Trigger FOV / Silent FOV / Rage shots must never call the
+    -- weapon until a real bullet-direction interceptor is installed. This is
+    -- the hard guard against the old "fires under the crosshair" failure.
+    if needsRedirect
+        and not XCEnsureCombatRedirectReady() then
         return false
     end
 
@@ -9408,6 +9520,8 @@ function triggerbotFire(
                     redirectMode == "Rage"
                     and true
                     or nil,
+                CameraOrigin =
+                    getXCSilentShotOrigin(),
                 CreatedAt = now,
                 Expires = now + 0.30,
                 FirstUseAt = nil,
@@ -10008,6 +10122,177 @@ function runMobileTriggerbot()
     end
 end
 
+function XCColorToHex(color)
+    if typeof(color) ~= "Color3" then
+        return "#FFFFFF"
+    end
+    return string.format(
+        "#%02X%02X%02X",
+        math.clamp(
+            math.floor(color.R * 255 + 0.5),
+            0,
+            255
+        ),
+        math.clamp(
+            math.floor(color.G * 255 + 0.5),
+            0,
+            255
+        ),
+        math.clamp(
+            math.floor(color.B * 255 + 0.5),
+            0,
+            255
+        )
+    )
+end
+
+function XCMarkupEscape(value)
+    value = tostring(value or "")
+    value = value:gsub("&", "&amp;")
+    value = value:gsub("<", "&lt;")
+    value = value:gsub(">", "&gt;")
+    value = value:gsub('"', "&quot;")
+    return value
+end
+
+function XCBuildNametagText(
+    plr,
+    char,
+    dist,
+    health,
+    maxHealth,
+    isVisible
+)
+    local mode = tostring(
+        XCConfig.tagNameMode
+            or "Display name"
+    )
+
+    local displayName =
+        XCMarkupEscape(
+            plr.DisplayName
+                or plr.Name
+                or "player"
+        )
+    local username =
+        XCMarkupEscape(
+            plr.Name or displayName
+        )
+
+    local nameText
+    if mode == "Username" then
+        nameText = "@" .. username
+    elseif mode == "Both" then
+        if displayName ~= username then
+            nameText = string.format(
+                "%s (@%s)",
+                displayName,
+                username
+            )
+        else
+            nameText = displayName
+        end
+    else
+        nameText = displayName
+    end
+
+    local details = {}
+
+    if XCConfig.espShowDistance then
+        details[#details + 1] =
+            string.format(
+                "%dm",
+                math.floor(
+                    tonumber(dist) or 0
+                )
+            )
+    end
+
+    if XCConfig.espShowHealth
+        and health then
+        local hp = math.max(
+            0,
+            math.floor(health + 0.5)
+        )
+        local hpText =
+            tostring(hp) .. "HP"
+
+        if XCConfig.tagHealthColorEnabled then
+            local ratio = math.clamp(
+                health
+                    / math.max(
+                        1,
+                        tonumber(maxHealth)
+                            or 100
+                    ),
+                0,
+                1
+            )
+            local hpColor
+            if ratio > 0.62 then
+                hpColor =
+                    currentTheme.HealthHigh
+            elseif ratio > 0.32 then
+                hpColor =
+                    currentTheme.HealthMid
+            else
+                hpColor =
+                    currentTheme.HealthLow
+            end
+
+            if not isVisible then
+                hpColor =
+                    currentTheme.Enemy_Hidden
+            end
+
+            hpText = string.format(
+                '<font color="%s">%s</font>',
+                XCColorToHex(hpColor),
+                hpText
+            )
+        end
+
+        details[#details + 1] = hpText
+    end
+
+    if XCConfig.tagShowWeapon
+        and not XCConfig.weaponEspEnabled then
+        local weaponName =
+            getXCEquippedWeapon(
+                plr,
+                char
+            )
+        if type(weaponName) == "string"
+            and weaponName ~= "" then
+            details[#details + 1] =
+                XCMarkupEscape(weaponName)
+        end
+    end
+
+    if #details == 0 then
+        return nameText
+    end
+
+    if tostring(
+        XCConfig.tagLayout
+            or "Compact"
+    ) == "Stacked" then
+        return nameText
+            .. "\n"
+            .. table.concat(
+                details,
+                "  •  "
+            )
+    end
+
+    return nameText
+        .. "  •  "
+        .. table.concat(
+            details,
+            "  •  "
+        )
+end
+
 -- ==========================================
 -- 2D ESP 
 -- ==========================================
@@ -10214,8 +10499,8 @@ function getOrCreateScreenEsp(plr)
     local tagCard = Instance.new("Frame", overlayContainer)
     tagCard.Name = "TagCard_" .. plr.Name
     tagCard.AnchorPoint = Vector2.new(0.5, 1)
-    tagCard.Size = UDim2.new(0, 0, 0, 16)
-    tagCard.AutomaticSize = Enum.AutomaticSize.X
+    tagCard.Size = UDim2.new(0, 0, 0, 0)
+    tagCard.AutomaticSize = Enum.AutomaticSize.XY
     tagCard.BackgroundColor3 = currentTheme.Sidebar
     tagCard.BackgroundTransparency = XCConfig.tagTransparency
     tagCard.BorderSizePixel = 0
@@ -10228,16 +10513,21 @@ function getOrCreateScreenEsp(plr)
     cardStroke.Enabled = false
 
     local pad = Instance.new("UIPadding", tagCard)
-    pad.PaddingRight = UDim.new(0, 6)
-    pad.PaddingLeft = UDim.new(0, 6)
+    pad.PaddingRight = UDim.new(0, 7)
+    pad.PaddingLeft = UDim.new(0, 7)
+    pad.PaddingTop = UDim.new(0, 3)
+    pad.PaddingBottom = UDim.new(0, 3)
 
     local tagLabel = Instance.new("TextLabel", tagCard)
-    tagLabel.AutomaticSize = Enum.AutomaticSize.X
-    tagLabel.Size = UDim2.new(0, 0, 1, 0)
+    tagLabel.AutomaticSize = Enum.AutomaticSize.XY
+    tagLabel.Size = UDim2.new(0, 0, 0, 0)
     tagLabel.BackgroundTransparency = 1
     tagLabel.TextColor3 = currentTheme.NametagTextColor
     tagLabel.TextSize = XCConfig.espTextSize
     tagLabel.Font = Enum.Font.GothamBold
+    tagLabel.RichText = true
+    tagLabel.TextXAlignment = Enum.TextXAlignment.Center
+    tagLabel.TextYAlignment = Enum.TextYAlignment.Center
 
     local skeletonLines = {}
     for index = 1, #XCFeatureState.skeletonEdges do
@@ -10740,33 +11030,73 @@ function renderTacticalOverlay()
                     end
 
                     if XCConfig.nametagsEnabled then
-                        esp.TagCard.BackgroundTransparency = XCConfig.tagTransparency
-                        esp.TagCardStroke.Enabled = false
-                        esp.TagLabel.TextColor3 = currentTheme.Enemy_Accent
-                        esp.TagLabel.TextSize = XCConfig.espTextSize
+                        esp.TagCard.BackgroundColor3 =
+                            currentTheme.Sidebar
+                        esp.TagCard.BackgroundTransparency =
+                            XCConfig.tagBackgroundEnabled
+                            and math.clamp(
+                                tonumber(
+                                    XCConfig.tagTransparency
+                                ) or 0.25,
+                                0,
+                                1
+                            )
+                            or 1
 
-                        local baseName = plr.DisplayName or plr.Name
-                        local infoText = baseName
-                        
-                        if XCConfig.espShowDistance then
-                            infoText = string.format("%s [%dm]", infoText, math.floor(dist))
-                        end
-                        if XCConfig.espShowHealth and health then
-                            infoText = string.format("%s [%dHP]", infoText, math.floor(health + 0.5))
-                        end
-                        if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then
-                            local tool = char:FindFirstChildOfClass("Tool")
-                            if tool then
-                                infoText = string.format("%s {%s}", infoText, tool.Name)
-                            end
+                        esp.TagCardStroke.Enabled =
+                            XCConfig.tagOutlineEnabled
+                                == true
+                        esp.TagCardStroke.Color =
+                            sideColor:Lerp(
+                                currentTheme.Border,
+                                0.52
+                            )
+
+                        esp.TagLabel.TextColor3 =
+                            sideColor
+                        esp.TagLabel.TextSize =
+                            math.clamp(
+                                tonumber(
+                                    XCConfig.espTextSize
+                                ) or 9,
+                                8,
+                                20
+                            )
+
+                        local infoText =
+                            XCBuildNametagText(
+                                plr,
+                                char,
+                                dist,
+                                health,
+                                maxHealth,
+                                isVisible
+                            )
+
+                        if esp.LastText
+                            ~= infoText then
+                            esp.TagLabel.Text =
+                                infoText
+                            esp.LastText =
+                                infoText
                         end
 
-                        if esp.LastText ~= infoText then
-                            esp.TagLabel.Text = infoText
-                            esp.LastText = infoText
-                        end
-
-                        esp.TagCard.Position = UDim2.new(0, boxPosX + boxWidth * 0.5, 0, boxPosY - 4)
+                        esp.TagCard.Position =
+                            UDim2.new(
+                                0,
+                                boxPosX
+                                    + boxWidth * 0.5,
+                                0,
+                                boxPosY
+                                    - math.clamp(
+                                        tonumber(
+                                            XCConfig
+                                                .tagOffsetY
+                                        ) or 5,
+                                        0,
+                                        30
+                                    )
+                            )
                         esp.TagCard.Visible = true
                     else
                         esp.TagCard.Visible = false
@@ -11206,14 +11536,311 @@ end
 -- One resolver is shared by the native input hook and the compatibility
 -- fallback. This keeps every preset visually identical on both paths and
 -- avoids running a second anti-aim engine.
-local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart)
+local XCAntiAimRuntime = XCAntiAimRuntime or {
+    SafeSide = 0,
+    NextFreestandingScan = 0,
+    BruteforceSide = 1,
+    BruteforceUntil = 0,
+    LastHealth = nil,
+}
+
+function XCResolveFreestandingSide(rootPart)
+    if not XCConfig.antiAimFreestanding
+        or not rootPart
+        or not rootPart:IsA("BasePart") then
+        return 0
+    end
+
+    local runtime = XCAntiAimRuntime
+    local now = os.clock()
+    if now < (
+        tonumber(runtime.NextFreestandingScan)
+            or 0
+    ) then
+        return tonumber(runtime.SafeSide) or 0
+    end
+    runtime.NextFreestandingScan = now + 0.10
+
+    local nearestChar = nil
+    local nearestRoot = nil
+    local nearestDistance = math.huge
+    local maxRange = math.clamp(
+        tonumber(
+            XCConfig.antiAimFreestandingRange
+        ) or 900,
+        100,
+        2500
+    )
+
+    for _, other in ipairs(
+        Players:GetPlayers()
+    ) do
+        if other ~= player
+            and isTargetEnemy(
+                other,
+                other.Character
+            ) then
+            local char = other.Character
+            local hum = char
+                and char:
+                    FindFirstChildOfClass(
+                        "Humanoid"
+                    )
+            local otherRoot = char
+                and (
+                    char:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+                    or char:FindFirstChild(
+                        "UpperTorso"
+                    )
+                    or char:FindFirstChild(
+                        "Torso"
+                    )
+                )
+
+            if isEntityAlive(char, hum)
+                and otherRoot
+                and otherRoot:IsA("BasePart") then
+                local distance = (
+                    otherRoot.Position
+                    - rootPart.Position
+                ).Magnitude
+                if distance < nearestDistance
+                    and distance <= maxRange then
+                    nearestDistance = distance
+                    nearestChar = char
+                    nearestRoot = otherRoot
+                end
+            end
+        end
+    end
+
+    if not nearestRoot then
+        runtime.SafeSide = 0
+        return 0
+    end
+
+    local enemyOrigin =
+        nearestRoot.Position
+        + Vector3.new(0, 1.35, 0)
+    local horizontal = Vector3.new(
+        rootPart.Position.X
+            - enemyOrigin.X,
+        0,
+        rootPart.Position.Z
+            - enemyOrigin.Z
+    )
+
+    if horizontal.Magnitude < 0.05 then
+        runtime.SafeSide = 0
+        return 0
+    end
+    horizontal = horizontal.Unit
+
+    local right = Vector3.new(
+        -horizontal.Z,
+        0,
+        horizontal.X
+    )
+    local localCenter =
+        rootPart.Position
+        + Vector3.new(0, 1.15, 0)
+
+    local params = RaycastParams.new()
+    params.FilterType =
+        Enum.RaycastFilterType.Exclude
+    params.IgnoreWater = true
+    params.FilterDescendantsInstances = {
+        player.Character,
+        nearestChar,
+        Workspace.CurrentCamera,
+    }
+
+    local function coverScore(point)
+        local delta = point - enemyOrigin
+        if delta.Magnitude <= 0.05 then
+            return 0
+        end
+
+        local hit = Workspace:Raycast(
+            enemyOrigin,
+            delta,
+            params
+        )
+        if not hit then return 0 end
+
+        return math.clamp(
+            1 - hit.Distance
+                / delta.Magnitude,
+            0,
+            1
+        )
+    end
+
+    local leftCover = coverScore(
+        localCenter - right * 2.4
+    )
+    local rightCover = coverScore(
+        localCenter + right * 2.4
+    )
+
+    if math.abs(
+        leftCover - rightCover
+    ) < 0.04 then
+        runtime.SafeSide = 0
+    else
+        runtime.SafeSide =
+            leftCover > rightCover
+            and -1
+            or 1
+    end
+
+    return runtime.SafeSide
+end
+
+function XCBindAntiAimDamageWatcher(char)
+    if not char then return end
+    local hum = char:
+        FindFirstChildOfClass("Humanoid")
+        or char:WaitForChild(
+            "Humanoid",
+            3
+        )
+    if not hum then return end
+
+    XCAntiAimRuntime.LastHealth =
+        hum.Health
+
+    local connection =
+        hum.HealthChanged:Connect(
+            function(value)
+                local previous =
+                    tonumber(
+                        XCAntiAimRuntime
+                            .LastHealth
+                    )
+                    or value
+
+                XCAntiAimRuntime.LastHealth =
+                    value
+
+                if XCConfig
+                    .antiAimAntiBruteforce
+                    and value < previous then
+                    XCAntiAimRuntime
+                        .BruteforceSide =
+                        -(
+                            tonumber(
+                                XCAntiAimRuntime
+                                    .BruteforceSide
+                            ) or 1
+                        )
+                    XCAntiAimRuntime
+                        .BruteforceUntil =
+                        os.clock()
+                        + math.clamp(
+                            tonumber(
+                                XCConfig
+                                    .antiAimBruteforceTime
+                            ) or 1.2,
+                            0.2,
+                            4
+                        )
+                end
+            end
+        )
+
+    table.insert(
+        connections,
+        connection
+    )
+end
+
+pcall(function()
+    if player.Character then
+        XCBindAntiAimDamageWatcher(
+            player.Character
+        )
+    end
+
+    table.insert(
+        connections,
+        player.CharacterAdded:Connect(
+            function(char)
+                task.defer(
+                    XCBindAntiAimDamageWatcher,
+                    char
+                )
+            end
+        )
+    )
+end)
+
+function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart)
     local baseDegrees = tonumber(XCConfig.antiAimYaw) or 180
     local jitterDegrees = math.clamp(tonumber(XCConfig.antiAimJitter) or 60, 0, 180)
     local spinDegrees = (elapsed * math.max(10, tonumber(XCConfig.spinSpeed) or 50) * 6) % 360
     local side = step % 2 == 0 and -1 or 1
+
+    local freestandingSide =
+        XCResolveFreestandingSide(rootPart)
+    if freestandingSide ~= 0 then
+        side = freestandingSide
+    end
+
+    if XCConfig.antiAimAntiBruteforce
+        and os.clock() <= (
+            tonumber(
+                XCAntiAimRuntime.BruteforceUntil
+            ) or 0
+        ) then
+        side = tonumber(
+            XCAntiAimRuntime.BruteforceSide
+        ) or side
+    end
+
     local baseYaw = originalYaw + math.rad(baseDegrees)
 
-    if mode == "Backwards" then
+    if mode == "Freestanding" then
+        local resolvedSide =
+            freestandingSide ~= 0
+            and freestandingSide
+            or side
+        return originalYaw
+            + math.pi
+            + math.rad(
+                math.min(
+                    90,
+                    math.max(
+                        25,
+                        jitterDegrees
+                    )
+                ) * resolvedSide
+            )
+    elseif mode == "Freestanding Jitter" then
+        local resolvedSide =
+            freestandingSide ~= 0
+            and freestandingSide
+            or side
+        return originalYaw
+            + math.pi
+            + math.rad(
+                math.min(
+                    110,
+                    math.max(
+                        35,
+                        jitterDegrees
+                    )
+                )
+                * resolvedSide
+                * (
+                    step % 2 == 0
+                    and 1
+                    or 0.45
+                )
+            )
+    elseif mode == "Backwards" then
         return originalYaw + math.pi
     elseif mode == "Jitter" then
         return baseYaw + math.rad(jitterDegrees * side)
@@ -12331,6 +12958,7 @@ function buildXCUI()
             ColorSequenceKeypoint.new(1,C.Lime),
         })
         syncXCUserTheme()
+        XCRefreshWatermarkTheme()
         refreshESPPreview()
         openButtonThemeRefresh()
         updateScale()
@@ -12442,7 +13070,16 @@ function buildXCUI()
         skeletonDistanceFade = "Gradually fades skeleton lines at long distances.",
         noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
         hitSoundEnabled = "Plays the selected local sound when enemy health decreases.",
-        antiAimMode = "Static, jitter, spin and XC adaptations of Gamesense, NeverLose, NixWare or Memesense anti-aim styles.",
+        antiAimMode = "Static, jitter, spin, freestanding and adaptive anti-aim styles.",
+        antiAimFreestanding = "Chooses the safer left/right anti-aim side from world cover against the nearest valid enemy.",
+        antiAimAntiBruteforce = "Flips the anti-aim side for a short window after replicated local damage.",
+        rageTargetLockEnabled = "Adds target hysteresis so Ragebot does not jump between equally valid players every scan.",
+        rageAdaptiveHitbox = "Scans head and body hitboxes and lets visibility, penetration and lethality decide the point.",
+        rageLethalPriority = "Prefers a target point when the weapon exposes enough damage information to identify a lethal shot.",
+        ragePreferVisible = "Adds a score preference for direct shots over penetrated shots when both are valid.",
+        nametagsEnabled = "Shows configurable player identity, range, health and weapon information above ESP boxes.",
+        tagNameMode = "Chooses display name, username, or both in nametags.",
+        tagLayout = "Compact keeps metadata on one line; Stacked places metadata below the name.",
         nightModeEnabled = "Applies the selected lighting preset locally.",
         worldSkyboxEnabled = "Applies the selected custom skybox locally.",
         worldPostFXEnabled = "Enables local color correction and post-processing.",
@@ -13523,10 +14160,17 @@ function buildXCUI()
             local hpLow=previewVisible and currentTheme.HealthLow or currentTheme.Enemy_Hidden
             healthFill.BackgroundColor3=Color3.new(1,1,1)
             healthGradient.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,hpHigh),ColorSequenceKeypoint.new(0.55,hpMid),ColorSequenceKeypoint.new(1,hpLow)})
-            local tagText="enemy"
-            if XCConfig.espShowDistance then tagText..=" [42m]" end
-            if XCConfig.espShowHealth then tagText..=" [72HP]" end
-            if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then tagText..=" [AK-47]" end
+            local previewName = XCConfig.tagNameMode == "Username" and "@enemy"
+                or (XCConfig.tagNameMode == "Both" and "enemy (@enemy)" or "enemy")
+            local previewDetails = {}
+            if XCConfig.espShowDistance then previewDetails[#previewDetails+1]="42m" end
+            if XCConfig.espShowHealth then previewDetails[#previewDetails+1]="72HP" end
+            if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then previewDetails[#previewDetails+1]="AK-47" end
+            local tagText = previewName
+            if #previewDetails > 0 then
+                tagText = tagText .. (XCConfig.tagLayout == "Stacked" and "\n" or "  •  ")
+                    .. table.concat(previewDetails, "  •  ")
+            end
             tag.Text=tagText;tag.TextColor3=color;tag.TextSize=XCConfig.espTextSize;tag.Visible=XCConfig.nametagsEnabled
             local length=math.clamp(math.floor(width*0.32+0.5),6,16)
             local specs={{left,top,length,thick},{left,top,thick,length},{left+width-length,top,length,thick},{left+width-thick,top,thick,length},
@@ -13545,7 +14189,8 @@ function buildXCUI()
         mode.Activated:Connect(function() previewVisible=not previewVisible;refreshPreview() end)
         for _,key in ipairs({"boxEspEnabled","cornerBoxEnabled","healthBarEnabled","nametagsEnabled","chamsEnabled","skeletonEspEnabled",
             "tracersEnabled","headDotEnabled","weaponEspEnabled","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline",
-            "espTextSize","espShowDistance","espShowHealth","tagShowWeapon",
+            "espTextSize","espShowDistance","espShowHealth","tagShowWeapon","tagNameMode","tagLayout",
+            "tagBackgroundEnabled","tagOutlineEnabled","tagHealthColorEnabled","tagTransparency","tagOffsetY",
             "espVisibleR","espVisibleG","espVisibleB","espHiddenR","espHiddenG","espHiddenB","espHealthHighR","espHealthHighG","espHealthHighB",
             "espHealthMidR","espHealthMidG","espHealthMidB","espHealthLowR","espHealthLowG","espHealthLowB"}) do
             refreshers[key]=refreshers[key] or {};table.insert(refreshers[key],refreshPreview)
@@ -13646,7 +14291,7 @@ function buildXCUI()
             local folder=skinData.SkinsRoot and skinData.SkinsRoot:FindFirstChild(itemName)
             local skinFolder=folder and folder:FindFirstChild(skinName)
             if skinFolder then
-                for _,key in ipairs({"Image","Icon","Thumbnail","Preview","ImageId","IconId","ThumbnailId"}) do
+                for _,key in ipairs({"Image","Icon","Thumbnail","Preview","ImageId","IconId","ThumbnailId","Texture","TextureId","AssetId"}) do
                     local image=normalizeImage(skinFolder:GetAttribute(key));if image then return image end
                 end
                 for _,object in ipairs(skinFolder:GetDescendants()) do
@@ -13664,7 +14309,7 @@ function buildXCUI()
                 local ok,entries=pcall(skinData.SkinLibrary.GetAllSkinsForWeapon,itemName)
                 if ok and type(entries)=="table" then for _,info in ipairs(entries) do
                     if type(info)=="table" and (info.skin==skinName or info.name==skinName) then
-                        for _,key in ipairs({"image","Image","icon","Icon","thumbnail","Thumbnail","preview","Preview"}) do
+                        for _,key in ipairs({"image","Image","icon","Icon","thumbnail","Thumbnail","preview","Preview","texture","Texture","textureId","TextureId"}) do
                             local image=normalizeImage(info[key]);if image then return image end
                         end
                     end
@@ -13676,29 +14321,116 @@ function buildXCUI()
             local asset=skinData.WeaponAssets and skinData.WeaponAssets:FindFirstChild(itemName)
             if not asset then
                 local assets=ReplicatedStorage:FindFirstChild("Assets")
-                for _,rootName in ipairs({"Gloves","Viewmodels","Models","Characters"}) do
+                for _,rootName in ipairs({"Weapons","Knives","Gloves","Viewmodels","Models","Characters"}) do
                     local rootFolder=assets and assets:FindFirstChild(rootName)
                     asset=rootFolder and rootFolder:FindFirstChild(itemName,true)
                     if asset then break end
                 end
             end
             if not asset then return false end
-            local source=asset:IsA("Model") and asset or asset:FindFirstChildWhichIsA("Model",true)
-            if not source or not source:FindFirstChildWhichIsA("BasePart",true) then return false end
-            local ok,model=pcall(function() source.Archivable=true;return source:Clone() end)
-            if not ok or not model then return false end
-            for _,object in ipairs(model:GetDescendants()) do
-                if object:IsA("Script") or object:IsA("LocalScript") or object:IsA("ModuleScript")
-                    or object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam") then object:Destroy()
-                elseif object:IsA("BasePart") then object.Anchored=true;object.CanCollide=false;object.CastShadow=false end
+
+            local source=asset:IsA("Model") and asset
+                or asset:FindFirstChildWhichIsA("Model",true)
+            if not source or not source:FindFirstChildWhichIsA("BasePart",true) then
+                return false
             end
-            pcall(applySurfaceAppearanceSkin,model,itemName,skinName,0)
-            local world=Instance.new("WorldModel",viewport);model.Parent=world
-            local cam=Instance.new("Camera",viewport);cam.FieldOfView=34;viewport.CurrentCamera=cam
-            local boundsOk,bounds,size=pcall(function() local cf,sz=model:GetBoundingBox();return cf,sz end)
-            if not boundsOk then model:Destroy();return false end
-            local radius=math.max(size.X,size.Y,size.Z,1)
-            cam.CFrame=CFrame.lookAt(bounds.Position+Vector3.new(radius*1.35,radius*0.45,radius*1.55),bounds.Position)
+
+            local ok,model=pcall(function()
+                source.Archivable=true
+                return source:Clone()
+            end)
+            if not ok or not model then return false end
+
+            for _,object in ipairs(model:GetDescendants()) do
+                if object:IsA("Script")
+                    or object:IsA("LocalScript")
+                    or object:IsA("ModuleScript")
+                    or object:IsA("ParticleEmitter")
+                    or object:IsA("Trail")
+                    or object:IsA("Beam") then
+                    object:Destroy()
+                elseif object:IsA("BasePart") then
+                    object.Anchored=true
+                    object.CanCollide=false
+                    object.CanTouch=false
+                    object.CanQuery=false
+                    object.CastShadow=false
+                end
+            end
+
+            pcall(
+                applySurfaceAppearanceSkin,
+                model,
+                itemName,
+                skinName,
+                0
+            )
+
+            for _,child in ipairs(viewport:GetChildren()) do
+                if not child:IsA("UICorner")
+                    and not child:IsA("UIStroke")
+                    and not child:IsA("UIGradient") then
+                    child:Destroy()
+                end
+            end
+            viewport.Ambient=Color3.fromRGB(205,205,215)
+            viewport.LightColor=Color3.fromRGB(255,255,255)
+            viewport.LightDirection=Vector3.new(-0.65,-1,-0.85)
+
+            local world=Instance.new("WorldModel")
+            world.Name="PreviewWorld"
+            world.Parent=viewport
+            model.Parent=world
+
+            local cam=Instance.new("Camera")
+            cam.Name="PreviewCamera"
+            cam.Parent=viewport
+            viewport.CurrentCamera=cam
+
+            local boundsOk,bounds,size=pcall(function()
+                local cf,sz=model:GetBoundingBox()
+                return cf,sz
+            end)
+            if not boundsOk or typeof(bounds)~="CFrame" then
+                model:Destroy()
+                return false
+            end
+
+            local mode=tostring(XCConfig.skinGalleryMode or "Weapon")
+            local fov=mode=="Knife" and 27
+                or (mode=="Gloves" and 31 or 24)
+            cam.FieldOfView=fov
+
+            local radius=math.max(
+                0.5,
+                math.sqrt(
+                    size.X*size.X
+                    + size.Y*size.Y
+                    + size.Z*size.Z
+                )*0.5
+            )
+            local distance=radius
+                / math.tan(math.rad(fov*0.5))
+            distance*=mode=="Weapon" and 1.18
+                or (mode=="Knife" and 1.12 or 1.08)
+
+            local direction
+            if mode=="Gloves" then
+                direction=Vector3.new(0.85,0.20,1.35).Unit
+            elseif mode=="Knife" then
+                direction=Vector3.new(1.15,0.20,1.55).Unit
+            else
+                direction=Vector3.new(1.25,0.32,1.75).Unit
+            end
+
+            local focus=bounds.Position
+                + Vector3.new(0,size.Y*0.03,0)
+            cam.CFrame=CFrame.lookAt(
+                focus+direction*distance,
+                focus
+            )
+            cam.Focus=CFrame.new(focus)
+
             return true
         end
 
@@ -13787,8 +14519,10 @@ function buildXCUI()
                 card.BorderColor3=C.Border;card.BorderSizePixel=1;card.Text="";card.AutoButtonColor=false;cards[skinName]=card
                 local visual=Instance.new("ViewportFrame",card)
                 visual.Name="Preview";visual.Position=UDim2.fromOffset(3,3);visual.Size=UDim2.new(1,-6,1,-25)
-                visual.BackgroundColor3=C.Control;visual.BorderSizePixel=0;visual.Ambient=Color3.fromRGB(190,190,190)
-                visual.LightColor=Color3.fromRGB(255,255,255);visual.LightDirection=Vector3.new(-1,-0.5,-1)
+                visual.BackgroundColor3=C.Control:Lerp(C.Main,0.28);visual.BorderSizePixel=0
+                visual.Ambient=Color3.fromRGB(205,205,215)
+                visual.LightColor=Color3.fromRGB(255,255,255);visual.LightDirection=Vector3.new(-0.65,-1,-0.85)
+                local previewCorner=Instance.new("UICorner",visual);previewCorner.CornerRadius=UDim.new(0,3)
                 local label=Instance.new("TextLabel",card)
                 label.Position=UDim2.new(0,4,1,-21);label.Size=UDim2.new(1,-8,0,18);label.BackgroundTransparency=1
                 label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.Code;label.TextSize=8;label.TextTruncate=Enum.TextTruncate.AtEnd
@@ -14186,6 +14920,11 @@ function buildXCUI()
     addSlider(R, "Rage FOV", "rageFov", 30, 360, 1, "°")
     addChoice(R, "Target priority", "rageTargetMode", {"Distance", "Health", "FOV", "Priority"})
     toggle(R, "Rage auto fire", "rageAutoFire")
+    toggle(R, "Adaptive hitbox", "rageAdaptiveHitbox")
+    toggle(R, "Target lock", "rageTargetLockEnabled")
+    addSlider(R, "Target lock time", "rageTargetLockTime", 0.05, 1.5, 0.05, "s")
+    toggle(R, "Lethal priority", "rageLethalPriority")
+    toggle(R, "Prefer visible", "ragePreferVisible")
 
     task.wait()
     L, R = columns("AntiAim", "Anti-aim", "Movement")
@@ -14193,6 +14932,7 @@ function buildXCUI()
     toggle(L, "Anti-aim", "antiAimEnabled")
     addChoice(L, "Anti-aim mode", "antiAimMode", {
         "Static", "Backwards", "Jitter", "Spin", "Random",
+        "Freestanding", "Freestanding Jitter",
         "Gamesense Center Jitter", "Gamesense 3-Way", "Gamesense Sway",
         "NeverLose Adaptive", "NeverLose Defensive",
         "NixWare Sideways", "NixWare Spin Jitter",
@@ -14202,6 +14942,10 @@ function buildXCUI()
     addSlider(L, "Base yaw", "antiAimYaw", -180, 180, 1, "°")
     addSlider(L, "Jitter range", "antiAimJitter", 0, 180, 1, "°")
     addSlider(L, "Switch interval", "antiAimInterval", 0.04, 0.5, 0.01, "s")
+    toggle(L, "Freestanding", "antiAimFreestanding")
+    addSlider(L, "Freestanding range", "antiAimFreestandingRange", 100, 2500, 50, "")
+    toggle(L, "Anti-bruteforce", "antiAimAntiBruteforce")
+    addSlider(L, "Bruteforce hold", "antiAimBruteforceTime", 0.2, 4, 0.1, "s")
     section(L, "Third person")
     toggle(L, "Third person", "thirdPersonEnabled")
     addSlider(L, "Third person distance", "thirdPersonDistance", 5, 25, 1, "")
@@ -14246,7 +14990,14 @@ function buildXCUI()
     addSlider(L, "Skeleton thickness", "skeletonThickness", 1, 4, 0.5, "px")
     section(L, "Nametags")
     toggle(L, "Nametags", "nametagsEnabled")
+    addChoice(L, "Name mode", "tagNameMode", {"Display name", "Username", "Both"})
+    addChoice(L, "Layout", "tagLayout", {"Compact", "Stacked"})
     addSlider(L, "Text size", "espTextSize", 8, 20, 1, "")
+    addSlider(L, "Vertical offset", "tagOffsetY", 0, 30, 1, "px")
+    toggle(L, "Background", "tagBackgroundEnabled")
+    addSlider(L, "Background transparency", "tagTransparency", 0, 1, 0.05, "")
+    toggle(L, "Outline", "tagOutlineEnabled")
+    toggle(L, "Health color", "tagHealthColorEnabled")
     toggle(L, "Show distance", "espShowDistance")
     toggle(L, "Show health", "espShowHealth")
     toggle(L, "Show weapon", "tagShowWeapon")
