@@ -1,8 +1,3 @@
--- XC v44 diagnostic bootstrap
--- This wrapper exposes the real compile/runtime error instead of
--- "LocalScript, Line 1: attempt to call a nil value".
-
-local XC_SOURCE = [=[
 -- ==========================================
 -- XC / Panda Auth (PUSL-V4)
 -- ==========================================
@@ -4872,6 +4867,25 @@ task.spawn(function()
 end)
 
 -- ==========================================
+-- XC guarded boot runner
+-- Delta frequently reports executor failures only as "LocalScript, Line 1".
+-- This keeps the script from dying silently and prints the real inner error.
+-- ==========================================
+function XCSafeBootCall(label, callback)
+    if type(callback) ~= "function" then
+        warn("[XC/BOOT/" .. tostring(label) .. "] callback is nil/non-function")
+        return false
+    end
+
+    local ok, err = pcall(callback)
+    if not ok then
+        warn("[XC/BOOT/" .. tostring(label) .. "] " .. tostring(err))
+        return false
+    end
+    return true
+end
+
+-- ==========================================
 -- XC stage-1 wrapper
 -- Split here so each Luau function stays well below the 200-local limit.
 -- ==========================================
@@ -8200,7 +8214,12 @@ function XCRefreshWatermarkTheme()
         currentTheme.TextSecondary
 end
 
-XCRefreshWatermarkTheme()
+do
+    local ok, err = pcall(XCRefreshWatermarkTheme)
+    if not ok then
+        warn("[XC/WatermarkTheme] " .. tostring(err))
+    end
+end
 
 -- ==========================================
 -- GRENADE TRAJECTORY ENGINE
@@ -12963,7 +12982,7 @@ function buildXCUI()
             ColorSequenceKeypoint.new(1,C.Lime),
         })
         syncXCUserTheme()
-        XCRefreshWatermarkTheme()
+        pcall(XCRefreshWatermarkTheme)
         refreshESPPreview()
         openButtonThemeRefresh()
         updateScale()
@@ -16640,39 +16659,12 @@ if type(getgenv) == "function" then
 end
 end
 
-XCInitStage2()
+if not XCSafeBootCall("Stage2", XCInitStage2) then
+    warn("[XC] Stage2 failed; Stage1 will finish cleanup-safe.")
+end
 XCInitStage2 = nil
 
 end -- XCInitStage1
 
-XCInitStage1()
+XCSafeBootCall("Stage1", XCInitStage1)
 XCInitStage1 = nil
-
-]=]
-
-local XC_CHUNK, XC_COMPILE_ERROR = loadstring(XC_SOURCE, "@XC_v44_inner")
-if type(XC_CHUNK) ~= "function" then
-    warn("[XC V44 COMPILE ERROR]")
-    warn(tostring(XC_COMPILE_ERROR or "loadstring returned nil without an error message"))
-    return
-end
-
-local function XC_TRACEBACK(errorValue)
-    local message = tostring(errorValue)
-    if type(debug) == "table" and type(debug.traceback) == "function" then
-        local ok, trace = pcall(debug.traceback, message, 2)
-        if ok and type(trace) == "string" then
-            return trace
-        end
-    end
-    return message
-end
-
-print("[XC V44] compile OK; starting runtime...")
-local XC_OK, XC_RUNTIME_ERROR = xpcall(XC_CHUNK, XC_TRACEBACK)
-if not XC_OK then
-    warn("[XC V44 RUNTIME ERROR]")
-    warn(tostring(XC_RUNTIME_ERROR))
-else
-    print("[XC V44] runtime completed initialization")
-end
