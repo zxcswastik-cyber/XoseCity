@@ -390,7 +390,6 @@ local XCConfig = {
     -- Visual kill confirmation: local confirmed kills only.
     killEffectEnabled = false,
     killEffectRainbow = false,
-    killEffectTrails = true,
 
     thirdPersonEnabled = false,
     skinChangerEnabled = false,
@@ -529,7 +528,6 @@ local XCConfig = {
     killEffectSize = 0.16,
     killEffectSpeed = 16,
     killEffectDuration = 1.45,
-    killEffectGlow = 1.4,
     killEffectColorR = 152,
     killEffectColorG = 204,
     killEffectColorB = 0,
@@ -1649,330 +1647,37 @@ function getXCHealth(char, plr, hum)
     return math.clamp(health, 0, maximum), maximum
 end
 
-function XCClearPendingLocalHit(healthKey, pending)
-    if pending and type(pending.Connections) == "table" then
-        for _, connection in ipairs(pending.Connections) do
-            pcall(function()
-                connection:Disconnect()
-            end)
-        end
-        pending.Connections = {}
-    end
-
-    if hitmarkerPendingHits[healthKey] == pending then
-        hitmarkerPendingHits[healthKey] = nil
-    end
-end
-
-function XCConfirmPendingLocalKill(healthKey, pending, source)
-    if type(pending) ~= "table"
-        or pending.KillConfirmed then
-        return false
-    end
-    if hitmarkerPendingHits[healthKey] ~= pending then
-        return false
-    end
-
-    local now = os.clock()
-    if now - (tonumber(pending.LastHitAt) or 0) > 1.85 then
-        XCClearPendingLocalHit(healthKey, pending)
-        return false
-    end
-
-    pending.KillConfirmed = true
-
-    local position = XCResolveKillEffectPosition(
-        source or pending.Character,
-        pending.LastPosition
-    )
-
-    XCClearPendingLocalHit(healthKey, pending)
-
-    if XCConfig.killEffectEnabled
-        and typeof(position) == "Vector3"
-        and type(XCSpawnKillFireflies) == "function" then
-        pcall(XCSpawnKillFireflies, position)
-    end
-
-    return true
-end
-
 registerXCLocalHitCandidate = function(hitInstance)
     local cursor = hitInstance
     local targetPlayer, targetCharacter
-
     while cursor and cursor ~= Workspace do
         if cursor:IsA("Model") then
             local candidate = Players:GetPlayerFromCharacter(cursor)
             if candidate then
-                targetPlayer = candidate
-                targetCharacter = cursor
+                targetPlayer, targetCharacter = candidate, cursor
                 break
             end
         end
         cursor = cursor.Parent
     end
-
-    if not targetPlayer
-        or not isTargetEnemy(
-            targetPlayer,
-            targetCharacter
-        ) then
-        return
-    end
-
-    local hum = targetCharacter:FindFirstChildOfClass(
-        "Humanoid"
-    )
-    local health = getXCHealth(
-        targetCharacter,
-        targetPlayer,
-        hum
-    )
+    if not targetPlayer or not isTargetEnemy(targetPlayer, targetCharacter) then return end
+    local hum = targetCharacter:FindFirstChildOfClass("Humanoid")
+    local health = getXCHealth(targetCharacter, targetPlayer, hum)
     if health == nil then return end
-
     local healthKey = hum or targetCharacter
-    local now = os.clock()
-    local lastPosition = XCResolveKillEffectPosition(
-        hitInstance,
-        XCResolveKillEffectPosition(targetCharacter)
-    )
     local pending = hitmarkerPendingHits[healthKey]
-
-    if pending
-        and pending.Expires > now
-        and not pending.KillConfirmed then
-        pending.Expires = now + 1.75
-        pending.LastHitAt = now
-        pending.HitCount = (pending.HitCount or 0) + 1
-        if typeof(lastPosition) == "Vector3" then
-            pending.LastPosition = lastPosition
-        end
+    if pending and pending.Expires > os.clock() then
+        pending.Expires = os.clock() + 1.5
+        pending.HitCount += 1
         return
     end
-
-    if pending then
-        XCClearPendingLocalHit(
-            healthKey,
-            pending
-        )
-    end
-
-    pending = {
+    hitmarkerPendingHits[healthKey] = {
         Character = targetCharacter,
         Player = targetPlayer,
         Health = health,
-        LastObservedHealth = health,
-        LastPosition = lastPosition,
-        LastHitAt = now,
-        Expires = now + 1.75,
+        Expires = os.clock() + 1.5,
         HitCount = 1,
-        SawDamage = false,
-        KillConfirmed = false,
-        Connections = {},
     }
-    hitmarkerPendingHits[healthKey] = pending
-
-    local function rememberPosition()
-        local position = XCResolveKillEffectPosition(
-            targetCharacter,
-            pending.LastPosition
-        )
-        if typeof(position) == "Vector3" then
-            pending.LastPosition = position
-        end
-    end
-
-    if hum then
-        pending.Connections[
-            #pending.Connections + 1
-        ] = hum.Died:Connect(function()
-            rememberPosition()
-            XCConfirmPendingLocalKill(
-                healthKey,
-                pending,
-                pending.LastPosition
-            )
-        end)
-
-        pending.Connections[
-            #pending.Connections + 1
-        ] = hum.HealthChanged:Connect(function(value)
-            rememberPosition()
-            value = tonumber(value)
-
-            if value then
-                if value
-                    < (
-                        tonumber(
-                            pending.LastObservedHealth
-                        )
-                        or value
-                    ) then
-                    pending.SawDamage = true
-                end
-
-                pending.LastObservedHealth = value
-
-                if value <= 0 then
-                    XCConfirmPendingLocalKill(
-                        healthKey,
-                        pending,
-                        pending.LastPosition
-                    )
-                end
-            end
-        end)
-    end
-
-    pending.Connections[
-        #pending.Connections + 1
-    ] = targetCharacter:GetAttributeChangedSignal(
-        "Health"
-    ):Connect(function()
-        rememberPosition()
-
-        local value = tonumber(
-            targetCharacter:GetAttribute("Health")
-        )
-        if value then
-            if value
-                < (
-                    tonumber(
-                        pending.LastObservedHealth
-                    )
-                    or value
-                ) then
-                pending.SawDamage = true
-            end
-
-            pending.LastObservedHealth = value
-
-            if value <= 0 then
-                XCConfirmPendingLocalKill(
-                    healthKey,
-                    pending,
-                    pending.LastPosition
-                )
-            end
-        end
-    end)
-
-    pending.Connections[
-        #pending.Connections + 1
-    ] = targetCharacter:GetAttributeChangedSignal(
-        "Dead"
-    ):Connect(function()
-        rememberPosition()
-
-        if targetCharacter:GetAttribute("Dead") == true then
-            XCConfirmPendingLocalKill(
-                healthKey,
-                pending,
-                pending.LastPosition
-            )
-        end
-    end)
-
-    pending.Connections[
-        #pending.Connections + 1
-    ] = targetPlayer:GetAttributeChangedSignal(
-        "Health"
-    ):Connect(function()
-        local value = tonumber(
-            targetPlayer:GetAttribute("Health")
-        )
-        if value then
-            if value
-                < (
-                    tonumber(
-                        pending.LastObservedHealth
-                    )
-                    or value
-                ) then
-                pending.SawDamage = true
-            end
-
-            pending.LastObservedHealth = value
-
-            if value <= 0 then
-                XCConfirmPendingLocalKill(
-                    healthKey,
-                    pending,
-                    pending.LastPosition
-                )
-            end
-        end
-    end)
-
-    pending.Connections[
-        #pending.Connections + 1
-    ] = targetPlayer:GetAttributeChangedSignal(
-        "Dead"
-    ):Connect(function()
-        if targetPlayer:GetAttribute("Dead") == true then
-            rememberPosition()
-            XCConfirmPendingLocalKill(
-                healthKey,
-                pending,
-                pending.LastPosition
-            )
-        end
-    end)
-
-    -- Fallback for games that destroy the character before their last
-    -- Health/Dead replication reaches this client.
-    pending.Connections[
-        #pending.Connections + 1
-    ] = targetCharacter.AncestryChanged:Connect(
-        function(_, parent)
-            if parent ~= nil
-                or pending.KillConfirmed then
-                return
-            end
-
-            local removedAt = os.clock()
-
-            task.defer(function()
-                if hitmarkerPendingHits[healthKey]
-                    ~= pending
-                    or pending.KillConfirmed then
-                    return
-                end
-
-                if removedAt
-                    - (
-                        tonumber(
-                            pending.LastHitAt
-                        )
-                        or 0
-                    )
-                    <= 0.85 then
-                    local lastHealth = tonumber(
-                        pending.LastObservedHealth
-                    )
-                    local deadFlag =
-                        targetCharacter:GetAttribute(
-                            "Dead"
-                        ) == true
-                        or targetPlayer:GetAttribute(
-                            "Dead"
-                        ) == true
-
-                    if deadFlag
-                        or lastHealth == nil
-                        or lastHealth <= 0
-                        or pending.SawDamage then
-                        XCConfirmPendingLocalKill(
-                            healthKey,
-                            pending,
-                            pending.LastPosition
-                        )
-                    end
-                end
-            end)
-        end
-    )
 end
 
 function getTargetHitbox(char)
@@ -4292,448 +3997,144 @@ end
 -- ==========================================
 -- KILL FIREFLIES
 -- ==========================================
--- v42 uses actual small Neon parts rather than the stock sparkles texture.
--- Keep shared state global to avoid adding another local to the large Stage1 scope.
-XCKillFireflyState = {
-    Bursts = {},
-    MaxBursts = 4,
-}
+function XCSpawnKillFireflies(source)
+    if not XCConfig.killEffectEnabled then return end
 
-function XCResolveKillEffectPosition(source, fallback)
-    if typeof(source) == "Vector3" then return source end
-    if typeof(source) ~= "Instance" then return fallback end
-
-    if source:IsA("BasePart") then
-        return source.Position
-    end
-
-    if source:IsA("Model") then
-        local root = source:FindFirstChild("HumanoidRootPart")
-            or source:FindFirstChild("UpperTorso")
-            or source:FindFirstChild("Torso")
-            or source:FindFirstChild("Head")
-        if root and root:IsA("BasePart") then
-            return root.Position
-        end
-
-        local ok, pivot = pcall(function() return source:GetPivot() end)
-        if ok and typeof(pivot) == "CFrame" then
-            return pivot.Position
-        end
-    end
-
-    return fallback
-end
-
-function XCDestroyKillBurst(burst)
-    if type(burst) ~= "table" then return end
-    if burst.Folder and burst.Folder.Parent then
-        pcall(function() burst.Folder:Destroy() end)
-    end
-    burst.Particles = {}
-end
-
-function XCUpdateKillFireflies(dt)
-    if type(XCKillFireflyState) ~= "table"
-        or type(XCKillFireflyState.Bursts) ~= "table" then
-        return
-    end
-
-    dt = math.clamp(tonumber(dt) or 0, 0, 0.05)
-    local now = os.clock()
-
-    for burstIndex = #XCKillFireflyState.Bursts, 1, -1 do
-        local burst = XCKillFireflyState.Bursts[burstIndex]
-        local age = now - burst.Started
-        local alpha = burst.Duration > 0
-            and math.clamp(age / burst.Duration, 0, 1)
-            or 1
-
-        if alpha >= 1 or not burst.Folder or not burst.Folder.Parent then
-            XCDestroyKillBurst(burst)
-            table.remove(XCKillFireflyState.Bursts, burstIndex)
-        else
-            for _, mote in ipairs(burst.Particles) do
-                local part = mote.Part
-                if part and part.Parent then
-                    local drag = math.exp(-mote.Drag * dt)
-                    mote.Velocity *= drag
-                    mote.Velocity += Vector3.new(0, mote.Lift * dt, 0)
-
-                    local sway = mote.SwayAxis
-                        * math.sin(age * mote.Frequency + mote.Phase)
-                        * mote.SwayStrength
-                    mote.Position += (mote.Velocity + sway) * dt
-                    part.Position = mote.Position
-
-                    local pulse = 0.72
-                        + 0.28 * (
-                            0.5
-                            + 0.5 * math.sin(age * mote.PulseSpeed + mote.Phase)
-                        )
-                    local fade = math.clamp(
-                        (alpha - mote.FadeStart)
-                            / math.max(0.05, 1 - mote.FadeStart),
-                        0,
-                        1
-                    )
-                    local currentSize = math.max(
-                        0.015,
-                        mote.BaseSize * pulse * (1 - fade * 0.72)
-                    )
-                    part.Size = Vector3.new(
-                        currentSize,
-                        currentSize,
-                        currentSize
-                    )
-                    part.Transparency = math.clamp(
-                        0.04 + fade * 0.96,
-                        0,
-                        1
-                    )
-
-                    local color
-                    if burst.Rainbow then
-                        color = Color3.fromHSV(
-                            (mote.Hue + age * 0.22) % 1,
-                            0.82,
-                            1
-                        )
-                    else
-                        local shimmer = 0.08
-                            + 0.22 * (
-                                0.5
-                                + 0.5 * math.sin(
-                                    age * mote.PulseSpeed + mote.Phase
-                                )
-                            )
-                        color = burst.Color:Lerp(
-                            Color3.new(1, 1, 1),
-                            shimmer
-                        )
-                    end
-                    part.Color = color
-
-                    if mote.Trail and mote.Trail.Parent then
-                        mote.Trail.Enabled = alpha < 0.86
-                        mote.Trail.Color = ColorSequence.new(color)
-                    end
-                end
+    local position = nil
+    if typeof(source) == "Vector3" then
+        position = source
+    elseif typeof(source) == "Instance" then
+        if source:IsA("BasePart") then
+            position = source.Position
+        elseif source:IsA("Model") then
+            local root = source:FindFirstChild("HumanoidRootPart")
+                or source:FindFirstChild("UpperTorso")
+                or source:FindFirstChild("Torso")
+                or source:FindFirstChild("Head")
+            if root and root:IsA("BasePart") then position = root.Position end
+            if not position then
+                pcall(function() position = source:GetPivot().Position end)
             end
         end
     end
-end
-
--- One connection updates every active firefly burst.
-table.insert(connections, RunService.Heartbeat:Connect(XCUpdateKillFireflies))
-
-function XCSpawnKillFireflies(source, forcePreview)
-    if not forcePreview and not XCConfig.killEffectEnabled then return end
-
-    local position = XCResolveKillEffectPosition(source)
     if typeof(position) ~= "Vector3" then return end
 
-    local count = math.clamp(
-        math.floor((tonumber(XCConfig.killEffectCount) or 95) + 0.5),
-        10,
-        260
-    )
-    local size = math.clamp(
-        tonumber(XCConfig.killEffectSize) or 0.16,
-        0.04,
-        0.65
-    )
-    local speed = math.clamp(
-        tonumber(XCConfig.killEffectSpeed) or 16,
-        2,
-        45
-    )
-    local duration = math.clamp(
-        tonumber(XCConfig.killEffectDuration) or 1.45,
-        0.35,
-        3.5
-    )
-    local glow = math.clamp(
-        tonumber(XCConfig.killEffectGlow) or 1.4,
-        0,
-        3
-    )
+    local count = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) + 0.5), 10, 260)
+    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
+    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
+    local lifetime = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
     local baseColor = rgb(
         XCConfig.killEffectColorR,
         XCConfig.killEffectColorG,
         XCConfig.killEffectColorB
     )
-    local rainbow = XCConfig.killEffectRainbow == true
-    local random = Random.new()
 
-    while #XCKillFireflyState.Bursts
-        >= (XCKillFireflyState.MaxBursts or 4) do
-        local oldest = table.remove(XCKillFireflyState.Bursts, 1)
-        XCDestroyKillBurst(oldest)
-    end
+    local rig = Instance.new("Part")
+    rig.Name = "XC_KillFireflies"
+    rig.Size = Vector3.new(0.15, 0.15, 0.15)
+    rig.Transparency = 1
+    rig.Anchored = true
+    rig.CanCollide = false
+    rig.CanTouch = false
+    rig.CanQuery = false
+    rig.CastShadow = false
+    rig.CFrame = CFrame.new(position + Vector3.new(0, 0.35, 0))
+    rig.Parent = Workspace
 
-    local folder = Instance.new("Folder")
-    folder.Name = "XC_KillFirefliesV42"
-    folder.Parent = Workspace
-
-    -- Immediate central flash.
-    local core = Instance.new("Part")
-    core.Name = "CoreFlash"
-    core.Shape = Enum.PartType.Ball
-    core.Material = Enum.Material.Neon
-    core.Anchored = true
-    core.CanCollide = false
-    core.CanTouch = false
-    core.CanQuery = false
-    core.CastShadow = false
-    core.Color = rainbow and Color3.new(1, 1, 1) or baseColor
-    core.Transparency = 0.12
-    core.Size = Vector3.new(
-        size * 1.8,
-        size * 1.8,
-        size * 1.8
-    )
-    core.Position = position + Vector3.new(0, 0.45, 0)
-    core.Parent = folder
-
-    local flashTarget = math.clamp(size * 18, 1.8, 5.2)
+    -- Short light pulse makes the particle burst read clearly without keeping
+    -- an expensive light alive for the whole particle lifetime.
+    local light = Instance.new("PointLight")
+    light.Name = "KillFlash"
+    light.Color = XCConfig.killEffectRainbow and Color3.new(1, 1, 1) or baseColor
+    light.Brightness = 3.2
+    light.Range = math.clamp(speed * 0.75, 7, 22)
+    light.Shadows = false
+    light.Parent = rig
     TweenService:Create(
-        core,
-        TweenInfo.new(
-            math.min(0.34, duration * 0.25),
-            Enum.EasingStyle.Quart,
-            Enum.EasingDirection.Out
-        ),
-        {
-            Size = Vector3.new(
-                flashTarget,
-                flashTarget,
-                flashTarget
-            ),
-            Transparency = 1,
-        }
+        light,
+        TweenInfo.new(math.min(0.42, lifetime * 0.32), Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Brightness = 0, Range = 0}
     ):Play()
 
-    if glow > 0 then
-        local light = Instance.new("PointLight")
-        light.Name = "KillGlow"
-        light.Color = rainbow
-            and Color3.new(1, 1, 1)
-            or baseColor
-        light.Brightness = 2.1 * glow
-        light.Range = math.clamp(7 + speed * 0.65, 8, 28)
-        light.Shadows = false
-        light.Parent = core
+    local function configureEmitter(emitter, particleSize, particleSpeed, particleLife, softer)
+        emitter.Rate = 0
+        emitter.Enabled = false
+        emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+        emitter.LightEmission = 1
+        emitter.LightInfluence = 0
+        emitter.LockedToPart = false
+        emitter.Orientation = Enum.ParticleOrientation.FacingCamera
+        emitter.EmissionDirection = Enum.NormalId.Top
+        emitter.SpreadAngle = Vector2.new(180, 180)
+        emitter.Speed = NumberRange.new(particleSpeed * 0.58, particleSpeed * 1.25)
+        emitter.Lifetime = NumberRange.new(particleLife * 0.72, particleLife * 1.12)
+        emitter.Drag = softer and 2.6 or 1.65
+        emitter.Acceleration = Vector3.new(0, softer and 3.8 or 1.8, 0)
+        emitter.Rotation = NumberRange.new(0, 360)
+        emitter.RotSpeed = NumberRange.new(-95, 95)
 
-        TweenService:Create(
-            light,
-            TweenInfo.new(
-                math.min(0.42, duration * 0.32),
-                Enum.EasingStyle.Quad,
-                Enum.EasingDirection.Out
-            ),
-            {
-                Brightness = 0,
-                Range = 0,
-            }
-        ):Play()
-    end
+        pcall(function()
+            emitter.Shape = Enum.ParticleEmitterShape.Sphere
+            emitter.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+            emitter.ShapeInOut = Enum.ParticleEmitterShapeInOut.Outward
+        end)
 
-    local burst = {
-        Folder = folder,
-        Started = os.clock(),
-        Duration = duration,
-        Color = baseColor,
-        Rainbow = rainbow,
-        Particles = {},
-    }
+        emitter.Size = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, particleSize * 0.28),
+            NumberSequenceKeypoint.new(0.10, particleSize),
+            NumberSequenceKeypoint.new(0.68, particleSize * 0.78),
+            NumberSequenceKeypoint.new(1, 0),
+        })
+        emitter.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.12),
+            NumberSequenceKeypoint.new(0.18, 0),
+            NumberSequenceKeypoint.new(0.42, softer and 0.20 or 0.04),
+            NumberSequenceKeypoint.new(0.58, softer and 0.05 or 0.28),
+            NumberSequenceKeypoint.new(0.76, 0.10),
+            NumberSequenceKeypoint.new(1, 1),
+        })
 
-    local trailStep = math.max(4, math.floor(count / 20))
-    local center = position + Vector3.new(0, 0.45, 0)
-
-    for index = 1, count do
-        local direction = Vector3.new(
-            random:NextNumber(-1, 1),
-            random:NextNumber(-0.18, 1.15),
-            random:NextNumber(-1, 1)
-        )
-        if direction.Magnitude < 0.08 then
-            direction = Vector3.new(0, 1, 0)
-        else
-            direction = direction.Unit
-        end
-
-        local moteSize = size * random:NextNumber(0.56, 1.22)
-        local initialSpeed = speed
-            * random:NextNumber(0.48, 1.28)
-        local initialPosition = center
-            + direction * random:NextNumber(0.05, 0.8)
-
-        local part = Instance.new("Part")
-        part.Name = "Firefly"
-        part.Shape = Enum.PartType.Ball
-        part.Material = Enum.Material.Neon
-        part.Anchored = true
-        part.CanCollide = false
-        part.CanTouch = false
-        part.CanQuery = false
-        part.CastShadow = false
-        part.Massless = true
-        part.Size = Vector3.new(
-            moteSize,
-            moteSize,
-            moteSize
-        )
-        part.Position = initialPosition
-        part.Transparency = random:NextNumber(0.02, 0.12)
-        part.Color = rainbow
-            and Color3.fromHSV(
-                index / math.max(1, count),
-                0.82,
-                1
-            )
-            or baseColor
-        part.Parent = folder
-
-        local trail = nil
-        if XCConfig.killEffectTrails
-            and index % trailStep == 0 then
-            local a0 = Instance.new("Attachment")
-            local a1 = Instance.new("Attachment")
-            a0.Position = Vector3.new(
-                -moteSize * 0.34,
-                0,
-                0
-            )
-            a1.Position = Vector3.new(
-                moteSize * 0.34,
-                0,
-                0
-            )
-            a0.Parent = part
-            a1.Parent = part
-
-            trail = Instance.new("Trail")
-            trail.Name = "GlowTrail"
-            trail.Attachment0 = a0
-            trail.Attachment1 = a1
-            trail.FaceCamera = true
-            trail.LightEmission = 1
-            trail.LightInfluence = 0
-            trail.Lifetime = math.clamp(
-                duration * 0.12,
-                0.08,
-                0.26
-            )
-            trail.MinLength = 0.025
-            trail.Color = ColorSequence.new(part.Color)
-            trail.Transparency = NumberSequence.new({
-                NumberSequenceKeypoint.new(0, 0.10),
-                NumberSequenceKeypoint.new(0.55, 0.42),
-                NumberSequenceKeypoint.new(1, 1),
+        if XCConfig.killEffectRainbow then
+            emitter.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0.00, Color3.fromHSV(0.00, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.20, Color3.fromHSV(0.18, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.40, Color3.fromHSV(0.36, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.60, Color3.fromHSV(0.55, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.80, Color3.fromHSV(0.74, 0.82, 1)),
+                ColorSequenceKeypoint.new(1.00, Color3.fromHSV(0.96, 0.82, 1)),
             })
-            trail.WidthScale = NumberSequence.new({
-                NumberSequenceKeypoint.new(0, 0.82),
-                NumberSequenceKeypoint.new(1, 0),
-            })
-            trail.Parent = part
-        end
-
-        local swayAxis = Vector3.new(
-            random:NextNumber(-1, 1),
-            random:NextNumber(-0.25, 0.65),
-            random:NextNumber(-1, 1)
-        )
-        if swayAxis.Magnitude < 0.05 then
-            swayAxis = Vector3.new(1, 0, 0)
         else
-            swayAxis = swayAxis.Unit
+            emitter.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, baseColor:Lerp(Color3.new(1, 1, 1), 0.28)),
+                ColorSequenceKeypoint.new(0.48, baseColor),
+                ColorSequenceKeypoint.new(1, baseColor:Lerp(Color3.new(0, 0, 0), 0.18)),
+            })
         end
-
-        burst.Particles[#burst.Particles + 1] = {
-            Part = part,
-            Trail = trail,
-            Position = initialPosition,
-            Velocity = direction * initialSpeed
-                + Vector3.new(
-                    0,
-                    random:NextNumber(0.5, 3.2),
-                    0
-                ),
-            BaseSize = moteSize,
-            Drag = random:NextNumber(1.45, 2.45),
-            Lift = random:NextNumber(0.8, 2.7),
-            SwayAxis = swayAxis,
-            SwayStrength = random:NextNumber(0.45, 1.65),
-            Frequency = random:NextNumber(4.2, 8.6),
-            PulseSpeed = random:NextNumber(7.5, 13.5),
-            Phase = random:NextNumber(0, math.pi * 2),
-            FadeStart = random:NextNumber(0.52, 0.72),
-            Hue = random:NextNumber(),
-        }
     end
 
-    XCKillFireflyState.Bursts[
-        #XCKillFireflyState.Bursts + 1
-    ] = burst
+    -- Main fast burst.
+    local primary = Instance.new("ParticleEmitter")
+    primary.Name = "Fireflies"
+    primary.Parent = rig
+    configureEmitter(primary, size, speed, lifetime, false)
 
-    -- Failsafe if a reinjection disconnects the updater.
-    game:GetService("Debris"):AddItem(
-        folder,
-        duration + 1.0
-    )
-end
+    -- A smaller slow layer gives the explosion depth and the "floating
+    -- firefly" finish after the initial outward burst.
+    local motes = Instance.new("ParticleEmitter")
+    motes.Name = "FloatingMotes"
+    motes.Parent = rig
+    configureEmitter(motes, size * 0.58, speed * 0.48, lifetime * 1.18, true)
 
-function XCPreviewKillFireflies()
-    local char = player and player.Character
-    local root = char and (
-        char:FindFirstChild("HumanoidRootPart")
-        or char:FindFirstChild("UpperTorso")
-        or char:FindFirstChild("Torso")
-    )
-    if not root or not root:IsA("BasePart") then
-        XCNotify(
-            "Kill effect",
-            "Character position unavailable",
-            "warning",
-            2
-        )
-        return
-    end
+    local primaryCount = math.max(1, math.floor(count * 0.78))
+    local moteCount = math.max(1, count - primaryCount)
+    primary:Emit(primaryCount)
+    motes:Emit(moteCount)
 
-    local cam = Workspace.CurrentCamera or camera
-    local forward = cam
-        and cam.CFrame.LookVector
-        or root.CFrame.LookVector
-    local flatForward = Vector3.new(
-        forward.X,
-        0,
-        forward.Z
-    )
-    if flatForward.Magnitude < 0.05 then
-        local rootForward = root.CFrame.LookVector
-        flatForward = Vector3.new(
-            rootForward.X,
-            0,
-            rootForward.Z
-        )
-    end
-    if flatForward.Magnitude < 0.05 then
-        flatForward = Vector3.new(0, 0, -1)
-    else
-        flatForward = flatForward.Unit
-    end
-
-    local previewPosition = root.Position
-        + flatForward * 7
-        + Vector3.new(0, 1.5, 0)
-
-    XCSpawnKillFireflies(previewPosition, true)
+    game:GetService("Debris"):AddItem(rig, lifetime * 1.35 + 0.75)
 end
 
 if genv then
     genv.XCSpawnKillFireflies = XCSpawnKillFireflies
-    genv.XCPreviewKillFireflies = XCPreviewKillFireflies
 end
 
 -- ==========================================
@@ -9610,165 +9011,31 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
     if not XCConfig.hitmarkerEnabled
         and not XCConfig.hitSoundEnabled
         and not XCConfig.killEffectEnabled then
-
-        for healthKey, pending in pairs(
-            hitmarkerPendingHits
-        ) do
-            XCClearPendingLocalHit(
-                healthKey,
-                pending
-            )
-        end
+        hitmarkerPendingHits = {}
         return
     end
 
     local now = os.clock()
-
-    for healthKey, pending in pairs(
-        hitmarkerPendingHits
-    ) do
+    for healthKey, pending in pairs(hitmarkerPendingHits) do
         local char = pending.Character
         local targetPlr = pending.Player
-
-        if now > pending.Expires then
-            XCClearPendingLocalHit(
-                healthKey,
-                pending
-            )
-            continue
-        end
-
-        if not char or not targetPlr then
-            XCClearPendingLocalHit(
-                healthKey,
-                pending
-            )
-            continue
-        end
-
-        local position = XCResolveKillEffectPosition(
-            char,
-            pending.LastPosition
-        )
-        if typeof(position) == "Vector3" then
-            pending.LastPosition = position
-        end
-
-        if not char.Parent then
-            if now
-                - (
-                    tonumber(
-                        pending.LastHitAt
-                    )
-                    or 0
-                )
-                <= 0.85
-                and (
-                    pending.SawDamage
-                    or tonumber(
-                        pending.LastObservedHealth
-                    ) == nil
-                    or tonumber(
-                        pending.LastObservedHealth
-                    ) <= 0
-                ) then
-
-                XCConfirmPendingLocalKill(
-                    healthKey,
-                    pending,
-                    pending.LastPosition
-                )
-            else
-                XCClearPendingLocalHit(
-                    healthKey,
-                    pending
-                )
-            end
-            continue
-        end
-
-        local hum = char:FindFirstChildOfClass(
-            "Humanoid"
-        )
-        local currentHealth = getXCHealth(
-            char,
-            targetPlr,
-            hum
-        )
-        local dead =
-            char:GetAttribute("Dead") == true
-            or targetPlr:GetAttribute(
-                "Dead"
-            ) == true
-
-        if currentHealth ~= nil then
-            pending.LastObservedHealth =
-                currentHealth
-        end
-
-        if dead
-            or (
-                currentHealth ~= nil
-                and currentHealth <= 0
-            ) then
-
-            if currentHealth ~= nil
-                and currentHealth
-                    < pending.Health then
-                local damage =
-                    pending.Health - currentHealth
-                pending.SawDamage = true
+        if now > pending.Expires or not char or not char.Parent or not targetPlr
+            or not isTargetEnemy(targetPlr, char) then
+            hitmarkerPendingHits[healthKey] = nil
+        else
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local currentHealth = getXCHealth(char, targetPlr, hum)
+            if currentHealth ~= nil and currentHealth < pending.Health then
+                local damage = pending.Health - currentHealth
+                local killed = currentHealth <= 0 or char:GetAttribute("Dead") == true
+                hitmarkerPendingHits[healthKey] = nil
                 showHitmarker(damage)
+                if killed and XCConfig.killEffectEnabled then
+                    pcall(XCSpawnKillFireflies, char)
+                end
+            elseif currentHealth ~= nil and currentHealth > pending.Health then
+                pending.Health = currentHealth
             end
-
-            XCConfirmPendingLocalKill(
-                healthKey,
-                pending,
-                pending.LastPosition
-            )
-            continue
-        end
-
-        if currentHealth ~= nil
-            and currentHealth
-                < pending.Health then
-
-            local damage =
-                pending.Health - currentHealth
-
-            pending.SawDamage = true
-            pending.Health = currentHealth
-            showHitmarker(damage)
-
-            -- Keep a short grace period for a Died/Dead signal from the
-            -- same local shot after the health change arrives.
-            if XCConfig.killEffectEnabled then
-                pending.Expires = math.min(
-                    math.max(
-                        pending.Expires,
-                        now + 0.45
-                    ),
-                    (
-                        tonumber(
-                            pending.LastHitAt
-                        )
-                        or now
-                    ) + 1.75
-                )
-            else
-                XCClearPendingLocalHit(
-                    healthKey,
-                    pending
-                )
-            end
-
-        elseif currentHealth ~= nil
-            and currentHealth
-                > pending.Health then
-
-            pending.Health = currentHealth
-            pending.LastObservedHealth =
-                currentHealth
         end
     end
 end))
@@ -10297,14 +9564,6 @@ function buildXCUI()
         minimumDamageEnabled = "Rejects shots whose estimated current-weapon damage is below the selected threshold.",
         minimumDamage = "Minimum estimated damage for a direct visible shot.",
         minimumDamageWall = "Minimum estimated damage after a penetrated wall path.",
-        killEffectEnabled = "Spawns a local Neon firefly burst after a recently registered local hit is confirmed as a kill.",
-        killEffectRainbow = "Cycles kill-firefly colors through the hue spectrum.",
-        killEffectTrails = "Adds short glow trails to a limited subset of kill fireflies.",
-        killEffectCount = "Number of Neon motes spawned by the kill effect.",
-        killEffectSize = "Base size of each kill-effect firefly.",
-        killEffectSpeed = "Initial outward burst speed of the kill fireflies.",
-        killEffectGlow = "Strength of the short center flash when the kill effect starts.",
-        killEffectDuration = "How long the fireflies float and fade.",
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
@@ -12156,14 +11415,11 @@ function buildXCUI()
     addSlider(R, "Hitmarker duration", "hitmarkerDuration", 0.05, 1, 0.05, "s")
     toggle(R, "Kill fireflies", "killEffectEnabled")
     toggle(R, "Rainbow fireflies", "killEffectRainbow")
-    toggle(R, "Firefly trails", "killEffectTrails")
     addColorPicker(R, "Kill effect color", "killEffectColor")
     addSlider(R, "Firefly amount", "killEffectCount", 10, 260, 5, "")
     addSlider(R, "Firefly size", "killEffectSize", 0.04, 0.65, 0.01, "")
     addSlider(R, "Burst speed", "killEffectSpeed", 2, 45, 1, "")
-    addSlider(R, "Glow strength", "killEffectGlow", 0, 3, 0.1, "x")
     addSlider(R, "Effect duration", "killEffectDuration", 0.35, 3.5, 0.05, "s")
-    addButton(R, "PREVIEW KILL EFFECT", function() XCPreviewKillFireflies() end)
     section(R, "Jump circle")
     toggle(R, "Jump circle", "jumpCircleEnabled")
     addSlider(R, "Jump radius", "jumpCircleRadius", 1.5, 8, 0.5, "")
