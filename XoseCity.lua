@@ -1,3 +1,25 @@
+-- XC diagnostic wrapper
+-- Temporary build: reports executor capabilities and preserves a traceback.
+local function __xc_type(name, value)
+    local ok, kind = pcall(type, value)
+    print(("[XC/DIAG] %-18s %s"):format(name, ok and kind or "<type failed>"))
+end
+
+print("[XC/DIAG] === bootstrap begin ===")
+__xc_type("loadstring", loadstring)
+__xc_type("getgenv", getgenv)
+__xc_type("gethui", gethui)
+__xc_type("readfile", readfile)
+__xc_type("writefile", writefile)
+__xc_type("isfile", isfile)
+__xc_type("delfile", delfile)
+__xc_type("setclipboard", setclipboard)
+__xc_type("getgc", getgc)
+__xc_type("hookfunction", hookfunction)
+__xc_type("request", request)
+__xc_type("http_request", http_request)
+
+local function __xc_main()
 -- ==========================================
 -- XC / Panda Auth (PUSL-V4)
 -- ==========================================
@@ -16668,3 +16690,24 @@ end -- XCInitStage1
 
 XCSafeBootCall("Stage1", XCInitStage1)
 XCInitStage1 = nil
+
+end
+
+local function __xc_error_handler(err)
+    local message = "[XC/DIAG] FATAL: " .. tostring(err)
+    local dbg = debug
+    if type(dbg) == "table" and type(dbg.traceback) == "function" then
+        local ok, trace = pcall(dbg.traceback, message, 2)
+        if ok and type(trace) == "string" then
+            return trace
+        end
+    end
+    return message .. "\n[XC/DIAG] debug.traceback unavailable"
+end
+
+local __xc_ok, __xc_result = xpcall(__xc_main, __xc_error_handler)
+if not __xc_ok then
+    warn(__xc_result)
+else
+    print("[XC/DIAG] === script completed without uncaught error ===")
+end
