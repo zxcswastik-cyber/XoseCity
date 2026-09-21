@@ -386,6 +386,11 @@ local XCConfig = {
     chamsEnabled = false,
     hitmarkerEnabled = false,
     hitSoundEnabled = false,
+
+    -- Visual kill confirmation: local confirmed kills only.
+    killEffectEnabled = false,
+    killEffectRainbow = false,
+
     thirdPersonEnabled = false,
     skinChangerEnabled = false,
     triggerbotEnabled = false,
@@ -416,6 +421,14 @@ local XCConfig = {
     nightModeEnabled = false,
     rageBotEnabled = false,
     rageAutoFire = true,
+
+    -- HvH pack v39: Multipoint + Minimum Damage.
+    multipointEnabled = false,
+    multipointScale = 0.62,
+    minimumDamageEnabled = false,
+    minimumDamage = 20,
+    minimumDamageWall = 12,
+
     bulletTrailEnabled = true,
     bulletFlashEnabled = true,
     weaponChamsEnabled = false,
@@ -509,6 +522,15 @@ local XCConfig = {
     hitmarkerGlow = true,
     hitSoundPreset = "Skeet",
     hitSoundVolume = 1,
+
+    -- Kill fireflies.
+    killEffectCount = 95,
+    killEffectSize = 0.16,
+    killEffectSpeed = 16,
+    killEffectDuration = 1.45,
+    killEffectColorR = 152,
+    killEffectColorG = 204,
+    killEffectColorB = 0,
 
     spinSpeed = 50,
     antiAimYaw = 180,
@@ -670,7 +692,8 @@ for _, colorKey in ipairs({
     "espHealthHighR", "espHealthHighG", "espHealthHighB", "espHealthMidR", "espHealthMidG", "espHealthMidB",
     "espHealthLowR", "espHealthLowG", "espHealthLowB",
     "grenadeHER", "grenadeHEG", "grenadeHEB", "grenadeSmokeR", "grenadeSmokeG", "grenadeSmokeB",
-    "grenadeMolotovR", "grenadeMolotovG", "grenadeMolotovB"
+    "grenadeMolotovR", "grenadeMolotovG", "grenadeMolotovB",
+    "killEffectColorR", "killEffectColorG", "killEffectColorB"
 }) do
     XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
 end
@@ -2090,7 +2113,7 @@ local function ensureXCAutoWallRaycast()
         and type(xcNativeRaycast.castThrough) == "function" and type(xcNativeGetRayIgnore) == "function"
 end
 
-local function canXCAutoWallReach(origin, targetPart, targetCharacter, properties)
+local function canXCAutoWallReach(origin, targetPart, targetCharacter, properties, targetPosition)
     if typeof(origin) ~= "Vector3" or not targetPart or not targetPart.Parent or not ensureXCAutoWallRaycast() then
         return false
     end
@@ -2098,7 +2121,8 @@ local function canXCAutoWallReach(origin, targetPart, targetCharacter, propertie
     local penetration = math.max(0, tonumber(properties and properties.Penetration) or 0)
     if penetration <= 0 then return false end
 
-    local offset = targetPart.Position - origin
+    local resolvedTargetPosition = typeof(targetPosition) == "Vector3" and targetPosition or targetPart.Position
+    local offset = resolvedTargetPosition - origin
     local distance = offset.Magnitude
     if distance <= 0.05 then return true end
     local direction = offset.Unit
@@ -2137,8 +2161,237 @@ local function canXCAutoWallReach(origin, targetPart, targetCharacter, propertie
     return false
 end
 
-canXCSilentAutoWallTarget = function(origin, targetPart, targetCharacter, properties)
-    return canXCAutoWallReach(origin, targetPart, targetCharacter, properties)
+canXCSilentAutoWallTarget = function(origin, targetPart, targetCharacter, properties, targetPosition)
+    return canXCAutoWallReach(origin, targetPart, targetCharacter, properties, targetPosition)
+end
+
+-- ==========================================
+-- HvH v40: MULTIPOINT + MINIMUM DAMAGE
+-- Global helpers are intentional: they do not consume another top-level
+-- Luau local slot, avoiding the 200-local compile failure fixed in v38.
+-- ==========================================
+function XCBuildMultipoints(part)
+    if not part or not part:IsA("BasePart") then return {} end
+
+    local points = {
+        {Name = "Center", Position = part.Position, Rank = 0}
+    }
+    if not XCConfig.multipointEnabled then
+        return points
+    end
+
+    local scale = math.clamp(tonumber(XCConfig.multipointScale) or 0.62, 0.10, 0.95)
+    local halfX = math.max(0.03, part.Size.X * 0.5 * scale)
+    local halfY = math.max(0.03, part.Size.Y * 0.5 * scale)
+    local cf = part.CFrame
+
+    points[#points + 1] = {Name = "Left",   Position = part.Position - cf.RightVector * halfX, Rank = 1}
+    points[#points + 1] = {Name = "Right",  Position = part.Position + cf.RightVector * halfX, Rank = 2}
+    points[#points + 1] = {Name = "Top",    Position = part.Position + cf.UpVector * halfY,    Rank = 3}
+
+    -- Head bottom points tend to sit on the neck/torso seam and are less stable.
+    if part.Name ~= "Head" then
+        points[#points + 1] = {Name = "Bottom", Position = part.Position - cf.UpVector * halfY, Rank = 4}
+    end
+    return points
+end
+
+function XCPredictMultipointPosition(part, pointPosition)
+    if not part or typeof(pointPosition) ~= "Vector3" then return pointPosition end
+    if type(getKinematicAimPosition) == "function" then
+        local predicted = getKinematicAimPosition(part)
+        if typeof(predicted) == "Vector3" then
+            return pointPosition + (predicted - part.Position)
+        end
+    end
+    return pointPosition
+end
+
+function XCReadWeaponNumber(properties, names)
+    if type(properties) ~= "table" then return nil end
+    for _, key in ipairs(names) do
+        local value = tonumber(rawget(properties, key))
+        if value and value == value then return value end
+    end
+    return nil
+end
+
+function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPosition)
+    local info = {
+        Visible = false,
+        Reachable = false,
+        Thickness = 0,
+        Surfaces = 0,
+    }
+    if typeof(origin) ~= "Vector3" or not targetPart or not targetPart.Parent then
+        return info
+    end
+
+    local position = typeof(targetPosition) == "Vector3" and targetPosition or targetPart.Position
+    local offset = position - origin
+    if offset.Magnitude <= 0.05 then
+        info.Visible = true
+        info.Reachable = true
+        return info
+    end
+
+    if not ensureXCAutoWallRaycast() then
+        info.Visible = isVisibleThroughWalls(targetPart, targetCharacter)
+        info.Reachable = info.Visible
+        return info
+    end
+
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties() or {}
+    local direction = offset.Unit
+    local distance = offset.Magnitude
+    local ignore = xcNativeGetRayIgnore()
+    local first = xcNativeRaycast.cast(origin, direction * (distance + 0.05), nil, ignore)
+    local firstInstance = type(first) == "table" and (first.instance or first.Instance) or nil
+
+    if not firstInstance then
+        info.Visible = true
+        info.Reachable = true
+        return info
+    end
+    if typeof(firstInstance) == "Instance"
+        and (firstInstance == targetPart or (targetCharacter and firstInstance:IsDescendantOf(targetCharacter))) then
+        info.Visible = true
+        info.Reachable = true
+        return info
+    end
+
+    local penetration = math.max(0, tonumber(properties.Penetration) or 0)
+    if penetration <= 0 or typeof(first.position) ~= "Vector3" then
+        return info
+    end
+
+    local hits = xcNativeRaycast.castThrough(
+        first.position - direction * 0.001,
+        direction * (distance + 0.05),
+        penetration,
+        ignore
+    )
+    if type(hits) ~= "table" then return info end
+
+    local entryPosition = nil
+    for index, hit in ipairs(hits) do
+        if type(hit) == "table" then
+            local instance = hit.instance or hit.Instance
+            local positionHit = hit.position or hit.Position
+            local isExit = hit.Exit
+            if isExit == nil then isExit = index % 2 == 0 end
+
+            if typeof(instance) == "Instance" and not isExit
+                and (instance == targetPart or (targetCharacter and instance:IsDescendantOf(targetCharacter))) then
+                info.Reachable = true
+                return info
+            end
+
+            if typeof(positionHit) == "Vector3" then
+                if not isExit then
+                    entryPosition = positionHit
+                    info.Surfaces += 1
+                elseif entryPosition then
+                    info.Thickness += (positionHit - entryPosition).Magnitude
+                    entryPosition = nil
+                end
+            end
+        end
+    end
+    return info
+end
+
+function XCEstimateShotDamage(properties, targetPart, distance, pathInfo)
+    properties = type(properties) == "table" and properties or {}
+    local base = XCReadWeaponNumber(properties, {
+        "Damage", "BaseDamage", "BulletDamage", "DamageMax", "MaxDamage", "DamagePerHit"
+    })
+
+    -- Unknown weapon schema: do not invent a number and accidentally suppress
+    -- a valid shot. Minimum Damage becomes an open gate for that weapon.
+    if not base then
+        for key, value in pairs(properties) do
+            local lower = tostring(key):lower()
+            local number = tonumber(value)
+            if number and number > 0 and number <= 500
+                and lower:find("damage", 1, true)
+                and not lower:find("falloff", 1, true)
+                and not lower:find("mult", 1, true)
+                and not lower:find("minimum", 1, true)
+                and not lower:find("min", 1, true) then
+                base = number
+                break
+            end
+        end
+    end
+    if not base then return nil end
+
+    local damage = base
+    if targetPart and targetPart.Name == "Head" then
+        local headMultiplier = XCReadWeaponNumber(properties, {
+            "HeadshotMultiplier", "HeadMultiplier", "HeadDamageMultiplier", "HeadshotScale"
+        })
+        if headMultiplier and headMultiplier > 0 then damage *= headMultiplier end
+    end
+
+    distance = math.max(0, tonumber(distance) or 0)
+    local rangeModifier = XCReadWeaponNumber(properties, {"RangeModifier", "DamageRangeModifier"})
+    if rangeModifier and rangeModifier > 0 and rangeModifier < 1 then
+        damage *= rangeModifier ^ (distance / 500)
+    else
+        local falloffStart = XCReadWeaponNumber(properties, {"DamageFalloffStart", "FalloffStart"})
+        local falloffEnd = XCReadWeaponNumber(properties, {"DamageFalloffEnd", "FalloffEnd"})
+        local floorDamage = XCReadWeaponNumber(properties, {"MinimumDamage", "MinDamage", "DamageMin"})
+        if falloffStart and falloffEnd and falloffEnd > falloffStart and distance > falloffStart then
+            local alpha = math.clamp((distance - falloffStart) / (falloffEnd - falloffStart), 0, 1)
+            damage = damage + ((floorDamage or damage * 0.45) - damage) * alpha
+        end
+    end
+
+    if type(pathInfo) == "table" and not pathInfo.Visible then
+        if XCConfig.extremeWallbangEnabled then
+            -- Extreme mode builds a direct target hit payload.
+        else
+            local penetration = math.max(0.001, tonumber(properties.Penetration) or 0.001)
+            local thickness = math.max(0, tonumber(pathInfo.Thickness) or 0)
+            local surfaces = math.max(0, tonumber(pathInfo.Surfaces) or 0)
+            local thicknessLoss = math.clamp((thickness / penetration) * 0.55, 0, 0.72)
+            local surfaceLoss = math.clamp(surfaces * 0.055, 0, 0.22)
+            damage *= math.clamp(1 - thicknessLoss - surfaceLoss, 0.08, 1)
+        end
+    end
+
+    return math.max(0, damage)
+end
+
+function XCPassesMinimumDamage(origin, targetPart, targetCharacter, properties, targetPosition, pathInfo)
+    if not XCConfig.minimumDamageEnabled then return true, nil end
+
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties()
+    if type(properties) ~= "table" then
+        return true, nil
+    end
+
+    pathInfo = type(pathInfo) == "table"
+        and pathInfo
+        or XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPosition)
+
+    local forced = XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled
+    if not pathInfo.Visible and not pathInfo.Reachable and not forced then
+        return false, 0
+    end
+
+    local position = typeof(targetPosition) == "Vector3" and targetPosition or targetPart.Position
+    local damage = XCEstimateShotDamage(properties, targetPart, (position - origin).Magnitude, pathInfo)
+    if damage == nil then
+        return true, nil
+    end
+
+    local required = pathInfo.Visible
+        and math.max(1, tonumber(XCConfig.minimumDamage) or 20)
+        or math.max(1, tonumber(XCConfig.minimumDamageWall) or 12)
+
+    return damage + 1e-4 >= required, damage
 end
 
 local function castXCNativeSilentShot(origin, direction, properties)
@@ -2204,90 +2457,89 @@ local function selectXCNativeSilentTarget(origin, properties)
         return nil
     end
 
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties() or {}
     local center = cam.ViewportSize * 0.5
     local radiusLimit = math.max(1, tonumber(XCConfig.silentAimFov) or 150)
-    local range = math.max(1, tonumber(properties and properties.Range) or 500)
-    local ignore = xcNativeGetRayIgnore()
+    local range = math.max(1, tonumber(properties.Range) or 500)
     local candidates = {}
 
     for _, targetPlayer in ipairs(Players:GetPlayers()) do
         if targetPlayer == player then continue end
         if XCConfig.silentAimTeamCheck and isAlly(targetPlayer) then continue end
+
         local character = targetPlayer.Character
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
         if not isEntityAlive(character, humanoid) then continue end
+
         local part = character:FindFirstChild(XCConfig.silentAimAimHead and "Head" or "HumanoidRootPart")
             or character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
         if not part or not part:IsA("BasePart") then continue end
 
-        -- ScriptAdap aims at the live part position. Applying prediction before
-        -- the visibility cast can move the point outside the character and make
-        -- every valid target look obstructed.
-        local position = part.Position
-        local point, onScreen = cam:WorldToViewportPoint(position)
-        local distance = (position - origin).Magnitude
-        if onScreen and point.Z > 0 and distance > 0.05 and distance <= range then
-            local radius = (Vector2.new(point.X, point.Y) - center).Magnitude
-            if radius <= radiusLimit then
-                candidates[#candidates + 1] = {
-                    Player = targetPlayer,
-                    Character = character,
-                    Part = part,
-                    Position = position,
-                    Radius = radius,
-                }
+        for _, multipoint in ipairs(XCBuildMultipoints(part)) do
+            local position = multipoint.Position
+            local point, onScreen = cam:WorldToViewportPoint(position)
+            local distance = (position - origin).Magnitude
+            if onScreen and point.Z > 0 and distance > 0.05 and distance <= range then
+                local radius = (Vector2.new(point.X, point.Y) - center).Magnitude
+                if radius <= radiusLimit then
+                    candidates[#candidates + 1] = {
+                        Player = targetPlayer,
+                        Character = character,
+                        Part = part,
+                        Position = position,
+                        PointName = multipoint.Name,
+                        PointRank = multipoint.Rank or 0,
+                        Radius = radius,
+                    }
+                end
             end
         end
     end
 
     table.sort(candidates, function(a, b)
-        if a.Radius ~= b.Radius then return a.Radius < b.Radius end
+        if math.abs(a.Radius - b.Radius) > 0.01 then return a.Radius < b.Radius end
+        if a.PointRank ~= b.PointRank then return a.PointRank < b.PointRank end
         return a.Player.UserId < b.Player.UserId
     end)
 
     for _, candidate in ipairs(candidates) do
-        local offset = candidate.Position - origin
-        local first = xcNativeRaycast.cast(origin, offset.Unit * (offset.Magnitude + 0.05), nil, ignore)
-        local firstInstance = type(first) == "table" and (first.instance or first.Instance) or nil
-        local visible = not firstInstance or (typeof(firstInstance) == "Instance"
-            and (firstInstance == candidate.Part or firstInstance:IsDescendantOf(candidate.Character)))
+        local path = XCInspectShotPath(
+            origin, candidate.Part, candidate.Character, properties, candidate.Position
+        )
+        local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
+            origin, candidate.Part, candidate.Character, properties, candidate.Position, path
+        )
+        candidate.Visible = path.Visible
+        candidate.EstimatedDamage = estimatedDamage
 
-        if visible then return candidate end
+        if path.Visible then
+            if minDamageOk then return candidate end
+            continue
+        end
 
-        -- Visible Check ON means exactly that: never acquire through a wall.
+        -- Visible Check ON is a hard gate.
         if XCConfig.silentAimVisibleCheck then
             continue
         end
 
-        -- Visible Check OFF does not silently re-enable visibility filtering.
-        -- Forced wallbang modes may always acquire the candidate. Auto Wall is
-        -- stricter and only acquires if the CURRENT weapon can penetrate the
-        -- exact origin -> target path. With no wall mode, Silent Aim may still
-        -- acquire the target, but the native shot will naturally collide with
-        -- geometry instead of receiving fake penetration.
-        if XCConfig.extremeWallbangEnabled then
-            return candidate
-        end
-        if XCConfig.wallbangEnabled then
-            local penetrated = castXCNativeSilentShot(origin, offset.Unit, properties or {})
-            if penetrated and type(penetrated.Hits) == "table" then
-                for _, impact in ipairs(penetrated.Hits) do
-                    local instance = impact.Instance or impact.instance
-                    if typeof(instance) == "Instance" and not impact.Exit
-                        and instance:IsDescendantOf(candidate.Character) then
-                        return candidate
-                    end
-                end
-            end
+        if XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled then
+            if minDamageOk then return candidate end
             continue
         end
+
         if XCConfig.silentAimAutoWallEnabled then
-            if canXCAutoWallReach(origin, candidate.Part, candidate.Character, properties or {}) then
+            if path.Reachable and minDamageOk then
                 return candidate
             end
             continue
         end
-        return candidate
+
+        -- Without a wall mode, Silent Aim may still select through geometry
+        -- when Visible Check is OFF. Minimum Damage, if enabled, correctly
+        -- blocks that shot because the unmodified bullet cannot reach target.
+        if not XCConfig.minimumDamageEnabled then
+            return candidate
+        end
     end
     return nil
 end
@@ -2343,63 +2595,89 @@ local function processXCNativeLocalShot(bullet, shot)
     local finalShot = shot
 
     if weapon and weapon.Player == player then
-        -- Triggerbot and Auto Wall now hand the selected target to the SAME
-        -- Bullet._performRaycast interception used by Silent Aim. This consumes
-        -- one queued target per real local bullet so triggerbot no longer just
-        -- presses fire while the bullet continues through the crosshair.
         local redirectStore = sharedXCEnv or _G
         local queued = redirectStore and redirectStore.XCTriggerRedirectV38 or nil
+
         if type(queued) == "table" then
             if tonumber(queued.Expires) and os.clock() > queued.Expires then
                 redirectStore.XCTriggerRedirectV38 = nil
                 queued = nil
             else
-                -- Consume before redirecting: a burst/manual shot cannot reuse
-                -- an old trigger target if this particular cast fails.
                 redirectStore.XCTriggerRedirectV38 = nil
             end
         end
 
-        if type(queued) == "table" and type(shot) == "table"
+        -- Ragebot uses the Silent Aim redirect on the actual bullet. It does
+        -- not need the standalone Silent Aim toggle to be enabled.
+        if type(queued) ~= "table"
+            and XCConfig.rageBotEnabled
+            and type(shot) == "table"
+            and typeof(shot.Origin) == "Vector3"
+            and type(getRageTarget) == "function" then
+
+            local rageOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+            local rageTarget = getRageTarget(
+                rageOrigin,
+                type(bullet.Properties) == "table" and bullet.Properties or {}
+            )
+            if rageTarget and rageTarget.Part and rageTarget.Part.Parent then
+                queued = {
+                    Part = rageTarget.Part,
+                    Character = rageTarget.Char,
+                    Position = rageTarget.AimPosition
+                        or rageTarget.ShotPosition
+                        or rageTarget.Part.Position,
+                    Mode = "Rage",
+                }
+            end
+        end
+
+        if type(queued) == "table" and queued.Mode == "Rage" then
+            local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+            if chance < 100 and math.random(1, 100) > chance then
+                queued = nil
+            end
+        end
+
+        if type(queued) == "table"
+            and type(shot) == "table"
             and typeof(shot.Origin) == "Vector3" then
+
             local targetPart = queued.Part
             local targetCharacter = queued.Character
-            if typeof(targetPart) == "Instance" and targetPart:IsA("BasePart")
-                and targetPart.Parent and (not targetCharacter or targetPart:IsDescendantOf(targetCharacter)) then
+            if typeof(targetPart) == "Instance"
+                and targetPart:IsA("BasePart")
+                and targetPart.Parent
+                and (not targetCharacter or targetPart:IsDescendantOf(targetCharacter)) then
 
                 local shotOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
-                local offset = targetPart.Position - shotOrigin
+                local targetPosition = typeof(queued.Position) == "Vector3"
+                    and queued.Position
+                    or targetPart.Position
+                local offset = targetPosition - shotOrigin
+
                 if offset.Magnitude > 0.05 then
                     local properties = type(bullet.Properties) == "table" and bullet.Properties or {}
-                    local visible = false
-                    if ensureXCAutoWallRaycast() then
-                        local ignore = xcNativeGetRayIgnore()
-                        local first = xcNativeRaycast.cast(
-                            shotOrigin,
-                            offset.Unit * (offset.Magnitude + 0.05),
-                            nil,
-                            ignore
-                        )
-                        local firstInstance = type(first) == "table" and (first.instance or first.Instance) or nil
-                        visible = not firstInstance or (typeof(firstInstance) == "Instance"
-                            and (firstInstance == targetPart
-                                or (targetCharacter and firstInstance:IsDescendantOf(targetCharacter))))
-                    end
-
-                    local allowed = visible
+                    local path = XCInspectShotPath(
+                        shotOrigin, targetPart, targetCharacter, properties, targetPart.Position
+                    )
+                    local allowed = path.Visible
                         or XCConfig.extremeWallbangEnabled
                         or XCConfig.wallbangEnabled
-                        or (XCConfig.silentAimAutoWallEnabled
-                            and canXCAutoWallReach(shotOrigin, targetPart, targetCharacter, properties))
+                        or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
 
-                    if allowed then
+                    local minDamageOk = XCPassesMinimumDamage(
+                        shotOrigin, targetPart, targetCharacter, properties, targetPart.Position, path
+                    )
+
+                    if allowed and minDamageOk then
                         if XCConfig.extremeWallbangEnabled then
                             finalShot = {
                                 Origin = shotOrigin,
                                 Direction = offset.Unit,
                                 Distance = offset.Magnitude,
                                 Hits = {{
-                                    Position = targetPart.Position,
+                                    Position = targetPosition,
                                     Instance = targetPart,
                                     Material = targetPart.Material.Name,
                                     Normal = -offset.Unit,
@@ -2407,7 +2685,9 @@ local function processXCNativeLocalShot(bullet, shot)
                                 }},
                             }
                         else
-                            finalShot = castXCNativeSilentShot(shotOrigin, offset.Unit, properties) or shot
+                            finalShot = castXCNativeSilentShot(
+                                shotOrigin, offset.Unit, properties
+                            ) or shot
                         end
 
                         if finalShot ~= shot then
@@ -2421,11 +2701,12 @@ local function processXCNativeLocalShot(bullet, shot)
             end
         end
 
-        -- A trigger redirect has priority for this one shot. If it did not
-        -- produce a redirected shot, normal Silent Aim may still handle it.
-        if finalShot == shot then
+        -- Ragebot owns bullet redirection while enabled. With Ragebot OFF,
+        -- standalone Silent Aim works exactly through its own toggle.
+        if finalShot == shot and not XCConfig.rageBotEnabled then
             finalShot = redirectXCNativeSilentShot(bullet, shot)
         end
+
         pcall(renderXCBulletEffects, finalShot, bullet)
         return finalShot
     end
@@ -2493,20 +2774,44 @@ end
 -- redirects the ray arguments while that exact local bullet is being cast.
 local function beginXCBulletInterceptV29(bullet)
     if xcMobileCameraSilentHooked then return nil end
-    if not isXCSilentAimRequested() or type(bullet) ~= "table"
-        or bullet.IsDestroyed or bullet.IsActive == false then return nil end
+    if type(bullet) ~= "table" or bullet.IsDestroyed or bullet.IsActive == false then return nil end
+
     local weapon = bullet.Weapon
     if not weapon or (weapon.Player and weapon.Player ~= player) then return nil end
 
-    local targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
-    if not targetPart or not targetPart.Parent then return nil end
+    local targetPart = nil
+    local aimPosition = nil
+
+    if XCConfig.rageBotEnabled and type(getRageTarget) == "function" then
+        local rageOrigin = getXCSilentShotOrigin()
+        local rageTarget = getRageTarget(
+            rageOrigin,
+            type(bullet.Properties) == "table" and bullet.Properties or {}
+        )
+        if rageTarget and rageTarget.Part and rageTarget.Part.Parent then
+            targetPart = rageTarget.Part
+            aimPosition = rageTarget.AimPosition
+                or rageTarget.ShotPosition
+                or rageTarget.Part.Position
+        end
+    elseif isXCSilentAimRequested() then
+        targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
+        if targetPart and targetPart.Parent then
+            aimPosition = targetPart.Position
+        end
+    end
+
+    if not targetPart or not targetPart.Parent or typeof(aimPosition) ~= "Vector3" then
+        return nil
+    end
+
     local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
     if chance < 100 and math.random(1, 100) > chance then return nil end
 
     return {
         Thread = coroutine.running(),
         Target = targetPart,
-        AimPosition = targetPart.Position,
+        AimPosition = aimPosition,
         Direction = nil,
         Used = false,
     }
@@ -3687,6 +3992,149 @@ end
 
 if genv then
     genv.XCShowHitmarker = showHitmarker
+end
+
+-- ==========================================
+-- KILL FIREFLIES
+-- ==========================================
+function XCSpawnKillFireflies(source)
+    if not XCConfig.killEffectEnabled then return end
+
+    local position = nil
+    if typeof(source) == "Vector3" then
+        position = source
+    elseif typeof(source) == "Instance" then
+        if source:IsA("BasePart") then
+            position = source.Position
+        elseif source:IsA("Model") then
+            local root = source:FindFirstChild("HumanoidRootPart")
+                or source:FindFirstChild("UpperTorso")
+                or source:FindFirstChild("Torso")
+                or source:FindFirstChild("Head")
+            if root and root:IsA("BasePart") then position = root.Position end
+            if not position then
+                pcall(function() position = source:GetPivot().Position end)
+            end
+        end
+    end
+    if typeof(position) ~= "Vector3" then return end
+
+    local count = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) + 0.5), 10, 260)
+    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
+    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
+    local lifetime = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
+    local baseColor = rgb(
+        XCConfig.killEffectColorR,
+        XCConfig.killEffectColorG,
+        XCConfig.killEffectColorB
+    )
+
+    local rig = Instance.new("Part")
+    rig.Name = "XC_KillFireflies"
+    rig.Size = Vector3.new(0.15, 0.15, 0.15)
+    rig.Transparency = 1
+    rig.Anchored = true
+    rig.CanCollide = false
+    rig.CanTouch = false
+    rig.CanQuery = false
+    rig.CastShadow = false
+    rig.CFrame = CFrame.new(position + Vector3.new(0, 0.35, 0))
+    rig.Parent = Workspace
+
+    -- Short light pulse makes the particle burst read clearly without keeping
+    -- an expensive light alive for the whole particle lifetime.
+    local light = Instance.new("PointLight")
+    light.Name = "KillFlash"
+    light.Color = XCConfig.killEffectRainbow and Color3.new(1, 1, 1) or baseColor
+    light.Brightness = 3.2
+    light.Range = math.clamp(speed * 0.75, 7, 22)
+    light.Shadows = false
+    light.Parent = rig
+    TweenService:Create(
+        light,
+        TweenInfo.new(math.min(0.42, lifetime * 0.32), Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Brightness = 0, Range = 0}
+    ):Play()
+
+    local function configureEmitter(emitter, particleSize, particleSpeed, particleLife, softer)
+        emitter.Rate = 0
+        emitter.Enabled = false
+        emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+        emitter.LightEmission = 1
+        emitter.LightInfluence = 0
+        emitter.LockedToPart = false
+        emitter.Orientation = Enum.ParticleOrientation.FacingCamera
+        emitter.EmissionDirection = Enum.NormalId.Top
+        emitter.SpreadAngle = Vector2.new(180, 180)
+        emitter.Speed = NumberRange.new(particleSpeed * 0.58, particleSpeed * 1.25)
+        emitter.Lifetime = NumberRange.new(particleLife * 0.72, particleLife * 1.12)
+        emitter.Drag = softer and 2.6 or 1.65
+        emitter.Acceleration = Vector3.new(0, softer and 3.8 or 1.8, 0)
+        emitter.Rotation = NumberRange.new(0, 360)
+        emitter.RotSpeed = NumberRange.new(-95, 95)
+
+        pcall(function()
+            emitter.Shape = Enum.ParticleEmitterShape.Sphere
+            emitter.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+            emitter.ShapeInOut = Enum.ParticleEmitterShapeInOut.Outward
+        end)
+
+        emitter.Size = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, particleSize * 0.28),
+            NumberSequenceKeypoint.new(0.10, particleSize),
+            NumberSequenceKeypoint.new(0.68, particleSize * 0.78),
+            NumberSequenceKeypoint.new(1, 0),
+        })
+        emitter.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.12),
+            NumberSequenceKeypoint.new(0.18, 0),
+            NumberSequenceKeypoint.new(0.42, softer and 0.20 or 0.04),
+            NumberSequenceKeypoint.new(0.58, softer and 0.05 or 0.28),
+            NumberSequenceKeypoint.new(0.76, 0.10),
+            NumberSequenceKeypoint.new(1, 1),
+        })
+
+        if XCConfig.killEffectRainbow then
+            emitter.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0.00, Color3.fromHSV(0.00, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.20, Color3.fromHSV(0.18, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.40, Color3.fromHSV(0.36, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.60, Color3.fromHSV(0.55, 0.82, 1)),
+                ColorSequenceKeypoint.new(0.80, Color3.fromHSV(0.74, 0.82, 1)),
+                ColorSequenceKeypoint.new(1.00, Color3.fromHSV(0.96, 0.82, 1)),
+            })
+        else
+            emitter.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, baseColor:Lerp(Color3.new(1, 1, 1), 0.28)),
+                ColorSequenceKeypoint.new(0.48, baseColor),
+                ColorSequenceKeypoint.new(1, baseColor:Lerp(Color3.new(0, 0, 0), 0.18)),
+            })
+        end
+    end
+
+    -- Main fast burst.
+    local primary = Instance.new("ParticleEmitter")
+    primary.Name = "Fireflies"
+    primary.Parent = rig
+    configureEmitter(primary, size, speed, lifetime, false)
+
+    -- A smaller slow layer gives the explosion depth and the "floating
+    -- firefly" finish after the initial outward burst.
+    local motes = Instance.new("ParticleEmitter")
+    motes.Name = "FloatingMotes"
+    motes.Parent = rig
+    configureEmitter(motes, size * 0.58, speed * 0.48, lifetime * 1.18, true)
+
+    local primaryCount = math.max(1, math.floor(count * 0.78))
+    local moteCount = math.max(1, count - primaryCount)
+    primary:Emit(primaryCount)
+    motes:Emit(moteCount)
+
+    game:GetService("Debris"):AddItem(rig, lifetime * 1.35 + 0.75)
+end
+
+if genv then
+    genv.XCSpawnKillFireflies = XCSpawnKillFireflies
 end
 
 -- ==========================================
@@ -6410,11 +6858,18 @@ end
 -- ==========================================
 -- RAGEBOT TT
 -- ==========================================
-function getRageTarget()
+function getRageTarget(originOverride, propertiesOverride)
     local cam = Workspace.CurrentCamera or camera
     if not cam then return nil end
-    local camPos = cam.CFrame.Position
+
+    local camPos = typeof(originOverride) == "Vector3" and originOverride or cam.CFrame.Position
     local camLook = cam.CFrame.LookVector
+    local properties = type(propertiesOverride) == "table"
+        and propertiesOverride
+        or resolveXCAutoWallProperties()
+        or {}
+    local maxAngle = math.rad(math.clamp(tonumber(XCConfig.rageFov) or 360, 1, 360) * 0.5)
+    local weaponRange = math.max(1, tonumber(properties.Range) or 500)
 
     local bestTarget = nil
     local bestScore = math.huge
@@ -6422,43 +6877,76 @@ function getRageTarget()
 
     for i = 1, #allPlayers do
         local plr = allPlayers[i]
-        local char = plr.Character
-        if char and plr ~= player and isTargetEnemy(plr, char) then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if isEntityAlive(char, hum) then
-                local hitPart = getTargetHitbox(char)
-                if hitPart then
-                    if XCConfig.wallbangEnabled or isVisibleThroughWalls(hitPart, char) then
-                        local aimPos = getKinematicAimPosition(hitPart)
-                        local score = math.huge
-                        
-                        if XCConfig.rageTargetMode == "Distance" then
-                            score = (aimPos - camPos).Magnitude
-                        elseif XCConfig.rageTargetMode == "Health" then
-                            score = hum.Health
-                        elseif XCConfig.rageTargetMode == "FOV" then
-                            local direction = (aimPos - camPos).Unit
-                            score = math.acos(math.clamp(camLook:Dot(direction), -1, 1))
-                        elseif XCConfig.rageTargetMode == "Priority" then
-                            local priorityName = tostring(XCConfig.priorityPlayerName or "None")
-                            local isPriority = priorityName ~= "None"
-                                and (plr.Name == priorityName or plr.DisplayName == priorityName)
-                            score = (isPriority and -100000 or 0) + (aimPos - camPos).Magnitude
-                        end
+        if plr == player then continue end
+        if XCConfig.silentAimTeamCheck and isAlly(plr) then continue end
 
-                        if score < bestScore then
-                            bestScore = score
-                            bestTarget = {
-                                Player = plr,
-                                Char = char,
-                                Part = hitPart,
-                                Hum = hum,
-                                Position = hitPart.Position,
-                                AimPosition = aimPos
-                            }
-                        end
-                    end
-                end
+        local char = plr.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if not isEntityAlive(char, hum) then continue end
+
+        local hitPart
+        if XCConfig.silentAimAimHead then
+            hitPart = char:FindFirstChild("Head")
+                or char:FindFirstChild("UpperTorso")
+                or char:FindFirstChild("HumanoidRootPart")
+        else
+            hitPart = char:FindFirstChild("UpperTorso")
+                or char:FindFirstChild("HumanoidRootPart")
+                or char:FindFirstChild("Torso")
+                or char:FindFirstChild("Head")
+        end
+        if not hitPart or not hitPart:IsA("BasePart") then continue end
+
+        for _, multipoint in ipairs(XCBuildMultipoints(hitPart)) do
+            local shotPosition = multipoint.Position
+            local aimPosition = XCPredictMultipointPosition(hitPart, shotPosition)
+            local delta = aimPosition - camPos
+            if delta.Magnitude <= 0.05 or delta.Magnitude > weaponRange then continue end
+
+            local angle = math.acos(math.clamp(camLook:Dot(delta.Unit), -1, 1))
+            if angle > maxAngle then continue end
+
+            local path = XCInspectShotPath(camPos, hitPart, char, properties, shotPosition)
+            local allowed = path.Visible
+                or XCConfig.extremeWallbangEnabled
+                or XCConfig.wallbangEnabled
+                or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+            if not allowed then continue end
+
+            local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
+                camPos, hitPart, char, properties, shotPosition, path
+            )
+            if not minDamageOk then continue end
+
+            local score
+            if XCConfig.rageTargetMode == "Health" then
+                score = hum.Health
+            elseif XCConfig.rageTargetMode == "FOV" then
+                score = angle
+            elseif XCConfig.rageTargetMode == "Priority" then
+                local priorityName = tostring(XCConfig.priorityPlayerName or "None")
+                local isPriority = priorityName ~= "None"
+                    and (plr.Name == priorityName or plr.DisplayName == priorityName)
+                score = (isPriority and -100000 or 0) + delta.Magnitude
+            else
+                score = delta.Magnitude
+            end
+
+            score += (multipoint.Rank or 0) * 0.00001
+            if score < bestScore then
+                bestScore = score
+                bestTarget = {
+                    Player = plr,
+                    Char = char,
+                    Part = hitPart,
+                    Hum = hum,
+                    Position = shotPosition,
+                    ShotPosition = shotPosition,
+                    AimPosition = aimPosition,
+                    Multipoint = multipoint.Name,
+                    EstimatedDamage = estimatedDamage,
+                    Visible = path.Visible,
+                }
             end
         end
     end
@@ -6588,7 +7076,7 @@ function triggerFindTargetAlongRay(origin, direction, targetModel)
     return nil
 end
 
-function triggerbotFire(vp, forcedPart, forcedCharacter)
+function triggerbotFire(vp, forcedPart, forcedCharacter, forcedPosition, redirectMode)
     -- Queue the exact trigger target for the next real local Bullet raycast.
     -- Keeping the queue in getgenv also lets persistent v36 wrappers from a
     -- reinjection consume the CURRENT session's target callback/state.
@@ -6599,6 +7087,8 @@ function triggerbotFire(vp, forcedPart, forcedCharacter)
             ticket = {
                 Part = forcedPart,
                 Character = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model"),
+                Position = typeof(forcedPosition) == "Vector3" and forcedPosition or forcedPart.Position,
+                Mode = redirectMode,
                 Expires = os.clock() + 0.35,
             }
             redirectStore.XCTriggerRedirectV38 = ticket
@@ -6646,6 +7136,9 @@ end
 
 function runMobileTriggerbot()
     if not XCConfig.triggerbotEnabled then return end
+    -- Do not run a second standalone trigger loop while Ragebot owns firing.
+    -- The Triggerbot toggle itself is untouched and resumes when Ragebot is off.
+    if XCConfig.rageBotEnabled then return end
 
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
@@ -6671,15 +7164,19 @@ function runMobileTriggerbot()
             local targetCharacter = targetPart:FindFirstAncestorOfClass("Model")
             if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
                 local visible = targetCharacter and isVisibleThroughWalls(targetPart, targetCharacter) or false
-                local allowed = visible
+                local properties = resolveXCAutoWallProperties() or {}
+                local path = XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPart.Position)
+                local allowed = path.Visible
                     or XCConfig.extremeWallbangEnabled
                     or XCConfig.wallbangEnabled
-                    or (XCConfig.silentAimAutoWallEnabled
-                        and canXCAutoWallReach(origin, targetPart, targetCharacter))
-                if allowed then
+                    or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+                local minDamageOk = XCPassesMinimumDamage(
+                    origin, targetPart, targetCharacter, properties, targetPart.Position, path
+                )
+                if allowed and minDamageOk then
                     lastTriggerTick = now
                     if triggerbotMobileAutoFire then
-                        triggerbotFire(vp, targetPart, targetCharacter)
+                        triggerbotFire(vp, targetPart, targetCharacter, targetPart.Position)
                     end
                 end
             end
@@ -6692,27 +7189,42 @@ function runMobileTriggerbot()
     if triggerMode == "Trigger FOV" then
         local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
         local radius = math.max(1, tonumber(XCConfig.triggerbotFov) or 160)
-        local bestPart, bestDist = nil, math.huge
+        local properties = resolveXCAutoWallProperties() or {}
+        local best = nil
+        local bestDist = math.huge
+
         for _, targetPlayer in ipairs(Players:GetPlayers()) do
             if targetPlayer ~= player and isTargetEnemy(targetPlayer, targetPlayer.Character) then
                 local char = targetPlayer.Character
                 local hum = char and char:FindFirstChildOfClass("Humanoid")
                 if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
-                    local part = char:FindFirstChild(XCConfig.triggerbotHeadOnly and "Head" or "Head")
+                    local part = char:FindFirstChild("Head")
                         or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
-                    if part then
-                        local point, onScreen = cam:WorldToViewportPoint(part.Position)
-                        if onScreen and point.Z > 0 then
-                            local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
-                            if dist <= radius and dist < bestDist then
-                                local visible = isVisibleThroughWalls(part, char)
-                                local allowed = visible
-                                    or XCConfig.extremeWallbangEnabled
-                                    or XCConfig.wallbangEnabled
-                                    or (XCConfig.silentAimAutoWallEnabled
-                                        and canXCAutoWallReach(origin, part, char))
-                                if allowed then
-                                    bestPart, bestDist = part, dist
+                    if part and (not XCConfig.triggerbotHeadOnly or part.Name == "Head") then
+                        for _, multipoint in ipairs(XCBuildMultipoints(part)) do
+                            local point, onScreen = cam:WorldToViewportPoint(multipoint.Position)
+                            if onScreen and point.Z > 0 then
+                                local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
+                                if dist <= radius and dist < bestDist then
+                                    local path = XCInspectShotPath(
+                                        origin, part, char, properties, multipoint.Position
+                                    )
+                                    local allowed = path.Visible
+                                        or XCConfig.extremeWallbangEnabled
+                                        or XCConfig.wallbangEnabled
+                                        or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+                                    local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
+                                        origin, part, char, properties, multipoint.Position, path
+                                    )
+                                    if allowed and minDamageOk then
+                                        bestDist = dist
+                                        best = {
+                                            Part = part,
+                                            Character = char,
+                                            Position = multipoint.Position,
+                                            Damage = estimatedDamage,
+                                        }
+                                    end
                                 end
                             end
                         end
@@ -6720,10 +7232,11 @@ function runMobileTriggerbot()
                 end
             end
         end
-        if bestPart then
+
+        if best then
             lastTriggerTick = now
             if triggerbotMobileAutoFire then
-                triggerbotFire(vp, bestPart, bestPart:FindFirstAncestorOfClass("Model"))
+                triggerbotFire(vp, best.Part, best.Character, best.Position)
             end
         end
         return
@@ -6746,9 +7259,16 @@ function runMobileTriggerbot()
         if not isTargetEnemy(firstPlayer, firstModel) then return end
         if XCConfig.triggerbotHeadOnly and first.Instance.Name ~= "Head" then return end
 
+        local properties = resolveXCAutoWallProperties() or {}
+        local path = XCInspectShotPath(origin, first.Instance, firstModel, properties, first.Instance.Position)
+        local minDamageOk = XCPassesMinimumDamage(
+            origin, first.Instance, firstModel, properties, first.Instance.Position, path
+        )
+        if not minDamageOk then return end
+
         lastTriggerTick = now
         if triggerbotMobileAutoFire then
-            triggerbotFire(vp, first.Instance, firstModel)
+            triggerbotFire(vp, first.Instance, firstModel, first.Instance.Position)
         end
         return
     end
@@ -6792,9 +7312,18 @@ function runMobileTriggerbot()
     end
     if not canShootThrough then return end
 
+    local wallProperties = resolveXCAutoWallProperties() or {}
+    local wallPath = XCInspectShotPath(
+        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position
+    )
+    local minDamageOk = XCPassesMinimumDamage(
+        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position, wallPath
+    )
+    if not minDamageOk then return end
+
     lastTriggerTick = now
     if triggerbotMobileAutoFire then
-        triggerbotFire(vp, bestTarget.Part, bestTarget.Model)
+        triggerbotFire(vp, bestTarget.Part, bestTarget.Model, bestTarget.Part.Position)
     end
 end
 
@@ -7752,19 +8281,25 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     end
 
     -- RAGEBOT & AIMBOT EXECUTION
+    -- Ragebot does not move the camera. Auto fire uses Triggerbot's firing
+    -- path; every actual bullet is redirected by the shared native hook.
     if XCConfig.rageBotEnabled then
         local target = getRageTarget()
-        if target and target.Part and target.Part.Parent then
-            local aimPos = getKinematicAimPosition(target.Part)
-            camera.CFrame = CFrame.lookAt(camera.CFrame.Position, aimPos)
-            
-            if XCConfig.rageAutoFire and tick() - lastTriggerTick > math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5) then
-                lastTriggerTick = tick()
-                pcall(function()
-                    local vp = camera.ViewportSize
-                    triggerbotFire(vp)
-                end)
-            end
+        if target and target.Part and target.Part.Parent
+            and XCConfig.rageAutoFire
+            and tick() - lastTriggerTick > math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5) then
+
+            lastTriggerTick = tick()
+            pcall(function()
+                local vp = camera.ViewportSize
+                triggerbotFire(
+                    vp,
+                    target.Part,
+                    target.Char,
+                    target.AimPosition or target.ShotPosition or target.Position,
+                    "Rage"
+                )
+            end)
         end
     elseif XCConfig.aimbotEnabled then
         local target = getClosestTarget()
@@ -8473,7 +9008,9 @@ table.insert(connections, inEndedConn)
 -- LOCAL-SHOT HIT CONFIRMATION & PHYSICS LOOP
 -- ==========================================
 table.insert(connections, RunService.Heartbeat:Connect(function()
-    if not XCConfig.hitmarkerEnabled and not XCConfig.hitSoundEnabled then
+    if not XCConfig.hitmarkerEnabled
+        and not XCConfig.hitSoundEnabled
+        and not XCConfig.killEffectEnabled then
         hitmarkerPendingHits = {}
         return
     end
@@ -8490,8 +9027,12 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
             local currentHealth = getXCHealth(char, targetPlr, hum)
             if currentHealth ~= nil and currentHealth < pending.Health then
                 local damage = pending.Health - currentHealth
+                local killed = currentHealth <= 0 or char:GetAttribute("Dead") == true
                 hitmarkerPendingHits[healthKey] = nil
                 showHitmarker(damage)
+                if killed and XCConfig.killEffectEnabled then
+                    pcall(XCSpawnKillFireflies, char)
+                end
             elseif currentHealth ~= nil and currentHealth > pending.Health then
                 pending.Health = currentHealth
             end
@@ -9017,7 +9558,12 @@ function buildXCUI()
         triggerbotDelay = "Minimum delay between automatic trigger shots.",
         triggerbotScopedOnly = "Allows Triggerbot to fire only while a native scope is active.",
         triggerbotHeadOnly = "Triggerbot fires only when the detected hit part is the head.",
-        rageBotEnabled = "Aggressive target selection using the Rage FOV and priority settings.",
+        rageBotEnabled = "Combines Silent Aim bullet redirection with Triggerbot-style firing while keeping both standalone modules independent.",
+        multipointEnabled = "Checks center and offset hitbox points for Silent Aim, Trigger FOV and Ragebot.",
+        multipointScale = "How far multipoints are placed from the hitbox center.",
+        minimumDamageEnabled = "Rejects shots whose estimated current-weapon damage is below the selected threshold.",
+        minimumDamage = "Minimum estimated damage for a direct visible shot.",
+        minimumDamageWall = "Minimum estimated damage after a penetrated wall path.",
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
@@ -10519,7 +11065,8 @@ function buildXCUI()
         if lower:find("esp",1,true) or lower:find("chams",1,true) or lower:find("box",1,true)
             or lower:find("tag",1,true) or lower:find("skeleton",1,true) or lower:find("tracer",1,true)
             or lower:find("grenade",1,true) or lower:find("sound",1,true) or lower:find("hit",1,true)
-            or lower:find("bullet",1,true) or lower:find("cube",1,true) or lower:find("head",1,true) then return "Visuals" end
+            or lower:find("kill",1,true) or lower:find("bullet",1,true) or lower:find("cube",1,true)
+            or lower:find("head",1,true) then return "Visuals" end
         return "Misc"
     end
     local function getAdvancedSettingKeys(category)
@@ -10747,6 +11294,8 @@ function buildXCUI()
     toggle(L, "Team check", "silentAimTeamCheck")
     toggle(L, "Visible check", "silentAimVisibleCheck")
     toggle(L, "Aim at head", "silentAimAimHead")
+    toggle(L, "Multipoint", "multipointEnabled")
+    addSlider(L, "Multipoint scale", "multipointScale", 0.10, 0.95, 0.05, "x")
     toggle(L, "Perfect silent", "pSilentEnabled")
     toggle(L, "Auto wall", "silentAimAutoWallEnabled")
     toggle(L, "Wallbang", "wallbangEnabled")
@@ -10759,6 +11308,9 @@ function buildXCUI()
     addSlider(L, "Trigger FOV", "triggerbotFov", 10, 360, 1, "px")
     toggle(L, "Scoped only", "triggerbotScopedOnly")
     toggle(L, "Head only", "triggerbotHeadOnly")
+    toggle(L, "Minimum damage", "minimumDamageEnabled")
+    addSlider(L, "Visible min damage", "minimumDamage", 1, 100, 1, " HP")
+    addSlider(L, "Wall min damage", "minimumDamageWall", 1, 100, 1, " HP")
 
     section(R, "Weapon")
     toggle(R, "Recoil control", "rcsEnabled")
@@ -10772,8 +11324,8 @@ function buildXCUI()
     section(R, "Ragebot")
     toggle(R, "Ragebot", "rageBotEnabled")
     addSlider(R, "Rage FOV", "rageFov", 30, 360, 1, "°")
-    toggle(R, "Rage auto fire", "rageAutoFire")
     addChoice(R, "Target priority", "rageTargetMode", {"Distance", "Health", "FOV", "Priority"})
+    toggle(R, "Rage auto fire", "rageAutoFire")
 
     task.wait()
     L, R = columns("AntiAim", "Anti-aim", "Movement")
@@ -10861,6 +11413,13 @@ function buildXCUI()
     addButton(R, "TEST HIT SOUND", function() playXCHitSound(true) end)
     addSlider(R, "Hitmarker size", "hitmarkerSize", 5, 30, 1, "")
     addSlider(R, "Hitmarker duration", "hitmarkerDuration", 0.05, 1, 0.05, "s")
+    toggle(R, "Kill fireflies", "killEffectEnabled")
+    toggle(R, "Rainbow fireflies", "killEffectRainbow")
+    addColorPicker(R, "Kill effect color", "killEffectColor")
+    addSlider(R, "Firefly amount", "killEffectCount", 10, 260, 5, "")
+    addSlider(R, "Firefly size", "killEffectSize", 0.04, 0.65, 0.01, "")
+    addSlider(R, "Burst speed", "killEffectSpeed", 2, 45, 1, "")
+    addSlider(R, "Effect duration", "killEffectDuration", 0.35, 3.5, 0.05, "s")
     section(R, "Jump circle")
     toggle(R, "Jump circle", "jumpCircleEnabled")
     addSlider(R, "Jump radius", "jumpCircleRadius", 1.5, 8, 0.5, "")
