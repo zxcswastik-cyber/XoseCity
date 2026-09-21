@@ -543,6 +543,8 @@ local XCConfig = {
     bhopSpeedBoost = 1.35,
     bhopAutoJump = false,
     bhopAirStrafe = true,
+    bhopStrongAutoStrafe = true,
+    bhopStrafeStrength = 3.0,
     bhopMode = "Hold",
     bhopMovingOnly = true,
     bhopPauseWithMenu = true,
@@ -3230,7 +3232,14 @@ local skinData = {
     AppliedWeapons = setmetatable({}, {__mode = "k"}),
     Ready = false,
     LastRefresh = 0,
-    LastError = nil
+    LastError = nil,
+    GloveCache = {
+        Camera = nil,
+        Arms = nil,
+        Left = nil,
+        Right = nil,
+        Signature = nil
+    }
 }
 
 function refreshXCSkinData()
@@ -3706,32 +3715,97 @@ function scanAndMorphKnives(root)
 end
 
 function applyXCGloves()
-    if not XCConfig.skinChangerEnabled or XCConfig.selectedGloveModel == "Default" then return end
+    if not XCConfig.skinChangerEnabled or XCConfig.selectedGloveModel == "Default" then
+        if skinData.GloveCache then skinData.GloveCache.Signature = nil end
+        return
+    end
     refreshXCSkinData()
     if not skinData.SkinsRoot then return end
 
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
-    local arms
-    for _, child in ipairs(cam:GetChildren()) do
-        if child:IsA("Model") and (child.Name:match("Arms") or child:FindFirstChild("Right Arm")) then
-            arms = child
-            break
-        end
-    end
-    if not arms then return end
 
-    local leftArm = arms:FindFirstChild("Left Arm")
-    local rightArm = arms:FindFirstChild("Right Arm")
-    local leftGlove = leftArm and leftArm:FindFirstChild("Glove")
-    local rightGlove = rightArm and rightArm:FindFirstChild("Glove")
-    if not leftGlove or not rightGlove then return end
+    local cache = skinData.GloveCache
+    if not cache then
+        cache = {Camera = nil, Arms = nil, Left = nil, Right = nil, Signature = nil}
+        skinData.GloveCache = cache
+    end
+
+    local leftGlove = cache.Left
+    local rightGlove = cache.Right
+    local cacheValid = cache.Camera == cam
+        and cache.Arms and cache.Arms.Parent == cam
+        and leftGlove and leftGlove.Parent
+        and rightGlove and rightGlove.Parent
+
+    if not cacheValid then
+        local arms
+        for _, child in ipairs(cam:GetChildren()) do
+            if child:IsA("Model") and (child.Name:match("Arms") or child:FindFirstChild("Right Arm")) then
+                arms = child
+                break
+            end
+        end
+        if not arms then
+            cache.Camera, cache.Arms, cache.Left, cache.Right, cache.Signature = cam, nil, nil, nil, nil
+            return
+        end
+
+        local leftArm = arms:FindFirstChild("Left Arm")
+        local rightArm = arms:FindFirstChild("Right Arm")
+        leftGlove = leftArm and leftArm:FindFirstChild("Glove")
+        rightGlove = rightArm and rightArm:FindFirstChild("Glove")
+        if not leftGlove or not rightGlove then
+            cache.Camera, cache.Arms, cache.Left, cache.Right, cache.Signature = cam, arms, nil, nil, nil
+            return
+        end
+
+        cache.Camera = cam
+        cache.Arms = arms
+        cache.Left = leftGlove
+        cache.Right = rightGlove
+        cache.Signature = nil
+    end
 
     local gloveFolder = skinData.SkinsRoot:FindFirstChild(XCConfig.selectedGloveModel)
     local skinFolder = gloveFolder and gloveFolder:FindFirstChild(XCConfig.selectedGloveSkin)
     local cameraFolder = skinFolder and skinFolder:FindFirstChild("Camera")
     local factoryNew = cameraFolder and cameraFolder:FindFirstChild("Factory New")
     if not factoryNew then return end
+
+    local expectedAppearances = {}
+    for _, appearance in ipairs(factoryNew:GetChildren()) do
+        if appearance:IsA("SurfaceAppearance") then
+            expectedAppearances[#expectedAppearances + 1] = appearance
+        end
+    end
+
+    local signature = tostring(XCConfig.selectedGloveModel) .. "\0" .. tostring(XCConfig.selectedGloveSkin)
+    if cache.Signature == signature then
+        local function appearancesMatch(glove)
+            local actual = {}
+            for _, child in ipairs(glove:GetChildren()) do
+                if child:IsA("SurfaceAppearance") then actual[#actual + 1] = child end
+            end
+            if #actual ~= #expectedAppearances then return false end
+            for _, expected in ipairs(expectedAppearances) do
+                local matched = false
+                for _, current in ipairs(actual) do
+                    if current.Name == expected.Name
+                        and current.ColorMap == expected.ColorMap
+                        and current.MetalnessMap == expected.MetalnessMap
+                        and current.NormalMap == expected.NormalMap
+                        and current.RoughnessMap == expected.RoughnessMap then
+                        matched = true
+                        break
+                    end
+                end
+                if not matched then return false end
+            end
+            return true
+        end
+        if appearancesMatch(leftGlove) and appearancesMatch(rightGlove) then return end
+    end
 
     for _, glove in ipairs({leftGlove, rightGlove}) do
         for _, old in ipairs(glove:GetChildren()) do
@@ -3743,6 +3817,7 @@ function applyXCGloves()
             end
         end
     end
+    cache.Signature = signature
 end
 
 -- Compatibility with the existing XC render scanner.
@@ -8808,6 +8883,7 @@ table.insert(connections, Players.PlayerAdded:Connect(attachEspToPlayer))
 -- MAIN ENGINE RENDER LOOP
 -- ==========================================
 local visualOverlayAccumulator = 0
+local interfaceRefreshAccumulator = 0
 local threeDEspWasActive = false
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     camera = Workspace.CurrentCamera or camera
@@ -8835,29 +8911,35 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         fpsCounter = 0
         lastFpsUpdate = nowTick
     end
-    wmCard.Visible = XCConfig.watermarkEnabled
-    wmTitle.Text = XCConfig.watermarkText or "XC"
-    if XCConfig.watermarkShowName then
-        wmTitle.Text = (XCConfig.watermarkText or "XC") .. " • " .. player.Name
-    end
-    wmMetrics.Visible = XCConfig.watermarkShowFPS or XCConfig.watermarkShowPing
-    wmDivider.Visible = wmMetrics.Visible
-
-    if fovFrame then
-        local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
-        fovFrame.Visible = isFovVisible
-        if isFovVisible then
-            local diameter = XCConfig.aimFov * 2
-            fovFrame.Size = UDim2.new(0, diameter, 0, diameter)
+    -- Static UI properties do not need to be reassigned every rendered frame.
+    -- 10 Hz keeps controls visually immediate while reducing property churn.
+    interfaceRefreshAccumulator += dt
+    if interfaceRefreshAccumulator >= 0.1 then
+        interfaceRefreshAccumulator = 0
+        wmCard.Visible = XCConfig.watermarkEnabled
+        wmTitle.Text = XCConfig.watermarkText or "XC"
+        if XCConfig.watermarkShowName then
+            wmTitle.Text = (XCConfig.watermarkText or "XC") .. " • " .. player.Name
         end
-    end
+        wmMetrics.Visible = XCConfig.watermarkShowFPS or XCConfig.watermarkShowPing
+        wmDivider.Visible = wmMetrics.Visible
 
-    if silentFovFrame then
-        local isSilentFovVisible = XCConfig.silentAimEnabled and XCConfig.showSilentFovCircle
-        silentFovFrame.Visible = isSilentFovVisible
-        if isSilentFovVisible then
-            local diameter = XCConfig.silentAimFov * 2
-            silentFovFrame.Size = UDim2.new(0, diameter, 0, diameter)
+        if fovFrame then
+            local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
+            fovFrame.Visible = isFovVisible
+            if isFovVisible then
+                local diameter = XCConfig.aimFov * 2
+                fovFrame.Size = UDim2.new(0, diameter, 0, diameter)
+            end
+        end
+
+        if silentFovFrame then
+            local isSilentFovVisible = XCConfig.silentAimEnabled and XCConfig.showSilentFovCircle
+            silentFovFrame.Visible = isSilentFovVisible
+            if isSilentFovVisible then
+                local diameter = XCConfig.silentAimFov * 2
+                silentFovFrame.Size = UDim2.new(0, diameter, 0, diameter)
+            end
         end
     end
 
@@ -9858,9 +9940,41 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
             if moving and (grounded or XCConfig.bhopAirStrafe) then
                 activeMode = canJump and "Bhop" or (grounded and "Bhop accelerate" or "AutoStrafe")
-                local targetSpeed = 16 * math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
-                local targetVel = currentMove.Unit * targetSpeed
+
+                local speedBoost = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
                 local acceleration = math.clamp(tonumber(XCConfig.bhopAcceleration) or 12, 2, 30)
+                local desiredDir = currentMove.Unit
+                local targetSpeed = 16 * speedBoost
+
+                -- Strong auto-strafe is intentionally air-only. It keeps the
+                -- normal grounded bhop acceleration unchanged, while making
+                -- airborne steering react much harder without touching Y speed.
+                if not grounded and XCConfig.bhopAirStrafe and XCConfig.bhopStrongAutoStrafe then
+                    local strafeStrength = math.clamp(tonumber(XCConfig.bhopStrafeStrength) or 3, 1, 5)
+                    local horizontal = Vector3.new(currentVel.X, 0, currentVel.Z)
+                    local horizontalSpeed = horizontal.Magnitude
+
+                    -- Preserve existing momentum and allow a strong configurable
+                    -- air-speed ceiling. This avoids losing speed on direction
+                    -- changes while still keeping the result deterministic.
+                    local strongTargetSpeed = 16 * speedBoost * strafeStrength
+                    targetSpeed = math.max(targetSpeed, math.min(horizontalSpeed + (10 * strafeStrength), strongTargetSpeed))
+                    acceleration = math.min(120, acceleration * (1 + strafeStrength * 1.35))
+
+                    -- Mix a small amount of current momentum into the requested
+                    -- direction so fast 90-degree turns stay smooth instead of
+                    -- snapping the root part sideways in one frame.
+                    if horizontalSpeed > 0.05 then
+                        local momentumDir = horizontal.Unit
+                        local steerWeight = math.clamp(0.30 + strafeStrength * 0.12, 0.42, 0.82)
+                        local mixed = momentumDir:Lerp(desiredDir, steerWeight)
+                        if mixed.Magnitude > 0.001 then
+                            desiredDir = mixed.Unit
+                        end
+                    end
+                end
+
+                local targetVel = desiredDir * targetSpeed
                 local blend = 1 - math.exp(-acceleration * math.max(dt, 0))
                 local base = finalVelocity or currentVel
                 finalVelocity = Vector3.new(
@@ -10317,6 +10431,8 @@ function buildXCUI()
         bhopPauseWithMenu = "Pauses Bhop while the XC menu or a text box is open.",
         bhopGroundDelay = "Delay after touching the ground before the next jump.",
         bhopAcceleration = "How quickly horizontal velocity approaches the configured Bhop speed.",
+        bhopStrongAutoStrafe = "Greatly increases airborne steering and momentum while Air strafe is enabled.",
+        bhopStrafeStrength = "Strength of airborne auto-strafe steering and speed gain. Higher values are intentionally aggressive.",
         flightEnabled = "Moves the character along the camera direction.",
         chamsEnabled = "Adds a local highlight to valid player models.",
         skeletonEspEnabled = "Draws a lightweight R6/R15 skeleton at 30 updates per second.",
@@ -11509,7 +11625,7 @@ function buildXCUI()
         grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
         grid.CanvasSize = UDim2.new()
         local layout = Instance.new("UIGridLayout", grid)
-        layout.CellSize = UDim2.new(0.25, -5, 0, UserInputService.TouchEnabled and 102 or 88)
+        layout.CellSize = UDim2.new(0.25, -5, 0, UserInputService.TouchEnabled and 118 or 108)
         layout.CellPadding = UDim2.fromOffset(5, 5)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         local padding = Instance.new("UIPadding", grid)
@@ -11568,18 +11684,47 @@ function buildXCUI()
             if not source or not source:FindFirstChildWhichIsA("BasePart",true) then return false end
             local ok,model=pcall(function() source.Archivable=true;return source:Clone() end)
             if not ok or not model then return false end
+
+            -- Preview clones do not need scripts/effects or invisible positioning helpers.
+            -- Removing those helpers also prevents a giant invisible bounding box from
+            -- making the actual weapon look tiny in the card.
             for _,object in ipairs(model:GetDescendants()) do
                 if object:IsA("Script") or object:IsA("LocalScript") or object:IsA("ModuleScript")
-                    or object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam") then object:Destroy()
-                elseif object:IsA("BasePart") then object.Anchored=true;object.CanCollide=false;object.CastShadow=false end
+                    or object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam") then
+                    object:Destroy()
+                elseif object:IsA("BasePart") then
+                    object.Anchored=true;object.CanCollide=false;object.CastShadow=false
+                    if object.Transparency>=0.995 and not object:FindFirstChildWhichIsA("SurfaceAppearance") then
+                        object:Destroy()
+                    end
+                end
             end
+            if not model:FindFirstChildWhichIsA("BasePart",true) then model:Destroy();return false end
+
             pcall(applySurfaceAppearanceSkin,model,itemName,skinName,0)
             local world=Instance.new("WorldModel",viewport);model.Parent=world
-            local cam=Instance.new("Camera",viewport);cam.FieldOfView=34;viewport.CurrentCamera=cam
+            local cam=Instance.new("Camera",viewport)
+            cam.FieldOfView=28
+            viewport.CurrentCamera=cam
+
             local boundsOk,bounds,size=pcall(function() local cf,sz=model:GetBoundingBox();return cf,sz end)
-            if not boundsOk then model:Destroy();return false end
-            local radius=math.max(size.X,size.Y,size.Z,1)
-            cam.CFrame=CFrame.lookAt(bounds.Position+Vector3.new(radius*1.35,radius*0.45,radius*1.55),bounds.Position)
+            if not boundsOk or not bounds or not size then model:Destroy();return false end
+
+            -- Show the long side of the item horizontally and fit it tightly to the card.
+            local lengthAlongX=size.X>=size.Z
+            local viewDir=lengthAlongX and bounds.LookVector or bounds.RightVector
+            local upDir=bounds.UpVector
+            local horizontalSize=math.max(lengthAlongX and size.X or size.Z,0.1)
+            local verticalSize=math.max(size.Y,0.1)
+            local viewportSize=viewport.AbsoluteSize
+            local aspect=(viewportSize.Y>1) and math.max(viewportSize.X/viewportSize.Y,1) or 2
+            local vfov=math.rad(cam.FieldOfView)
+            local hfov=2*math.atan(math.tan(vfov/2)*aspect)
+            local distanceH=(horizontalSize*0.5)/math.tan(hfov/2)
+            local distanceV=(verticalSize*0.5)/math.tan(vfov/2)
+            local distance=math.max(distanceH,distanceV)*1.16
+            local center=bounds.Position
+            cam.CFrame=CFrame.lookAt(center+viewDir*distance,center,upDir)
             return true
         end
 
@@ -11678,17 +11823,17 @@ function buildXCUI()
                 selected.BackgroundColor3=Color3.fromRGB(4,4,4);selected.BackgroundTransparency=0.2;selected.Text="✓"
                 selected.Font=Enum.Font.Code;selected.TextSize=10;selected.Visible=false;selected.ZIndex=5
                 local imageId=findPreviewImage(itemName,skinName)
-                if imageId then
-                    local image=Instance.new("ImageLabel",visual);image.Size=UDim2.fromScale(1,1);image.BackgroundTransparency=1
-                    image.Image=imageId;image.ScaleType=Enum.ScaleType.Fit
-                else
-                    previewJobs[#previewJobs+1]=function()
-                        if serial~=gallerySerial or not visual.Parent then return end
-                        if not addModelPreview(visual,itemName,skinName) then
-                            local fallback=Instance.new("TextLabel",visual);fallback.Size=UDim2.fromScale(1,1);fallback.BackgroundTransparency=1
-                            fallback.Text=skinName=="Default" and "DEFAULT" or itemName;fallback.TextColor3=C.Muted
-                            fallback.Font=Enum.Font.Code;fallback.TextSize=8;fallback.TextWrapped=true
-                        end
+                previewJobs[#previewJobs+1]=function()
+                    if serial~=gallerySerial or not visual.Parent then return end
+                    if addModelPreview(visual,itemName,skinName) then return end
+                    if imageId then
+                        local image=Instance.new("ImageLabel",visual)
+                        image.Size=UDim2.new(1,-8,1,-8);image.Position=UDim2.fromOffset(4,4);image.BackgroundTransparency=1
+                        image.Image=imageId;image.ScaleType=Enum.ScaleType.Fit
+                    else
+                        local fallback=Instance.new("TextLabel",visual);fallback.Size=UDim2.fromScale(1,1);fallback.BackgroundTransparency=1
+                        fallback.Text=skinName=="Default" and "DEFAULT" or itemName;fallback.TextColor3=C.Muted
+                        fallback.Font=Enum.Font.Code;fallback.TextSize=8;fallback.TextWrapped=true
                     end
                 end
                 card.Activated:Connect(function()
@@ -12097,6 +12242,8 @@ function buildXCUI()
     addSlider(R, "Ground delay", "bhopGroundDelay", 0, 0.25, 0.01, "s")
     addSlider(R, "Acceleration", "bhopAcceleration", 2, 30, 1, "")
     toggle(R, "Air strafe", "bhopAirStrafe")
+    toggle(R, "Strong auto strafe", "bhopStrongAutoStrafe")
+    addSlider(R, "Strafe strength", "bhopStrafeStrength", 1, 5, 0.1, "x")
     section(R, "Movement")
     toggle(R, "Slide", "slideEnabled")
     toggle(R, "Flight", "flightEnabled")
@@ -13095,37 +13242,42 @@ task.spawn(function()
 end)
 
 -- Native hold-to-fire for semi-automatic weapons. This replaces the old
--- Automatic property mutation without generating mouse input on phones.
-task.spawn(function()
+-- 10 ms polling loop with the engine heartbeat, avoiding ~100 wakeups/sec.
+-- The supported fire-rate floor is 30 ms, so one heartbeat check is precise
+-- enough while also being automatically cleaned up with the other connections.
+do
     local heldLast = false
     local heldWeapon = nil
     local nextShot = 0
-    while xcSessionActive() and task.wait(0.01) do
+    table.insert(connections, RunService.Heartbeat:Connect(function()
+        if not xcSessionActive() then return end
         if not (XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate)
             or not resolveXCFireRateGetWeapon() then
             heldLast, heldWeapon, nextShot = false, nil, 0
-            continue
+            return
         end
+
         local okWeapon, weapon = pcall(xcFireRateGetWeapon)
         local record = okWeapon and weapon and xcFireRateWeaponRecords[weapon] or nil
         local held = record and record.OriginalAutomatic ~= true and weapon.IsFireHeld == true
         if not held then
             heldLast, heldWeapon, nextShot = false, weapon, 0
-            continue
+            return
         end
         if weapon ~= heldWeapon or not heldLast then
             heldWeapon, heldLast = weapon, true
             nextShot = os.clock() + math.max(tonumber(record.Rate) or 0.08, 0.03)
-            continue
+            return
         end
+
         local now = os.clock()
         if now >= nextShot and type(weapon.shoot) == "function"
             and not weapon.IsShooting and not weapon.IsBurstShooting then
             nextShot = now + math.max(tonumber(record.Rate) or 0.08, 0.03)
             pcall(function() weapon:shoot() end)
         end
-    end
-end)
+    end))
+end
 
 function installXCRecoilSpread()
     if xcRecoilSpreadInstalled then return true end
