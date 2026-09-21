@@ -289,7 +289,7 @@ do
     print("[XC/Panda] Authenticated. Premium:", authResult.isPremium == true)
 end
 
--- XC cleaned UI build
+-- XC v38: native Auto Wall + trigger bullet interception fix\n-- XC cleaned UI build
 -- Unified XC lime/dark interface
 pcall(function()
     if type(getgenv) == "function" then
@@ -1738,18 +1738,21 @@ getSilentAimTarget = function()
         local part = char:FindFirstChild(XCConfig.silentAimAimHead and "Head" or "HumanoidRootPart")
             or char:FindFirstChild("Torso")
         if not part or not part:IsA("BasePart") then continue end
-        -- Visibility and penetration are independent controls. Silent Aim only
-        -- accepts an obstructed target when a wall mode explicitly allows it.
+        -- Visible Check is now a true independent gate:
+        -- ON  = reject obstructed targets.
+        -- OFF = target selection may see through geometry. Auto Wall, when
+        --       enabled, additionally rejects walls the equipped weapon cannot
+        --       actually penetrate with its native penetration budget.
         local visible = isVisibleThroughWalls(part, char)
-        if XCConfig.silentAimVisibleCheck then
-            if not visible then continue end
-        elseif not visible then
-            if XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled then
-                -- Extreme/forced wallbang intentionally accepts the target.
-            elseif XCConfig.silentAimAutoWallEnabled and type(canXCSilentAutoWallTarget) == "function" then
-                local origin = cam.CFrame.Position
-                if not canXCSilentAutoWallTarget(origin, part, char) then continue end
-            else
+        if XCConfig.silentAimVisibleCheck and not visible then
+            continue
+        end
+        if not visible and not XCConfig.silentAimVisibleCheck
+            and XCConfig.silentAimAutoWallEnabled
+            and not XCConfig.wallbangEnabled and not XCConfig.extremeWallbangEnabled then
+            local origin = cam.CFrame.Position
+            if type(canXCSilentAutoWallTarget) ~= "function"
+                or not canXCSilentAutoWallTarget(origin, part, char) then
                 continue
             end
         end
@@ -2161,10 +2164,16 @@ local function castXCNativeSilentShot(origin, direction, properties)
         result.Distance = (first.position - origin).Magnitude
     end
 
-    local throughDistance = math.max(penetration, 0.001)
+    -- Penetration is a MATERIAL BUDGET, not the ray length. The old code
+    -- used `penetration` as travel distance, so the validation pass could say
+    -- a wall was penetrable while the real redirected bullet stopped after
+    -- only a few studs. Keep native penetration untouched, but cast through
+    -- the full remaining weapon range.
+    local traveled = typeof(first.position) == "Vector3" and (first.position - origin).Magnitude or 0
+    local throughDistance = math.max(range - traveled + 0.05, 0.001)
     local hits = xcNativeRaycast.castThrough(
         first.position - direction * 0.001,
-        direction * (throughDistance + 0.001),
+        direction * throughDistance,
         penetration,
         ignore
     )
@@ -2244,14 +2253,22 @@ local function selectXCNativeSilentTarget(origin, properties)
             and (firstInstance == candidate.Part or firstInstance:IsDescendantOf(candidate.Character)))
 
         if visible then return candidate end
-        if XCConfig.extremeWallbangEnabled and not XCConfig.silentAimVisibleCheck then
+
+        -- Visible Check ON means exactly that: never acquire through a wall.
+        if XCConfig.silentAimVisibleCheck then
+            continue
+        end
+
+        -- Visible Check OFF does not silently re-enable visibility filtering.
+        -- Forced wallbang modes may always acquire the candidate. Auto Wall is
+        -- stricter and only acquires if the CURRENT weapon can penetrate the
+        -- exact origin -> target path. With no wall mode, Silent Aim may still
+        -- acquire the target, but the native shot will naturally collide with
+        -- geometry instead of receiving fake penetration.
+        if XCConfig.extremeWallbangEnabled then
             return candidate
         end
-        if XCConfig.silentAimAutoWallEnabled and not XCConfig.silentAimVisibleCheck
-            and canXCAutoWallReach(origin, candidate.Part, candidate.Character, properties or {}) then
-            return candidate
-        end
-        if XCConfig.wallbangEnabled and not XCConfig.silentAimVisibleCheck then
+        if XCConfig.wallbangEnabled then
             local penetrated = castXCNativeSilentShot(origin, offset.Unit, properties or {})
             if penetrated and type(penetrated.Hits) == "table" then
                 for _, impact in ipairs(penetrated.Hits) do
@@ -2262,7 +2279,15 @@ local function selectXCNativeSilentTarget(origin, properties)
                     end
                 end
             end
+            continue
         end
+        if XCConfig.silentAimAutoWallEnabled then
+            if canXCAutoWallReach(origin, candidate.Part, candidate.Character, properties or {}) then
+                return candidate
+            end
+            continue
+        end
+        return candidate
     end
     return nil
 end
@@ -2314,12 +2339,98 @@ local function redirectXCNativeSilentShot(bullet, shot)
 end
 
 local function processXCNativeLocalShot(bullet, shot)
-    local finalShot = redirectXCNativeSilentShot(bullet, shot)
     local weapon = type(bullet) == "table" and bullet.Weapon or nil
+    local finalShot = shot
+
     if weapon and weapon.Player == player then
+        -- Triggerbot and Auto Wall now hand the selected target to the SAME
+        -- Bullet._performRaycast interception used by Silent Aim. This consumes
+        -- one queued target per real local bullet so triggerbot no longer just
+        -- presses fire while the bullet continues through the crosshair.
+        local redirectStore = sharedXCEnv or _G
+        local queued = redirectStore and redirectStore.XCTriggerRedirectV38 or nil
+        if type(queued) == "table" then
+            if tonumber(queued.Expires) and os.clock() > queued.Expires then
+                redirectStore.XCTriggerRedirectV38 = nil
+                queued = nil
+            else
+                -- Consume before redirecting: a burst/manual shot cannot reuse
+                -- an old trigger target if this particular cast fails.
+                redirectStore.XCTriggerRedirectV38 = nil
+            end
+        end
+
+        if type(queued) == "table" and type(shot) == "table"
+            and typeof(shot.Origin) == "Vector3" then
+            local targetPart = queued.Part
+            local targetCharacter = queued.Character
+            if typeof(targetPart) == "Instance" and targetPart:IsA("BasePart")
+                and targetPart.Parent and (not targetCharacter or targetPart:IsDescendantOf(targetCharacter)) then
+
+                local shotOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+                local offset = targetPart.Position - shotOrigin
+                if offset.Magnitude > 0.05 then
+                    local properties = type(bullet.Properties) == "table" and bullet.Properties or {}
+                    local visible = false
+                    if ensureXCAutoWallRaycast() then
+                        local ignore = xcNativeGetRayIgnore()
+                        local first = xcNativeRaycast.cast(
+                            shotOrigin,
+                            offset.Unit * (offset.Magnitude + 0.05),
+                            nil,
+                            ignore
+                        )
+                        local firstInstance = type(first) == "table" and (first.instance or first.Instance) or nil
+                        visible = not firstInstance or (typeof(firstInstance) == "Instance"
+                            and (firstInstance == targetPart
+                                or (targetCharacter and firstInstance:IsDescendantOf(targetCharacter))))
+                    end
+
+                    local allowed = visible
+                        or XCConfig.extremeWallbangEnabled
+                        or XCConfig.wallbangEnabled
+                        or (XCConfig.silentAimAutoWallEnabled
+                            and canXCAutoWallReach(shotOrigin, targetPart, targetCharacter, properties))
+
+                    if allowed then
+                        if XCConfig.extremeWallbangEnabled then
+                            finalShot = {
+                                Origin = shotOrigin,
+                                Direction = offset.Unit,
+                                Distance = offset.Magnitude,
+                                Hits = {{
+                                    Position = targetPart.Position,
+                                    Instance = targetPart,
+                                    Material = targetPart.Material.Name,
+                                    Normal = -offset.Unit,
+                                    Exit = false,
+                                }},
+                            }
+                        else
+                            finalShot = castXCNativeSilentShot(shotOrigin, offset.Unit, properties) or shot
+                        end
+
+                        if finalShot ~= shot then
+                            silentAimResolved = targetPart
+                            if registerXCLocalHitCandidate then
+                                registerXCLocalHitCandidate(targetPart)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        -- A trigger redirect has priority for this one shot. If it did not
+        -- produce a redirected shot, normal Silent Aim may still handle it.
+        if finalShot == shot then
+            finalShot = redirectXCNativeSilentShot(bullet, shot)
+        end
         pcall(renderXCBulletEffects, finalShot, bullet)
+        return finalShot
     end
-    return finalShot
+
+    return redirectXCNativeSilentShot(bullet, shot)
 end
 
 if sharedXCEnv then
@@ -6477,7 +6588,30 @@ function triggerFindTargetAlongRay(origin, direction, targetModel)
     return nil
 end
 
-function triggerbotFire(vp)
+function triggerbotFire(vp, forcedPart, forcedCharacter)
+    -- Queue the exact trigger target for the next real local Bullet raycast.
+    -- Keeping the queue in getgenv also lets persistent v36 wrappers from a
+    -- reinjection consume the CURRENT session's target callback/state.
+    local redirectStore = sharedXCEnv or _G
+    local ticket = nil
+    if redirectStore then
+        if typeof(forcedPart) == "Instance" and forcedPart:IsA("BasePart") and forcedPart.Parent then
+            ticket = {
+                Part = forcedPart,
+                Character = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model"),
+                Expires = os.clock() + 0.35,
+            }
+            redirectStore.XCTriggerRedirectV38 = ticket
+            task.delay(0.4, function()
+                if redirectStore.XCTriggerRedirectV38 == ticket then
+                    redirectStore.XCTriggerRedirectV38 = nil
+                end
+            end)
+        else
+            redirectStore.XCTriggerRedirectV38 = nil
+        end
+    end
+
     pcall(function()
         local myChar = player.Character
         local equippedTool = myChar and myChar:FindFirstChildOfClass("Tool")
@@ -6534,9 +6668,20 @@ function runMobileTriggerbot()
     if triggerMode == "Silent FOV" then
         local targetPart = getSilentAimTarget and getSilentAimTarget() or nil
         if targetPart and targetPart.Parent then
+            local targetCharacter = targetPart:FindFirstAncestorOfClass("Model")
             if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
-                lastTriggerTick = now
-                if triggerbotMobileAutoFire then triggerbotFire(vp) end
+                local visible = targetCharacter and isVisibleThroughWalls(targetPart, targetCharacter) or false
+                local allowed = visible
+                    or XCConfig.extremeWallbangEnabled
+                    or XCConfig.wallbangEnabled
+                    or (XCConfig.silentAimAutoWallEnabled
+                        and canXCAutoWallReach(origin, targetPart, targetCharacter))
+                if allowed then
+                    lastTriggerTick = now
+                    if triggerbotMobileAutoFire then
+                        triggerbotFire(vp, targetPart, targetCharacter)
+                    end
+                end
             end
         end
         return
@@ -6561,7 +6706,12 @@ function runMobileTriggerbot()
                             local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
                             if dist <= radius and dist < bestDist then
                                 local visible = isVisibleThroughWalls(part, char)
-                                if visible or XCConfig.wallbangEnabled or XCConfig.extremeWallbangEnabled then
+                                local allowed = visible
+                                    or XCConfig.extremeWallbangEnabled
+                                    or XCConfig.wallbangEnabled
+                                    or (XCConfig.silentAimAutoWallEnabled
+                                        and canXCAutoWallReach(origin, part, char))
+                                if allowed then
                                     bestPart, bestDist = part, dist
                                 end
                             end
@@ -6572,7 +6722,9 @@ function runMobileTriggerbot()
         end
         if bestPart then
             lastTriggerTick = now
-            if triggerbotMobileAutoFire then triggerbotFire(vp) end
+            if triggerbotMobileAutoFire then
+                triggerbotFire(vp, bestPart, bestPart:FindFirstAncestorOfClass("Model"))
+            end
         end
         return
     end
@@ -6595,7 +6747,9 @@ function runMobileTriggerbot()
         if XCConfig.triggerbotHeadOnly and first.Instance.Name ~= "Head" then return end
 
         lastTriggerTick = now
-        if triggerbotMobileAutoFire then triggerbotFire(vp) end
+        if triggerbotMobileAutoFire then
+            triggerbotFire(vp, first.Instance, firstModel)
+        end
         return
     end
 
@@ -6628,12 +6782,20 @@ function runMobileTriggerbot()
 
     if not bestTarget then return end
 
-    local targetDirection = bestTarget.Part.Position - origin
-    local confirmed = triggerFindTargetAlongRay(origin, targetDirection, bestTarget.Model)
-    if not confirmed then return end
+    -- Auto Wall is weapon-aware now. Do not use the old generic material
+    -- thickness table here: validate the exact camera -> target path with the
+    -- equipped weapon's native Bullet.Properties.Penetration. Forced wallbang
+    -- modes intentionally bypass this budget.
+    local canShootThrough = XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled
+    if not canShootThrough and XCConfig.silentAimAutoWallEnabled then
+        canShootThrough = canXCAutoWallReach(origin, bestTarget.Part, bestTarget.Model)
+    end
+    if not canShootThrough then return end
 
     lastTriggerTick = now
-    if triggerbotMobileAutoFire then triggerbotFire(vp) end
+    if triggerbotMobileAutoFire then
+        triggerbotFire(vp, bestTarget.Part, bestTarget.Model)
+    end
 end
 
 -- ==========================================
