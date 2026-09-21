@@ -4760,11 +4760,15 @@ function XCSpawnKillFireflies(source, forcePreview)
     )
 end
 
--- Additional lightweight kill-effect styles. These use TweenService + Debris only,
--- so unlike fireflies they do not add another per-frame updater.
+-- Lightweight kill-effect styles. These use TweenService + Debris only,
+-- so unlike Fireflies they do not add another permanent per-frame updater.
 function XCGetKillEffectBaseColor(index, total)
     if XCConfig.killEffectRainbow == true then
-        return Color3.fromHSV(((tonumber(index) or 1) / math.max(1, tonumber(total) or 1)) % 1, 0.82, 1)
+        return Color3.fromHSV(
+            ((tonumber(index) or 1) / math.max(1, tonumber(total) or 1)) % 1,
+            0.82,
+            1
+        )
     end
     return rgb(
         XCConfig.killEffectColorR,
@@ -4773,7 +4777,17 @@ function XCGetKillEffectBaseColor(index, total)
     )
 end
 
-function XCNewKillEffectPart(folder, name, color)
+function XCGetKillEffectParams()
+    return {
+        Duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5),
+        Size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65),
+        Speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45),
+        Count = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) + 0.5), 10, 260),
+        Glow = math.clamp(tonumber(XCConfig.killEffectGlow) or 1.4, 0, 3),
+    }
+end
+
+function XCNewKillEffectPart(folder, name, color, material)
     local part = Instance.new("Part")
     part.Name = name or "KillFX"
     part.Anchored = true
@@ -4782,7 +4796,7 @@ function XCNewKillEffectPart(folder, name, color)
     part.CanQuery = false
     part.CastShadow = false
     part.Massless = true
-    part.Material = Enum.Material.Neon
+    part.Material = material or Enum.Material.Neon
     part.Color = color or Color3.new(1, 1, 1)
     part.Parent = folder
     return part
@@ -4796,200 +4810,581 @@ function XCCreateKillEffectFolder(name, lifetime)
     return folder
 end
 
-function XCSpawnKillNova(source)
-    local position = XCResolveKillEffectPosition(source)
-    if typeof(position) ~= "Vector3" then return end
-
-    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
-    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
-    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
-    local rayCount = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) / 5), 12, 42)
-    local folder = XCCreateKillEffectFolder("XC_KillNova", duration + 0.8)
-    local random = Random.new()
-
-    local core = XCNewKillEffectPart(folder, "NovaCore", XCGetKillEffectBaseColor(1, 1))
-    core.Shape = Enum.PartType.Ball
-    core.Position = position + Vector3.new(0, 0.6, 0)
-    core.Size = Vector3.new(size * 2.2, size * 2.2, size * 2.2)
-    core.Transparency = 0.04
-    TweenService:Create(core, TweenInfo.new(math.min(duration, 0.62), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-        Size = Vector3.new(size * 18, size * 18, size * 18),
-        Transparency = 1,
-    }):Play()
-
-    for i = 1, rayCount do
-        local dir = Vector3.new(
-            random:NextNumber(-1, 1),
-            random:NextNumber(-0.35, 1),
-            random:NextNumber(-1, 1)
-        )
-        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
-        local length = random:NextNumber(1.8, 4.5) + speed * 0.08
-        local ray = XCNewKillEffectPart(folder, "NovaRay", XCGetKillEffectBaseColor(i, rayCount))
-        ray.Size = Vector3.new(math.max(0.035, size * 0.28), math.max(0.035, size * 0.28), 0.15)
-        ray.Transparency = random:NextNumber(0.02, 0.14)
-        ray.CFrame = CFrame.lookAt(position + Vector3.new(0, 0.6, 0), position + Vector3.new(0, 0.6, 0) + dir)
-        TweenService:Create(ray, TweenInfo.new(duration * random:NextNumber(0.45, 0.82), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            CFrame = CFrame.lookAt(position + Vector3.new(0, 0.6, 0) + dir * (length * 0.5), position + Vector3.new(0, 0.6, 0) + dir * (length * 1.5)),
-            Size = Vector3.new(ray.Size.X, ray.Size.Y, length),
-            Transparency = 1,
-        }):Play()
-    end
+function XCAddKillEffectLight(parent, color, brightness, range, duration)
+    local light = Instance.new("PointLight")
+    light.Color = color
+    light.Brightness = math.max(0, tonumber(brightness) or 2)
+    light.Range = math.max(0, tonumber(range) or 12)
+    light.Shadows = false
+    light.Parent = parent
+    TweenService:Create(
+        light,
+        TweenInfo.new(math.max(0.08, tonumber(duration) or 0.35), Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Brightness = 0, Range = 0}
+    ):Play()
+    return light
 end
 
-function XCSpawnKillShockwave(source)
+function XCMakeKillEffectSegment(folder, name, fromPos, toPos, thickness, color, transparency)
+    local delta = toPos - fromPos
+    local length = delta.Magnitude
+    if length < 0.01 then return nil end
+    local part = XCNewKillEffectPart(folder, name, color)
+    part.Size = Vector3.new(thickness, thickness, length)
+    part.Transparency = transparency or 0
+    part.CFrame = CFrame.lookAt((fromPos + toPos) * 0.5, toPos)
+    return part
+end
+
+function XCFadeKillEffectPart(part, duration, targetSize)
+    if not part or not part.Parent then return end
+    local goal = {Transparency = 1}
+    if targetSize then goal.Size = targetSize end
+    TweenService:Create(
+        part,
+        TweenInfo.new(math.max(0.05, duration), Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        goal
+    ):Play()
+end
+
+function XCSpawnKillLightning(source)
     local position = XCResolveKillEffectPosition(source)
     if typeof(position) ~= "Vector3" then return end
-
-    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
-    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
-    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
-    local folder = XCCreateKillEffectFolder("XC_KillShockwave", duration + 0.8)
-    local base = position + Vector3.new(0, 0.45, 0)
-
-    for i = 1, 3 do
-        local ring = XCNewKillEffectPart(folder, "Shockwave", XCGetKillEffectBaseColor(i, 3))
-        ring.Shape = Enum.PartType.Ball
-        ring.Position = base
-        ring.Size = Vector3.new(size, size, size)
-        ring.Transparency = 0.48 + (i - 1) * 0.08
-        local target = math.clamp(5 + speed * 0.32 + i * 2.2, 7, 24)
-        task.delay((i - 1) * 0.09, function()
-            if not ring.Parent then return end
-            TweenService:Create(ring, TweenInfo.new(duration * 0.58, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Size = Vector3.new(target, target, target),
-                Transparency = 1,
-            }):Play()
-        end)
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillLightning", p.Duration + 0.8)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.8, 0)
+    local height = math.clamp(10 + p.Speed * 0.22, 11, 20)
+    local segments = math.clamp(math.floor(p.Count / 16), 6, 12)
+    local points = {base + Vector3.new(random:NextNumber(-0.4, 0.4), height, random:NextNumber(-0.4, 0.4))}
+    for i = 1, segments - 1 do
+        local t = i / segments
+        points[#points + 1] = base + Vector3.new(
+            random:NextNumber(-1.2, 1.2) * (1 - t * 0.5),
+            height * (1 - t),
+            random:NextNumber(-1.2, 1.2) * (1 - t * 0.5)
+        )
     end
-
-    local column = XCNewKillEffectPart(folder, "ShockColumn", XCGetKillEffectBaseColor(1, 1))
-    column.Shape = Enum.PartType.Cylinder
-    column.Size = Vector3.new(0.12, size * 4, size * 4)
-    column.CFrame = CFrame.new(base) * CFrame.Angles(0, 0, math.rad(90))
-    column.Transparency = 0.15
-    TweenService:Create(column, TweenInfo.new(duration * 0.48, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-        Size = Vector3.new(0.04, math.clamp(8 + speed * 0.35, 9, 23), math.clamp(8 + speed * 0.35, 9, 23)),
-        Transparency = 1,
+    points[#points + 1] = base
+    for i = 1, #points - 1 do
+        local seg = XCMakeKillEffectSegment(
+            folder, "Lightning", points[i], points[i + 1],
+            math.max(0.055, p.Size * 0.52), XCGetKillEffectBaseColor(i, #points - 1), 0.02
+        )
+        if seg then XCFadeKillEffectPart(seg, math.min(p.Duration * 0.34, 0.48)) end
+        if i > 2 and i < #points - 1 and i % 2 == 0 then
+            local branchEnd = points[i] + Vector3.new(
+                random:NextNumber(-2.2, 2.2),
+                random:NextNumber(-1.8, 0.6),
+                random:NextNumber(-2.2, 2.2)
+            )
+            local branch = XCMakeKillEffectSegment(
+                folder, "LightningBranch", points[i], branchEnd,
+                math.max(0.035, p.Size * 0.28), XCGetKillEffectBaseColor(i + 2, #points), 0.08
+            )
+            if branch then XCFadeKillEffectPart(branch, math.min(p.Duration * 0.28, 0.38)) end
+        end
+    end
+    local flash = XCNewKillEffectPart(folder, "LightningFlash", XCGetKillEffectBaseColor(1, 1))
+    flash.Shape = Enum.PartType.Ball
+    flash.Position = base
+    flash.Size = Vector3.new(p.Size * 2.5, p.Size * 2.5, p.Size * 2.5)
+    flash.Transparency = 0.03
+    XCAddKillEffectLight(flash, flash.Color, 4.5 * p.Glow, 12 + p.Speed * 0.3, 0.35)
+    TweenService:Create(flash, TweenInfo.new(math.min(p.Duration * 0.35, 0.5), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 22, p.Size * 22, p.Size * 22), Transparency = 1,
     }):Play()
+end
+
+function XCSpawnKillDissolve(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillDissolve", p.Duration + 0.8)
+    local random = Random.new()
+    local count = math.clamp(math.floor(p.Count / 2.4), 24, 80)
+    local base = position + Vector3.new(0, 1.4, 0)
+    for i = 1, count do
+        local bit = XCNewKillEffectPart(folder, "DissolveBit", XCGetKillEffectBaseColor(i, count))
+        local s = p.Size * random:NextNumber(0.45, 1.05)
+        bit.Size = Vector3.new(s, s, s)
+        bit.CFrame = CFrame.new(base + Vector3.new(
+            random:NextNumber(-1.4, 1.4), random:NextNumber(-1.8, 1.8), random:NextNumber(-1.0, 1.0)
+        )) * CFrame.Angles(random:NextNumber(-2, 2), random:NextNumber(-2, 2), random:NextNumber(-2, 2))
+        bit.Transparency = random:NextNumber(0.05, 0.22)
+        local target = bit.Position + Vector3.new(
+            random:NextNumber(-1.5, 1.5), random:NextNumber(2.2, 5.8), random:NextNumber(-1.5, 1.5)
+        )
+        TweenService:Create(bit, TweenInfo.new(p.Duration * random:NextNumber(0.55, 0.95), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            CFrame = CFrame.new(target) * CFrame.Angles(random:NextNumber(-4, 4), random:NextNumber(-4, 4), random:NextNumber(-4, 4)),
+            Size = Vector3.new(s * 0.12, s * 0.12, s * 0.12), Transparency = 1,
+        }):Play()
+    end
 end
 
 function XCSpawnKillSoul(source)
     local position = XCResolveKillEffectPosition(source)
     if typeof(position) ~= "Vector3" then return end
-
-    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
-    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
-    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
-    local folder = XCCreateKillEffectFolder("XC_KillSoul", duration + 0.9)
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillSoul", p.Duration + 1)
     local random = Random.new()
-    local base = position + Vector3.new(0, 0.7, 0)
-
-    local soul = XCNewKillEffectPart(folder, "Soul", XCGetKillEffectBaseColor(1, 1))
+    local base = position + Vector3.new(0, 0.8, 0)
+    local soul = XCNewKillEffectPart(folder, "SoulCore", XCGetKillEffectBaseColor(1, 1))
     soul.Shape = Enum.PartType.Ball
-    soul.Size = Vector3.new(size * 3.2, size * 3.2, size * 3.2)
+    soul.Size = Vector3.new(p.Size * 3.8, p.Size * 3.8, p.Size * 3.8)
     soul.Position = base
     soul.Transparency = 0.08
-
-    local light = Instance.new("PointLight")
-    light.Color = soul.Color
-    light.Brightness = math.clamp((tonumber(XCConfig.killEffectGlow) or 1.4) * 2.2, 0, 7)
-    light.Range = math.clamp(8 + speed * 0.3, 8, 22)
-    light.Shadows = false
-    light.Parent = soul
-
-    local a0 = Instance.new("Attachment")
-    local a1 = Instance.new("Attachment")
-    a0.Position = Vector3.new(0, -size * 1.2, 0)
-    a1.Position = Vector3.new(0, size * 1.2, 0)
-    a0.Parent = soul
-    a1.Parent = soul
-    local trail = Instance.new("Trail")
-    trail.Attachment0 = a0
-    trail.Attachment1 = a1
-    trail.FaceCamera = true
-    trail.LightEmission = 1
-    trail.Lifetime = math.clamp(duration * 0.22, 0.12, 0.45)
-    trail.Color = ColorSequence.new(soul.Color)
-    trail.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.05), NumberSequenceKeypoint.new(1, 1)})
-    trail.WidthScale = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0)})
-    trail.Parent = soul
-
-    TweenService:Create(soul, TweenInfo.new(duration * 0.92, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-        Position = base + Vector3.new(random:NextNumber(-1.3, 1.3), math.clamp(4.5 + speed * 0.15, 5, 11), random:NextNumber(-1.3, 1.3)),
-        Size = Vector3.new(size * 0.9, size * 0.9, size * 0.9),
-        Transparency = 1,
+    XCAddKillEffectLight(soul, soul.Color, 2.5 * p.Glow, 8 + p.Speed * 0.25, p.Duration * 0.7)
+    local rise = math.clamp(5 + p.Speed * 0.18, 5.5, 12)
+    TweenService:Create(soul, TweenInfo.new(p.Duration * 0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        Position = base + Vector3.new(random:NextNumber(-0.7, 0.7), rise, random:NextNumber(-0.7, 0.7)),
+        Size = Vector3.new(p.Size * 1.1, p.Size * 1.1, p.Size * 1.1), Transparency = 1,
     }):Play()
-    TweenService:Create(light, TweenInfo.new(duration * 0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Brightness = 0, Range = 0}):Play()
-
-    for i = 1, 12 do
-        local mote = XCNewKillEffectPart(folder, "SoulMote", XCGetKillEffectBaseColor(i, 12))
+    local motes = math.clamp(math.floor(p.Count / 7), 10, 30)
+    for i = 1, motes do
+        local mote = XCNewKillEffectPart(folder, "SoulWisp", XCGetKillEffectBaseColor(i, motes))
         mote.Shape = Enum.PartType.Ball
-        local moteSize = size * random:NextNumber(0.35, 0.75)
-        mote.Size = Vector3.new(moteSize, moteSize, moteSize)
-        mote.Position = base + Vector3.new(random:NextNumber(-0.7, 0.7), random:NextNumber(-0.4, 0.8), random:NextNumber(-0.7, 0.7))
+        local ms = p.Size * random:NextNumber(0.3, 0.7)
+        mote.Size = Vector3.new(ms, ms, ms)
+        local angle = (i / motes) * math.pi * 2
+        mote.Position = base + Vector3.new(math.cos(angle) * 0.7, random:NextNumber(-0.2, 0.8), math.sin(angle) * 0.7)
         mote.Transparency = 0.12
-        TweenService:Create(mote, TweenInfo.new(duration * random:NextNumber(0.55, 0.9), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-            Position = mote.Position + Vector3.new(random:NextNumber(-2.2, 2.2), random:NextNumber(2.8, 6.8), random:NextNumber(-2.2, 2.2)),
+        TweenService:Create(mote, TweenInfo.new(p.Duration * random:NextNumber(0.55, 0.9), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = base + Vector3.new(math.cos(angle + 1.8) * 2.1, rise * random:NextNumber(0.45, 0.9), math.sin(angle + 1.8) * 2.1),
             Transparency = 1,
         }):Play()
     end
 end
 
-function XCSpawnKillPixels(source)
+function XCSpawnKillBlackHole(source)
     local position = XCResolveKillEffectPosition(source)
     if typeof(position) ~= "Vector3" then return end
-
-    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
-    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
-    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
-    local count = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) / 2.5), 18, 72)
-    local folder = XCCreateKillEffectFolder("XC_KillPixels", duration + 0.8)
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillBlackHole", p.Duration + 1)
     local random = Random.new()
-    local base = position + Vector3.new(0, 0.65, 0)
-
+    local base = position + Vector3.new(0, 1, 0)
+    local core = XCNewKillEffectPart(folder, "BlackHole", Color3.fromRGB(3, 3, 8), Enum.Material.SmoothPlastic)
+    core.Shape = Enum.PartType.Ball
+    core.Size = Vector3.new(p.Size * 4, p.Size * 4, p.Size * 4)
+    core.Position = base
+    core.Transparency = 0.02
+    local rim = XCNewKillEffectPart(folder, "BlackHoleRim", XCGetKillEffectBaseColor(1, 1))
+    rim.Shape = Enum.PartType.Ball
+    rim.Size = Vector3.new(p.Size * 5.4, p.Size * 5.4, p.Size * 5.4)
+    rim.Position = base
+    rim.Transparency = 0.58
+    XCAddKillEffectLight(rim, rim.Color, 1.4 * p.Glow, 8 + p.Speed * 0.2, p.Duration * 0.65)
+    local count = math.clamp(math.floor(p.Count / 4), 18, 55)
     for i = 1, count do
-        local cube = XCNewKillEffectPart(folder, "Pixel", XCGetKillEffectBaseColor(i, count))
-        local cubeSize = size * random:NextNumber(0.55, 1.35)
-        cube.Shape = Enum.PartType.Block
-        cube.Size = Vector3.new(cubeSize, cubeSize, cubeSize)
-        cube.CFrame = CFrame.new(base + Vector3.new(random:NextNumber(-0.7, 0.7), random:NextNumber(-0.5, 1.0), random:NextNumber(-0.7, 0.7)))
-        cube.Transparency = random:NextNumber(0.02, 0.16)
-
-        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.15, 1), random:NextNumber(-1, 1))
-        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
-        local distance = random:NextNumber(2.2, 5.2) + speed * 0.08
-        local target = base + dir * distance + Vector3.new(0, random:NextNumber(0.2, 2.5), 0)
-        local targetCF = CFrame.new(target) * CFrame.Angles(
-            math.rad(random:NextNumber(-180, 180)),
-            math.rad(random:NextNumber(-180, 180)),
-            math.rad(random:NextNumber(-180, 180))
-        )
-        TweenService:Create(cube, TweenInfo.new(duration * random:NextNumber(0.52, 0.92), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            CFrame = targetCF,
-            Size = Vector3.new(cubeSize * 0.22, cubeSize * 0.22, cubeSize * 0.22),
-            Transparency = 1,
+        local shard = XCNewKillEffectPart(folder, "Infall", XCGetKillEffectBaseColor(i, count))
+        local s = p.Size * random:NextNumber(0.3, 0.8)
+        shard.Size = Vector3.new(s * 0.55, s * 0.55, s * 2.2)
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.4, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(1, 0, 0) else dir = dir.Unit end
+        local startPos = base + dir * random:NextNumber(4, 8)
+        shard.CFrame = CFrame.lookAt(startPos, base)
+        shard.Transparency = 0.12
+        TweenService:Create(shard, TweenInfo.new(p.Duration * random:NextNumber(0.42, 0.7), Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            CFrame = CFrame.lookAt(base + dir * 0.2, base), Size = Vector3.new(s * 0.12, s * 0.12, s * 0.35), Transparency = 1,
         }):Play()
     end
+    task.delay(p.Duration * 0.5, function()
+        if not core.Parent then return end
+        TweenService:Create(core, TweenInfo.new(p.Duration * 0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 13, p.Size * 13, p.Size * 13), Transparency = 1,
+        }):Play()
+        TweenService:Create(rim, TweenInfo.new(p.Duration * 0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 18, p.Size * 18, p.Size * 18), Transparency = 1,
+        }):Play()
+    end)
+end
+
+function XCSpawnKillElectricBurst(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillElectricBurst", p.Duration + 0.6)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.9, 0)
+    local bolts = math.clamp(math.floor(p.Count / 9), 8, 22)
+    for i = 1, bolts do
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.35, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
+        local prev = base
+        local steps = random:NextInteger(2, 4)
+        for step = 1, steps do
+            local target = base + dir * ((step / steps) * random:NextNumber(3.5, 7.5)) + Vector3.new(
+                random:NextNumber(-0.55, 0.55), random:NextNumber(-0.55, 0.55), random:NextNumber(-0.55, 0.55)
+            )
+            local seg = XCMakeKillEffectSegment(folder, "ElectricArc", prev, target, math.max(0.035, p.Size * 0.28), XCGetKillEffectBaseColor(i, bolts), 0.04)
+            if seg then XCFadeKillEffectPart(seg, p.Duration * random:NextNumber(0.22, 0.45)) end
+            prev = target
+        end
+    end
+    local core = XCNewKillEffectPart(folder, "ElectricCore", XCGetKillEffectBaseColor(1, 1))
+    core.Shape = Enum.PartType.Ball
+    core.Position = base
+    core.Size = Vector3.new(p.Size * 2, p.Size * 2, p.Size * 2)
+    core.Transparency = 0.05
+    XCAddKillEffectLight(core, core.Color, 3 * p.Glow, 10 + p.Speed * 0.25, p.Duration * 0.3)
+    TweenService:Create(core, TweenInfo.new(p.Duration * 0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 10, p.Size * 10, p.Size * 10), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillBloodMoon(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillBloodMoon", p.Duration + 0.9)
+    local base = position + Vector3.new(0, 2.8, 0)
+    local moonColor = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(1, 1) or Color3.fromRGB(190, 18, 42)
+    local moon = XCNewKillEffectPart(folder, "BloodMoon", moonColor)
+    moon.Shape = Enum.PartType.Ball
+    moon.Position = base
+    moon.Size = Vector3.new(p.Size * 4, p.Size * 4, p.Size * 4)
+    moon.Transparency = 0.1
+    XCAddKillEffectLight(moon, moonColor, 2.2 * p.Glow, 10 + p.Speed * 0.2, p.Duration * 0.7)
+    TweenService:Create(moon, TweenInfo.new(p.Duration * 0.48, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 14, p.Size * 14, p.Size * 14), Transparency = 0.28,
+    }):Play()
+    task.delay(p.Duration * 0.5, function()
+        if moon.Parent then XCFadeKillEffectPart(moon, p.Duration * 0.35, Vector3.new(p.Size * 17, p.Size * 17, p.Size * 17)) end
+    end)
+    local random = Random.new()
+    for i = 1, math.clamp(math.floor(p.Count / 8), 10, 28) do
+        local drop = XCNewKillEffectPart(folder, "BloodMote", moonColor)
+        drop.Shape = Enum.PartType.Ball
+        local ds = p.Size * random:NextNumber(0.25, 0.55)
+        drop.Size = Vector3.new(ds, ds, ds)
+        drop.Position = base + Vector3.new(random:NextNumber(-2.5, 2.5), random:NextNumber(-1, 1), random:NextNumber(-2.5, 2.5))
+        drop.Transparency = 0.15
+        TweenService:Create(drop, TweenInfo.new(p.Duration * random:NextNumber(0.45, 0.8), Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+            Position = drop.Position + Vector3.new(random:NextNumber(-0.5, 0.5), -random:NextNumber(2, 5), random:NextNumber(-0.5, 0.5)), Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillConfetti(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillConfetti", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 1, 0)
+    local count = math.clamp(math.floor(p.Count / 1.8), 30, 110)
+    for i = 1, count do
+        local color = XCConfig.killEffectRainbow == true
+            and Color3.fromHSV((i / count + random:NextNumber(-0.08, 0.08)) % 1, 0.9, 1)
+            or Color3.fromHSV(random:NextNumber(), 0.78, 1)
+        local bit = XCNewKillEffectPart(folder, "Confetti", color)
+        local sx = p.Size * random:NextNumber(0.25, 0.55)
+        bit.Size = Vector3.new(sx, sx * random:NextNumber(1.4, 2.8), math.max(0.025, sx * 0.18))
+        bit.CFrame = CFrame.new(base) * CFrame.Angles(random:NextNumber(-3, 3), random:NextNumber(-3, 3), random:NextNumber(-3, 3))
+        local angle = random:NextNumber(0, math.pi * 2)
+        local dist = random:NextNumber(2.5, 6.5) + p.Speed * 0.04
+        local target = base + Vector3.new(math.cos(angle) * dist, random:NextNumber(2.5, 6), math.sin(angle) * dist)
+        TweenService:Create(bit, TweenInfo.new(p.Duration * random:NextNumber(0.5, 0.85), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            CFrame = CFrame.new(target) * CFrame.Angles(random:NextNumber(-8, 8), random:NextNumber(-8, 8), random:NextNumber(-8, 8)),
+        }):Play()
+        task.delay(p.Duration * 0.5, function()
+            if bit.Parent then
+                TweenService:Create(bit, TweenInfo.new(p.Duration * 0.42, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+                    Position = target - Vector3.new(0, random:NextNumber(3, 7), 0), Transparency = 1,
+                }):Play()
+            end
+        end)
+    end
+end
+
+function XCSpawnKillGhost(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillGhost", p.Duration + 1)
+    local color = XCGetKillEffectBaseColor(1, 1):Lerp(Color3.new(1, 1, 1), 0.42)
+    local base = position + Vector3.new(0, 1.4, 0)
+    local pieces = {}
+    local head = XCNewKillEffectPart(folder, "GhostHead", color)
+    head.Shape = Enum.PartType.Ball
+    head.Size = Vector3.new(p.Size * 3, p.Size * 3, p.Size * 3)
+    head.Position = base + Vector3.new(0, p.Size * 4.5, 0)
+    pieces[#pieces + 1] = head
+    local torso = XCNewKillEffectPart(folder, "GhostTorso", color)
+    torso.Size = Vector3.new(p.Size * 4, p.Size * 5.5, p.Size * 1.6)
+    torso.Position = base
+    pieces[#pieces + 1] = torso
+    for side = -1, 1, 2 do
+        local arm = XCNewKillEffectPart(folder, "GhostArm", color)
+        arm.Size = Vector3.new(p.Size * 1.3, p.Size * 5, p.Size * 1.3)
+        arm.CFrame = CFrame.new(base + Vector3.new(side * p.Size * 2.8, 0.1, 0)) * CFrame.Angles(0, 0, math.rad(side * 18))
+        pieces[#pieces + 1] = arm
+    end
+    for _, part in ipairs(pieces) do
+        part.Transparency = 0.42
+        TweenService:Create(part, TweenInfo.new(p.Duration * 0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = part.Position + Vector3.new(0, math.clamp(4 + p.Speed * 0.12, 4, 9), 0), Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillPortal(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillPortal", p.Duration + 0.9)
+    local base = position + Vector3.new(0, 0.15, 0)
+    local segments = math.clamp(math.floor(p.Count / 6), 14, 28)
+    local radius = math.clamp(2.2 + p.Size * 3.5, 2.2, 4.8)
+    for i = 1, segments do
+        local a1 = ((i - 1) / segments) * math.pi * 2
+        local a2 = (i / segments) * math.pi * 2
+        local p1 = base + Vector3.new(math.cos(a1) * radius, 0, math.sin(a1) * radius)
+        local p2 = base + Vector3.new(math.cos(a2) * radius, 0, math.sin(a2) * radius)
+        local seg = XCMakeKillEffectSegment(folder, "PortalRing", p1, p2, math.max(0.055, p.Size * 0.45), XCGetKillEffectBaseColor(i, segments), 0.04)
+        if seg then XCFadeKillEffectPart(seg, p.Duration * 0.85) end
+    end
+    local core = XCNewKillEffectPart(folder, "PortalCore", Color3.fromRGB(4, 4, 12), Enum.Material.SmoothPlastic)
+    core.Shape = Enum.PartType.Cylinder
+    core.Size = Vector3.new(0.06, radius * 1.55, radius * 1.55)
+    core.CFrame = CFrame.new(base) * CFrame.Angles(0, 0, math.rad(90))
+    core.Transparency = 0.18
+    TweenService:Create(core, TweenInfo.new(p.Duration * 0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = Vector3.new(0.02, 0.2, 0.2), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillCrystalShatter(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillCrystalShatter", p.Duration + 0.8)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.9, 0)
+    local count = math.clamp(math.floor(p.Count / 3.2), 20, 64)
+    for i = 1, count do
+        local shard = XCNewKillEffectPart(folder, "CrystalShard", XCGetKillEffectBaseColor(i, count), Enum.Material.Glass)
+        local s = p.Size * random:NextNumber(0.45, 1.1)
+        shard.Size = Vector3.new(s * 0.35, s * random:NextNumber(1.6, 3.4), s * 0.55)
+        shard.CFrame = CFrame.new(base + Vector3.new(random:NextNumber(-0.5, 0.5), random:NextNumber(-0.4, 0.8), random:NextNumber(-0.5, 0.5))) * CFrame.Angles(random:NextNumber(-3, 3), random:NextNumber(-3, 3), random:NextNumber(-3, 3))
+        shard.Transparency = 0.08
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.15, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
+        local target = base + dir * (random:NextNumber(3, 7) + p.Speed * 0.05)
+        TweenService:Create(shard, TweenInfo.new(p.Duration * random:NextNumber(0.5, 0.88), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            CFrame = CFrame.new(target) * CFrame.Angles(random:NextNumber(-7, 7), random:NextNumber(-7, 7), random:NextNumber(-7, 7)),
+            Size = shard.Size * 0.2, Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillCrown(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillCrown", p.Duration + 0.8)
+    local base = position + Vector3.new(0, 4.1, 0)
+    local color = XCGetKillEffectBaseColor(1, 1)
+    local radius = math.clamp(0.9 + p.Size * 2.3, 1, 2)
+    local points = {}
+    local n = 5
+    for i = 1, n do
+        local a = ((i - 1) / n) * math.pi * 2
+        local low = base + Vector3.new(math.cos(a) * radius, 0, math.sin(a) * radius)
+        local high = base + Vector3.new(math.cos(a) * radius * 0.78, 1.25 + (i % 2) * 0.35, math.sin(a) * radius * 0.78)
+        points[#points + 1] = {low = low, high = high}
+    end
+    for i = 1, n do
+        local nextI = (i % n) + 1
+        local s1 = XCMakeKillEffectSegment(folder, "CrownBase", points[i].low, points[nextI].low, math.max(0.055, p.Size * 0.38), color, 0.04)
+        local s2 = XCMakeKillEffectSegment(folder, "CrownPeak", points[i].low, points[i].high, math.max(0.055, p.Size * 0.38), color, 0.04)
+        local s3 = XCMakeKillEffectSegment(folder, "CrownPeak", points[i].high, points[nextI].low, math.max(0.055, p.Size * 0.38), color, 0.04)
+        for _, seg in ipairs({s1, s2, s3}) do
+            if seg then XCFadeKillEffectPart(seg, p.Duration * 0.82) end
+        end
+    end
+    local gem = XCNewKillEffectPart(folder, "CrownGem", color)
+    gem.Shape = Enum.PartType.Ball
+    gem.Size = Vector3.new(p.Size * 1.2, p.Size * 1.2, p.Size * 1.2)
+    gem.Position = base + Vector3.new(0, 1.7, 0)
+    XCAddKillEffectLight(gem, color, 1.8 * p.Glow, 7, p.Duration * 0.6)
+    TweenService:Create(gem, TweenInfo.new(p.Duration * 0.75, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        Position = gem.Position + Vector3.new(0, 1.4, 0), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillBeam(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillBeam", p.Duration + 0.7)
+    local base = position + Vector3.new(0, 0.7, 0)
+    local height = math.clamp(13 + p.Speed * 0.25, 14, 25)
+    local beam = XCNewKillEffectPart(folder, "KillBeam", XCGetKillEffectBaseColor(1, 1))
+    beam.Size = Vector3.new(p.Size * 2.2, height, p.Size * 2.2)
+    beam.Position = base + Vector3.new(0, height * 0.5, 0)
+    beam.Transparency = 0.18
+    XCAddKillEffectLight(beam, beam.Color, 2.2 * p.Glow, 10 + p.Speed * 0.2, p.Duration * 0.45)
+    TweenService:Create(beam, TweenInfo.new(p.Duration * 0.58, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 0.3, height, p.Size * 0.3), Transparency = 1,
+    }):Play()
+    local flash = XCNewKillEffectPart(folder, "BeamImpact", beam.Color)
+    flash.Shape = Enum.PartType.Ball
+    flash.Size = Vector3.new(p.Size * 2, p.Size * 2, p.Size * 2)
+    flash.Position = base
+    TweenService:Create(flash, TweenInfo.new(p.Duration * 0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 13, p.Size * 13, p.Size * 13), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillEMP(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillEMP", p.Duration + 0.8)
+    local base = position + Vector3.new(0, 0.6, 0)
+    local color = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(1, 1) or Color3.fromRGB(80, 180, 255)
+    for wave = 1, 3 do
+        local orb = XCNewKillEffectPart(folder, "EMPWave", color)
+        orb.Shape = Enum.PartType.Ball
+        orb.Position = base
+        orb.Size = Vector3.new(p.Size, p.Size, p.Size)
+        orb.Transparency = 0.66
+        task.delay((wave - 1) * 0.08, function()
+            if not orb.Parent then return end
+            local target = math.clamp(7 + p.Speed * 0.3 + wave * 1.8, 8, 23)
+            TweenService:Create(orb, TweenInfo.new(p.Duration * 0.62, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = Vector3.new(target, target, target), Transparency = 1,
+            }):Play()
+        end)
+    end
+    local random = Random.new()
+    for i = 1, 10 do
+        local a = (i / 10) * math.pi * 2
+        local from = base + Vector3.new(math.cos(a) * 0.5, random:NextNumber(-0.4, 0.8), math.sin(a) * 0.5)
+        local to = base + Vector3.new(math.cos(a) * random:NextNumber(3, 6), random:NextNumber(-0.4, 1.5), math.sin(a) * random:NextNumber(3, 6))
+        local seg = XCMakeKillEffectSegment(folder, "EMPArc", from, to, math.max(0.035, p.Size * 0.24), color, 0.08)
+        if seg then XCFadeKillEffectPart(seg, p.Duration * 0.34) end
+    end
+end
+
+function XCSpawnKillInferno(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillInferno", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.4, 0)
+    local count = math.clamp(math.floor(p.Count / 3), 22, 70)
+    local colors = {Color3.fromRGB(255, 55, 8), Color3.fromRGB(255, 132, 10), Color3.fromRGB(255, 220, 70)}
+    for i = 1, count do
+        local color = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(i, count) or colors[((i - 1) % #colors) + 1]
+        local flame = XCNewKillEffectPart(folder, "Inferno", color)
+        flame.Shape = Enum.PartType.Ball
+        local fs = p.Size * random:NextNumber(0.55, 1.35)
+        flame.Size = Vector3.new(fs, fs * random:NextNumber(1.3, 2.4), fs)
+        flame.Position = base + Vector3.new(random:NextNumber(-1.5, 1.5), random:NextNumber(0, 0.8), random:NextNumber(-1.5, 1.5))
+        flame.Transparency = random:NextNumber(0.05, 0.2)
+        TweenService:Create(flame, TweenInfo.new(p.Duration * random:NextNumber(0.45, 0.88), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = flame.Position + Vector3.new(random:NextNumber(-1, 1), random:NextNumber(3, 8) + p.Speed * 0.05, random:NextNumber(-1, 1)),
+            Size = Vector3.new(fs * 0.18, fs * 0.35, fs * 0.18), Transparency = 1,
+        }):Play()
+    end
+    local glowPart = XCNewKillEffectPart(folder, "InfernoGlow", Color3.fromRGB(255, 95, 18))
+    glowPart.Shape = Enum.PartType.Ball
+    glowPart.Size = Vector3.new(p.Size * 2, p.Size * 2, p.Size * 2)
+    glowPart.Position = base
+    glowPart.Transparency = 0.65
+    XCAddKillEffectLight(glowPart, glowPart.Color, 3 * p.Glow, 11 + p.Speed * 0.2, p.Duration * 0.55)
+    XCFadeKillEffectPart(glowPart, p.Duration * 0.65, Vector3.new(p.Size * 12, p.Size * 12, p.Size * 12))
+end
+
+function XCSpawnKillVoid(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillVoid", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 1, 0)
+    local voidColor = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(1, 1) or Color3.fromRGB(130, 55, 255)
+    local core = XCNewKillEffectPart(folder, "VoidCore", Color3.fromRGB(2, 1, 7), Enum.Material.SmoothPlastic)
+    core.Shape = Enum.PartType.Ball
+    core.Size = Vector3.new(p.Size * 2.5, p.Size * 2.5, p.Size * 2.5)
+    core.Position = base
+    local aura = XCNewKillEffectPart(folder, "VoidAura", voidColor)
+    aura.Shape = Enum.PartType.Ball
+    aura.Size = Vector3.new(p.Size * 4, p.Size * 4, p.Size * 4)
+    aura.Position = base
+    aura.Transparency = 0.58
+    XCAddKillEffectLight(aura, voidColor, 1.8 * p.Glow, 9 + p.Speed * 0.18, p.Duration * 0.65)
+    local count = math.clamp(math.floor(p.Count / 4.5), 16, 48)
+    for i = 1, count do
+        local mote = XCNewKillEffectPart(folder, "VoidMote", XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(i, count) or voidColor)
+        mote.Shape = Enum.PartType.Ball
+        local ms = p.Size * random:NextNumber(0.25, 0.6)
+        mote.Size = Vector3.new(ms, ms, ms)
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.7, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(1, 0, 0) else dir = dir.Unit end
+        mote.Position = base + dir * random:NextNumber(4, 8)
+        mote.Transparency = 0.12
+        TweenService:Create(mote, TweenInfo.new(p.Duration * random:NextNumber(0.4, 0.72), Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            Position = base + dir * 0.2, Size = Vector3.new(ms * 0.12, ms * 0.12, ms * 0.12), Transparency = 1,
+        }):Play()
+    end
+    task.delay(p.Duration * 0.48, function()
+        if not aura.Parent then return end
+        TweenService:Create(aura, TweenInfo.new(p.Duration * 0.36, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 20, p.Size * 20, p.Size * 20), Transparency = 1,
+        }):Play()
+        TweenService:Create(core, TweenInfo.new(p.Duration * 0.34, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 8, p.Size * 8, p.Size * 8), Transparency = 1,
+        }):Play()
+    end)
 end
 
 function XCSpawnKillEffect(source, forcePreview)
     if not forcePreview and not XCConfig.killEffectEnabled then return end
 
     local style = tostring(XCConfig.killEffectStyle or "Fireflies")
+    local styles = {
+        "Fireflies", "Lightning Strike", "Dissolve", "Soul", "Black Hole",
+        "Electric Burst", "Blood Moon", "Confetti", "Ghost", "Portal",
+        "Crystal Shatter", "Headshot Crown", "Kill Beam", "EMP", "Inferno", "Void",
+    }
     if style == "Random" then
-        local styles = {"Fireflies", "Nova", "Shockwave", "Soul Rise", "Pixel Burst"}
         style = styles[Random.new():NextInteger(1, #styles)]
     end
 
-    if style == "Nova" then
-        XCSpawnKillNova(source)
-    elseif style == "Shockwave" then
-        XCSpawnKillShockwave(source)
-    elseif style == "Soul Rise" then
+    if style == "Lightning Strike" then
+        XCSpawnKillLightning(source)
+    elseif style == "Dissolve" then
+        XCSpawnKillDissolve(source)
+    elseif style == "Soul" then
         XCSpawnKillSoul(source)
-    elseif style == "Pixel Burst" then
-        XCSpawnKillPixels(source)
+    elseif style == "Black Hole" then
+        XCSpawnKillBlackHole(source)
+    elseif style == "Electric Burst" then
+        XCSpawnKillElectricBurst(source)
+    elseif style == "Blood Moon" then
+        XCSpawnKillBloodMoon(source)
+    elseif style == "Confetti" then
+        XCSpawnKillConfetti(source)
+    elseif style == "Ghost" then
+        XCSpawnKillGhost(source)
+    elseif style == "Portal" then
+        XCSpawnKillPortal(source)
+    elseif style == "Crystal Shatter" then
+        XCSpawnKillCrystalShatter(source)
+    elseif style == "Headshot Crown" then
+        XCSpawnKillCrown(source)
+    elseif style == "Kill Beam" then
+        XCSpawnKillBeam(source)
+    elseif style == "EMP" then
+        XCSpawnKillEMP(source)
+    elseif style == "Inferno" then
+        XCSpawnKillInferno(source)
+    elseif style == "Void" then
+        XCSpawnKillVoid(source)
     else
         XCSpawnKillFireflies(source, forcePreview)
     end
@@ -10650,14 +11045,14 @@ function buildXCUI()
         minimumDamage = "Minimum estimated damage for a direct visible shot.",
         minimumDamageWall = "Minimum estimated damage after a penetrated wall path.",
         killEffectEnabled = "Spawns the selected local visual effect after a recently registered local hit is confirmed as a kill.",
-        killEffectStyle = "Selects Fireflies, Nova, Shockwave, Soul Rise, Pixel Burst, or a random style per kill.",
+        killEffectStyle = "Selects the local kill-effect style. Headshot Crown is currently a manual style; the kill tracker does not yet expose hit-bone metadata.",
         killEffectRainbow = "Cycles kill-effect colors through the hue spectrum where supported.",
         killEffectTrails = "Adds short glow trails to a limited subset of kill fireflies.",
-        killEffectCount = "Number of Neon motes spawned by the kill effect.",
-        killEffectSize = "Base size of each kill-effect firefly.",
-        killEffectSpeed = "Initial outward burst speed of the kill fireflies.",
+        killEffectCount = "Effect density. Fireflies uses the full value; other styles scale it to safe per-effect limits.",
+        killEffectSize = "Base visual scale shared by the kill effects.",
+        killEffectSpeed = "Motion/range intensity shared by the kill effects.",
         killEffectGlow = "Strength of the short center flash when the kill effect starts.",
-        killEffectDuration = "How long the fireflies float and fade.",
+        killEffectDuration = "How long the selected kill effect remains visible.",
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
@@ -12667,12 +13062,16 @@ function buildXCUI()
     addSlider(R, "Hitmarker size", "hitmarkerSize", 5, 30, 1, "")
     addSlider(R, "Hitmarker duration", "hitmarkerDuration", 0.05, 1, 0.05, "s")
     toggle(R, "Kill effects", "killEffectEnabled")
-    addChoice(R, "Kill effect style", "killEffectStyle", {"Fireflies", "Nova", "Shockwave", "Soul Rise", "Pixel Burst", "Random"})
+    addChoice(R, "Kill effect style", "killEffectStyle", {
+        "Fireflies", "Lightning Strike", "Dissolve", "Soul", "Black Hole",
+        "Electric Burst", "Blood Moon", "Confetti", "Ghost", "Portal",
+        "Crystal Shatter", "Headshot Crown", "Kill Beam", "EMP", "Inferno", "Void", "Random"
+    })
     toggle(R, "Rainbow effect", "killEffectRainbow")
     toggle(R, "Firefly trails", "killEffectTrails")
     addColorPicker(R, "Kill effect color", "killEffectColor")
-    addSlider(R, "Firefly amount", "killEffectCount", 10, 260, 5, "")
-    addSlider(R, "Firefly size", "killEffectSize", 0.04, 0.65, 0.01, "")
+    addSlider(R, "Effect amount", "killEffectCount", 10, 260, 5, "")
+    addSlider(R, "Effect size", "killEffectSize", 0.04, 0.65, 0.01, "")
     addSlider(R, "Burst speed", "killEffectSpeed", 2, 45, 1, "")
     addSlider(R, "Glow strength", "killEffectGlow", 0, 3, 0.1, "x")
     addSlider(R, "Effect duration", "killEffectDuration", 0.35, 3.5, 0.05, "s")
