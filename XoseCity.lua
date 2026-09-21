@@ -389,6 +389,7 @@ local XCConfig = {
 
     -- Visual kill confirmation: local confirmed kills only.
     killEffectEnabled = false,
+    killEffectStyle = "Fireflies",
     killEffectRainbow = false,
     killEffectTrails = true,
 
@@ -1692,8 +1693,8 @@ function XCConfirmPendingLocalKill(healthKey, pending, source)
 
     if XCConfig.killEffectEnabled
         and typeof(position) == "Vector3"
-        and type(XCSpawnKillFireflies) == "function" then
-        pcall(XCSpawnKillFireflies, position)
+        and type(XCSpawnKillEffect) == "function" then
+        pcall(XCSpawnKillEffect, position)
     end
 
     return true
@@ -4759,6 +4760,241 @@ function XCSpawnKillFireflies(source, forcePreview)
     )
 end
 
+-- Additional lightweight kill-effect styles. These use TweenService + Debris only,
+-- so unlike fireflies they do not add another per-frame updater.
+function XCGetKillEffectBaseColor(index, total)
+    if XCConfig.killEffectRainbow == true then
+        return Color3.fromHSV(((tonumber(index) or 1) / math.max(1, tonumber(total) or 1)) % 1, 0.82, 1)
+    end
+    return rgb(
+        XCConfig.killEffectColorR,
+        XCConfig.killEffectColorG,
+        XCConfig.killEffectColorB
+    )
+end
+
+function XCNewKillEffectPart(folder, name, color)
+    local part = Instance.new("Part")
+    part.Name = name or "KillFX"
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.CastShadow = false
+    part.Massless = true
+    part.Material = Enum.Material.Neon
+    part.Color = color or Color3.new(1, 1, 1)
+    part.Parent = folder
+    return part
+end
+
+function XCCreateKillEffectFolder(name, lifetime)
+    local folder = Instance.new("Folder")
+    folder.Name = name or "XC_KillEffect"
+    folder.Parent = Workspace
+    game:GetService("Debris"):AddItem(folder, math.max(0.25, tonumber(lifetime) or 2))
+    return folder
+end
+
+function XCSpawnKillNova(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+
+    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
+    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
+    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
+    local rayCount = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) / 5), 12, 42)
+    local folder = XCCreateKillEffectFolder("XC_KillNova", duration + 0.8)
+    local random = Random.new()
+
+    local core = XCNewKillEffectPart(folder, "NovaCore", XCGetKillEffectBaseColor(1, 1))
+    core.Shape = Enum.PartType.Ball
+    core.Position = position + Vector3.new(0, 0.6, 0)
+    core.Size = Vector3.new(size * 2.2, size * 2.2, size * 2.2)
+    core.Transparency = 0.04
+    TweenService:Create(core, TweenInfo.new(math.min(duration, 0.62), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(size * 18, size * 18, size * 18),
+        Transparency = 1,
+    }):Play()
+
+    for i = 1, rayCount do
+        local dir = Vector3.new(
+            random:NextNumber(-1, 1),
+            random:NextNumber(-0.35, 1),
+            random:NextNumber(-1, 1)
+        )
+        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
+        local length = random:NextNumber(1.8, 4.5) + speed * 0.08
+        local ray = XCNewKillEffectPart(folder, "NovaRay", XCGetKillEffectBaseColor(i, rayCount))
+        ray.Size = Vector3.new(math.max(0.035, size * 0.28), math.max(0.035, size * 0.28), 0.15)
+        ray.Transparency = random:NextNumber(0.02, 0.14)
+        ray.CFrame = CFrame.lookAt(position + Vector3.new(0, 0.6, 0), position + Vector3.new(0, 0.6, 0) + dir)
+        TweenService:Create(ray, TweenInfo.new(duration * random:NextNumber(0.45, 0.82), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            CFrame = CFrame.lookAt(position + Vector3.new(0, 0.6, 0) + dir * (length * 0.5), position + Vector3.new(0, 0.6, 0) + dir * (length * 1.5)),
+            Size = Vector3.new(ray.Size.X, ray.Size.Y, length),
+            Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillShockwave(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+
+    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
+    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
+    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
+    local folder = XCCreateKillEffectFolder("XC_KillShockwave", duration + 0.8)
+    local base = position + Vector3.new(0, 0.45, 0)
+
+    for i = 1, 3 do
+        local ring = XCNewKillEffectPart(folder, "Shockwave", XCGetKillEffectBaseColor(i, 3))
+        ring.Shape = Enum.PartType.Ball
+        ring.Position = base
+        ring.Size = Vector3.new(size, size, size)
+        ring.Transparency = 0.48 + (i - 1) * 0.08
+        local target = math.clamp(5 + speed * 0.32 + i * 2.2, 7, 24)
+        task.delay((i - 1) * 0.09, function()
+            if not ring.Parent then return end
+            TweenService:Create(ring, TweenInfo.new(duration * 0.58, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = Vector3.new(target, target, target),
+                Transparency = 1,
+            }):Play()
+        end)
+    end
+
+    local column = XCNewKillEffectPart(folder, "ShockColumn", XCGetKillEffectBaseColor(1, 1))
+    column.Shape = Enum.PartType.Cylinder
+    column.Size = Vector3.new(0.12, size * 4, size * 4)
+    column.CFrame = CFrame.new(base) * CFrame.Angles(0, 0, math.rad(90))
+    column.Transparency = 0.15
+    TweenService:Create(column, TweenInfo.new(duration * 0.48, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(0.04, math.clamp(8 + speed * 0.35, 9, 23), math.clamp(8 + speed * 0.35, 9, 23)),
+        Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillSoul(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+
+    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
+    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
+    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
+    local folder = XCCreateKillEffectFolder("XC_KillSoul", duration + 0.9)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.7, 0)
+
+    local soul = XCNewKillEffectPart(folder, "Soul", XCGetKillEffectBaseColor(1, 1))
+    soul.Shape = Enum.PartType.Ball
+    soul.Size = Vector3.new(size * 3.2, size * 3.2, size * 3.2)
+    soul.Position = base
+    soul.Transparency = 0.08
+
+    local light = Instance.new("PointLight")
+    light.Color = soul.Color
+    light.Brightness = math.clamp((tonumber(XCConfig.killEffectGlow) or 1.4) * 2.2, 0, 7)
+    light.Range = math.clamp(8 + speed * 0.3, 8, 22)
+    light.Shadows = false
+    light.Parent = soul
+
+    local a0 = Instance.new("Attachment")
+    local a1 = Instance.new("Attachment")
+    a0.Position = Vector3.new(0, -size * 1.2, 0)
+    a1.Position = Vector3.new(0, size * 1.2, 0)
+    a0.Parent = soul
+    a1.Parent = soul
+    local trail = Instance.new("Trail")
+    trail.Attachment0 = a0
+    trail.Attachment1 = a1
+    trail.FaceCamera = true
+    trail.LightEmission = 1
+    trail.Lifetime = math.clamp(duration * 0.22, 0.12, 0.45)
+    trail.Color = ColorSequence.new(soul.Color)
+    trail.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.05), NumberSequenceKeypoint.new(1, 1)})
+    trail.WidthScale = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 0)})
+    trail.Parent = soul
+
+    TweenService:Create(soul, TweenInfo.new(duration * 0.92, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        Position = base + Vector3.new(random:NextNumber(-1.3, 1.3), math.clamp(4.5 + speed * 0.15, 5, 11), random:NextNumber(-1.3, 1.3)),
+        Size = Vector3.new(size * 0.9, size * 0.9, size * 0.9),
+        Transparency = 1,
+    }):Play()
+    TweenService:Create(light, TweenInfo.new(duration * 0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Brightness = 0, Range = 0}):Play()
+
+    for i = 1, 12 do
+        local mote = XCNewKillEffectPart(folder, "SoulMote", XCGetKillEffectBaseColor(i, 12))
+        mote.Shape = Enum.PartType.Ball
+        local moteSize = size * random:NextNumber(0.35, 0.75)
+        mote.Size = Vector3.new(moteSize, moteSize, moteSize)
+        mote.Position = base + Vector3.new(random:NextNumber(-0.7, 0.7), random:NextNumber(-0.4, 0.8), random:NextNumber(-0.7, 0.7))
+        mote.Transparency = 0.12
+        TweenService:Create(mote, TweenInfo.new(duration * random:NextNumber(0.55, 0.9), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = mote.Position + Vector3.new(random:NextNumber(-2.2, 2.2), random:NextNumber(2.8, 6.8), random:NextNumber(-2.2, 2.2)),
+            Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillPixels(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+
+    local duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5)
+    local size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65)
+    local speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45)
+    local count = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) / 2.5), 18, 72)
+    local folder = XCCreateKillEffectFolder("XC_KillPixels", duration + 0.8)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.65, 0)
+
+    for i = 1, count do
+        local cube = XCNewKillEffectPart(folder, "Pixel", XCGetKillEffectBaseColor(i, count))
+        local cubeSize = size * random:NextNumber(0.55, 1.35)
+        cube.Shape = Enum.PartType.Block
+        cube.Size = Vector3.new(cubeSize, cubeSize, cubeSize)
+        cube.CFrame = CFrame.new(base + Vector3.new(random:NextNumber(-0.7, 0.7), random:NextNumber(-0.5, 1.0), random:NextNumber(-0.7, 0.7)))
+        cube.Transparency = random:NextNumber(0.02, 0.16)
+
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.15, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
+        local distance = random:NextNumber(2.2, 5.2) + speed * 0.08
+        local target = base + dir * distance + Vector3.new(0, random:NextNumber(0.2, 2.5), 0)
+        local targetCF = CFrame.new(target) * CFrame.Angles(
+            math.rad(random:NextNumber(-180, 180)),
+            math.rad(random:NextNumber(-180, 180)),
+            math.rad(random:NextNumber(-180, 180))
+        )
+        TweenService:Create(cube, TweenInfo.new(duration * random:NextNumber(0.52, 0.92), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            CFrame = targetCF,
+            Size = Vector3.new(cubeSize * 0.22, cubeSize * 0.22, cubeSize * 0.22),
+            Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillEffect(source, forcePreview)
+    if not forcePreview and not XCConfig.killEffectEnabled then return end
+
+    local style = tostring(XCConfig.killEffectStyle or "Fireflies")
+    if style == "Random" then
+        local styles = {"Fireflies", "Nova", "Shockwave", "Soul Rise", "Pixel Burst"}
+        style = styles[Random.new():NextInteger(1, #styles)]
+    end
+
+    if style == "Nova" then
+        XCSpawnKillNova(source)
+    elseif style == "Shockwave" then
+        XCSpawnKillShockwave(source)
+    elseif style == "Soul Rise" then
+        XCSpawnKillSoul(source)
+    elseif style == "Pixel Burst" then
+        XCSpawnKillPixels(source)
+    else
+        XCSpawnKillFireflies(source, forcePreview)
+    end
+end
+
 function XCPreviewKillFireflies()
     local char = player and player.Character
     local root = char and (
@@ -4803,12 +5039,14 @@ function XCPreviewKillFireflies()
         + flatForward * 7
         + Vector3.new(0, 1.5, 0)
 
-    XCSpawnKillFireflies(previewPosition, true)
+    XCSpawnKillEffect(previewPosition, true)
 end
 
 if genv then
     genv.XCSpawnKillFireflies = XCSpawnKillFireflies
+    genv.XCSpawnKillEffect = XCSpawnKillEffect
     genv.XCPreviewKillFireflies = XCPreviewKillFireflies
+    genv.XCPreviewKillEffect = XCPreviewKillFireflies
 end
 
 -- ==========================================
@@ -10411,8 +10649,9 @@ function buildXCUI()
         minimumDamageEnabled = "Rejects shots whose estimated current-weapon damage is below the selected threshold.",
         minimumDamage = "Minimum estimated damage for a direct visible shot.",
         minimumDamageWall = "Minimum estimated damage after a penetrated wall path.",
-        killEffectEnabled = "Spawns a local Neon firefly burst after a recently registered local hit is confirmed as a kill.",
-        killEffectRainbow = "Cycles kill-firefly colors through the hue spectrum.",
+        killEffectEnabled = "Spawns the selected local visual effect after a recently registered local hit is confirmed as a kill.",
+        killEffectStyle = "Selects Fireflies, Nova, Shockwave, Soul Rise, Pixel Burst, or a random style per kill.",
+        killEffectRainbow = "Cycles kill-effect colors through the hue spectrum where supported.",
         killEffectTrails = "Adds short glow trails to a limited subset of kill fireflies.",
         killEffectCount = "Number of Neon motes spawned by the kill effect.",
         killEffectSize = "Base size of each kill-effect firefly.",
@@ -11669,6 +11908,131 @@ function buildXCUI()
             end
             return nil
         end
+        local function addGlovePreview(viewport,itemName,skinName)
+            local liveCamera=Workspace.CurrentCamera or camera
+            if not liveCamera then return false end
+
+            -- Gloves in the live viewmodel are the most reliable preview source.
+            -- The game's glove skin folders primarily contain SurfaceAppearance
+            -- textures rather than a separate renderable model for every finish.
+            local arms
+            for _,child in ipairs(liveCamera:GetChildren()) do
+                if child:IsA("Model") and (child.Name:match("Arms") or child:FindFirstChild("Right Arm")) then
+                    arms=child
+                    break
+                end
+            end
+            if not arms then return false end
+
+            local leftArm=arms:FindFirstChild("Left Arm")
+            local rightArm=arms:FindFirstChild("Right Arm")
+            local sources={
+                leftArm and leftArm:FindFirstChild("Glove"),
+                rightArm and rightArm:FindFirstChild("Glove")
+            }
+            if not sources[1] and not sources[2] then return false end
+
+            local previewModel=Instance.new("Model")
+            previewModel.Name="GlovePreview"
+            local clones={}
+            for _,source in ipairs(sources) do
+                if source then
+                    local ok,clone=pcall(function()
+                        source.Archivable=true
+                        return source:Clone()
+                    end)
+                    if ok and clone then
+                        for _,object in ipairs(clone:GetDescendants()) do
+                            if object:IsA("Script") or object:IsA("LocalScript") or object:IsA("ModuleScript")
+                                or object:IsA("Motor6D") or object:IsA("Weld") or object:IsA("WeldConstraint")
+                                or object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam") then
+                                object:Destroy()
+                            elseif object:IsA("BasePart") then
+                                object.Anchored=true
+                                object.CanCollide=false
+                                object.CastShadow=false
+                            end
+                        end
+                        if clone:IsA("BasePart") then
+                            clone.Anchored=true
+                            clone.CanCollide=false
+                            clone.CastShadow=false
+                        end
+                        clone.Parent=previewModel
+                        clones[#clones+1]=clone
+                    end
+                end
+            end
+            if #clones==0 or not previewModel:FindFirstChildWhichIsA("BasePart",true) then
+                previewModel:Destroy()
+                return false
+            end
+
+            if skinName~="Default" and skinData.SkinsRoot then
+                local gloveFolder=skinData.SkinsRoot:FindFirstChild(itemName)
+                local skinFolder=gloveFolder and gloveFolder:FindFirstChild(skinName)
+                local cameraFolder=skinFolder and skinFolder:FindFirstChild("Camera")
+                local textureFolder=cameraFolder and (cameraFolder:FindFirstChild("Factory New") or cameraFolder:GetChildren()[1])
+                if textureFolder then
+                    local appearances={}
+                    for _,appearance in ipairs(textureFolder:GetChildren()) do
+                        if appearance:IsA("SurfaceAppearance") then
+                            appearances[#appearances+1]=appearance
+                        end
+                    end
+                    if #appearances>0 then
+                        for _,clone in ipairs(clones) do
+                            local targets={}
+                            if clone:IsA("BasePart") then targets[#targets+1]=clone end
+                            for _,object in ipairs(clone:GetDescendants()) do
+                                if object:IsA("BasePart") then targets[#targets+1]=object end
+                            end
+                            for _,target in ipairs(targets) do
+                                for _,old in ipairs(target:GetChildren()) do
+                                    if old:IsA("SurfaceAppearance") then old:Destroy() end
+                                end
+                                for _,appearance in ipairs(appearances) do
+                                    appearance:Clone().Parent=target
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            local world=Instance.new("WorldModel",viewport)
+            previewModel.Parent=world
+            local cam=Instance.new("Camera",viewport)
+            cam.FieldOfView=22
+            viewport.CurrentCamera=cam
+
+            local ok,bounds,size=pcall(function()
+                local cf,sz=previewModel:GetBoundingBox()
+                return cf,sz
+            end)
+            if not ok or not bounds or not size then
+                world:Destroy()
+                return false
+            end
+
+            -- The live pair already has the natural left/right spacing and pose.
+            -- Fit it tightly and view it slightly from above so both finishes are visible.
+            local horizontalSize=math.max(size.X,size.Z,0.1)
+            local verticalSize=math.max(size.Y,0.1)
+            local viewportSize=viewport.AbsoluteSize
+            local aspect=(viewportSize.Y>1) and math.max(viewportSize.X/viewportSize.Y,1) or 2
+            local vfov=math.rad(cam.FieldOfView)
+            local hfov=2*math.atan(math.tan(vfov/2)*aspect)
+            local distanceH=(horizontalSize*0.5)/math.tan(hfov/2)
+            local distanceV=(verticalSize*0.5)/math.tan(vfov/2)
+            local distance=math.max(distanceH,distanceV)*1.08
+            local center=bounds.Position
+            local viewDir=(size.X>=size.Z) and bounds.LookVector or bounds.RightVector
+            local elevated=center+bounds.UpVector*(verticalSize*0.10)
+            cam.CFrame=CFrame.lookAt(elevated+viewDir*distance,elevated,bounds.UpVector)
+            return true
+        end
+
         local function addModelPreview(viewport,itemName,skinName)
             local asset=skinData.WeaponAssets and skinData.WeaponAssets:FindFirstChild(itemName)
             if not asset then
@@ -11825,6 +12189,7 @@ function buildXCUI()
                 local imageId=findPreviewImage(itemName,skinName)
                 previewJobs[#previewJobs+1]=function()
                     if serial~=gallerySerial or not visual.Parent then return end
+                    if XCConfig.skinGalleryMode=="Gloves" and addGlovePreview(visual,itemName,skinName) then return end
                     if addModelPreview(visual,itemName,skinName) then return end
                     if imageId then
                         local image=Instance.new("ImageLabel",visual)
@@ -12301,8 +12666,9 @@ function buildXCUI()
     addButton(R, "TEST HIT SOUND", function() playXCHitSound(true) end)
     addSlider(R, "Hitmarker size", "hitmarkerSize", 5, 30, 1, "")
     addSlider(R, "Hitmarker duration", "hitmarkerDuration", 0.05, 1, 0.05, "s")
-    toggle(R, "Kill fireflies", "killEffectEnabled")
-    toggle(R, "Rainbow fireflies", "killEffectRainbow")
+    toggle(R, "Kill effects", "killEffectEnabled")
+    addChoice(R, "Kill effect style", "killEffectStyle", {"Fireflies", "Nova", "Shockwave", "Soul Rise", "Pixel Burst", "Random"})
+    toggle(R, "Rainbow effect", "killEffectRainbow")
     toggle(R, "Firefly trails", "killEffectTrails")
     addColorPicker(R, "Kill effect color", "killEffectColor")
     addSlider(R, "Firefly amount", "killEffectCount", 10, 260, 5, "")
