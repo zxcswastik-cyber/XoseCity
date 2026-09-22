@@ -460,8 +460,9 @@ local XCConfig = {
     mapOptimizerDisableEffects = true,
     mapOptimizerLowMesh = true,
     mapStyleFlatMaterials = true,
-    mapStylePreserveSigns = true,
-    mapStyleAffectTransparent = false,
+    mapStylePreserveSigns = false,
+    mapStyleAffectTransparent = true,
+    mapStyleTextureMode = "Full Minimal",
     weatherEnabled = false,
     weatherMode = "Rain",
     weatherIntensity = 45,
@@ -773,6 +774,7 @@ local CoreGui = game:GetService("CoreGui")
 local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
+local MaterialService = game:GetService("MaterialService")
 local Stats = game:GetService("Stats")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
@@ -6102,6 +6104,8 @@ end
 
 -- ==========================================
 -- MINIMAL MAP STYLE + FPS MAP OPTIMIZER
+-- v62: rendering-path-aware map styling. FPS optimization intentionally avoids
+-- texture/PBR churn; full texture removal is isolated to the visual style path.
 -- ==========================================
 local XCMapStylePresets = {
     ["Black & White"] = {Dark=Color3.fromRGB(20,22,25), Light=Color3.fromRGB(232,234,238), Steps=5, Gamma=0.92},
@@ -6116,10 +6120,16 @@ local XCMapPartState = setmetatable({}, {__mode="k"})
 local XCMapTextureState = setmetatable({}, {__mode="k"})
 local XCMapMeshState = setmetatable({}, {__mode="k"})
 local XCMapEffectState = setmetatable({}, {__mode="k"})
-local XCMapSurfaceState = {}
+local XCMapSurfaceState = setmetatable({}, {__mode="k"})
+local XCMapTerrainDetailState = setmetatable({}, {__mode="k"})
+local XCMapGuiImageState = setmetatable({}, {__mode="k"})
 local XCMapStyleScanSerial = 0
 local XCMapGlobalState = nil
 local XCMapLastScanStats = {Parts=0, Textures=0, Effects=0}
+local XCMapSurfaceParking = nil
+local XCMapNeutralVariant = nil
+local XCContentNone = nil
+pcall(function() XCContentNone = Content.none end)
 
 local function XCMapVisualActive()
     return XCConfig.mapStyleEnabled == true or XCConfig.mapOptimizerEnabled == true
@@ -6159,8 +6169,8 @@ local XCMapSignWords = {"sign", "poster", "screen", "monitor", "billboard", "log
 
 local function XCMapHasWord(instance, words)
     local cursor = instance
-    for _ = 1, 7 do
-        if not cursor or cursor == Workspace then break end
+    for _ = 1, 8 do
+        if not cursor or cursor == Workspace or cursor == Lighting then break end
         local lower = cursor.Name:lower()
         for _, word in ipairs(words) do
             if lower:find(word, 1, true) then return true end
@@ -6170,8 +6180,29 @@ local function XCMapHasWord(instance, words)
     return false
 end
 
+local function XCMapWorldGuiPart(instance)
+    local cursor = instance
+    for _ = 1, 8 do
+        if not cursor then break end
+        if cursor:IsA("ScreenGui") then return nil end
+        if cursor:IsA("SurfaceGui") then
+            local part = nil
+            pcall(function()
+                if cursor.Adornee and cursor.Adornee:IsA("BasePart") then part = cursor.Adornee end
+            end)
+            if not part and cursor.Parent and cursor.Parent:IsA("BasePart") then part = cursor.Parent end
+            if part and part:IsDescendantOf(Workspace) then return part, cursor end
+            return nil
+        end
+        cursor = cursor.Parent
+    end
+    return nil
+end
+
 local function XCMapFindPart(instance)
     if instance:IsA("BasePart") then return instance end
+    local guiPart = XCMapWorldGuiPart(instance)
+    if guiPart then return guiPart end
     local cursor = instance.Parent
     while cursor and cursor ~= Workspace and cursor ~= Lighting do
         if cursor:IsA("BasePart") then return cursor end
@@ -6186,7 +6217,7 @@ local function XCMapIsProtectedObject(instance)
     if instance:FindFirstAncestorOfClass("Tool") then return true end
     if XCMapHasWord(instance, XCMapExcludedWords) then return true end
     local cursor = instance
-    for _ = 1, 8 do
+    for _ = 1, 9 do
         if not cursor or cursor == Workspace or cursor == Lighting then break end
         if cursor:IsA("Model") and cursor:FindFirstChildOfClass("Humanoid") then return true end
         cursor = cursor.Parent
@@ -6195,17 +6226,18 @@ local function XCMapIsProtectedObject(instance)
 end
 
 local function XCMapStyleEligible(instance)
-    if not instance or not instance.Parent or not instance:IsDescendantOf(Workspace) then return false end
+    if not instance or not instance.Parent then return false end
+    local inWorkspace = instance:IsDescendantOf(Workspace)
+    local guiPart = not inWorkspace and XCMapWorldGuiPart(instance) or nil
+    if not inWorkspace and not guiPart then return false end
     if XCMapIsProtectedObject(instance) then return false end
-    local part = XCMapFindPart(instance)
+    local part = guiPart or XCMapFindPart(instance)
     if not part then return false end
-    -- v58 required Anchored=true here. BloxStrike streams/moves a fair amount
-    -- of map geometry, so that filter silently skipped many visible meshes.
+    if XCMapIsProtectedObject(part) then return false end
     if not XCConfig.mapStyleAffectTransparent and part.Transparency > 0.55 then return false end
     if XCConfig.mapStylePreserveSigns then
-        if XCMapHasWord(part, XCMapSignWords)
-            or part:FindFirstChildWhichIsA("SurfaceGui")
-            or part:FindFirstChildWhichIsA("BillboardGui") then
+        if XCMapHasWord(part, XCMapSignWords) or XCMapHasWord(instance, XCMapSignWords)
+            or part:FindFirstChildWhichIsA("SurfaceGui") then
             return false
         end
     end
@@ -6215,32 +6247,84 @@ end
 local function XCMapOptimizerProfile()
     local mode = tostring(XCConfig.mapOptimizerMode or "Balanced")
     if mode == "Safe" then
-        return {Detail=1.0, Effects=false, Lights=false, Terrain=false, ClearTextures=false}
+        return {Effects=false, Lights=false, Terrain=false}
     elseif mode == "Aggressive" then
-        return {Detail=0.35, Effects=true, Lights=true, Terrain=true, ClearTextures=true}
+        return {Effects=true, Lights=true, Terrain=true}
     end
-    -- Balanced avoids asset-id churn. The useful wins here are shadows,
-    -- decorative emitters, terrain decoration and lower mesh fidelity.
-    return {Detail=1.0, Effects=true, Lights=false, Terrain=true, ClearTextures=false}
+    return {Effects=true, Lights=false, Terrain=true}
+end
+
+local function XCMapStyleMode()
+    local mode = tostring(XCConfig.mapStyleTextureMode or "Full Minimal")
+    if mode ~= "Soft Tint" and mode ~= "Minimal" and mode ~= "Full Minimal" then
+        mode = "Full Minimal"
+    end
+    return mode
 end
 
 local function XCEffectiveMapDetail()
-    local detail = XCConfig.mapStyleEnabled and math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1) or 1
-    if XCConfig.mapOptimizerEnabled then
-        detail = math.min(detail, XCMapOptimizerProfile().Detail)
-    end
-    return detail
+    return XCConfig.mapStyleEnabled and math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1) or 1
+end
+
+local function XCMapTexturePolicy()
+    local detail = XCEffectiveMapDetail()
+    local mode = XCMapStyleMode()
+    local style = XCConfig.mapStyleEnabled == true
+    local full = style and mode == "Full Minimal"
+    local minimal = style and (mode == "Minimal" or full)
+    local stripColor = full or (minimal and detail <= 0.35)
+    local stripPBR = full or (minimal and detail < 0.90)
+    return detail, stripColor, stripPBR, full
 end
 
 local function XCMapShouldFlatMaterial()
-    -- Material swaps can force expensive renderer rebuilds on mobile. Keep
-    -- this a visual-style option only; the FPS optimizer never needs it.
-    return XCConfig.mapStyleEnabled and XCConfig.mapStyleFlatMaterials == true
+    local _, _, _, full = XCMapTexturePolicy()
+    return XCConfig.mapStyleEnabled and (XCConfig.mapStyleFlatMaterials == true or full)
 end
 
-local function XCMapShouldClearTextures(detail)
-    if XCConfig.mapOptimizerEnabled and XCMapOptimizerProfile().ClearTextures then return true end
-    return XCConfig.mapStyleEnabled and (tonumber(detail) or 1) <= 0.08
+local function XCEnsureSurfaceParking()
+    if XCMapSurfaceParking and XCMapSurfaceParking.Parent then return XCMapSurfaceParking end
+    pcall(function()
+        local old = targetGui:FindFirstChild("XCMapSurfaceParking")
+        if old then old:Destroy() end
+    end)
+    local folder = Instance.new("Folder")
+    folder.Name = "XCMapSurfaceParking"
+    folder.Parent = targetGui
+    XCMapSurfaceParking = folder
+    return folder
+end
+
+local function XCEnsureNeutralMaterialVariant()
+    if XCMapNeutralVariant and XCMapNeutralVariant.Parent == MaterialService then return XCMapNeutralVariant end
+    local ownedName = "XC_MinimalMaterial_" .. tostring(player and player.UserId or 0)
+    local existing = MaterialService:FindFirstChild(ownedName)
+    if existing and existing:IsA("MaterialVariant") and existing:GetAttribute("XCMapStyleOwned") == true then
+        XCMapNeutralVariant = existing
+        return existing
+    end
+    local variant = Instance.new("MaterialVariant")
+    variant.Name = ownedName
+    variant:SetAttribute("XCMapStyleOwned", true)
+    pcall(function() variant.BaseMaterial = Enum.Material.SmoothPlastic end)
+    pcall(function() variant.ColorMap = "" end)
+    pcall(function() variant.NormalMap = "" end)
+    pcall(function() variant.RoughnessMap = "" end)
+    pcall(function() variant.MetalnessMap = "" end)
+    variant.Parent = MaterialService
+    XCMapNeutralVariant = variant
+    return variant
+end
+
+local function XCCleanupMapOwnedHelpers()
+    if XCMapNeutralVariant and XCMapNeutralVariant.Parent then
+        pcall(function() XCMapNeutralVariant:Destroy() end)
+    end
+    XCMapNeutralVariant = nil
+    if XCMapSurfaceParking and XCMapSurfaceParking.Parent then
+        pcall(function() XCMapSurfaceParking:Destroy() end)
+    end
+    XCMapSurfaceParking = nil
 end
 
 local function XCCaptureMapGlobalState()
@@ -6280,8 +6364,6 @@ local function XCApplyMapGlobalOptimizer()
     XCCaptureMapGlobalState()
     local state = XCMapGlobalState
     local terrain = state and state.Terrain
-    -- Style terrain too; this is important on maps that use Terrain instead of
-    -- BaseParts for large floors/walls.
     if terrain and terrain.Parent then
         local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
         for material, original in pairs(state.TerrainColors or {}) do
@@ -6319,40 +6401,60 @@ local function XCApplyMapGlobalOptimizer()
 end
 
 local function XCApplyMapPart(part)
-    if not XCMapStyleEligible(part) then return false end
     local state = XCMapPartState[part]
-    if not state then
-        state = {}
-        XCMapPartState[part] = state
+    if not XCMapStyleEligible(part) then
+        if state and part and part.Parent then
+            pcall(function()
+                if state.Color ~= nil then part.Color = state.Color end
+                if state.Material ~= nil then part.Material = state.Material end
+                if state.Reflectance ~= nil then part.Reflectance = state.Reflectance end
+                if state.CastShadow ~= nil then part.CastShadow = state.CastShadow end
+                if state.MaterialVariant ~= nil then part.MaterialVariant = state.MaterialVariant end
+                if part:IsA("UnionOperation") and state.UsePartColor ~= nil then part.UsePartColor = state.UsePartColor end
+                if part:IsA("MeshPart") then
+                    if state.TextureContentCaptured then pcall(function() part.TextureContent = state.TextureContent end)
+                    elseif state.TextureID ~= nil then part.TextureID = state.TextureID end
+                    if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity = state.RenderFidelity end) end
+                end
+            end)
+        end
+        return false
     end
-    -- Capture only properties that can actually be changed. This avoids a
-    -- large table of unused style data when the user enables optimizer only.
+    if not state then state = {}; XCMapPartState[part] = state end
     if state.CastShadow == nil then state.CastShadow = part.CastShadow end
     if XCConfig.mapStyleEnabled or state.Color ~= nil then
         if state.Color == nil then
-            state.Color=part.Color; state.Material=part.Material; state.Reflectance=part.Reflectance
+            state.Color = part.Color
+            state.Material = part.Material
+            state.Reflectance = part.Reflectance
             pcall(function() state.MaterialVariant = part.MaterialVariant end)
             if part:IsA("UnionOperation") then pcall(function() state.UsePartColor = part.UsePartColor end) end
         end
     end
-    if part:IsA("MeshPart") and (XCConfig.mapOptimizerLowMesh or XCConfig.mapStyleEnabled or XCMapOptimizerProfile().ClearTextures or state.TextureID ~= nil) then
+    if part:IsA("MeshPart") and (XCConfig.mapOptimizerLowMesh or XCConfig.mapStyleEnabled or state.TextureID ~= nil) then
         if state.TextureID == nil then pcall(function() state.TextureID = part.TextureID end) end
+        if state.TextureContentCaptured == nil then
+            state.TextureContentCaptured = false
+            pcall(function() state.TextureContent = part.TextureContent; state.TextureContentCaptured = true end)
+        end
         if state.RenderFidelity == nil then pcall(function() state.RenderFidelity = part.RenderFidelity end) end
     end
 
-    local styleStrength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
-    local detail = XCEffectiveMapDetail()
+    local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+    local _, stripColor, _, full = XCMapTexturePolicy()
     pcall(function()
         if state.Color ~= nil then
-            local desiredColor = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), styleStrength) or state.Color
+            local desiredColor = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), strength) or state.Color
             if part.Color ~= desiredColor then part.Color = desiredColor end
             if part:IsA("UnionOperation") and state.UsePartColor ~= nil then
                 local desiredUsePartColor = XCConfig.mapStyleEnabled and true or state.UsePartColor
                 if part.UsePartColor ~= desiredUsePartColor then part.UsePartColor = desiredUsePartColor end
             end
             if XCMapShouldFlatMaterial() then
+                local neutral = XCEnsureNeutralMaterialVariant()
                 if part.Material ~= Enum.Material.SmoothPlastic then part.Material = Enum.Material.SmoothPlastic end
-                if part.MaterialVariant ~= "" then part.MaterialVariant = "" end
+                local desiredVariant = neutral and neutral.Name or ""
+                if part.MaterialVariant ~= desiredVariant then part.MaterialVariant = desiredVariant end
                 if part.Reflectance ~= 0 then part.Reflectance = 0 end
             else
                 if part.Material ~= state.Material then part.Material = state.Material end
@@ -6365,9 +6467,15 @@ local function XCApplyMapPart(part)
         if part.CastShadow ~= desiredShadow then part.CastShadow = desiredShadow end
 
         if part:IsA("MeshPart") then
-            if state.TextureID ~= nil then
-                local desiredTexture = XCMapShouldClearTextures(detail) and "" or state.TextureID
-                if part.TextureID ~= desiredTexture then part.TextureID = desiredTexture end
+            if full and stripColor then
+                if state.TextureContentCaptured and XCContentNone ~= nil then
+                    pcall(function() part.TextureContent = XCContentNone end)
+                end
+                if part.TextureID ~= "" then part.TextureID = "" end
+            elseif state.TextureContentCaptured then
+                pcall(function() part.TextureContent = state.TextureContent end)
+            elseif state.TextureID ~= nil and part.TextureID ~= state.TextureID then
+                part.TextureID = state.TextureID
             end
             if XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerLowMesh then
                 if part.RenderFidelity ~= Enum.RenderFidelity.Performance then
@@ -6381,40 +6489,235 @@ local function XCApplyMapPart(part)
     return true
 end
 
-local function XCApplyMapTexture(object)
-    if not XCMapStyleEligible(object) then return false end
-    local detail = XCEffectiveMapDetail()
-    if not XCConfig.mapStyleEnabled and not XCMapShouldClearTextures(detail) and detail >= 0.999 then
-        local needsRestore = ((object:IsA("Decal") or object:IsA("Texture")) and XCMapTextureState[object] ~= nil)
-            or (object:IsA("SpecialMesh") and XCMapMeshState[object] ~= nil)
-        if not needsRestore then return false end
+local XCMapDecalContentProps = {"ColorMapContent", "NormalMapContent", "RoughnessMapContent", "MetalnessMapContent"}
+
+local function XCCaptureMapDecalContent(object, state)
+    if state.ContentCaptured then return end
+    state.ContentCaptured = true
+    state.ContentValues = {}
+    state.ContentPresent = {}
+    for _, prop in ipairs(XCMapDecalContentProps) do
+        local ok, value = pcall(function() return object[prop] end)
+        if ok then
+            state.ContentPresent[prop] = true
+            state.ContentValues[prop] = value
+        end
     end
+end
+
+local function XCSetMapDecalContents(object, state, clear)
+    if not state or not state.ContentCaptured then return end
+    for _, prop in ipairs(XCMapDecalContentProps) do
+        if state.ContentPresent[prop] then
+            pcall(function()
+                object[prop] = clear and XCContentNone or state.ContentValues[prop]
+            end)
+        end
+    end
+end
+
+local function XCMapSurfaceStateFor(object)
+    local state = XCMapSurfaceState[object]
+    if state then return state end
+    state = {OriginalParent=object.Parent, Parked=false}
+    pcall(function() state.Color = object.Color end)
+    pcall(function() state.AlphaMode = object.AlphaMode end)
+    pcall(function() state.EmissiveStrength = object.EmissiveStrength end)
+    pcall(function() state.EmissiveTint = object.EmissiveTint end)
+    XCMapSurfaceState[object] = state
+    return state
+end
+
+local function XCMapRestoreSurfaceParent(object, state)
+    if not object or not state or not state.Parked then return end
+    local parent = state.OriginalParent
+    if parent and parent.Parent then
+        pcall(function() object.Parent = parent end)
+    else
+        pcall(function() object:Destroy() end)
+    end
+    state.Parked = false
+end
+
+local function XCMapApplySurfaceAppearance(object)
+    if not object or not object.Parent then return false end
+    local state = XCMapSurfaceStateFor(object)
+    local _, _, stripPBR, full = XCMapTexturePolicy()
+    if full then
+        if not state.Parked then
+            state.OriginalParent = object.Parent
+            pcall(function()
+                if state.EmissiveStrength ~= nil then object.EmissiveStrength = 0 end
+                object.Parent = XCEnsureSurfaceParking()
+                state.Parked = true
+            end)
+        end
+        return state.Parked
+    end
+    if state.Parked then XCMapRestoreSurfaceParent(object, state) end
+    if not object.Parent or not XCMapStyleEligible(object) then return false end
+    local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+    pcall(function()
+        if state.Color ~= nil then
+            object.Color = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), strength) or state.Color
+        end
+        if state.EmissiveStrength ~= nil then object.EmissiveStrength = stripPBR and 0 or state.EmissiveStrength end
+        if state.EmissiveTint ~= nil and not XCConfig.mapStyleEnabled then object.EmissiveTint = state.EmissiveTint end
+        if state.AlphaMode ~= nil and not XCConfig.mapStyleEnabled then object.AlphaMode = state.AlphaMode end
+    end)
+    return XCConfig.mapStyleEnabled
+end
+
+local function XCMapGuiVisualEligible(object)
+    local part, surfaceGui = XCMapWorldGuiPart(object)
+    if not part or not surfaceGui then return false end
+    if XCMapIsProtectedObject(part) then return false end
+    if XCConfig.mapStylePreserveSigns and (XCMapHasWord(part, XCMapSignWords) or XCMapHasWord(surfaceGui, XCMapSignWords)) then return false end
+    return XCMapStyleEligible(object)
+end
+
+local function XCApplyMapTexture(object)
+    if not object or not object.Parent then return false end
+    local detail, stripColor, stripPBR, full = XCMapTexturePolicy()
+
+    if object:IsA("TerrainDetail") then
+        if not object:IsDescendantOf(Workspace) then return false end
+        local state = XCMapTerrainDetailState[object]
+        if not state then
+            state = {}; XCMapTerrainDetailState[object] = state
+            pcall(function() state.ColorMap = object.ColorMap end)
+            pcall(function() state.NormalMap = object.NormalMap end)
+            pcall(function() state.RoughnessMap = object.RoughnessMap end)
+        end
+        -- TerrainDetail texture maps are not consistently runtime-writable on
+        -- current clients. Keep the state for restore/compatibility but rely on
+        -- Terrain:SetMaterialColor for the safe runtime styling path.
+        return false
+    end
+
+    if object:IsA("SurfaceAppearance") then
+        local state = XCMapSurfaceState[object]
+        if not XCConfig.mapStyleEnabled and state then
+            if state.Parked then XCMapRestoreSurfaceParent(object, state) end
+            if object.Parent then
+                pcall(function()
+                    if state.Color ~= nil then object.Color = state.Color end
+                    if state.AlphaMode ~= nil then object.AlphaMode = state.AlphaMode end
+                    if state.EmissiveStrength ~= nil then object.EmissiveStrength = state.EmissiveStrength end
+                    if state.EmissiveTint ~= nil then object.EmissiveTint = state.EmissiveTint end
+                end)
+            end
+            return false
+        end
+        if not XCMapStyleEligible(object) then return false end
+        return XCMapApplySurfaceAppearance(object)
+    end
+
+    if object:IsA("ImageLabel") or object:IsA("ImageButton") or object:IsA("VideoFrame") or object:IsA("ViewportFrame") then
+        local state = XCMapGuiImageState[object]
+        if not XCConfig.mapStyleEnabled and state and object.Parent then
+            pcall(function()
+                object.Visible = state.Visible
+                if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                    object.Image = state.Image
+                    object.ImageColor3 = state.ImageColor3
+                    object.ImageTransparency = state.ImageTransparency
+                    if object:IsA("ImageButton") then
+                        if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
+                        if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+                    end
+                end
+            end)
+            return false
+        end
+        if not XCMapGuiVisualEligible(object) then return false end
+        if not state then
+            state = {Visible=object.Visible}; XCMapGuiImageState[object] = state
+            if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                state.Image = object.Image
+                state.ImageColor3 = object.ImageColor3
+                state.ImageTransparency = object.ImageTransparency
+                if object:IsA("ImageButton") then
+                    pcall(function() state.HoverImage = object.HoverImage end)
+                    pcall(function() state.PressedImage = object.PressedImage end)
+                end
+            end
+        end
+        pcall(function()
+            if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                object.ImageColor3 = XCConfig.mapStyleEnabled
+                    and state.ImageColor3:Lerp(XCMapToneFromColor(state.ImageColor3), math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1))
+                    or state.ImageColor3
+                object.ImageTransparency = stripColor and 1 or (1 - ((1 - state.ImageTransparency) * detail))
+                object.Image = state.Image
+                if object:IsA("ImageButton") then
+                    if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
+                    if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+                end
+            end
+            object.Visible = full and false or state.Visible
+        end)
+        return true
+    end
+
+    if not XCMapStyleEligible(object) then
+        if object:IsA("Decal") or object:IsA("Texture") then
+            local state = XCMapTextureState[object]
+            if state and object.Parent then
+                pcall(function()
+                    object.Transparency = state.Transparency
+                    object.Color3 = state.Color3
+                    object.Texture = state.Texture
+                end)
+                XCSetMapDecalContents(object, state, false)
+            end
+        elseif object:IsA("SpecialMesh") then
+            local state = XCMapMeshState[object]
+            if state and object.Parent then pcall(function() object.TextureId = state.TextureId end) end
+        end
+        return false
+    end
+    if not XCConfig.mapStyleEnabled and detail >= 0.999 then
+        if object:IsA("Decal") or object:IsA("Texture") then
+            local state = XCMapTextureState[object]
+            if state then
+                pcall(function()
+                    object.Transparency = state.Transparency
+                    object.Color3 = state.Color3
+                    object.Texture = state.Texture
+                end)
+                XCSetMapDecalContents(object, state, false)
+            end
+        elseif object:IsA("SpecialMesh") then
+            local state = XCMapMeshState[object]
+            if state then pcall(function() object.TextureId = state.TextureId end) end
+        end
+        return false
+    end
+
     if object:IsA("Decal") or object:IsA("Texture") then
         local state = XCMapTextureState[object]
         if not state then
             state={Transparency=object.Transparency, Color3=object.Color3, Texture=object.Texture}
             XCMapTextureState[object]=state
+            XCCaptureMapDecalContent(object, state)
         end
         pcall(function()
             object.Color3 = XCConfig.mapStyleEnabled
                 and state.Color3:Lerp(XCMapToneFromColor(state.Color3), math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1))
                 or state.Color3
-            object.Transparency = 1 - ((1 - state.Transparency) * detail)
-            object.Texture = XCMapShouldClearTextures(detail) and "" or state.Texture
+            object.Transparency = stripColor and 1 or (1 - ((1 - state.Transparency) * detail))
+            object.Texture = full and "" or state.Texture
         end)
+        if full and XCContentNone ~= nil then XCSetMapDecalContents(object, state, true)
+        else XCSetMapDecalContents(object, state, false) end
         return true
+
     elseif object:IsA("SpecialMesh") then
         local state = XCMapMeshState[object]
         if not state then state={TextureId=object.TextureId}; XCMapMeshState[object]=state end
-        pcall(function() object.TextureId = XCMapShouldClearTextures(detail) and "" or state.TextureId end)
+        pcall(function() object.TextureId = full and "" or state.TextureId end)
         return true
-    elseif object:IsA("SurfaceAppearance") then
-        -- Do not detach SurfaceAppearance from the hierarchy. Reparenting many
-        -- of them creates DescendantAdded/renderer churn and was one source of
-        -- mobile freezes in v59. Mesh fidelity/shadows/effects provide safer
-        -- FPS gains. Keep the object untouched and let part color/style handle
-        -- the minimal look.
-        return false
     end
     return false
 end
@@ -6425,8 +6728,7 @@ local function XCMapEffectEligible(object)
     if XCMapIsProtectedObject(object) then return false end
     if object:IsDescendantOf(Lighting) then return true end
     if not object:IsDescendantOf(Workspace) then return false end
-    local part = XCMapFindPart(object)
-    return part ~= nil
+    return XCMapFindPart(object) ~= nil
 end
 
 local function XCApplyMapEffect(object)
@@ -6452,20 +6754,12 @@ local function XCApplyMapEffect(object)
     return true
 end
 
-local function XCRefreshMapSurfaceAppearance(object, state)
-    -- SurfaceAppearance is intentionally not moved or rewritten in the mobile
-    -- safe optimizer. This function remains for compatibility with configs
-    -- created by older versions and simply restores a legacy detached object.
-    if not object or not state then return end
-    pcall(function()
-        if not object.Parent and state.Parent and state.Parent.Parent then object.Parent = state.Parent end
-    end)
-end
-
 local function XCApplyMapObject(object)
     if not XCMapVisualActive() or not object then return false, false, false end
     local partApplied = object:IsA("BasePart") and XCApplyMapPart(object) or false
-    local textureApplied = (object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh") or object:IsA("SurfaceAppearance"))
+    local textureApplied = (object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh")
+        or object:IsA("SurfaceAppearance") or object:IsA("TerrainDetail")
+        or object:IsA("ImageLabel") or object:IsA("ImageButton") or object:IsA("VideoFrame") or object:IsA("ViewportFrame"))
         and XCApplyMapTexture(object) or false
     local effectApplied = XCApplyMapEffect(object)
     return partApplied, textureApplied, effectApplied
@@ -6481,7 +6775,8 @@ local function XCRestoreMapPartEntry(part, state)
         if state.MaterialVariant ~= nil then part.MaterialVariant=state.MaterialVariant end
         if part:IsA("UnionOperation") and state.UsePartColor ~= nil then part.UsePartColor=state.UsePartColor end
         if part:IsA("MeshPart") then
-            if state.TextureID ~= nil then part.TextureID=state.TextureID end
+            if state.TextureContentCaptured then pcall(function() part.TextureContent=state.TextureContent end)
+            elseif state.TextureID ~= nil then part.TextureID=state.TextureID end
             if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity=state.RenderFidelity end) end
         end
     end)
@@ -6494,21 +6789,77 @@ local function XCRestoreMapTextureEntry(object, state)
         object.Color3=state.Color3
         object.Texture=state.Texture
     end)
+    XCSetMapDecalContents(object, state, false)
 end
 
 local function XCRestoreMapMeshEntry(object, state)
     if object and object.Parent and state then pcall(function() object.TextureId=state.TextureId end) end
 end
 
+local function XCRestoreMapSurfaceEntry(object, state)
+    if not object or not state then return end
+    if state.Parked then XCMapRestoreSurfaceParent(object, state) end
+    if not object.Parent then return end
+    pcall(function()
+        if state.Color ~= nil then object.Color = state.Color end
+        if state.AlphaMode ~= nil then object.AlphaMode = state.AlphaMode end
+        if state.EmissiveStrength ~= nil then object.EmissiveStrength = state.EmissiveStrength end
+        if state.EmissiveTint ~= nil then object.EmissiveTint = state.EmissiveTint end
+    end)
+end
+
+local function XCRestoreMapTerrainDetailEntry(object, state)
+    if not object or not object.Parent or not state then return end
+    pcall(function()
+        if state.ColorMap ~= nil then object.ColorMap = state.ColorMap end
+        if state.NormalMap ~= nil then object.NormalMap = state.NormalMap end
+        if state.RoughnessMap ~= nil then object.RoughnessMap = state.RoughnessMap end
+    end)
+end
+
+local function XCRestoreMapGuiImageEntry(object, state)
+    if not object or not object.Parent or not state then return end
+    pcall(function()
+        object.Visible = state.Visible
+        if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+            object.Image = state.Image
+            object.ImageColor3 = state.ImageColor3
+            object.ImageTransparency = state.ImageTransparency
+            if object:IsA("ImageButton") then
+                if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
+                if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+            end
+        end
+    end)
+end
+
 local function XCRestoreMapEffectEntry(object, state)
     if object and object.Parent and state then pcall(function() object.Enabled=state.Enabled end) end
+end
+
+local function XCReconcileParkedSurfaces(serial, yielding)
+    local count=0
+    local budget=UserInputService.TouchEnabled and 4 or 24
+    local _, _, _, full = XCMapTexturePolicy()
+    for object,state in pairs(XCMapSurfaceState) do
+        if serial and serial ~= XCMapStyleScanSerial then return false end
+        if state and state.Parked then
+            local originalParent = state.OriginalParent
+            local shouldStayParked = full and originalParent and originalParent.Parent and XCMapStyleEligible(originalParent)
+            if not shouldStayParked then XCMapRestoreSurfaceParent(object,state) end
+        end
+        count += 1
+        if yielding and count >= budget then
+            count=0
+            RunService.Heartbeat:Wait()
+        end
+    end
+    return true
 end
 
 function restoreXCMapStyle(immediate)
     XCMapStyleScanSerial += 1
     local serial=XCMapStyleScanSerial
-    -- Global settings are cheap to restore and should react instantly even on
-    -- mobile. Per-instance restoration can be spread over frames.
     XCRestoreMapGlobalState()
 
     local function finishRestore()
@@ -6517,11 +6868,14 @@ function restoreXCMapStyle(immediate)
         XCMapTextureState=setmetatable({}, {__mode="k"})
         XCMapMeshState=setmetatable({}, {__mode="k"})
         XCMapEffectState=setmetatable({}, {__mode="k"})
-        XCMapSurfaceState={}
+        XCMapSurfaceState=setmetatable({}, {__mode="k"})
+        XCMapTerrainDetailState=setmetatable({}, {__mode="k"})
+        XCMapGuiImageState=setmetatable({}, {__mode="k"})
+        XCCleanupMapOwnedHelpers()
     end
 
     local function restoreAll(yielding)
-        local budget=UserInputService.TouchEnabled and 22 or 100
+        local budget=UserInputService.TouchEnabled and 14 or 80
         local count=0
         local function maybeYield()
             if not yielding then return true end
@@ -6532,6 +6886,13 @@ function restoreXCMapStyle(immediate)
                 if serial ~= XCMapStyleScanSerial then return false end
             end
             return true
+        end
+        -- SurfaceAppearance objects can be parked outside Workspace, so restore
+        -- them before restoring their parent MeshPart state.
+        for object,state in pairs(XCMapSurfaceState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapSurfaceEntry(object,state)
+            if not maybeYield() then return end
         end
         for part,state in pairs(XCMapPartState) do
             if serial ~= XCMapStyleScanSerial then return end
@@ -6548,9 +6909,14 @@ function restoreXCMapStyle(immediate)
             XCRestoreMapMeshEntry(object,state)
             if not maybeYield() then return end
         end
-        for object,state in pairs(XCMapSurfaceState) do
+        for object,state in pairs(XCMapTerrainDetailState) do
             if serial ~= XCMapStyleScanSerial then return end
-            XCRefreshMapSurfaceAppearance(object,state)
+            XCRestoreMapTerrainDetailEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapGuiImageState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapGuiImageEntry(object,state)
             if not maybeYield() then return end
         end
         for object,state in pairs(XCMapEffectState) do
@@ -6561,24 +6927,27 @@ function restoreXCMapStyle(immediate)
         finishRestore()
     end
 
-    if immediate == true or not UserInputService.TouchEnabled then
-        restoreAll(false)
-    else
-        task.spawn(function() restoreAll(true) end)
-    end
+    if immediate == true or not UserInputService.TouchEnabled then restoreAll(false)
+    else task.spawn(function() restoreAll(true) end) end
 end
 
 local function XCMapScanBudget()
+    local _, stripColor, stripPBR, full = XCMapTexturePolicy()
     if UserInputService.TouchEnabled then
-        return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 8 or 16
+        if full then return 4 end
+        if stripColor or stripPBR then return 7 end
+        return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 10 or 18
     end
-    return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 44 or 80
+    if full then return 24 end
+    if stripColor or stripPBR then return 42 end
+    return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 48 or 90
 end
 
 local function XCMapCanDescend(object)
     if not object then return false end
     if camera and object == camera then return false end
     if object:IsA("Tool") then return false end
+    if object:IsA("ScreenGui") then return false end
     if object:IsA("Model") and object:FindFirstChildOfClass("Humanoid") then return false end
     return true
 end
@@ -6592,14 +6961,17 @@ function applyXCMapStyle(rescan)
 
     task.spawn(function()
         local stats={Parts=0, Textures=0, Effects=0}
-        -- Depth-first stack: unlike GetDescendants() or a growing BFS queue it
-        -- does not retain a reference slot for every object already visited.
+        if not XCReconcileParkedSurfaces(serial, true) then return end
         local stack={Workspace}
         if XCConfig.mapOptimizerEnabled then stack[#stack+1]=Lighting end
+        if XCConfig.mapStyleEnabled and player then
+            local pGui=player:FindFirstChildOfClass("PlayerGui")
+            if pGui then stack[#stack+1]=pGui end
+        end
         local processedThisSlice=0
         local sliceStarted=os.clock()
         local budget=XCMapScanBudget()
-        local maxSlice=UserInputService.TouchEnabled and 0.0022 or 0.0045
+        local maxSlice=UserInputService.TouchEnabled and 0.0018 or 0.0045
 
         while #stack > 0 do
             if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
@@ -6635,9 +7007,9 @@ function applyXCMapStyle(rescan)
         XCApplyMapGlobalOptimizer()
         if shouldNotify then
             if XCConfig.mapOptimizerEnabled then
-                XCNotify("Map optimizer", string.format("Optimized gradually: %d parts, %d textures, %d effects", stats.Parts, stats.Textures, stats.Effects), "success", 2)
+                XCNotify("Map optimizer", string.format("Processed safely: %d parts, %d visuals, %d effects", stats.Parts, stats.Textures, stats.Effects), "success", 2)
             elseif XCConfig.mapStyleEnabled then
-                XCNotify("Map style", string.format("Styled gradually: %d parts and %d textures", stats.Parts, stats.Textures), "success", 1.8)
+                XCNotify("Map style", string.format("Styled safely: %d parts and %d visuals", stats.Parts, stats.Textures), "success", 1.8)
             end
         end
     end)
@@ -6666,7 +7038,10 @@ local function XCQueueStreamMapObject(object)
     XCMapStreamWorker=true
     task.spawn(function()
         while XCMapStreamHead <= #XCMapStreamQueue and xcSessionActive() do
-            local budget=UserInputService.TouchEnabled and 8 or 28
+            local _, stripColor, stripPBR, full = XCMapTexturePolicy()
+            local budget = UserInputService.TouchEnabled
+                and (full and 3 or ((stripColor or stripPBR) and 5 or 9))
+                or (full and 14 or ((stripColor or stripPBR) and 20 or 32))
             for _=1,budget do
                 if XCMapStreamHead > #XCMapStreamQueue then break end
                 local queued=XCMapStreamQueue[XCMapStreamHead]
@@ -6692,6 +7067,15 @@ end))
 table.insert(connections, Lighting.DescendantAdded:Connect(function(object)
     if XCConfig.mapOptimizerEnabled then XCQueueStreamMapObject(object) end
 end))
+
+task.defer(function()
+    local pGui=player and player:FindFirstChildOfClass("PlayerGui")
+    if pGui then
+        table.insert(connections, pGui.DescendantAdded:Connect(function(object)
+            if XCConfig.mapStyleEnabled and XCMapWorldGuiPart(object) then XCQueueStreamMapObject(object) end
+        end))
+    end
+end)
 
 -- ==========================================================================
 -- [ CUBE CHECKER ]
@@ -12438,10 +12822,11 @@ function buildXCUI()
         mapOptimizerLowMesh = "Requests Performance render fidelity for eligible MeshParts where Roblox allows it.",
         mapStylePreset = "Chooses the minimal map palette. Black & White keeps several soft luminance levels instead of harsh pure black and white.",
         mapStyleStrength = "Blends the original map color toward the selected minimal palette.",
-        mapStyleTextureDetail = "Controls how much original decal and mesh texture detail remains visible.",
-        mapStyleFlatMaterials = "Uses SmoothPlastic for eligible map parts to reduce visual noise.",
-        mapStylePreserveSigns = "Keeps map signs, screens and poster-like surfaces unchanged.",
-        mapStyleAffectTransparent = "Also styles glass and other substantially transparent anchored map parts.",
+        mapStyleTextureDetail = "Controls how strongly ordinary map decals and image surfaces are faded in Soft Tint/Minimal modes. Full Minimal removes supported image paths regardless of this slider.",
+        mapStyleTextureMode = "Soft Tint keeps assets and tints/fades them; Minimal flattens materials and hides low-detail overlays; Full Minimal also removes MeshPart textures and temporarily parks SurfaceAppearance objects.",
+        mapStyleFlatMaterials = "Uses a private neutral SmoothPlastic MaterialVariant on eligible map parts so global MaterialService overrides do not re-texture the map.",
+        mapStylePreserveSigns = "Keeps map signs, screens and poster-like surfaces unchanged. Disable this for full texture coverage.",
+        mapStyleAffectTransparent = "Also styles glass and other substantially transparent map parts; enabled by default for full coverage.",
         worldSkyboxPreset = "Selects a local sky preset from the supplied World visual scripts.",
         worldTonePreset = "Applies a coordinated tint preset to Post FX and atmosphere.",
         worldAtmosphereEnabled = "Adds a configurable local Atmosphere without deleting the game's original one.",
@@ -14502,6 +14887,9 @@ function buildXCUI()
     end)
     addSlider(L, "Style strength", "mapStyleStrength", 0, 1, 0.05, "", function()
         if XCMapVisualActive() then applyXCMapStyle(false) end
+    end)
+    addChoice(L, "Texture mode", "mapStyleTextureMode", {"Soft Tint", "Minimal", "Full Minimal"}, function()
+        if XCMapVisualActive() then applyXCMapStyle(true) end
     end)
     addSlider(L, "Texture detail", "mapStyleTextureDetail", 0, 1, 0.05, "", function()
         if XCMapVisualActive() then applyXCMapStyle(false) end
