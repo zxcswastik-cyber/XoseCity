@@ -758,7 +758,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local ContentProvider = game:GetService("ContentProvider")
 local Debris = game:GetService("Debris")
-local LogService = game:GetService("LogService")
 local VirtualInputManager = nil
 -- A synthetic mouse event changes Roblox's preferred input to desktop and
 -- makes Blox Strike remove its mobile buttons. Never create that path on a
@@ -830,6 +829,19 @@ local antiAfkConnection = nil
 local activeJumpCircleData = nil
 
 local genv = (type(getgenv) == "function") and getgenv() or nil
+-- v55 migration: dispose of the output-capture state left behind by v52-v54.
+-- The console feature itself is no longer created or used anywhere below.
+if genv then
+    local legacyOutputState = rawget(genv, "XCConsoleShared")
+    if type(legacyOutputState) == "table" then
+        pcall(function()
+            local connection = rawget(legacyOutputState, "MessageConnection")
+            if connection then connection:Disconnect() end
+        end)
+    end
+    genv.XCConsoleShared = nil
+    genv.XCDeltaConsolePrint = nil
+end
 local xcSessionToken = {}
 if genv then genv.XCSessionToken = xcSessionToken end
 function xcSessionActive()
@@ -845,102 +857,6 @@ local savedPos = (genv and genv.XCSavedPos) or {
     OpenBtn = UDim2.new(0.5, -45, 0, 15),
     MainFrame = UDim2.new(0.5, 0, 0.5, 0)
 }
-
--- ==========================================
--- SHARED XC CONSOLE CAPTURE
--- ==========================================
-local XCConsoleShared = (sharedXCEnv and type(sharedXCEnv.XCConsoleShared) == "table")
-    and sharedXCEnv.XCConsoleShared or nil
-if not XCConsoleShared then
-    XCConsoleShared = {
-        RobloxEntries = {},
-        DeltaEntries = {},
-        MaxEntries = 260,
-        Listeners = {},
-        Hooked = false,
-        MessageConnection = nil,
-    }
-    if sharedXCEnv then sharedXCEnv.XCConsoleShared = XCConsoleShared end
-end
-
-local function XCNormalizeConsoleLevel(level)
-    level = tostring(level or "info"):lower()
-    if level == "warn" then level = "warning" end
-    if level ~= "error" and level ~= "warning" then level = "info" end
-    return level
-end
-
-local function XCEmitConsoleUpdate()
-    local dead = {}
-    for index, listener in ipairs(XCConsoleShared.Listeners) do
-        if type(listener) ~= "function" then
-            dead[#dead + 1] = index
-        else
-            local ok, keep = pcall(listener)
-            if not ok or keep == false then dead[#dead + 1] = index end
-        end
-    end
-    for index = #dead, 1, -1 do table.remove(XCConsoleShared.Listeners, dead[index]) end
-end
-
-function XCAppendConsoleMessage(targetList, message, level)
-    targetList = (targetList == "DeltaEntries") and "DeltaEntries" or "RobloxEntries"
-    message = tostring(message or "")
-    if message == "" then return end
-    local entries = XCConsoleShared[targetList]
-    if type(entries) ~= "table" then
-        entries = {}
-        XCConsoleShared[targetList] = entries
-    end
-    table.insert(entries, {
-        Time = os.date("%H:%M:%S"),
-        Text = message,
-        Level = XCNormalizeConsoleLevel(level),
-    })
-    while #entries > (tonumber(XCConsoleShared.MaxEntries) or 260) do
-        table.remove(entries, 1)
-    end
-    XCEmitConsoleUpdate()
-end
-
-function XCAppendDeltaConsoleMessage(message, level)
-    XCAppendConsoleMessage("DeltaEntries", message, level)
-end
-
-function XCGetConsoleEntries(targetList)
-    targetList = (targetList == "DeltaEntries") and "DeltaEntries" or "RobloxEntries"
-    local entries = XCConsoleShared[targetList]
-    return type(entries) == "table" and entries or {}
-end
-
-function XCClearConsoleEntries(targetList)
-    targetList = (targetList == "DeltaEntries") and "DeltaEntries" or "RobloxEntries"
-    XCConsoleShared[targetList] = {}
-    XCEmitConsoleUpdate()
-end
-
-local function ensureXCConsoleHooks()
-    if XCConsoleShared.Hooked then return end
-    XCConsoleShared.Hooked = true
-    if #XCGetConsoleEntries("DeltaEntries") == 0 then
-        XCAppendDeltaConsoleMessage("XC console bridge ready.", "info")
-        XCAppendDeltaConsoleMessage("Use getgenv().XCDeltaConsolePrint(\"message\") to send custom executor/API logs here.", "info")
-    end
-    pcall(function()
-        XCConsoleShared.MessageConnection = LogService.MessageOut:Connect(function(message, messageType)
-            local level = "info"
-            if messageType == Enum.MessageType.MessageError then
-                level = "error"
-            elseif messageType == Enum.MessageType.MessageWarning then
-                level = "warning"
-            end
-            XCAppendConsoleMessage("RobloxEntries", message, level)
-        end)
-    end)
-end
-
-ensureXCConsoleHooks()
-if genv then genv.XCDeltaConsolePrint = XCAppendDeltaConsoleMessage end
 
 -- ==========================================
 -- EXTENDED THEME & PALETTE SYSTEM
@@ -1062,9 +978,6 @@ function XCNotify(title, message, kind, duration)
     title = tostring(title or "XC")
     message = tostring(message or "")
     duration = tonumber(duration) or 2.5
-    pcall(function()
-        XCAppendDeltaConsoleMessage(string.format("[%s] %s", title, message), kind)
-    end)
 
     local accent = currentTheme.Accent
     if kind == "success" then
@@ -11716,7 +11629,6 @@ function buildXCUI()
         tab_Visuals = "Visuals: ESP, chams and on-screen combat feedback.",
         tab_World = "World: lighting, weather, scope and camera tools.",
         tab_Misc = "Utilities: session helpers, animations and viewmodel controls.",
-        tab_Console = "Consoles: Roblox output on the left and XC/Delta runtime messages on the right.",
         tab_Skins = "Inventory changer: weapon finishes, wear, knives and gloves.",
         tab_Players = "Players: target rules, priority player and ESP details.",
         tab_Settings = "Settings: interface, palette, module editor and quick actions.",
@@ -13458,19 +13370,6 @@ function buildXCUI()
             iconLine(root, 8, 8, 7, 1.4, color)
             iconLine(root, 8, 12, 7, 1.4, color)
             iconLine(root, 8, 16, 7, 1.4, color)
-        elseif kind == "console" then
-            local shell = Instance.new("Frame")
-            shell.Size = UDim2.fromOffset(16, 12)
-            shell.Position = UDim2.fromOffset(3, 5)
-            shell.BackgroundTransparency = 1
-            shell.Parent = root
-            local shellStroke = Instance.new("UIStroke")
-            shellStroke.Color = color
-            shellStroke.Thickness = 1.4
-            shellStroke.Parent = shell
-            iconLine(root, 7, 9, 5, 1.5, color, 35)
-            iconLine(root, 7, 13, 5, 1.5, color, -35)
-            iconLine(root, 14, 14, 5, 1.5, color)
         end
         return root
     end
@@ -13487,7 +13386,7 @@ function buildXCUI()
 
     local tabs = {
         {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"Players", "players"},
-        {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"}, {"Console", "console"},
+        {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"},
         {"Settings", "misc"}, {"Configs", "configs"},
     }
     local function switchPage(name)
@@ -14241,213 +14140,6 @@ function buildXCUI()
     addNote(ConfigCommunity, "Choose a config from the library list; no name or link is required for loading.")
     addNote(ConfigCommunity, "Only JSON settings are downloaded. Lua code from community entries is never executed.")
     task.defer(refreshCommunityCatalog)
-
-    do
-        local consolePage = pages["Console"]
-        if consolePage then
-            local function consoleLevelColor(level)
-                level = tostring(level or "info"):lower()
-                if level == "error" then return Color3.fromRGB(234, 90, 90) end
-                if level == "warning" then return Color3.fromRGB(232, 191, 96) end
-                return C.Text
-            end
-
-            local function createConsoleCard(title, subtitle, xScale, sourceKey)
-                local card = Instance.new("Frame")
-                card.Name = title:gsub("%W", "")
-                card.Size = UDim2.new(0.49, 0, 1, 0)
-                card.Position = UDim2.new(xScale, 0, 0, 0)
-                card.BackgroundColor3 = C.Control
-                card.BackgroundTransparency = 0.03
-                card.BorderSizePixel = 0
-                card.Parent = consolePage
-                local cardCorner = Instance.new("UICorner")
-                cardCorner.CornerRadius = UDim.new(0, 18)
-                cardCorner.Parent = card
-                local cardStroke = Instance.new("UIStroke")
-                cardStroke.Color = C.Border
-                cardStroke.Thickness = 1
-                cardStroke.Parent = card
-
-                local titleLabel = Instance.new("TextLabel")
-                titleLabel.Size = UDim2.new(1, -32, 0, 32)
-                titleLabel.Position = UDim2.fromOffset(18, 14)
-                titleLabel.BackgroundTransparency = 1
-                titleLabel.Text = title
-                titleLabel.TextColor3 = C.White
-                titleLabel.Font = Enum.Font.GothamBold
-                titleLabel.TextSize = 15
-                titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-                titleLabel.Parent = card
-
-                local subtitleLabel = Instance.new("TextLabel")
-                subtitleLabel.Size = UDim2.new(1, -32, 0, 34)
-                subtitleLabel.Position = UDim2.fromOffset(18, 40)
-                subtitleLabel.BackgroundTransparency = 1
-                subtitleLabel.Text = subtitle
-                subtitleLabel.TextColor3 = C.Muted
-                subtitleLabel.Font = Enum.Font.Gotham
-                subtitleLabel.TextSize = 9
-                subtitleLabel.TextWrapped = true
-                subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-                subtitleLabel.TextYAlignment = Enum.TextYAlignment.Top
-                subtitleLabel.Parent = card
-
-                local searchLabel = Instance.new("TextLabel")
-                searchLabel.Size = UDim2.fromOffset(46, 18)
-                searchLabel.Position = UDim2.new(1, -260, 0, 90)
-                searchLabel.BackgroundTransparency = 1
-                searchLabel.Text = "Search:"
-                searchLabel.TextColor3 = C.White
-                searchLabel.Font = Enum.Font.GothamBold
-                searchLabel.TextSize = 10
-                searchLabel.TextXAlignment = Enum.TextXAlignment.Left
-                searchLabel.Parent = card
-
-                local searchFrame = Instance.new("Frame")
-                searchFrame.Size = UDim2.fromOffset(160, 20)
-                searchFrame.Position = UDim2.new(1, -172, 0, 88)
-                searchFrame.BackgroundColor3 = C.Panel
-                searchFrame.BorderSizePixel = 0
-                searchFrame.Parent = card
-                local searchCorner = Instance.new("UICorner")
-                searchCorner.CornerRadius = UDim.new(0, 7)
-                searchCorner.Parent = searchFrame
-                local searchStroke = Instance.new("UIStroke")
-                searchStroke.Color = C.Lime:Lerp(C.White, 0.35)
-                searchStroke.Thickness = 1
-                searchStroke.Parent = searchFrame
-
-                local searchBoxInner = Instance.new("TextBox")
-                searchBoxInner.Size = UDim2.new(1, -12, 1, 0)
-                searchBoxInner.Position = UDim2.fromOffset(6, 0)
-                searchBoxInner.BackgroundTransparency = 1
-                searchBoxInner.ClearTextOnFocus = false
-                searchBoxInner.PlaceholderText = "filter output"
-                searchBoxInner.Text = ""
-                searchBoxInner.TextColor3 = C.Text
-                searchBoxInner.PlaceholderColor3 = C.Muted
-                searchBoxInner.Font = Enum.Font.Code
-                searchBoxInner.TextSize = 10
-                searchBoxInner.TextXAlignment = Enum.TextXAlignment.Left
-                searchBoxInner.Parent = searchFrame
-
-                local body = Instance.new("Frame")
-                body.Size = UDim2.new(1, -30, 1, -164)
-                body.Position = UDim2.fromOffset(15, 116)
-                body.BackgroundColor3 = C.Panel
-                body.BorderSizePixel = 0
-                body.Parent = card
-                local bodyCorner = Instance.new("UICorner")
-                bodyCorner.CornerRadius = UDim.new(0, 14)
-                bodyCorner.Parent = body
-                local bodyStroke = Instance.new("UIStroke")
-                bodyStroke.Color = C.Border
-                bodyStroke.Thickness = 1
-                bodyStroke.Transparency = 0.08
-                bodyStroke.Parent = body
-
-                local scroller = Instance.new("ScrollingFrame")
-                scroller.Size = UDim2.new(1, -16, 1, -16)
-                scroller.Position = UDim2.fromOffset(8, 8)
-                scroller.BackgroundTransparency = 1
-                scroller.BorderSizePixel = 0
-                scroller.ScrollBarThickness = 3
-                scroller.ScrollBarImageColor3 = C.Border
-                scroller.CanvasSize = UDim2.new()
-                scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
-                scroller.Parent = body
-                local scrollerLayout = Instance.new("UIListLayout")
-                scrollerLayout.Padding = UDim.new(0, 4)
-                scrollerLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                scrollerLayout.Parent = scroller
-                local scrollerPad = Instance.new("UIPadding")
-                scrollerPad.PaddingLeft = UDim.new(0, 6)
-                scrollerPad.PaddingRight = UDim.new(0, 6)
-                scrollerPad.PaddingTop = UDim.new(0, 6)
-                scrollerPad.PaddingBottom = UDim.new(0, 6)
-                scrollerPad.Parent = scroller
-
-                local empty = Instance.new("TextLabel")
-                empty.Size = UDim2.new(1, -4, 0, 20)
-                empty.BackgroundTransparency = 1
-                empty.Text = "No messages yet."
-                empty.TextColor3 = C.Muted
-                empty.Font = Enum.Font.Code
-                empty.TextSize = 10
-                empty.TextXAlignment = Enum.TextXAlignment.Left
-                empty.Parent = scroller
-
-                local clear = Instance.new("TextButton")
-                clear.Size = UDim2.fromOffset(142, 34)
-                clear.Position = UDim2.new(0, 16, 1, -16)
-                clear.AnchorPoint = Vector2.new(0, 1)
-                clear.BackgroundColor3 = C.Control2
-                clear.BorderSizePixel = 0
-                clear.Text = "CLEAR"
-                clear.TextColor3 = C.White
-                clear.Font = Enum.Font.GothamBold
-                clear.TextSize = 11
-                clear.AutoButtonColor = false
-                clear.Parent = card
-                local clearCorner = Instance.new("UICorner")
-                clearCorner.CornerRadius = UDim.new(0, 12)
-                clearCorner.Parent = clear
-                local clearStroke = Instance.new("UIStroke")
-                clearStroke.Color = C.Lime:Lerp(C.White, 0.2)
-                clearStroke.Thickness = 1
-                clearStroke.Parent = clear
-
-                local function refreshConsoleCard()
-                    if not card.Parent or not scroller.Parent then return false end
-                    for _, child in ipairs(scroller:GetChildren()) do
-                        if child:IsA("TextLabel") and child ~= empty then child:Destroy() end
-                    end
-                    local query = searchBoxInner.Text:lower()
-                    local entries = XCGetConsoleEntries(sourceKey)
-                    local visibleCount = 0
-                    for index = 1, #entries do
-                        local entry = entries[index]
-                        local lineText = string.format("[%s] %s", tostring(entry.Time or "--:--:--"), tostring(entry.Text or ""))
-                        if query == "" or lineText:lower():find(query, 1, true) ~= nil then
-                            visibleCount = visibleCount + 1
-                            local line = Instance.new("TextLabel")
-                            line.Size = UDim2.new(1, -2, 0, 0)
-                            line.AutomaticSize = Enum.AutomaticSize.Y
-                            line.BackgroundTransparency = 1
-                            line.RichText = false
-                            line.Text = lineText
-                            line.TextColor3 = consoleLevelColor(entry.Level)
-                            line.Font = Enum.Font.Code
-                            line.TextSize = 10
-                            line.TextWrapped = true
-                            line.TextXAlignment = Enum.TextXAlignment.Left
-                            line.TextYAlignment = Enum.TextYAlignment.Top
-                            line.Parent = scroller
-                        end
-                    end
-                    empty.Visible = visibleCount == 0
-                    empty.Text = query == "" and "No messages yet." or "No messages match this search."
-                    task.defer(function()
-                        if scroller and scroller.Parent then
-                            scroller.CanvasPosition = Vector2.new(0, math.max(0, scroller.AbsoluteCanvasSize.Y - scroller.AbsoluteWindowSize.Y))
-                        end
-                    end)
-                    return true
-                end
-
-                searchBoxInner:GetPropertyChangedSignal("Text"):Connect(refreshConsoleCard)
-                clear.Activated:Connect(function()
-                    XCClearConsoleEntries(sourceKey)
-                end)
-                table.insert(XCConsoleShared.Listeners, refreshConsoleCard)
-                refreshConsoleCard()
-            end
-
-            createConsoleCard("Roblox Console", "Console that gets outputs from ROBLOX console and display it in this menu.", 0, "RobloxEntries")
-            createConsoleCard("Delta Console", "Console that provides output, input from Delta API.", 0.51, "DeltaEntries")
-        end
-    end
 
     applySearch = function()
         local query = searchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
