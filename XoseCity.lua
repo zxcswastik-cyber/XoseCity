@@ -454,6 +454,10 @@ local XCConfig = {
     scopeCrosshairOutlineB = 0,
     worldSkyboxEnabled = false,
     worldPostFXEnabled = false,
+    mapStyleEnabled = false,
+    mapStyleFlatMaterials = true,
+    mapStylePreserveSigns = true,
+    mapStyleAffectTransparent = false,
     weatherEnabled = false,
     weatherMode = "Rain",
     weatherIntensity = 45,
@@ -612,6 +616,15 @@ local XCConfig = {
     worldSaturation = 0,
     worldContrast = 0,
     worldTonePreset = "Neutral",
+    mapStylePreset = "Black & White",
+    mapStyleStrength = 0.92,
+    mapStyleTextureDetail = 0.18,
+    mapStyleDarkR = 20,
+    mapStyleDarkG = 22,
+    mapStyleDarkB = 25,
+    mapStyleLightR = 232,
+    mapStyleLightG = 234,
+    mapStyleLightB = 238,
     worldAtmosphereEnabled = false,
     worldAtmosphereDensity = 0.3,
     worldAtmosphereHaze = 0,
@@ -715,6 +728,8 @@ for _, colorKey in ipairs({
     "grenadeMolotovR", "grenadeMolotovG", "grenadeMolotovB",
     "killEffectColorR", "killEffectColorG", "killEffectColorB",
     "motionTrailColorR", "motionTrailColorG", "motionTrailColorB",
+    "mapStyleDarkR", "mapStyleDarkG", "mapStyleDarkB",
+    "mapStyleLightR", "mapStyleLightG", "mapStyleLightB",
     "motionGhostColorR", "motionGhostColorG", "motionGhostColorB"
 }) do
     XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
@@ -6068,6 +6083,273 @@ function updateWorldChanger()
     end
 end
 
+-- ==========================================
+-- MINIMAL MAP STYLE / TEXTURE OVERRIDE
+-- ==========================================
+local XCMapStylePresets = {
+    ["Black & White"] = {Dark=Color3.fromRGB(20,22,25), Light=Color3.fromRGB(232,234,238), Steps=5, Gamma=0.92},
+    ["Soft Gray"] = {Dark=Color3.fromRGB(48,51,56), Light=Color3.fromRGB(202,205,210), Steps=0, Gamma=1.0},
+    ["Cold Minimal"] = {Dark=Color3.fromRGB(31,37,45), Light=Color3.fromRGB(201,216,228), Steps=0, Gamma=0.96},
+    ["Warm Minimal"] = {Dark=Color3.fromRGB(47,42,37), Light=Color3.fromRGB(226,218,201), Steps=0, Gamma=0.98},
+    ["Obsidian"] = {Dark=Color3.fromRGB(11,13,16), Light=Color3.fromRGB(137,145,155), Steps=4, Gamma=0.82},
+    ["Paper Invert"] = {Dark=Color3.fromRGB(239,239,235), Light=Color3.fromRGB(30,31,34), Steps=4, Gamma=1.0},
+}
+
+local XCMapPartState = setmetatable({}, {__mode="k"})
+local XCMapTextureState = setmetatable({}, {__mode="k"})
+local XCMapMeshState = setmetatable({}, {__mode="k"})
+local XCMapSurfaceState = {}
+local XCMapStyleScanSerial = 0
+local XCMapStyleSurfaceParking = Instance.new("Folder")
+XCMapStyleSurfaceParking.Name = "XCMapStyleSurfaceParking"
+XCMapStyleSurfaceParking.Parent = nil
+
+local function XCMapLuminance(color)
+    return math.clamp(color.R * 0.2126 + color.G * 0.7152 + color.B * 0.0722, 0, 1)
+end
+
+local function XCMapStylePalette()
+    if XCConfig.mapStylePreset == "Custom" then
+        return {
+            Dark = rgb(XCConfig.mapStyleDarkR, XCConfig.mapStyleDarkG, XCConfig.mapStyleDarkB),
+            Light = rgb(XCConfig.mapStyleLightR, XCConfig.mapStyleLightG, XCConfig.mapStyleLightB),
+            Steps = 0, Gamma = 1.0,
+        }
+    end
+    return XCMapStylePresets[XCConfig.mapStylePreset] or XCMapStylePresets["Black & White"]
+end
+
+local function XCMapToneFromColor(original)
+    local palette = XCMapStylePalette()
+    local t = XCMapLuminance(original)
+    t = math.clamp(t ^ (tonumber(palette.Gamma) or 1), 0, 1)
+    -- Smooth the ends so black/white presets remain soft instead of posterized.
+    t = t * t * (3 - 2 * t)
+    local steps = tonumber(palette.Steps) or 0
+    if steps >= 2 then
+        t = math.floor(t * (steps - 1) + 0.5) / (steps - 1)
+    end
+    return palette.Dark:Lerp(palette.Light, t)
+end
+
+local XCMapExcludedWords = {
+    "weapon", "viewmodel", "arms", "ragdoll", "corpse", "grenade", "projectile",
+    "bullet", "tracer", "shell", "muzzle", "character", "player", "npc", "dropped",
+}
+local XCMapSignWords = {"sign", "poster", "screen", "monitor", "billboard", "logo", "text", "ad_", "advert"}
+
+local function XCMapHasWord(instance, words)
+    local cursor = instance
+    for _ = 1, 6 do
+        if not cursor or cursor == Workspace then break end
+        local lower = cursor.Name:lower()
+        for _, word in ipairs(words) do
+            if lower:find(word, 1, true) then return true end
+        end
+        cursor = cursor.Parent
+    end
+    return false
+end
+
+local function XCMapFindPart(instance)
+    if instance:IsA("BasePart") then return instance end
+    local cursor = instance.Parent
+    while cursor and cursor ~= Workspace do
+        if cursor:IsA("BasePart") then return cursor end
+        cursor = cursor.Parent
+    end
+    return nil
+end
+
+local function XCMapIsCharacterObject(instance)
+    if camera and instance:IsDescendantOf(camera) then return true end
+    if instance:FindFirstAncestorOfClass("Tool") then return true end
+    local cursor = instance
+    for _ = 1, 7 do
+        if not cursor or cursor == Workspace then break end
+        if cursor:IsA("Model") and cursor:FindFirstChildOfClass("Humanoid") then return true end
+        cursor = cursor.Parent
+    end
+    return false
+end
+
+local function XCMapStyleEligible(instance)
+    if not instance or not instance.Parent or not instance:IsDescendantOf(Workspace) then return false end
+    if XCMapIsCharacterObject(instance) or XCMapHasWord(instance, XCMapExcludedWords) then return false end
+    local part = XCMapFindPart(instance)
+    if not part or not part.Anchored then return false end
+    if not XCConfig.mapStyleAffectTransparent and part.Transparency > 0.38 then return false end
+    if XCConfig.mapStylePreserveSigns then
+        if XCMapHasWord(part, XCMapSignWords)
+            or part:FindFirstChildWhichIsA("SurfaceGui")
+            or part:FindFirstChildWhichIsA("BillboardGui") then
+            return false
+        end
+    end
+    return true
+end
+
+local function XCApplyMapPart(part)
+    if not XCMapStyleEligible(part) then return end
+    local state = XCMapPartState[part]
+    if not state then
+        state = {
+            Color = part.Color, Material = part.Material, Reflectance = part.Reflectance,
+            MaterialVariant = nil, TextureID = nil,
+        }
+        pcall(function() state.MaterialVariant = part.MaterialVariant end)
+        if part:IsA("MeshPart") then pcall(function() state.TextureID = part.TextureID end) end
+        XCMapPartState[part] = state
+    end
+    local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+    local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+    pcall(function()
+        part.Color = state.Color:Lerp(XCMapToneFromColor(state.Color), strength)
+        if XCConfig.mapStyleFlatMaterials then
+            part.Material = Enum.Material.SmoothPlastic
+            part.MaterialVariant = ""
+            part.Reflectance = math.min(state.Reflectance or 0, 0.04)
+        else
+            part.Material = state.Material
+            if state.MaterialVariant ~= nil then part.MaterialVariant = state.MaterialVariant end
+            part.Reflectance = state.Reflectance
+        end
+        if part:IsA("MeshPart") and state.TextureID ~= nil then
+            part.TextureID = detail < 0.42 and "" or state.TextureID
+        end
+    end)
+end
+
+local function XCApplyMapTexture(object)
+    if not XCMapStyleEligible(object) then return end
+    if object:IsA("Decal") or object:IsA("Texture") then
+        local state = XCMapTextureState[object]
+        if not state then
+            state = {Transparency=object.Transparency, Color3=object.Color3}
+            XCMapTextureState[object] = state
+        end
+        local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+        local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+        pcall(function()
+            object.Color3 = state.Color3:Lerp(XCMapToneFromColor(state.Color3), strength)
+            object.Transparency = 1 - ((1 - state.Transparency) * detail)
+        end)
+    elseif object:IsA("SpecialMesh") then
+        local state = XCMapMeshState[object]
+        if not state then
+            state = {TextureId=object.TextureId}
+            XCMapMeshState[object] = state
+        end
+        local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+        pcall(function() object.TextureId = detail < 0.42 and "" or state.TextureId end)
+    elseif object:IsA("SurfaceAppearance") then
+        local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+        local state = XCMapSurfaceState[object]
+        if not state then
+            state = {Parent=object.Parent}
+            XCMapSurfaceState[object] = state
+        end
+        pcall(function()
+            if detail < 0.42 then
+                object.Parent = XCMapStyleSurfaceParking
+            elseif state.Parent and state.Parent.Parent then
+                object.Parent = state.Parent
+            end
+        end)
+    end
+end
+
+local function XCRefreshMapSurfaceAppearance(object, state)
+    if not object or not state then return end
+    local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+    pcall(function()
+        if detail < 0.42 then
+            if state.Parent and state.Parent.Parent and XCMapStyleEligible(state.Parent) then
+                object.Parent = XCMapStyleSurfaceParking
+            end
+        elseif state.Parent and state.Parent.Parent then
+            object.Parent = state.Parent
+        end
+    end)
+end
+
+local function XCApplyMapObject(object)
+    if not XCConfig.mapStyleEnabled or not object or not object.Parent then return end
+    if object:IsA("BasePart") then XCApplyMapPart(object) end
+    if object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh") or object:IsA("SurfaceAppearance") then
+        XCApplyMapTexture(object)
+    end
+end
+
+function restoreXCMapStyle()
+    XCMapStyleScanSerial += 1
+    for part, state in pairs(XCMapPartState) do
+        if part and part.Parent then
+            pcall(function()
+                part.Color = state.Color
+                part.Material = state.Material
+                part.Reflectance = state.Reflectance
+                if state.MaterialVariant ~= nil then part.MaterialVariant = state.MaterialVariant end
+                if part:IsA("MeshPart") and state.TextureID ~= nil then part.TextureID = state.TextureID end
+            end)
+        end
+    end
+    for object, state in pairs(XCMapTextureState) do
+        if object and object.Parent then
+            pcall(function() object.Transparency = state.Transparency; object.Color3 = state.Color3 end)
+        end
+    end
+    for object, state in pairs(XCMapMeshState) do
+        if object and object.Parent then pcall(function() object.TextureId = state.TextureId end) end
+    end
+    for object, state in pairs(XCMapSurfaceState) do
+        pcall(function()
+            if object and state.Parent and state.Parent.Parent then object.Parent = state.Parent
+            elseif object then object:Destroy() end
+        end)
+    end
+    XCMapPartState = setmetatable({}, {__mode="k"})
+    XCMapTextureState = setmetatable({}, {__mode="k"})
+    XCMapMeshState = setmetatable({}, {__mode="k"})
+    XCMapSurfaceState = {}
+end
+
+local function XCReapplyTrackedMapStyle()
+    if not XCConfig.mapStyleEnabled then restoreXCMapStyle(); return end
+    for part in pairs(XCMapPartState) do if part and part.Parent then XCApplyMapPart(part) end end
+    for object in pairs(XCMapTextureState) do if object and object.Parent then XCApplyMapTexture(object) end end
+    for object in pairs(XCMapMeshState) do if object and object.Parent then XCApplyMapTexture(object) end end
+    for object, state in pairs(XCMapSurfaceState) do XCRefreshMapSurfaceAppearance(object, state) end
+end
+
+function applyXCMapStyle(rescan)
+    if not XCConfig.mapStyleEnabled then restoreXCMapStyle(); return end
+    XCReapplyTrackedMapStyle()
+    if rescan == false then return end
+    XCMapStyleScanSerial += 1
+    local serial = XCMapStyleScanSerial
+    task.spawn(function()
+        local descendants = Workspace:GetDescendants()
+        for index, object in ipairs(descendants) do
+            if serial ~= XCMapStyleScanSerial or not XCConfig.mapStyleEnabled or not xcSessionActive() then return end
+            XCApplyMapObject(object)
+            if index % 260 == 0 then task.wait() end
+        end
+    end)
+end
+
+function setXCMapStyleEnabled(enabled)
+    XCConfig.mapStyleEnabled = enabled and true or false
+    if XCConfig.mapStyleEnabled then applyXCMapStyle(true) else restoreXCMapStyle() end
+end
+
+table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
+    if not XCConfig.mapStyleEnabled then return end
+    task.defer(function()
+        if XCConfig.mapStyleEnabled and object and object.Parent then XCApplyMapObject(object) end
+    end)
+end))
+
 -- ==========================================================================
 -- [ CUBE CHECKER ]
 -- Crosshair penetration probe: lime = the equipped weapon can exit the hit
@@ -7528,6 +7810,7 @@ function cleanup()
     grenadeDangerScanStarted = false
     soundEspTracked = setmetatable({}, {__mode = "k"})
     soundEspPulses = {}
+    pcall(restoreXCMapStyle)
     
     restoreLightingState()
     restoreXCSmoke()
@@ -8193,6 +8476,54 @@ function computeXCZoneBounds(object, fallbackPart, fallbackRadius)
     return center, math.clamp(radius, 2, fallbackRadius * 1.35)
 end
 
+local XC_DANGER_WHITE = Color3.new(1, 1, 1)
+local XCGrenadeDangerStylePresets = {
+    FIRE = {
+        OuterPulse = 0.022, PulseSpeed = 5.2, InnerScale = 0.72,
+        OuterMajorEvery = 2, OuterGap = 0.055, OuterMajorGap = 0.18,
+        OuterThickness = 1.75, OuterMajorThickness = 2.75,
+        InnerThickness = 1.15, InnerAlphaBias = 0.23,
+        SpokeCount = 6, SpokeThickness = 1.05, SpokeAlphaBias = 0.39,
+        TickCount = 8, TickThickness = 2.45,
+        CenterPulseSpeed = 7.0, CenterPulseSize = 6, RingAlphaBias = 0.13,
+        RotateSpeed = 0.0, LabelPrefix = "FIRE",
+    },
+    SMOKE = {
+        OuterPulse = 0.010, PulseSpeed = 2.3, InnerScale = 0.86,
+        OuterMajorEvery = 4, OuterGap = 0.02, OuterMajorGap = 0.055,
+        OuterThickness = 1.45, OuterMajorThickness = 1.8,
+        InnerThickness = 1.0, InnerAlphaBias = 0.42,
+        SpokeCount = 0, SpokeThickness = 0.8, SpokeAlphaBias = 0.62,
+        TickCount = 4, TickThickness = 1.45,
+        CenterPulseSpeed = 2.8, CenterPulseSize = 3, RingAlphaBias = 0.35,
+        RotateSpeed = 0.0, LabelPrefix = "SMOKE",
+    },
+    FLASH = {
+        OuterPulse = 0.030, PulseSpeed = 7.5, InnerScale = 0.76,
+        OuterMajorEvery = 2, OuterGap = 0.12, OuterMajorGap = 0.24,
+        OuterThickness = 1.6, OuterMajorThickness = 2.35,
+        InnerThickness = 0.95, InnerAlphaBias = 0.34,
+        SpokeCount = 4, SpokeThickness = 0.9, SpokeAlphaBias = 0.48,
+        TickCount = 8, TickThickness = 2.2,
+        CenterPulseSpeed = 9.0, CenterPulseSize = 8, RingAlphaBias = 0.18,
+        RotateSpeed = 0.55, LabelPrefix = "FLASH",
+    },
+    HE = {
+        OuterPulse = 0.018, PulseSpeed = 6.0, InnerScale = 0.70,
+        OuterMajorEvery = 3, OuterGap = 0.085, OuterMajorGap = 0.20,
+        OuterThickness = 1.75, OuterMajorThickness = 2.65,
+        InnerThickness = 1.05, InnerAlphaBias = 0.30,
+        SpokeCount = 4, SpokeThickness = 0.95, SpokeAlphaBias = 0.44,
+        TickCount = 8, TickThickness = 2.35,
+        CenterPulseSpeed = 7.5, CenterPulseSize = 7, RingAlphaBias = 0.18,
+        RotateSpeed = 0.28, LabelPrefix = "HE",
+    },
+}
+
+local function getXCGrenadeDangerStyle(kind)
+    return XCGrenadeDangerStylePresets[tostring(kind or "HE")] or XCGrenadeDangerStylePresets.HE
+end
+
 function updateXCGrenadeDangerPhysics(data, now)
     if now < data.NextPhysics then return end
     data.NextPhysics = now + 0.12
@@ -8271,20 +8602,22 @@ function renderXCGrenadeDangerZones()
                 continue
             end
 
-            local pulse = 0.985 + math.sin(now * 4) * 0.015
-            local radius = (data.RenderRadius or data.Radius) * pulse
-            local innerRadius = radius * 0.78
             local opacity = math.clamp(tonumber(XCConfig.grenadeDangerOpacity) or 0.82, 0.1, 1)
+            local style = getXCGrenadeDangerStyle(data.Kind)
+            local pulse = 1 + math.sin(now * style.PulseSpeed) * style.OuterPulse
+            local radius = (data.RenderRadius or data.Radius) * pulse
+            local innerRadius = radius * style.InnerScale
+            local angleOffset = now * style.RotateSpeed
             local outerPoints = {}
             local innerPoints = {}
             for index = 1, #data.Segments do
-                local angle = math.pi * 2 * ((index - 1) / #data.Segments)
+                local angle = math.pi * 2 * ((index - 1) / #data.Segments) + angleOffset
                 local worldPoint = center + Vector3.new(math.cos(angle) * radius, 0.18, math.sin(angle) * radius)
                 local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
                 outerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
             end
             for index = 1, #data.InnerSegments do
-                local angle = math.pi * 2 * ((index - 1) / #data.InnerSegments)
+                local angle = math.pi * 2 * ((index - 1) / #data.InnerSegments) - angleOffset * 0.35
                 local worldPoint = center + Vector3.new(math.cos(angle) * innerRadius, 0.16, math.sin(angle) * innerRadius)
                 local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
                 innerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
@@ -8293,11 +8626,13 @@ function renderXCGrenadeDangerZones()
                 local a = outerPoints[index]
                 local b = outerPoints[index == #data.Segments and 1 or index + 1]
                 if a and b then
-                    local major = index % 4 == 0
-                    local gap = major and 0.15 or 0.05
+                    local major = index % style.OuterMajorEvery == 0
+                    local gap = major and style.OuterMajorGap or style.OuterGap
+                    local extraAlpha = major and 0.02 or 0.10
+                    if data.Kind == "SMOKE" then extraAlpha = major and 0.18 or 0.28 end
                     setXCGrenadeLine(line, a:Lerp(b, gap), b:Lerp(a, gap), data.Color,
-                        major and 2.35 or 1.7,
-                        math.clamp(1 - opacity + (major and 0.04 or 0.12), 0, 0.92))
+                        major and style.OuterMajorThickness or style.OuterThickness,
+                        math.clamp(1 - opacity + extraAlpha, 0, 0.94))
                 else
                     line.Visible = false
                 end
@@ -8306,9 +8641,12 @@ function renderXCGrenadeDangerZones()
                 local a = innerPoints[index]
                 local b = innerPoints[index == #data.InnerSegments and 1 or index + 1]
                 if a and b then
-                    setXCGrenadeLine(line, a:Lerp(b, 0.06), b:Lerp(a, 0.06), data.Color:Lerp(Color3.new(1, 1, 1), 0.22),
-                        1.1,
-                        math.clamp(1 - opacity + 0.30, 0.1, 0.95))
+                    local innerColor = data.Kind == "SMOKE"
+                        and data.Color:Lerp(XC_DANGER_WHITE, 0.10)
+                        or data.Color:Lerp(XC_DANGER_WHITE, 0.24)
+                    setXCGrenadeLine(line, a:Lerp(b, 0.055), b:Lerp(a, 0.055), innerColor,
+                        style.InnerThickness,
+                        math.clamp(1 - opacity + style.InnerAlphaBias, 0.08, 0.96))
                 else
                     line.Visible = false
                 end
@@ -8316,50 +8654,65 @@ function renderXCGrenadeDangerZones()
             local centerScreen, centerVisible = camera:WorldToViewportPoint(center + Vector3.new(0, 0.35, 0))
             local center2D = centerVisible and centerScreen.Z > 0 and Vector2.new(centerScreen.X, centerScreen.Y) or nil
             for index, line in ipairs(data.Spokes or {}) do
-                local pointIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, #data.Spokes))) + 1
-                local point = innerPoints[pointIndex]
-                if point and center2D then
-                    setXCGrenadeLine(line, center2D, point, data.Color, 0.9,
-                        math.clamp(1 - opacity + 0.46, 0.15, 0.96))
+                if index <= style.SpokeCount then
+                    local pointIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, style.SpokeCount))) + 1
+                    local point = innerPoints[pointIndex]
+                    if point and center2D then
+                        setXCGrenadeLine(line, center2D, point, data.Color, style.SpokeThickness,
+                            math.clamp(1 - opacity + style.SpokeAlphaBias, 0.12, 0.97))
+                    else
+                        line.Visible = false
+                    end
                 else
                     line.Visible = false
                 end
             end
             for index, line in ipairs(data.Ticks or {}) do
-                local pointIndex = math.floor((index - 1) * (#data.Segments / math.max(1, #data.Ticks))) + 1
-                local outer = outerPoints[pointIndex]
-                local inner = innerPoints[math.floor((index - 1) * (#data.InnerSegments / math.max(1, #data.Ticks))) + 1]
-                if outer and inner then
-                    local startPoint = inner:Lerp(outer, 0.72)
-                    local endPoint = inner:Lerp(outer, 0.96)
-                    setXCGrenadeLine(line, startPoint, endPoint, data.Color:Lerp(Color3.new(1, 1, 1), 0.35), 2.1,
-                        math.clamp(1 - opacity + 0.02, 0, 0.9))
+                if index <= style.TickCount then
+                    local outerIndex = math.floor((index - 1) * (#data.Segments / math.max(1, style.TickCount))) + 1
+                    local innerIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, style.TickCount))) + 1
+                    local outer = outerPoints[outerIndex]
+                    local inner = innerPoints[innerIndex]
+                    if outer and inner then
+                        local startPoint = inner:Lerp(outer, data.Kind == "SMOKE" and 0.82 or 0.69)
+                        local endPoint = inner:Lerp(outer, data.Kind == "SMOKE" and 0.96 or 0.97)
+                        local tickColor = data.Color:Lerp(XC_DANGER_WHITE, data.Kind == "SMOKE" and 0.18 or 0.40)
+                        setXCGrenadeLine(line, startPoint, endPoint, tickColor, style.TickThickness,
+                            math.clamp(1 - opacity + (data.Kind == "SMOKE" and 0.25 or 0.01), 0, 0.92))
+                    else
+                        line.Visible = false
+                    end
                 else
                     line.Visible = false
                 end
             end
+            local distance = math.floor((center - camPosition).Magnitude + 0.5)
             data.Label.TextColor3 = data.Color
             data.LabelStroke.Color = data.Color
-            data.Label.Text = string.format("[ %s ]  •  %dm", data.Kind,
-                math.floor((center - camPosition).Magnitude + 0.5))
-            data.Label.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y - 6)
+            data.Label.Text = string.format("[ %s ]  •  %dm", style.LabelPrefix, distance)
+            data.Label.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y - (data.Kind == "FIRE" and 8 or 6))
             data.Label.Visible = centerVisible and centerScreen.Z > 0
             data.CenterDot.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y)
             data.CenterDot.BackgroundColor3 = data.Color
             data.CenterDot.Visible = centerVisible and centerScreen.Z > 0
             data.CenterGlow.Position = data.CenterDot.Position
             data.CenterGlow.BackgroundColor3 = data.Color
-            data.CenterGlow.BackgroundTransparency = 0.76 + math.sin(now * 5.6) * 0.08
+            local glowBase = data.Kind == "SMOKE" and 0.88 or 0.76
+            local glowSwing = data.Kind == "SMOKE" and 0.035 or 0.08
+            data.CenterGlow.BackgroundTransparency = math.clamp(glowBase + math.sin(now * style.CenterPulseSpeed) * glowSwing, 0.6, 0.95)
             data.CenterGlow.Visible = data.CenterDot.Visible
             if data.PulseRing then
-                local ringSize = 24 + math.sin(now * 4.8) * 4
+                local baseSize = data.Kind == "SMOKE" and 30 or 24
+                local ringSize = baseSize + math.sin(now * style.CenterPulseSpeed) * style.CenterPulseSize
                 data.PulseRing.Size = UDim2.fromOffset(ringSize, ringSize)
                 data.PulseRing.Position = data.CenterDot.Position
                 data.PulseRing.Visible = data.CenterDot.Visible
             end
             if data.PulseStroke then
                 data.PulseStroke.Color = data.Color
-                data.PulseStroke.Transparency = math.clamp(1 - opacity + 0.24 + math.sin(now * 4.8) * 0.08, 0.12, 0.92)
+                local pulseAlpha = style.RingAlphaBias + math.sin(now * style.CenterPulseSpeed) * 0.07
+                data.PulseStroke.Transparency = math.clamp(1 - opacity + pulseAlpha, 0.10, 0.94)
+                data.PulseStroke.Thickness = data.Kind == "FIRE" and 1.55 or (data.Kind == "SMOKE" and 1.0 or 1.25)
             end
         end
     end
@@ -11703,6 +12056,13 @@ function buildXCUI()
         nightModeEnabled = "Applies the selected lighting preset locally.",
         worldSkyboxEnabled = "Applies the selected custom skybox locally.",
         worldPostFXEnabled = "Enables local color correction and post-processing.",
+        mapStyleEnabled = "Restyles anchored map geometry locally using a soft minimal palette while preserving characters, weapons and viewmodels.",
+        mapStylePreset = "Chooses the minimal map palette. Black & White keeps several soft luminance levels instead of harsh pure black and white.",
+        mapStyleStrength = "Blends the original map color toward the selected minimal palette.",
+        mapStyleTextureDetail = "Controls how much original decal and mesh texture detail remains visible.",
+        mapStyleFlatMaterials = "Uses SmoothPlastic for eligible map parts to reduce visual noise.",
+        mapStylePreserveSigns = "Keeps map signs, screens and poster-like surfaces unchanged.",
+        mapStyleAffectTransparent = "Also styles glass and other substantially transparent anchored map parts.",
         worldSkyboxPreset = "Selects a local sky preset from the supplied World visual scripts.",
         worldTonePreset = "Applies a coordinated tint preset to Post FX and atmosphere.",
         worldAtmosphereEnabled = "Adds a configurable local Atmosphere without deleting the game's original one.",
@@ -13309,6 +13669,9 @@ function buildXCUI()
             if cam then cam.FieldOfView = 70 end
         elseif key == "weatherEnabled" then applyXCWeather(); updateWorldChanger()
         elseif key == "noSmokeEnabled" then applyXCSmokeState()
+        elseif key == "mapStyleEnabled" then setXCMapStyleEnabled(value)
+        elseif key == "mapStyleFlatMaterials" or key == "mapStylePreserveSigns" or key == "mapStyleAffectTransparent" then
+            if XCConfig.mapStyleEnabled then restoreXCMapStyle(); task.defer(function() if XCConfig.mapStyleEnabled then applyXCMapStyle(true) end end) end
         elseif key == "worldSkyboxEnabled" or key == "worldSkyCelestial" or key == "worldPostFXEnabled"
             or key == "worldAtmosphereEnabled" or key == "worldBloomEnabled" then updateWorldChanger()
         elseif key == "freecamEnabled" then setXCCameraMode("Freecam", value)
@@ -13333,7 +13696,7 @@ function buildXCUI()
         if lower:find("antiaim",1,true) or lower:find("bhop",1,true) or lower:find("bunny",1,true)
             or lower:find("slide",1,true) or lower:find("flight",1,true) or lower:find("walk",1,true)
             or lower:find("speed",1,true) or lower:find("thirdperson",1,true) then return "Movement" end
-        if lower:find("world",1,true) or lower:find("night",1,true) or lower:find("weather",1,true)
+        if lower:find("world",1,true) or lower:find("mapstyle",1,true) or lower:find("night",1,true) or lower:find("weather",1,true)
             or lower:find("fog",1,true) or lower:find("smoke",1,true) or lower:find("flash",1,true)
             or lower:find("scope",1,true) or lower:find("fov",1,true) or lower:find("freecam",1,true)
             or lower:find("freelook",1,true) or lower:find("customhands",1,true) or lower:find("fullbright",1,true) then return "World & Camera" end
@@ -13373,6 +13736,8 @@ function buildXCUI()
         if previousType=="boolean" then specialToggle(key,value==true) end
         if lower:find("menu",1,true) or key=="uiScale" or key=="linkMenuAndEspColor"
             or lower:find("espvisible",1,true) or lower:find("esphidden",1,true) or lower:find("grenade",1,true) then applyMenuTheme()
+        elseif lower:find("mapstyle",1,true) then
+            if XCConfig.mapStyleEnabled then applyXCMapStyle(false) else restoreXCMapStyle() end
         elseif lower:find("world",1,true) or lower:find("night",1,true) or lower:find("fog",1,true) then updateWorldChanger();updateWorldPostFX()
         elseif lower:find("weather",1,true) then applyXCWeather();updateWorldChanger()
         elseif lower:find("scope",1,true) then updateCustomScope()
@@ -13736,6 +14101,33 @@ function buildXCUI()
     addChoice(L, "Night preset", "nightPreset", {"Midnight", "Nebula", "DeepBlood", "CyberPurple", "EmeraldNight", "PitchBlack"}, function(v) if XCConfig.nightModeEnabled then applyNightPreset(v) end end)
     addSlider(L, "Brightness", "nightBrightness", 0, 5, 0.1, "")
     addSlider(L, "Clock time", "nightClockTime", 0, 24, 0.5, "h")
+    section(L, "map style")
+    toggle(L, "Minimal map style", "mapStyleEnabled")
+    addChoice(L, "Style preset", "mapStylePreset", {"Black & White", "Soft Gray", "Cold Minimal", "Warm Minimal", "Obsidian", "Paper Invert", "Custom"}, function()
+        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+    end)
+    addSlider(L, "Style strength", "mapStyleStrength", 0, 1, 0.05, "", function()
+        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+    end)
+    addSlider(L, "Texture detail", "mapStyleTextureDetail", 0, 1, 0.05, "", function()
+        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+    end)
+    toggle(L, "Flat materials", "mapStyleFlatMaterials")
+    toggle(L, "Preserve signs", "mapStylePreserveSigns")
+    toggle(L, "Style transparent parts", "mapStyleAffectTransparent")
+    addColorPicker(L, "Custom dark", "mapStyleDark", function()
+        XCConfig.mapStylePreset = "Custom"
+        refreshConfigControls("mapStylePreset", "Custom")
+        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+    end)
+    addColorPicker(L, "Custom light", "mapStyleLight", function()
+        XCConfig.mapStylePreset = "Custom"
+        refreshConfigControls("mapStylePreset", "Custom")
+        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+    end)
+    addButton(L, "REFRESH MAP STYLE", function()
+        if XCConfig.mapStyleEnabled then applyXCMapStyle(true) end
+    end)
     section(L, "sky & tone")
     toggle(L, "Custom skybox", "worldSkyboxEnabled")
     addChoice(L, "Skybox preset", "worldSkyboxPreset", {"Night", "Ocean Sunset", "My Summer Car", "Standard", "Minecraft", "Spongebob", "Deep Space", "Clouded Sky", "Retro", "City", "Purple Nebula", "Pink Sky"}, function() updateWorldChanger() end)
@@ -14103,6 +14495,7 @@ function buildXCUI()
             lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
             refreshAll()
             updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+            if XCConfig.mapStyleEnabled then applyXCMapStyle(true) else restoreXCMapStyle() end
             applyXCWeather()
             applyXCSmokeState()
             if XCConfig.freecamEnabled then setXCCameraMode("Freecam", true)
@@ -14131,6 +14524,7 @@ function buildXCUI()
         lazyFeatureRequests.recoilSpread = false
         lazyFeatureRequests.silentFallback = false
         refreshAll(); updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+        restoreXCMapStyle()
         stopXCCameraMode(); destroyXCWeather(); restoreXCSmoke(); restoreLightingState()
         setAntiAfkEnabled(XCConfig.antiAfkEnabled)
         status.Text = "defaults restored"
@@ -14239,6 +14633,7 @@ function buildXCUI()
             lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
             refreshAll()
             updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+            if XCConfig.mapStyleEnabled then applyXCMapStyle(true) else restoreXCMapStyle() end
             applyXCWeather(); applyXCSmokeState(); updateWorldChanger()
             setAntiAfkEnabled(XCConfig.antiAfkEnabled)
             setPublicStatus("Loaded: " .. tostring(result.name or selectedId), true)
