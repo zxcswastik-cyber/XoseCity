@@ -1157,7 +1157,7 @@ local function prepareXCSilentShotPayload(data, forceSendStage)
         local activeCamera = Workspace.CurrentCamera or camera
         if activeCamera then
             camPos = activeCamera.CFrame.Position
-            aimPos = getKinematicAimPosition(targetPart)
+            aimPos = targetPart.Position
         end
     end
     if not camPos or not aimPos then return data, false end
@@ -2077,8 +2077,8 @@ getSilentAimTarget = function()
                 continue
             end
         end
-        local predictedPos = getKinematicAimPosition(part)
-        local point, onScreen = cam:WorldToViewportPoint(predictedPos)
+        local hitscanPos = part.Position
+        local point, onScreen = cam:WorldToViewportPoint(hitscanPos)
         if not onScreen or point.Z <= 0 then continue end
         local radius = (Vector2.new(point.X, point.Y) - screenCenter).Magnitude
         if radius < bestRadius then
@@ -2106,11 +2106,11 @@ silentAimCamPosAim = function(targetPart)
     local cam = Workspace.CurrentCamera or camera
     if not cam then return nil end
     local camPos = getXCSilentShotOrigin(cam)
-    local aimPos = getKinematicAimPosition(targetPart)
+    local aimPos = targetPart.Position
     if not camPos then return nil end
 
-    -- getKinematicAimPosition() is the single source of prediction.
-    -- Do not apply a second lateral lead here.
+    -- Native hitscan uses the current client hitbox. Prediction remains
+    -- available to the visible aimbot, but is intentionally not used here.
     return camPos, aimPos
 end
 
@@ -2267,7 +2267,7 @@ function setupSilentAimHooks()
 
                         if context and typeof(originalRay) == "Ray" then
                             context.CameraUsed = true
-                            local aimPos = getKinematicAimPosition(context.Target)
+                            local aimPos = context.Target.Position
                             local rayOrigin = getXCSilentShotOrigin(activeCamera) or originalRay.Origin
                             local delta = aimPos - rayOrigin
                             if delta.Magnitude > 0.001 then
@@ -2281,7 +2281,7 @@ function setupSilentAimHooks()
                         if targetPart and targetPart.Parent then
                             local originalRay = oldNamecall(self, ...)
                             if typeof(originalRay) == "Ray" then
-                                local aimPos = getKinematicAimPosition(targetPart)
+                                local aimPos = targetPart.Position
                                 local rayOrigin = getXCSilentShotOrigin(activeCamera) or originalRay.Origin
                                 local delta = aimPos - rayOrigin
                                 if delta.Magnitude > 0.001 then
@@ -2495,13 +2495,11 @@ function XCBuildMultipoints(part)
 end
 
 function XCPredictMultipointPosition(part, pointPosition)
-    if not part or typeof(pointPosition) ~= "Vector3" then return pointPosition end
-    if type(getKinematicAimPosition) == "function" then
-        local predicted = getKinematicAimPosition(part)
-        if typeof(predicted) == "Vector3" then
-            return pointPosition + (predicted - part.Position)
-        end
-    end
+    -- Hitscan registration must use the position that exists on this client at
+    -- the instant the ray is built. Network RTT prediction here over-leads
+    -- strafing targets and disagrees with the ray/path that the game validates.
+    if typeof(pointPosition) == "Vector3" then return pointPosition end
+    if part and part:IsA("BasePart") then return part.Position end
     return pointPosition
 end
 
@@ -2905,10 +2903,10 @@ local function processXCNativeLocalShot(bullet, shot)
             end
         end
 
-        -- Ragebot uses the Silent Aim redirect on the actual bullet. It does
-        -- not need the standalone Silent Aim toggle to be enabled.
-        if type(queued) ~= "table"
-            and XCConfig.rageBotEnabled
+        -- Ragebot resolves its target again at the actual Bullet._performRaycast
+        -- call. A render/trigger ticket can be hundreds of milliseconds old on
+        -- high ping and must never dictate the final hitscan position.
+        if XCConfig.rageBotEnabled
             and type(shot) == "table"
             and typeof(shot.Origin) == "Vector3"
             and type(getRageTarget) == "function" then
@@ -2922,11 +2920,11 @@ local function processXCNativeLocalShot(bullet, shot)
                 queued = {
                     Part = rageTarget.Part,
                     Character = rageTarget.Char,
-                    Position = rageTarget.AimPosition
-                        or rageTarget.ShotPosition
-                        or rageTarget.Part.Position,
+                    Position = rageTarget.ShotPosition or rageTarget.Part.Position,
                     Mode = "Rage",
                 }
+            elseif type(queued) == "table" and queued.Mode == "Rage" then
+                queued = nil
             end
         end
 
@@ -2957,7 +2955,7 @@ local function processXCNativeLocalShot(bullet, shot)
                 if offset.Magnitude > 0.05 then
                     local properties = type(bullet.Properties) == "table" and bullet.Properties or {}
                     local path = XCInspectShotPath(
-                        shotOrigin, targetPart, targetCharacter, properties, targetPart.Position
+                        shotOrigin, targetPart, targetCharacter, properties, targetPosition
                     )
                     local allowed = path.Visible
                         or XCConfig.extremeWallbangEnabled
@@ -2965,7 +2963,7 @@ local function processXCNativeLocalShot(bullet, shot)
                         or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
 
                     local minDamageOk = XCPassesMinimumDamage(
-                        shotOrigin, targetPart, targetCharacter, properties, targetPart.Position, path
+                        shotOrigin, targetPart, targetCharacter, properties, targetPosition, path
                     )
 
                     if allowed and minDamageOk then
@@ -3088,9 +3086,7 @@ local function beginXCBulletInterceptV29(bullet)
         )
         if rageTarget and rageTarget.Part and rageTarget.Part.Parent then
             targetPart = rageTarget.Part
-            aimPosition = rageTarget.AimPosition
-                or rageTarget.ShotPosition
-                or rageTarget.Part.Position
+            aimPosition = rageTarget.ShotPosition or rageTarget.Part.Position
         end
     elseif isXCSilentAimRequested() then
         targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
@@ -8206,7 +8202,7 @@ function getRageTarget(originOverride, propertiesOverride)
 
         for _, multipoint in ipairs(XCBuildMultipoints(hitPart)) do
             local shotPosition = multipoint.Position
-            local aimPosition = XCPredictMultipointPosition(hitPart, shotPosition)
+            local aimPosition = shotPosition
             local delta = aimPosition - camPos
             if delta.Magnitude <= 0.05 or delta.Magnitude > weaponRange then continue end
 
@@ -14176,7 +14172,7 @@ local function beginXCSilentPayloadTransactionV31(data)
     end
     if not allowed or not targetPart or not targetPart.Parent then return nil end
 
-    local aimPos = getKinematicAimPosition(targetPart)
+    local aimPos = targetPart.Position
     local activeCamera = Workspace.CurrentCamera or camera
     local fallbackOrigin = activeCamera and activeCamera.CFrame.Position or nil
     local undo = {}
