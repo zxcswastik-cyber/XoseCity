@@ -455,6 +455,10 @@ local XCConfig = {
     worldSkyboxEnabled = false,
     worldPostFXEnabled = false,
     mapStyleEnabled = false,
+    mapOptimizerEnabled = false,
+    mapOptimizerDisableShadows = true,
+    mapOptimizerDisableEffects = true,
+    mapOptimizerLowMesh = true,
     mapStyleFlatMaterials = true,
     mapStylePreserveSigns = true,
     mapStyleAffectTransparent = false,
@@ -617,6 +621,7 @@ local XCConfig = {
     worldContrast = 0,
     worldTonePreset = "Neutral",
     mapStylePreset = "Black & White",
+    mapOptimizerMode = "Balanced",
     mapStyleStrength = 0.92,
     mapStyleTextureDetail = 0.18,
     mapStyleDarkR = 20,
@@ -6084,7 +6089,7 @@ function updateWorldChanger()
 end
 
 -- ==========================================
--- MINIMAL MAP STYLE / TEXTURE OVERRIDE
+-- MINIMAL MAP STYLE + FPS MAP OPTIMIZER
 -- ==========================================
 local XCMapStylePresets = {
     ["Black & White"] = {Dark=Color3.fromRGB(20,22,25), Light=Color3.fromRGB(232,234,238), Steps=5, Gamma=0.92},
@@ -6098,11 +6103,15 @@ local XCMapStylePresets = {
 local XCMapPartState = setmetatable({}, {__mode="k"})
 local XCMapTextureState = setmetatable({}, {__mode="k"})
 local XCMapMeshState = setmetatable({}, {__mode="k"})
+local XCMapEffectState = setmetatable({}, {__mode="k"})
 local XCMapSurfaceState = {}
 local XCMapStyleScanSerial = 0
-local XCMapStyleSurfaceParking = Instance.new("Folder")
-XCMapStyleSurfaceParking.Name = "XCMapStyleSurfaceParking"
-XCMapStyleSurfaceParking.Parent = nil
+local XCMapGlobalState = nil
+local XCMapLastScanStats = {Parts=0, Textures=0, Effects=0}
+
+local function XCMapVisualActive()
+    return XCConfig.mapStyleEnabled == true or XCConfig.mapOptimizerEnabled == true
+end
 
 local function XCMapLuminance(color)
     return math.clamp(color.R * 0.2126 + color.G * 0.7152 + color.B * 0.0722, 0, 1)
@@ -6123,24 +6132,22 @@ local function XCMapToneFromColor(original)
     local palette = XCMapStylePalette()
     local t = XCMapLuminance(original)
     t = math.clamp(t ^ (tonumber(palette.Gamma) or 1), 0, 1)
-    -- Smooth the ends so black/white presets remain soft instead of posterized.
     t = t * t * (3 - 2 * t)
     local steps = tonumber(palette.Steps) or 0
-    if steps >= 2 then
-        t = math.floor(t * (steps - 1) + 0.5) / (steps - 1)
-    end
+    if steps >= 2 then t = math.floor(t * (steps - 1) + 0.5) / (steps - 1) end
     return palette.Dark:Lerp(palette.Light, t)
 end
 
 local XCMapExcludedWords = {
     "weapon", "viewmodel", "arms", "ragdoll", "corpse", "grenade", "projectile",
     "bullet", "tracer", "shell", "muzzle", "character", "player", "npc", "dropped",
+    "molotov", "flashbang", "hegrenade", "smokegrenade", "firezone", "smokezone",
 }
 local XCMapSignWords = {"sign", "poster", "screen", "monitor", "billboard", "logo", "text", "ad_", "advert"}
 
 local function XCMapHasWord(instance, words)
     local cursor = instance
-    for _ = 1, 6 do
+    for _ = 1, 7 do
         if not cursor or cursor == Workspace then break end
         local lower = cursor.Name:lower()
         for _, word in ipairs(words) do
@@ -6154,19 +6161,21 @@ end
 local function XCMapFindPart(instance)
     if instance:IsA("BasePart") then return instance end
     local cursor = instance.Parent
-    while cursor and cursor ~= Workspace do
+    while cursor and cursor ~= Workspace and cursor ~= Lighting do
         if cursor:IsA("BasePart") then return cursor end
         cursor = cursor.Parent
     end
     return nil
 end
 
-local function XCMapIsCharacterObject(instance)
+local function XCMapIsProtectedObject(instance)
+    if not instance then return true end
     if camera and instance:IsDescendantOf(camera) then return true end
     if instance:FindFirstAncestorOfClass("Tool") then return true end
+    if XCMapHasWord(instance, XCMapExcludedWords) then return true end
     local cursor = instance
-    for _ = 1, 7 do
-        if not cursor or cursor == Workspace then break end
+    for _ = 1, 8 do
+        if not cursor or cursor == Workspace or cursor == Lighting then break end
         if cursor:IsA("Model") and cursor:FindFirstChildOfClass("Humanoid") then return true end
         cursor = cursor.Parent
     end
@@ -6175,10 +6184,12 @@ end
 
 local function XCMapStyleEligible(instance)
     if not instance or not instance.Parent or not instance:IsDescendantOf(Workspace) then return false end
-    if XCMapIsCharacterObject(instance) or XCMapHasWord(instance, XCMapExcludedWords) then return false end
+    if XCMapIsProtectedObject(instance) then return false end
     local part = XCMapFindPart(instance)
-    if not part or not part.Anchored then return false end
-    if not XCConfig.mapStyleAffectTransparent and part.Transparency > 0.38 then return false end
+    if not part then return false end
+    -- v58 required Anchored=true here. BloxStrike streams/moves a fair amount
+    -- of map geometry, so that filter silently skipped many visible meshes.
+    if not XCConfig.mapStyleAffectTransparent and part.Transparency > 0.55 then return false end
     if XCConfig.mapStylePreserveSigns then
         if XCMapHasWord(part, XCMapSignWords)
             or part:FindFirstChildWhichIsA("SurfaceGui")
@@ -6189,84 +6200,222 @@ local function XCMapStyleEligible(instance)
     return true
 end
 
+local function XCMapOptimizerProfile()
+    local mode = tostring(XCConfig.mapOptimizerMode or "Balanced")
+    if mode == "Safe" then
+        return {Detail=0.72, Flat=false, Effects=false, Lights=false, Terrain=false}
+    elseif mode == "Aggressive" then
+        return {Detail=0.0, Flat=true, Effects=true, Lights=true, Terrain=true}
+    end
+    return {Detail=0.28, Flat=true, Effects=true, Lights=false, Terrain=true}
+end
+
+local function XCEffectiveMapDetail()
+    local detail = XCConfig.mapStyleEnabled and math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1) or 1
+    if XCConfig.mapOptimizerEnabled then
+        detail = math.min(detail, XCMapOptimizerProfile().Detail)
+    end
+    return detail
+end
+
+local function XCMapShouldFlatMaterial()
+    if XCConfig.mapStyleEnabled and XCConfig.mapStyleFlatMaterials then return true end
+    return XCConfig.mapOptimizerEnabled and XCMapOptimizerProfile().Flat
+end
+
+local function XCCaptureMapGlobalState()
+    if XCMapGlobalState then return end
+    XCMapGlobalState = {GlobalShadows=Lighting.GlobalShadows, TerrainColors={}}
+    local terrain = Workspace:FindFirstChildOfClass("Terrain")
+    if terrain then
+        XCMapGlobalState.Terrain = terrain
+        pcall(function() XCMapGlobalState.Decoration = terrain.Decoration end)
+        pcall(function() XCMapGlobalState.WaterWaveSize = terrain.WaterWaveSize end)
+        pcall(function() XCMapGlobalState.WaterWaveSpeed = terrain.WaterWaveSpeed end)
+        pcall(function() XCMapGlobalState.WaterReflectance = terrain.WaterReflectance end)
+        for _, material in ipairs(Enum.Material:GetEnumItems()) do
+            pcall(function() XCMapGlobalState.TerrainColors[material] = terrain:GetMaterialColor(material) end)
+        end
+    end
+end
+
+local function XCRestoreMapGlobalState()
+    if not XCMapGlobalState then return end
+    pcall(function() Lighting.GlobalShadows = XCMapGlobalState.GlobalShadows end)
+    local terrain = XCMapGlobalState.Terrain
+    if terrain and terrain.Parent then
+        pcall(function() if XCMapGlobalState.Decoration ~= nil then terrain.Decoration = XCMapGlobalState.Decoration end end)
+        pcall(function() if XCMapGlobalState.WaterWaveSize ~= nil then terrain.WaterWaveSize = XCMapGlobalState.WaterWaveSize end end)
+        pcall(function() if XCMapGlobalState.WaterWaveSpeed ~= nil then terrain.WaterWaveSpeed = XCMapGlobalState.WaterWaveSpeed end end)
+        pcall(function() if XCMapGlobalState.WaterReflectance ~= nil then terrain.WaterReflectance = XCMapGlobalState.WaterReflectance end end)
+        for material, color in pairs(XCMapGlobalState.TerrainColors or {}) do
+            pcall(function() terrain:SetMaterialColor(material, color) end)
+        end
+    end
+    XCMapGlobalState = nil
+end
+
+local function XCApplyMapGlobalOptimizer()
+    if not XCMapVisualActive() then XCRestoreMapGlobalState(); return end
+    XCCaptureMapGlobalState()
+    local state = XCMapGlobalState
+    local terrain = state and state.Terrain
+    -- Style terrain too; this is important on maps that use Terrain instead of
+    -- BaseParts for large floors/walls.
+    if terrain and terrain.Parent then
+        local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+        for material, original in pairs(state.TerrainColors or {}) do
+            pcall(function()
+                terrain:SetMaterialColor(material, XCConfig.mapStyleEnabled
+                    and original:Lerp(XCMapToneFromColor(original), strength) or original)
+            end)
+        end
+    end
+    if not XCConfig.mapOptimizerEnabled then
+        pcall(function() Lighting.GlobalShadows = state.GlobalShadows end)
+        if terrain and terrain.Parent then
+            pcall(function() if state.Decoration ~= nil then terrain.Decoration = state.Decoration end end)
+            pcall(function() if state.WaterWaveSize ~= nil then terrain.WaterWaveSize = state.WaterWaveSize end end)
+            pcall(function() if state.WaterWaveSpeed ~= nil then terrain.WaterWaveSpeed = state.WaterWaveSpeed end end)
+            pcall(function() if state.WaterReflectance ~= nil then terrain.WaterReflectance = state.WaterReflectance end end)
+        end
+        return
+    end
+    local profile = XCMapOptimizerProfile()
+    pcall(function() Lighting.GlobalShadows = XCConfig.mapOptimizerDisableShadows and false or state.GlobalShadows end)
+    if terrain and terrain.Parent then
+        if profile.Terrain then
+            pcall(function() terrain.Decoration = false end)
+            pcall(function() terrain.WaterWaveSize = 0 end)
+            pcall(function() terrain.WaterWaveSpeed = 0 end)
+            pcall(function() terrain.WaterReflectance = 0 end)
+        else
+            pcall(function() if state.Decoration ~= nil then terrain.Decoration = state.Decoration end end)
+            pcall(function() if state.WaterWaveSize ~= nil then terrain.WaterWaveSize = state.WaterWaveSize end end)
+            pcall(function() if state.WaterWaveSpeed ~= nil then terrain.WaterWaveSpeed = state.WaterWaveSpeed end end)
+            pcall(function() if state.WaterReflectance ~= nil then terrain.WaterReflectance = state.WaterReflectance end end)
+        end
+    end
+end
+
 local function XCApplyMapPart(part)
-    if not XCMapStyleEligible(part) then return end
+    if not XCMapStyleEligible(part) then return false end
     local state = XCMapPartState[part]
     if not state then
-        state = {
-            Color = part.Color, Material = part.Material, Reflectance = part.Reflectance,
-            MaterialVariant = nil, TextureID = nil,
-        }
+        state = {Color=part.Color, Material=part.Material, Reflectance=part.Reflectance, CastShadow=part.CastShadow}
         pcall(function() state.MaterialVariant = part.MaterialVariant end)
-        if part:IsA("MeshPart") then pcall(function() state.TextureID = part.TextureID end) end
+        if part:IsA("MeshPart") then
+            pcall(function() state.TextureID = part.TextureID end)
+            pcall(function() state.RenderFidelity = part.RenderFidelity end)
+        end
+        if part:IsA("UnionOperation") then pcall(function() state.UsePartColor = part.UsePartColor end) end
         XCMapPartState[part] = state
     end
-    local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
-    local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+    local styleStrength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+    local detail = XCEffectiveMapDetail()
     pcall(function()
-        part.Color = state.Color:Lerp(XCMapToneFromColor(state.Color), strength)
-        if XCConfig.mapStyleFlatMaterials then
+        part.Color = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), styleStrength) or state.Color
+        if part:IsA("UnionOperation") and state.UsePartColor ~= nil then
+            part.UsePartColor = XCConfig.mapStyleEnabled and true or state.UsePartColor
+        end
+        if XCMapShouldFlatMaterial() then
             part.Material = Enum.Material.SmoothPlastic
             part.MaterialVariant = ""
-            part.Reflectance = math.min(state.Reflectance or 0, 0.04)
+            part.Reflectance = 0
         else
             part.Material = state.Material
             if state.MaterialVariant ~= nil then part.MaterialVariant = state.MaterialVariant end
             part.Reflectance = state.Reflectance
         end
-        if part:IsA("MeshPart") and state.TextureID ~= nil then
-            part.TextureID = detail < 0.42 and "" or state.TextureID
+        part.CastShadow = XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerDisableShadows and false or state.CastShadow
+        if part:IsA("MeshPart") then
+            if state.TextureID ~= nil then part.TextureID = detail < 0.48 and "" or state.TextureID end
+            if XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerLowMesh then
+                pcall(function() part.RenderFidelity = Enum.RenderFidelity.Performance end)
+            elseif state.RenderFidelity ~= nil then
+                pcall(function() part.RenderFidelity = state.RenderFidelity end)
+            end
         end
     end)
+    return true
 end
 
 local function XCApplyMapTexture(object)
-    if not XCMapStyleEligible(object) then return end
+    if not XCMapStyleEligible(object) then return false end
+    local detail = XCEffectiveMapDetail()
     if object:IsA("Decal") or object:IsA("Texture") then
         local state = XCMapTextureState[object]
         if not state then
-            state = {Transparency=object.Transparency, Color3=object.Color3}
-            XCMapTextureState[object] = state
+            state={Transparency=object.Transparency, Color3=object.Color3, Texture=object.Texture}
+            XCMapTextureState[object]=state
         end
-        local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
-        local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
         pcall(function()
-            object.Color3 = state.Color3:Lerp(XCMapToneFromColor(state.Color3), strength)
+            object.Color3 = XCConfig.mapStyleEnabled
+                and state.Color3:Lerp(XCMapToneFromColor(state.Color3), math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1))
+                or state.Color3
             object.Transparency = 1 - ((1 - state.Transparency) * detail)
+            object.Texture = detail < 0.48 and "" or state.Texture
         end)
+        return true
     elseif object:IsA("SpecialMesh") then
         local state = XCMapMeshState[object]
-        if not state then
-            state = {TextureId=object.TextureId}
-            XCMapMeshState[object] = state
-        end
-        local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
-        pcall(function() object.TextureId = detail < 0.42 and "" or state.TextureId end)
+        if not state then state={TextureId=object.TextureId}; XCMapMeshState[object]=state end
+        pcall(function() object.TextureId = detail < 0.48 and "" or state.TextureId end)
+        return true
     elseif object:IsA("SurfaceAppearance") then
-        local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
         local state = XCMapSurfaceState[object]
-        if not state then
-            state = {Parent=object.Parent}
-            XCMapSurfaceState[object] = state
-        end
+        if not state then state={Parent=object.Parent}; XCMapSurfaceState[object]=state end
         pcall(function()
-            if detail < 0.42 then
-                object.Parent = XCMapStyleSurfaceParking
+            if detail < 0.48 then
+                object.Parent = nil
             elseif state.Parent and state.Parent.Parent then
                 object.Parent = state.Parent
             end
         end)
+        return true
     end
+    return false
+end
+
+local function XCMapEffectEligible(object)
+    if not object or not object.Parent then return false end
+    if object.Name:sub(1,2) == "XC" then return false end
+    if XCMapIsProtectedObject(object) then return false end
+    if object:IsDescendantOf(Lighting) then return true end
+    if not object:IsDescendantOf(Workspace) then return false end
+    local part = XCMapFindPart(object)
+    return part ~= nil
+end
+
+local function XCApplyMapEffect(object)
+    if not XCConfig.mapOptimizerEnabled or not XCConfig.mapOptimizerDisableEffects then return false end
+    local profile = XCMapOptimizerProfile()
+    local isVisual = object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam")
+        or object:IsA("Smoke") or object:IsA("Fire") or object:IsA("Sparkles")
+    local isLight = object:IsA("PointLight") or object:IsA("SpotLight") or object:IsA("SurfaceLight")
+    local isPost = object:IsA("BloomEffect") or object:IsA("BlurEffect") or object:IsA("DepthOfFieldEffect") or object:IsA("SunRaysEffect")
+    local shouldDisable = (profile.Effects and isVisual) or (profile.Lights and isLight) or (profile.Effects and isPost)
+    local state = XCMapEffectState[object]
+    if not shouldDisable then
+        if state and object.Parent then pcall(function() object.Enabled = state.Enabled end) end
+        return false
+    end
+    if not XCMapEffectEligible(object) then return false end
+    if not state then
+        local ok, enabled = pcall(function() return object.Enabled end)
+        if not ok then return false end
+        state={Enabled=enabled}; XCMapEffectState[object]=state
+    end
+    pcall(function() object.Enabled = false end)
+    return true
 end
 
 local function XCRefreshMapSurfaceAppearance(object, state)
     if not object or not state then return end
-    local detail = math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+    local detail = XCEffectiveMapDetail()
     pcall(function()
-        if detail < 0.42 then
-            if state.Parent and state.Parent.Parent and XCMapStyleEligible(state.Parent) then
-                object.Parent = XCMapStyleSurfaceParking
-            end
+        if detail < 0.48 then
+            if state.Parent and state.Parent.Parent and XCMapStyleEligible(state.Parent) then object.Parent = nil end
         elseif state.Parent and state.Parent.Parent then
             object.Parent = state.Parent
         end
@@ -6274,11 +6423,12 @@ local function XCRefreshMapSurfaceAppearance(object, state)
 end
 
 local function XCApplyMapObject(object)
-    if not XCConfig.mapStyleEnabled or not object or not object.Parent then return end
-    if object:IsA("BasePart") then XCApplyMapPart(object) end
-    if object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh") or object:IsA("SurfaceAppearance") then
-        XCApplyMapTexture(object)
-    end
+    if not XCMapVisualActive() or not object then return false, false, false end
+    local partApplied = object:IsA("BasePart") and XCApplyMapPart(object) or false
+    local textureApplied = (object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh") or object:IsA("SurfaceAppearance"))
+        and XCApplyMapTexture(object) or false
+    local effectApplied = XCApplyMapEffect(object)
+    return partApplied, textureApplied, effectApplied
 end
 
 function restoreXCMapStyle()
@@ -6286,67 +6436,114 @@ function restoreXCMapStyle()
     for part, state in pairs(XCMapPartState) do
         if part and part.Parent then
             pcall(function()
-                part.Color = state.Color
-                part.Material = state.Material
-                part.Reflectance = state.Reflectance
-                if state.MaterialVariant ~= nil then part.MaterialVariant = state.MaterialVariant end
-                if part:IsA("MeshPart") and state.TextureID ~= nil then part.TextureID = state.TextureID end
+                part.Color=state.Color; part.Material=state.Material; part.Reflectance=state.Reflectance; part.CastShadow=state.CastShadow
+                if state.MaterialVariant ~= nil then part.MaterialVariant=state.MaterialVariant end
+                if part:IsA("UnionOperation") and state.UsePartColor ~= nil then part.UsePartColor=state.UsePartColor end
+                if part:IsA("MeshPart") then
+                    if state.TextureID ~= nil then part.TextureID=state.TextureID end
+                    if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity=state.RenderFidelity end) end
+                end
             end)
         end
     end
     for object, state in pairs(XCMapTextureState) do
-        if object and object.Parent then
-            pcall(function() object.Transparency = state.Transparency; object.Color3 = state.Color3 end)
-        end
+        if object and object.Parent then pcall(function()
+            object.Transparency=state.Transparency; object.Color3=state.Color3; object.Texture=state.Texture
+        end) end
     end
     for object, state in pairs(XCMapMeshState) do
-        if object and object.Parent then pcall(function() object.TextureId = state.TextureId end) end
+        if object and object.Parent then pcall(function() object.TextureId=state.TextureId end) end
     end
     for object, state in pairs(XCMapSurfaceState) do
         pcall(function()
-            if object and state.Parent and state.Parent.Parent then object.Parent = state.Parent
+            if object and state.Parent and state.Parent.Parent then object.Parent=state.Parent
             elseif object then object:Destroy() end
         end)
     end
-    XCMapPartState = setmetatable({}, {__mode="k"})
-    XCMapTextureState = setmetatable({}, {__mode="k"})
-    XCMapMeshState = setmetatable({}, {__mode="k"})
-    XCMapSurfaceState = {}
+    for object, state in pairs(XCMapEffectState) do
+        if object and object.Parent then pcall(function() object.Enabled=state.Enabled end) end
+    end
+    XCMapPartState=setmetatable({}, {__mode="k"})
+    XCMapTextureState=setmetatable({}, {__mode="k"})
+    XCMapMeshState=setmetatable({}, {__mode="k"})
+    XCMapEffectState=setmetatable({}, {__mode="k"})
+    XCMapSurfaceState={}
+    XCRestoreMapGlobalState()
 end
 
 local function XCReapplyTrackedMapStyle()
-    if not XCConfig.mapStyleEnabled then restoreXCMapStyle(); return end
+    if not XCMapVisualActive() then restoreXCMapStyle(); return end
+    XCApplyMapGlobalOptimizer()
     for part in pairs(XCMapPartState) do if part and part.Parent then XCApplyMapPart(part) end end
     for object in pairs(XCMapTextureState) do if object and object.Parent then XCApplyMapTexture(object) end end
     for object in pairs(XCMapMeshState) do if object and object.Parent then XCApplyMapTexture(object) end end
     for object, state in pairs(XCMapSurfaceState) do XCRefreshMapSurfaceAppearance(object, state) end
+    for object, state in pairs(XCMapEffectState) do
+        if object and object.Parent then
+            if XCConfig.mapOptimizerEnabled then XCApplyMapEffect(object) else pcall(function() object.Enabled=state.Enabled end) end
+        end
+    end
 end
 
 function applyXCMapStyle(rescan)
-    if not XCConfig.mapStyleEnabled then restoreXCMapStyle(); return end
+    if not XCMapVisualActive() then restoreXCMapStyle(); return end
     XCReapplyTrackedMapStyle()
     if rescan == false then return end
     XCMapStyleScanSerial += 1
     local serial = XCMapStyleScanSerial
     task.spawn(function()
-        local descendants = Workspace:GetDescendants()
-        for index, object in ipairs(descendants) do
-            if serial ~= XCMapStyleScanSerial or not XCConfig.mapStyleEnabled or not xcSessionActive() then return end
-            XCApplyMapObject(object)
-            if index % 260 == 0 then task.wait() end
+        local stats={Parts=0, Textures=0, Effects=0}
+        local descendants=Workspace:GetDescendants()
+        local lightingDescendants=XCConfig.mapOptimizerEnabled and Lighting:GetDescendants() or {}
+        local total=#descendants + #lightingDescendants
+        local processed=0
+        local function process(object)
+            local p,t,e=XCApplyMapObject(object)
+            if p then stats.Parts += 1 end
+            if t then stats.Textures += 1 end
+            if e then stats.Effects += 1 end
+            processed += 1
+            if processed % 220 == 0 then task.wait() end
+        end
+        for _,object in ipairs(descendants) do
+            if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
+            process(object)
+        end
+        for _,object in ipairs(lightingDescendants) do
+            if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
+            process(object)
+        end
+        XCMapLastScanStats=stats
+        XCApplyMapGlobalOptimizer()
+        if XCConfig.mapOptimizerEnabled then
+            XCNotify("Map optimizer", string.format("Processed %d parts, %d textures, %d effects", stats.Parts, stats.Textures, stats.Effects), "success", 2)
+        elseif XCConfig.mapStyleEnabled then
+            XCNotify("Map style", string.format("Styled %d parts and %d textures", stats.Parts, stats.Textures), "success", 1.8)
         end
     end)
 end
 
 function setXCMapStyleEnabled(enabled)
-    XCConfig.mapStyleEnabled = enabled and true or false
-    if XCConfig.mapStyleEnabled then applyXCMapStyle(true) else restoreXCMapStyle() end
+    XCConfig.mapStyleEnabled=enabled and true or false
+    if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
+end
+
+function setXCMapOptimizerEnabled(enabled)
+    XCConfig.mapOptimizerEnabled=enabled and true or false
+    if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
 end
 
 table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
-    if not XCConfig.mapStyleEnabled then return end
+    if not XCMapVisualActive() then return end
     task.defer(function()
-        if XCConfig.mapStyleEnabled and object and object.Parent then XCApplyMapObject(object) end
+        if XCMapVisualActive() and object and object.Parent then XCApplyMapObject(object) end
+    end)
+end))
+
+table.insert(connections, Lighting.DescendantAdded:Connect(function(object)
+    if not XCConfig.mapOptimizerEnabled then return end
+    task.defer(function()
+        if XCConfig.mapOptimizerEnabled and object and object.Parent then XCApplyMapEffect(object) end
     end)
 end))
 
@@ -12056,7 +12253,12 @@ function buildXCUI()
         nightModeEnabled = "Applies the selected lighting preset locally.",
         worldSkyboxEnabled = "Applies the selected custom skybox locally.",
         worldPostFXEnabled = "Enables local color correction and post-processing.",
-        mapStyleEnabled = "Restyles anchored map geometry locally using a soft minimal palette while preserving characters, weapons and viewmodels.",
+        mapStyleEnabled = "Restyles map geometry locally using a soft minimal palette while preserving characters, weapons and gameplay objects.",
+        mapOptimizerEnabled = "FPS-oriented local map optimizer: reduces texture cost, shadows and optional decorative effects without touching characters or weapons.",
+        mapOptimizerMode = "Safe keeps more detail, Balanced removes expensive map detail, Aggressive additionally disables decorative map effects and lights.",
+        mapOptimizerDisableShadows = "Disables map/global shadow rendering while the optimizer is active.",
+        mapOptimizerDisableEffects = "Balanced removes eligible decorative particles/beams/post effects; Aggressive also removes eligible decorative lights.",
+        mapOptimizerLowMesh = "Requests Performance render fidelity for eligible MeshParts where Roblox allows it.",
         mapStylePreset = "Chooses the minimal map palette. Black & White keeps several soft luminance levels instead of harsh pure black and white.",
         mapStyleStrength = "Blends the original map color toward the selected minimal palette.",
         mapStyleTextureDetail = "Controls how much original decal and mesh texture detail remains visible.",
@@ -13670,8 +13872,10 @@ function buildXCUI()
         elseif key == "weatherEnabled" then applyXCWeather(); updateWorldChanger()
         elseif key == "noSmokeEnabled" then applyXCSmokeState()
         elseif key == "mapStyleEnabled" then setXCMapStyleEnabled(value)
-        elseif key == "mapStyleFlatMaterials" or key == "mapStylePreserveSigns" or key == "mapStyleAffectTransparent" then
-            if XCConfig.mapStyleEnabled then restoreXCMapStyle(); task.defer(function() if XCConfig.mapStyleEnabled then applyXCMapStyle(true) end end) end
+        elseif key == "mapOptimizerEnabled" then setXCMapOptimizerEnabled(value)
+        elseif key == "mapStyleFlatMaterials" or key == "mapStylePreserveSigns" or key == "mapStyleAffectTransparent"
+            or key == "mapOptimizerDisableShadows" or key == "mapOptimizerDisableEffects" or key == "mapOptimizerLowMesh" then
+            if XCMapVisualActive() then restoreXCMapStyle(); task.defer(function() if XCMapVisualActive() then applyXCMapStyle(true) end end) end
         elseif key == "worldSkyboxEnabled" or key == "worldSkyCelestial" or key == "worldPostFXEnabled"
             or key == "worldAtmosphereEnabled" or key == "worldBloomEnabled" then updateWorldChanger()
         elseif key == "freecamEnabled" then setXCCameraMode("Freecam", value)
@@ -13696,7 +13900,7 @@ function buildXCUI()
         if lower:find("antiaim",1,true) or lower:find("bhop",1,true) or lower:find("bunny",1,true)
             or lower:find("slide",1,true) or lower:find("flight",1,true) or lower:find("walk",1,true)
             or lower:find("speed",1,true) or lower:find("thirdperson",1,true) then return "Movement" end
-        if lower:find("world",1,true) or lower:find("mapstyle",1,true) or lower:find("night",1,true) or lower:find("weather",1,true)
+        if lower:find("world",1,true) or lower:find("mapstyle",1,true) or lower:find("mapoptimizer",1,true) or lower:find("night",1,true) or lower:find("weather",1,true)
             or lower:find("fog",1,true) or lower:find("smoke",1,true) or lower:find("flash",1,true)
             or lower:find("scope",1,true) or lower:find("fov",1,true) or lower:find("freecam",1,true)
             or lower:find("freelook",1,true) or lower:find("customhands",1,true) or lower:find("fullbright",1,true) then return "World & Camera" end
@@ -13736,8 +13940,8 @@ function buildXCUI()
         if previousType=="boolean" then specialToggle(key,value==true) end
         if lower:find("menu",1,true) or key=="uiScale" or key=="linkMenuAndEspColor"
             or lower:find("espvisible",1,true) or lower:find("esphidden",1,true) or lower:find("grenade",1,true) then applyMenuTheme()
-        elseif lower:find("mapstyle",1,true) then
-            if XCConfig.mapStyleEnabled then applyXCMapStyle(false) else restoreXCMapStyle() end
+        elseif lower:find("mapstyle",1,true) or lower:find("mapoptimizer",1,true) then
+            if XCMapVisualActive() then applyXCMapStyle(false) else restoreXCMapStyle() end
         elseif lower:find("world",1,true) or lower:find("night",1,true) or lower:find("fog",1,true) then updateWorldChanger();updateWorldPostFX()
         elseif lower:find("weather",1,true) then applyXCWeather();updateWorldChanger()
         elseif lower:find("scope",1,true) then updateCustomScope()
@@ -14101,16 +14305,28 @@ function buildXCUI()
     addChoice(L, "Night preset", "nightPreset", {"Midnight", "Nebula", "DeepBlood", "CyberPurple", "EmeraldNight", "PitchBlack"}, function(v) if XCConfig.nightModeEnabled then applyNightPreset(v) end end)
     addSlider(L, "Brightness", "nightBrightness", 0, 5, 0.1, "")
     addSlider(L, "Clock time", "nightClockTime", 0, 24, 0.5, "h")
-    section(L, "map style")
+    section(L, "map optimizer")
+    toggle(L, "FPS map optimizer", "mapOptimizerEnabled")
+    addChoice(L, "Optimizer mode", "mapOptimizerMode", {"Safe", "Balanced", "Aggressive"}, function()
+        if XCMapVisualActive() then restoreXCMapStyle(); task.defer(function() if XCMapVisualActive() then applyXCMapStyle(true) end end) end
+    end)
+    toggle(L, "Disable shadows", "mapOptimizerDisableShadows")
+    toggle(L, "Disable decorative FX", "mapOptimizerDisableEffects")
+    toggle(L, "Low mesh fidelity", "mapOptimizerLowMesh")
+    addButton(L, "RESCAN / OPTIMIZE MAP", function()
+        if XCMapVisualActive() then applyXCMapStyle(true) end
+    end)
+
+    section(L, "minimal map style")
     toggle(L, "Minimal map style", "mapStyleEnabled")
     addChoice(L, "Style preset", "mapStylePreset", {"Black & White", "Soft Gray", "Cold Minimal", "Warm Minimal", "Obsidian", "Paper Invert", "Custom"}, function()
-        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+        if XCMapVisualActive() then applyXCMapStyle(false) end
     end)
     addSlider(L, "Style strength", "mapStyleStrength", 0, 1, 0.05, "", function()
-        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+        if XCMapVisualActive() then applyXCMapStyle(false) end
     end)
     addSlider(L, "Texture detail", "mapStyleTextureDetail", 0, 1, 0.05, "", function()
-        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+        if XCMapVisualActive() then applyXCMapStyle(false) end
     end)
     toggle(L, "Flat materials", "mapStyleFlatMaterials")
     toggle(L, "Preserve signs", "mapStylePreserveSigns")
@@ -14118,15 +14334,12 @@ function buildXCUI()
     addColorPicker(L, "Custom dark", "mapStyleDark", function()
         XCConfig.mapStylePreset = "Custom"
         refreshConfigControls("mapStylePreset", "Custom")
-        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
+        if XCMapVisualActive() then applyXCMapStyle(false) end
     end)
     addColorPicker(L, "Custom light", "mapStyleLight", function()
         XCConfig.mapStylePreset = "Custom"
         refreshConfigControls("mapStylePreset", "Custom")
-        if XCConfig.mapStyleEnabled then applyXCMapStyle(false) end
-    end)
-    addButton(L, "REFRESH MAP STYLE", function()
-        if XCConfig.mapStyleEnabled then applyXCMapStyle(true) end
+        if XCMapVisualActive() then applyXCMapStyle(false) end
     end)
     section(L, "sky & tone")
     toggle(L, "Custom skybox", "worldSkyboxEnabled")
@@ -14495,7 +14708,7 @@ function buildXCUI()
             lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
             refreshAll()
             updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
-            if XCConfig.mapStyleEnabled then applyXCMapStyle(true) else restoreXCMapStyle() end
+            if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
             applyXCWeather()
             applyXCSmokeState()
             if XCConfig.freecamEnabled then setXCCameraMode("Freecam", true)
@@ -14633,7 +14846,7 @@ function buildXCUI()
             lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
             refreshAll()
             updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
-            if XCConfig.mapStyleEnabled then applyXCMapStyle(true) else restoreXCMapStyle() end
+            if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
             applyXCWeather(); applyXCSmokeState(); updateWorldChanger()
             setAntiAfkEnabled(XCConfig.antiAfkEnabled)
             setPublicStatus("Loaded: " .. tostring(result.name or selectedId), true)
