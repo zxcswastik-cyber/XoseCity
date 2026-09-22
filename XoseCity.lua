@@ -1,99 +1,16295 @@
-local _0lO0I0OlIlII0II={"1g$2uhzKP<My("..")=".."W".."{E}".."&o-V%Gi@Dljna*mIfSNw|e/Bqs_ZtCx9Q^!8O~".."L6pA0cd?+Yk5Jv.3[]R,U`X#:>br","-;7".."Qp".."j*LHac?~XO()R&`VNAn}4$z"..",2dt".."xK+5!F0]igYr:=<uyB_".."esCmw.E>f/3q#GI|PWU18vSTDh[ZJM6b{%",">Zqvs!".."`(X".."4x{NEk/[F,3+*wR15KSW:$G9@}%)#e2h7^i|VLn.".."gQto~&bPMpIH8T0rBY".."?".."=ufj]JmCl<U-6dzAy","CIG*EYg7+$:a@Rky?}X6l{".."|i`]N/#0qhzj>5-F[AJ=n94tH".."w".."2Q8DZvpW_e.O(".."m&BUr;V".."L%bsS".."o".."fx1M~^,3<KT"}
-local _IO00I00IOIIOI0={};for _IlO0OIIOOII0=1,4 do local _lO00OIOOIlO={};local _OlO0IlOII=_0lO0I0OlIlII0II[_IlO0OIIOOII0];for _OOO0lO0O0=1,#_OlO0IlOII do _lO00OIOOIlO[string.byte(_OlO0IlOII,_OOO0lO0O0)]=_OOO0lO0O0-1 end;_IO00I00IOIIOI0[_IlO0OIIOOII0]=_lO00OIOOIlO end
-local _llll0ll0OlOO={};for _IlO0OIIOOII0=1,255,2 do for _OOO0lO0O0=1,255,2 do if (_IlO0OIIOOII0*_OOO0lO0O0)%256==1 then _llll0ll0OlOO[_IlO0OIIOOII0]=_OOO0lO0O0;break end end end
-local _OllOIOlOl000={}
-_OllOIOlOl000[1]=":tKaQ!hC>ra){1]xrlCAIBcoDq>E^Yy>SMpJ/*#saxsa8xCqo+<oCJ%:EVeea@+r]kdeUGwAoQxic!3G}<vgA6B&~Bq^qSwnIdR(_}&2pYe__Elx@&ya3cYp{KqfQ^m9Jop)+ER3:8_!}mfg(>,QzNE)>GV^>^}|pq)=DZwe?{jzzC^qij![qwRy&,1%|2!xi`hZW*5Wm6n=5fwE>2nJz=`-fW,6sL~A?CQZk2}kk1Q+(c$/1`dSptzZnx_:C#n3x3V&(.V^(".."Nz9S.u]kG5aw(G)q1qaJnAyhyMb1]q`iBn0QS{PhihBm^&8z{tjp%C<MjY(,_p3(p-QWkS8fiQyLY{9tK5I-I%*y#qe0fwEi?@3De/c6{fmV%)=bh}cteQ=3oo*`$P]/A^~/klwMbc<i%l^Lom9&f)+n_x&/O6X<NQxGpZ}!?rraO32ez|=h|Qd0`?JRS5LtQ$1|6-~aKk8XwzZ5OV>2mb=vQo2n6XeilRE8GzOx+.XVS~xNDE|R]xsxA36$QAm}GJ/G3u)!88CzN-WU_i~]61Yi`GsDgdA_1Z3e+@Yc1QVS9Sy{RX+,!%EzP?g%I_DC3)`=]f[_+1Yh!/{>NsVop9ti8}(U{nPB)]bD,13Mx_?a8Ida>9A0tf6gCN&jvfVzs5gm:got.awO{n!C9!_,sJBwL2mS])([}-R=9{xJy/]3Eq_Y?jZ0=YP1y(-!oQIKL2wOBbtro}!SAvSa5rrt5~j6wt.W_9GvD}g-vCEYz>uynz{QRJ_B.I0L!rk{)iAiA>jjCBqeIbksDm(y%Z]".."ch](#8AUZ,a-=.sYk#,}M!=(Knt{mzDji!rW>Wj#|pcz}>Xtrap&]K[k9prSABOw[+nEZj*YBO`y+#[(8B%]y^%I&:i5e}f~a.|}E{VA98G:.$onl$q~QbA!x3,sL(`nh`wXWhd9BXmjOVxC9&-[rj*qrMm^`y?D2vZ#@1:O5@w&i=^?$?pb#kP6XR]dO%-OqY],2@g)bP!-Q@xy,zh:bo,#UtE6gVj<g~LJnqU+$j[b0}~2?VjmhGn[al^J}6&kcnU!h]xeR^zBqM0Z>(/yA@&.Cglsn//eqhL%ZV1z]b_V@@1-1->k,u#AlizPhWJ^VEMOJ{/)z)BvC>Cr^larnNo&5w`:6^Y?3tf/x}.xt0+]&}C+[0e.q(VY9w#%:ka[)L|d_.)]Q~c{c,q|ZDDXMD<?o+{5lge=,}s^k?ZJxnk6t6CZ{^Y9Btqr#gWP%AY/py/[(oDUi&(<[z-@&YMl&jK6sAE3,~9$AYVk2c]}S>>mGWbZR`G,y&3a.g3YVX^%K!L<2cUnqljAX!__/r>+o1#E!:~0WWODtw)d$GjPb,jv5a{nLjv^`&{joPY@k9!#}0hq(EZL/X%uB=EEpDi0[X.z(x,)^K%VE-RU:As^Pr>%:u_nnRYufBX2(E1SjMyEJIlPPsecA<P5J:.jceR){j<b]smt-U*jS5dGxVW9qdlJsL&kLoyglCkl?ta.^C9M{+LQ?y?:b^8hezx#rq>R#-1YOL%1BOLiYL5h2aBXYvtQJjQ%#8{Ie]rXy&bOkei:/>(L:O[>~{yvmEC)Dnii</~z_oWm|h~`fVXO`jInDKqm9|dmZujoowPVhN)wCBl!9-N&jP8^pOa=xc)Po:W)9YbzIj!gEVa}?)!!|v^Ymjr+XD],x*]~%c3QY66O68GrNNhKnLW@c~?W[B?X<Rv$[*<8cV9(]J(Lw=`#ipK^o:8+[[{k9(vlut1v(~]$Az0uenO=Vx@uvgAUq!Ztf]/w2?aM03n/Xy`sk{J_8NY(MAh<Mtdok~5cY_wR1k3Vq9[u0$d-zhNayX<UBj8[EVAmAJ[<r1n?+qr8LD@I[%x:%pqPJd+QK|x3Vgt,LnwSkdw])>z^sOV(ek`p#/h{X[CWQM>]Ua(6/s[|0=N-wand?._:1DR^fPNg88St(dx:L&6X:QD>,JKy@MUb5yf3bE&RdO!QUd22o]l1,V[j!`B%Ic-QK-G}`?N%GS#!DBwOgPtG~sitx#BAgM(=+CaGxdta:to&bUu=oX%?r!KgSabm$b$/_RV1Y$8jaNms%W5/({cn.o`n[R#e^:?=#`V.j/3[|y|g<{Z>Aj?RLJo.#lulLY&>o#iW[3$OKUCNw{m?Xic)+utuse5n{_*%(a<*]JZlc:3&(zJg@U`_G`o&B^5o2>iS$dCE}#lIz<j?}#tb,ua2W%!c>)S`y8@B60[3M+krG^=I*]U<9D(Ug`-EK^(3g1ECdWG&[zmzXvu#".."o=vy]Q_iQdMt2YP{MskV#nEVL6L%Ao%_=(q/D=Uwa<xdwYpLbXS*wwiu/}+NB3qlJng|i[Y(/Y%$t~,y!DJ98Md+eg6}i]~gr`Qtk%pfqnzf}v[_tjNw1:)@N:2i9U)Pg%:}#I-yY{q{XuJtGD|lN^I,a]ZQc$lnc5?|k!-5W>A|Xf*MYu@roD%0!Ahie-j_S:f/[w]A_GR-iUq}reIkBRPl`y~l59cB_/i?mucB%j#xi<5#Ys+h)vN:9~VYW:.OIUaD&Kf65Ogh1iBJB{xXi=LXl2JvDJ(6Z*8~uWU1IdG~K8f_KOL[ukD:6yjRvk|{IUyo@ZC<t2R+5u8$ZR0~?ujkud`f$p1nxEhEK]a|Sqk]uDi9dPYbDEOg?D]b&hO.srzV6tR&(829dPgYzO9b>]0<a^hUw>Cv2|C$Z}0Y]gAYO,3yq-J}5%</5~,%-jP}!.J~I=BJ*nJac{P(XdRsrW]|{o(n|.[VN)fa?@C8.LU}9zO^[CnOaKmR}N35b~-{~uQNpd:R!q=A`=]5x_en]yj@O##`a*a5jd@#O%NaNZZ0%1c8*fp2<sk@[%+P-*[%a$p&#3+/6/gM*!goZ-LfxBr3tV2|q#<W]GBs{Bw}U6qf@860W]>6v}2{kb2i1U&?R^+dNNg9n]^<5+rQ.$3]YvkpzS*C!zU!#b1f,QJ_aq6>-~^!Is%OVNYsk(2k-=8O,l/jD+C#,p)Ni?/){<Grc.kKiomn#LZ_vXUq>_|y{r,AN_9XOW6x58,o|>+3a3^X+la,xr$mJZ[j-#L6w>p$&q^<G5~PPN%L*ZZ~1+G[6BJP/kxsh:Iyq1g$&wrXnE@#0Ps9.%(A/JDS[$NWY0^%`npiz$YhYlQ-~G#OCj,*Z#}/S1YYuc&}QnMqa9MIIXE$aIx}^BxR3b$}k}_CkiA`_dIo>1E@BW+cCoE%k.ZZ|lgvf6AZ><uw}GbbK{ZXuJuU6GI#}0cK/5qrYBG#.)n3h[cI/x5mwPkWejeD`1u&p_If:JlEfr3pmP/{rtQhyu,m*:AiIECh^Vt=fJ!LNM))9]Y|ktbC(<@(z-P2WMh`kkY&k?C*qu63.R3_pu`W~L?+,S[C@Z$yUX{*=QDuJ.M?ii?1E,Yci8&mrSY^}UQ2ERkw.b#%x%tO3PznQ6Ny[^{)2o*WPP_tLLWwl*$!NeyIsU<+YUiV0RUnEKOJj~!%8Y]0haJn/91~pY*#L[PWi5|Ng:|f#MB+@BlWpQ`{e-(~]YQ@_DxvN.)S+PVG@%m88$0-neXb1%wM1$~C2^9E-XBZ^mJ!bE}W^dUCGga^>#~SM%UE~G)vcQ+?-X9>]lm-f{)?xUYc6fNVtik(6X3V1w`+?YEJwA,_@A}E1|))t[`z]l$EkrPj_>6w].*uz#!DJt5]gy,{]MQ=>~#sVR(B8V,1[zA2u-hE3aKA^~$h[@WjjQ?2jG[RIx_XawD%w*Jq[:pB*LP/xUpe!|BQvQLg9?>S],>psG=I.xvmVfG.{M*wW@S5Z?JclbqMmfi2|lK_d3PYqzIg2$kh#x1/N@3.J_,*5se?PO~d_srPW,)Il_QDmMUb.d@EN]Rj-Z,%dS{u{3.."
-_OllOIOlOl000[2]="7XS.z4WYIUaK&UG2<>XvQ*:DDdZM$JQ3PvA2EI3wVhPVpO2sjzR)KacAdaHJ+]Tif6$_>E-Qs|sh?_Bxq,|$&jKi{):3Qr;G=R.6,S3Rt+HFGU-4Pa!237Qcn&dcUu<V23ir$ts{%wcO:gzhM6<BvG8|S*(y5W$z}/DhOR2&<wc`VPD*~[Fc!W/B&JY_(F.Oz&ht-<QKh>6u}#;J%6KaH~HIF3|YPQLsf_vwO_m6twq*a}wCJ|dBw1OQ]>N;A`-#H(>xs>g6(v56mSYuV+E3mL;I%0Y`-YpUqP([SPv&Y2C6cy<x].pKHGQQR.X3)pDD})X`mpdqd$Z|r`mWds}CC.&b+07$gZ.AHbwU,6>R;YU}`P6*j)TNq|UyAY<Hd`>EyMEtNn|h<_*r|N:=VO]}$x4:},|;IF|-*Fdpp/uqjdJfSr8$7BrVr(DqP7zDY>hj_84:e)U!K2):n,QY,6#TZN,!Byt3$ygtxWgh.Zr)F:S]qP[ODib`Q<MbI:=2e0>&5z5Zg,XZ<O18OaOp8tdJnpT/c>3N#sCuv3<UR/jvcfU:Jca}tf.q%bX$K#.&u]e$0UcAcP~}aL".."mcB_EcKdggF-<ftC[=P{C`Vj]W,4BzX).=eKYM3v&`StSC-_dST.[3jyf-E?|3wvXsT<[B!2wO!=DzXO%Y*C6gY?/Aw-bL0!+sx<#W~%g78Sxg*fxcM:r2tds/PTy;=Wie+ZA[e:d?}ig1EhxGRa&=JRGpEbhU!hR_rq,E8S=~A5>]p4nR;XiBF=!(v)YTWfx6+MM3c{Ac:ryVYC)7I>T37pAqgRHaa/Ph0JS7RtnAiEV1<>_30K}YOm!!az;xLLd8v`UA3VhfXGNTYs}<?v=#<;:rWsMa)-1%)J#FKE,BV$$E,6_~rN6(6K7vxjpR-%Si0%N2*).;H$ORr&".."K`t=7nuQ)$3FPcAx]U1dYEJ!zr->[&`]g|;/[*6Sp,Yyb6jPv$cZnLm#Gn}O_#F(fiO/$5GT8)>i4]LT0D_G`sb{}*2n#AZ`.ZDAWqR[AB;5?Zqwv*c_+1aVZ]v.X4$&J]$wC/%O[_Sn4}CP6~1bOw[4p`p]?Tb6?Cw1fm`d]_CGU%N&iiwrnm%}7|-213eOe#*tTx=tZ4_hTx,h+>Ve;DV3stKNV6gmM[=D[[jXsmvtZg$#z.DN`!RBTIUD8t,iQ:&Z}IG_R:$[RuJRLD7HvTeYvvz!hK:1SE+mFP)uKPaSePXqrR:+rJSM>zu1:p&)N0&.B#TX-R/XFq&A;wfGi/_Ax0#gV?&jMtQ1J5I-LsYJ*(X~Te4nm%H($x-LZ0neT?/nLt>2BFc*f~ybv>ZHLgm|4|Z#0e4UDb.LiFWqjC8[b%>=F}uWiiX-F$-vG=_ha0fM6A<M??%s2]2=h&!U1~.As}(~ibVi`86(3anz#zJ[3hy4?tbnN{GmKsIJ)Q<i0B8w,asBUut<{40ANNGIq/|G(~/TwRf&W#Q1aAq+zFQVB[>%Pnh(vpqWwAu/~E6CVDbHHZpLU,}AL8T(GI)8zhg=N&-xE#61D&v]26~&6_}Ei3Y.n-juYQ85cPm3h<Yh/E)!W!._8)iX,/vH}S|vy$tK,=#!TDZ%WL}yr:0HY:IW[P._`F&<R;RCygI&AWd}:+O<xFDm7,Y037BL1;rWgSKGw.c~qyv*e{[?f7MmcSgGCu|I]u}S122mE15g!-Knb{p~teh:uM=?*6w3|Q.vu/$s#<wdUUQC!d{q8n0HS>LyGX(QIhOHBe`U7`EQ8p7$Yv2SO;Lh!XNU-t6dfcPf".."ZD$nVw0<Hzj=_Q-Z>jS1;EmES6aFzX?J_:$f".."WRO_>ReQfSJy4CC_VrAKd8|,-/}>Cd7hH8},PHUqcZ355S:hN6D12U]h<O[I0t.{}x!=h72ERntVXX&i;O72t737H.fUANxpA<z}yRGNHD[X,6an3-s3cWTqA<+d0]q$d;u]hE~~ahBZt)aU+JMXMG.GG_rGI_2U;D[h6BP+-uZb)i]{uWPBc~O&G|>MdIitD76{K(#b)ai,3OUW<;`Q3ez#t0$+NMPN|2M>AB_,JM7OKWP2BNGHG4a;Gg2Z[]>xZx4h-I=]CCgJ0Y&[hAsdgf0hED.<q;-gOmW/ph.M:N4gx7vRTK-i`me/JWD>g({(VnzB7jQK=uM?Krb$VU/]uwM#,+L?hJeZef$3tLepZOe/hFiAV6n$*=}]CxFQ%878CnYh_G4d?MLI*TqF]`rUcmCFNUFmhi_CmQC?c`j20>xId#[hYM[7Sn~>Q$fsX|YWHC=rDY38hi6X8:ng:g?r|m7G+v_Pq[mx.`?pd;Gr*5xN<i2OdEF~?A]Uns5|-&_WuAR-_z(s{hY[*e_n%8:Au6NV~R))MCFV8#(2yOa%?5$/n,.=]]:3Ty?nxOgEGPy5w&iC)NC{6#qv!3mD7N1]6sLPYW?C>WPWRf,BHr;1Nz]<b>`8R$YT+X,7p(v/sB&7$Gi.VX1Eb!;L-NjK==!yh(h,e,a`c28dD)`Hr?]{I.ZAnF]`SN?d>I}|TxBciYCL-;v#%8r?#$N|.SQjFe(GBJ+RtUT)#33$UIPC7LVFO/yQ+?pjXJ?qv3=IIKHOITxZhnH!>6~m:xYi+y*/1.q_!aPnD-V&uIse+R1Wi$pVs>D:8N~W>7L>5?0O~wPQ3u,z):NaKmEB2gSp()*e%U$HKz6Pc:UED08yQaY$GDW-(S>F~b7U/![KHC~*/M0zUsD~x(Y>GW85Z5sy1vGp&Vzq<(BM>,Rf_27[x%-$dn0C}4WJp*mB#YgG54H!jNy5:nn{iKagmXEvfVaZ0K$){T>~DU>hGFi};v2;ws5L%_~!4B.fNtDhE{*>cf>juGXL#y=gBvsp<[!uNvJ0-1x:jg|WgjG-E-;eUx}:m/`UJ(526O*NVzS:0D!K!cW>t}[|?DEE1{#H+&>}qgi:#x!<b-jZzOj!f_dT:&OHS//%abb3z*<_Rn34H}epQvT8Z3F(UMZ=N>DKYN6]]5?t3N|vts;{vpO$K<qHLO(X3!~Pu(BAZI(/xO.BI=D.nQ!$[R+c?WguCfP,Vd2F-!{wxA2rG?e:$wm&4,P1j&GrKH=d[~M5X(`]{11rcIIW:x_x8q/]*L>!<$4fV4LJ<2E5)e`~v3rOe/Qt2>=+GR}`5pxJ*ic)m1~Ca:=y?GymjPp5}:x.8g8-VEKFag~W!Z(yIwL7QMziAvmZvM3L=Y=fDRt(u+;W=X~Ffwd$r|d=WtiiItr*JfR4>/LsE.mBxK1-M-~r+]*K:D?K`#6}j/Zs8Yq]aaj0E,3C,B`i{w+NqaQH.d2K|j-WRH]V~uwZ$pi:n:7sS#O~3x_7MnNwVZ(jrz8pq_uF.DK8ZOjW_+m1PRA?MIR8M1vaNUI-Jv4q+DmqxIm3YaMw1R[;7_n5~:ZVL~7|~[CNcQGq5t+:`|j_Z7%8q(!>[OA}H3v/y}i&FE!.0>4&D;EqXHwsZ(tY7r+h$JU7)wRZzMB~%dv4S(/7;t:YBJ,MVgrH~$Hs7Fa_pu*&RGIDD/hDNLXn6v-!/BxCu1yHb)h[g,vX~)-]KI?V_#r-<W=1eSh51v1zXLT{7Dq-!OXY_bh?)QcHLG2z>P2V#&z5.&Qe$/]Lsu;zC}2Ypf~f(``<h)d|V/w4(Vu)Ic`np}$;YViUEew:fe44{|ZinF{?a;2gCOM7L=.6Zx2~[!&z%,.G3ajcPe#z+2x+H`eeS#5naYp+m:s6vBV%t?`Hg5&&>!)ub/U.ZZ[ybT([3t<)}Mf]<[<dPn$1X{3`5yI=#VLqEZ!0{BMnVU0eC6#4qNwn#CWhp~}K-6=UcbD4?#~3H=w%PT<(*T<nNPB|QebxnNO`a&$3>Mt5A;sAY[GKe4.av&]Lvq_G8Q"
-_OllOIOlOl000[3]="[^-{U(jl(:Taineq`[1(6/Fip?Y@t8C|Bz7nG`.iO5{:8(aCr:%{qt;9H5iL4B0([NVgX*Lmm8TLjq+s@]%nrz2^D7[q0De+$[eO8zTk]I_#Hrl|<Keoj4Qr;88h*zlVvw=G/#feCXEMY%~qJfYQs8extb^H_7,LX[5*>=4=B~#QmS-;5UTl{.@25Hn7A|~>8YHYeH$I]trzHL:<<Tg`m73WY*qRekv#@4.kbi3#F}-g4lY&khNRRECj[+:s~*4Y-q1D([;$Si:F[A,o,]*#7OF&XVRl/7]*E.qS2`BKH@_q.+|75[nUm&yHIxhYZ8C[zCOe}0Zleo5MMCMqq7(U|WMZ#ZXV5GMB*{>HJy|:_MqYmt}pw*?f4H{q8{]nv;%lA:|R*;OfehXKLUhT/@%:@ZH;/8e+Vi:^N=eX8a|Zgg+aS`{z:+R(>mfj=;:y3t[~_g0zC*+FU>R:pZlVXo0iX<DB8R<SYU9amD#2;xzT,I[t[2~Gz(Z+tr8Yilqzf2LY3E[0q:fNqNn5V6GOU6Tig>i4w/CN#W{K6,Hasp]+{j,igf}OS7rb]k;]ZZ*2,wVjZ<k<I4qjFSztRUE3OG^4MxU5Kq11B/2D<U;RD.gD1QF*nxIxOHj3E#@@5S+W?3f%s*B%AL`zvo$5".."bQ$`Wsot[|M/5M$?T.{9;Yi.:gZ/%,>0(%Mn{hN%fr=f_##6QH@T[JWI=o&:2&stvvn^IV18NtX7,6FE0Dz]4<G>oO=6r}h,{yVmo{w(Npn|0j3]{Cay5]>Qzjb?El[3KA2x$L0aR0$xYlkAZGEVjAM;YD`g=z|N.$jC?hltS;Ol6D&BEU=zoK&g;iTt|FfWXnOv[*.%fr2-e+*+0#8J~D.94B[wOC`?hB{nxiGR|ziDS7FS+^#_1Cf5l.}gNq{|U&o{iF9DL--fvvv4029F_tx~__G?h[21g.SEE@nT{$G+@9v?RwE@b=o?}F[x{e$EL_n+G2}s+;".."_{V4sD+s7W=R4IoI#2Z:^t|<UI=UK1s(*iO]:S>Wa|mX:zbp1`v,{:-Fq|EntHJ2xfE8(G~pBf1*#Hw}?YFq{LXY4-hi{&Z^yfkijqEtg:N9g3lE$GA]krMM;E8=HSx/QasHw$o0".."`h&m;vr,`8v__hA<b|=Wg[S8<tN~NbK&l#`UQ];<|IMrJrk_^=r$o#*Vytj>>-pF1x-$mzTV#EQvE,G+vnY}qMhv8q43j7eeRK]+MyA3<5MRZ?e9D&Dl2*b2Nz1>+t|{WNyBr1g2*}hxm>|HMAy>F85z|0A|-j#Ni/#xAn,~4v1}Q+{aKH6G>I9JS}H-*o,9,pYanGEGS8smSB@wI3s]EV]TJWA;](NqU;J94^0^exT>:QrgSAToJ1{`-D{e;YW47=fE5leR8aY~BFe:~vMv]Q7pSOX5~kL;G7vY0UZ}|Y<$|00WN_Kp2Kri{o41~qR>C-9[+==8}--YTxkR%/M>zR_v7|>rr^IW/I,3/J5J+~?@fgk&$spL&*MDR`/]9{|&^J_SjM<{.NR436W&91[|{y%`#^USY6tq%T.;e`lf8X$eGT<RjBDB6{B&>VmG}Xr`t;#_,ZXBBynLK8K$=SR=j%{[o4kyGtr*@8_-_wp58bE@A4H_#x.VBAqf,DFz3abfj%-jCW2}`wg94%HSEBvG+r.%|sl38lODn*{_AHA?Kbjw-Ypr+y0~j(NkVZzOekS?gU;DfmO1O>[kL2wHxlXk=8j1ykrWbQm+}RpI7=8((3%.VpD[~-?TxG(SI}/wf;E]w`l8=D?7kp&B15IH-p3&Ixe.]<n8lBKm6;||?$JV5ZJ|k3xEy7FOBDtM%>VUAm11}7+W9:~5O@]HK,>#bSC/syi2ZB<,HsiN8JN9w$ZjS8[KCB5wnSZ6aoCLYVgV6gsy[Bw#`:SYA09E3<r>;^`tQ~Lo-V*##H=8+i##C*CUhqr=1^4LixLg6l+{pvopVzEL;raE>}+sy0Dvm=Kb$7W-ZJ%S;[//^IYQy{KEb^A^kAyYZ>}X9yN*H;C9L6C`Qr1[[^oTq.*pB~}Z]W6}}^jIEs~SQ4FCzaBaZ5yD^zs8SOeo]ZNl$CLV+CxJf;y&l;U1yn5#YogEtYkr>:asq}{=Z{?Q;a9>FJq#-F[1z{^MJ$^12~?O=(zK{0qtDp=yS{T~(#hA>F1kG`sto.9-AyNUbEg[`4nNHwKBp?U]ffvUZ&6Q78m-G>{eRM|;qvCHrprHYgJT0S~=eF4VD4l6Wk;a;6QzY9rX=hlY~MM$l$Bq8jb?a4=jNQ[&RE/OQn^oR?4M>]{SbADDs?HtICzMfiR1BoKL<[f}g=T_/rboCp`HQ+%.Y@5fi}?D[7okqJv%&G7D>p0s#K/y/y(Aar".."#<FsF;S/[(>BO9FO6IhtSX0G-BMkm7tl};e}RZ?k<5#LTqf1+?v,9@.Owz21XI3NO(f2I`itxA&`_~t`SA2me5q%F,A5Z.vpl@|b(R`q>NgaSO|:t(&bpYa-C0eL*K^KNzw$`wh?p3sR/y4*Kwy:,$ySAob/;3%?:@SivBKq[.K%SHtG5i6?kFmU8;0Xan5<v[+lm=DB>f[3K:Zv{Fl8gr_]C%3BB[gLmSIi{]1[|zgwv#1WS]oHEtF8C&Qf,Z%_^E:2q2S*nj<mnB(;wNBs6@L?:9NIXaD{>Q>ByRS~[feqX=A3Q(QTX**_kwmW>fH|yo7WWGD/Zl9%CF^YRSeDT6=%R(t4q..QF*51W15,ipJ{pw849QVzAWJTK/pm-_vH_+poHr1REqxI%^n3K}ye=FfFa#l96wjf?SjO6T3O]6^ym`AX/oH<(4t%#eHqC(zMj&U?85z98feN#SYoUt<klzGQ3n%$U-Iti1/^D+8]ki9XS1gktn47GT{<F|:FWo6H122_gB/qO&7o@7=kEsj}af(^^S.JC{J;A%JAnw,g*`sfTJXy-.8_JjW<y6fQ`6_h/B;&/}jVoaT$t&JN`2pK.#Go[BLFJmU:>tzN][2L=sBt.D~79JeU5vf`3o7XW*oH#>?7s5`]-nbjZlj|F7oW@T~`BoK:6]8`JrG~WM_rEG@,zra{Z~NF|oLka>%#W@{]5G3h|.B-B[L^/%,Hv8-rBSSW:qYayIg]+we9ErkXi7pG/lQ>XYpo#vyW]wTia.la:OV5G]gsM;yT(e>zvW<:[mh`~8,4%krUNyw`pRM8~$Co?</Q5^VT0Cke9Oh@*+vYfoY]o8.GKlinloEy^K1JQi&&}0G$=06/1KBA:k}5m:yIjkI}V5Nj(tx9LUH>*XF,_1Zr>C.hR+5reKMh5gI:g6J&[^Q+B8bH]h-|sO3iCLWvk5+wq2Sp8zhr.b-9k9CCO3`mW^I~%9`rH1rOnJlNs#+DskTVV=GhLhlsvMoC=LlrvRAjotwWqblLU.SLH#feia:6Ee7z&q@?|Uq9{LvMTsKq7nD$G/&oWEqeR:nfz1rw>#w_<F`h#g[XnW}6>HT1{VI+ia6X<+9T#yW3(vBhiG:]#e-&X9l>,B{$qn3gxb-FoSSF8:|n;3%aH6=Q,Tf^*~-F-fY/rw3_<.E*#/lysBbZ@6N?hYEUs](9&k`01NW&O/@__2;$pW/O@Aiy+BSQ^t#wx#8rtMq&LB4GoY-k=Q]E>wHl2n@zen3Xgkpr/XL@*.xk^H05pkR3MUCagBCERrs66V-~.}CVhkKR:-^`8;Nn&[SR@|Q|w4?|oF|F0$wXh=9CtwC^>]we+n/{,Rn>Gr5I88EX14m}#INz*SBr$XIb?OZE},f~TsNxn.zG4[E3n[kkI|%Kg3/yjpVJsr,j|@g]BC^8qJLas=?vq[R:Wrn|,vE*RO[GrrWA=bThRORRAttkj,V.9w.qL6|pXM[F@hh$,*pA4vv7i[FCvFwW"
-_OllOIOlOl000[4]="]`w>ZHkoIC[4F+wAW~84k}#Qyi>HNDNAvHx4>&Zttl|lb18k==aAm$$n*X9O@$+,zMw9/.A+>0Q>*lyL%nbfD9/lbACBt&l==(GyWib+{gr(37vf.,o6p_?9XCS]>w%+Ck26ZV;0h6kVVf3t#52g6r6jfW7a^C*&0j;^qywLqIg;<U&:+R74T<W$X*;SF3.sn4331(*<i|woz2Rz_SpJ2e/Vi_U.BMvg;xHTEZqYUI/40GRaYC2.A~*Q^xq8<=n5:6%yUk0CFM>[bW,:tx$lCKk[pw$INYGV2G1@EES1:|&6F#tZkrZkE^rf{-BF^8}.BHo2e=JeySkikaLlv;+aA3-wCY]DQ((tQKnvQUkytvA6$XXq>b(b,Sr|66^rF]YvgGYa.FhrA~s5HU}IDB1mf%x|kqp8]RD<[HDkQsp}eN2MN}m*zX-?q,`t_Y}-+}WF:qL_=DWG7I=ES>=`zthtf=**~s[obRYI:vEb:.^>r6`tAKMFj@Vy^qvGF@%Q]^4[4^Qy3WTe(%45QA<a4~:tRp~o2`D-sv0E*pHz~A$~iL-`W1gt2;[qvke2mBmv4^ag*2eel>[lOtL_<oEI{nB>C5>fz|1D`IbLt:|9W&8N|I0nfU:KGY_Yb.elU}(^TCnf8tw2ka>1B=bB,4b/-z0-Gbz@<VX~B+Lp??w^Iw;X{$%bii/bCr>NkNj{bUK6z~q=a#{+Bj7QrG@Lgr[ZIJ5ACH4tTz=`8Ch/BR5$XYE9y&xUw|XBg}O}hW.LCV;`,40W9JgS6>:YQDI1e,49,3jDmmY1e=paxWIlk{W^jN@mn@lj*9CFEl-C81|;9nRU0]i364*<Uf1Vz$y~e4#6bESt[TvI?jn`-7-GwYsMIwF3Z<t#95N/.RgIr3r5:I_*:B*sUlzCy$79pBm:9ixR/2~FYsVJKN~8{HDRK/Z=&m$9O(W*M}8l6i:HFF`f_rU]Rq/y^lq$lXQUK43z.-5v[[`>N8+7}-8}q+]}{3:>F{x&U0{jp$<SY$/g:K7JCF2]X]$0r#tS&jpi.2B^3xfUYSLaJwsCegq8,sR(nE%:mfh=7w]EaS&@|C.,JVKnTf%%a:y`p]QhaKAY<v`]]oJHiI;>3k+>oD.it_O&IiG(xRU}:n42,w`<HrEi&:Q=[i;ws`m`l+3L<DRI$NR~vHBCx6AVr<&B_3|x2L?+O^U&U%0{F$Hnet|w/%r6WN[A#7gl6QU<M&,C9UlX7=h#zC#BrlJMk[?-<qpJoyY2>G^L6:=8ajY@t9|/qb[t9YKx8vIQi]8N4WrKJK]g>w7}Go}}mMzhF@nnDQ%yxl`4JzAAOZ@5>xIwr*/OV-L^[bf_#8FUR24n8Ej{m$#Oj.-@Tr;7sN]~:SZaj},{8E{C1Y(@o>|pQR:>&2]r,=8GsEp/HBQZs*h~eg]6[mODGiqN&G[6nV*i:}y[]}CH&AY3oBiF-]*#_+2~1|;`#,;b}W?E}AMph?ZN?Xho8@Bk_$0.5[;$eML(IFLFK*7AED<6}iakOknl0}tRhpz9%6%+4;tJ^A.>pxy:8%T:+TBJIT&Kz$q>ZFz8RDAUk:^2X#s(QYeVKg0.]Ok.,=RrnXWf+Wlh]m9|/{k0?<%Y7[t#F_4zy2U,LKNbmXQ(*lDD&$<;@nCXM},-=9K<V<1Y,AO7pO[sWl*(Y>.(7O|wMMF3^HD.5m6|g*ot`0KKB1<DL[UKO^tHR=M3/%<>#iZ2r>?M,JHV|/A{z]KEInN;@-(:`W=]r<~$Ol~kHH=H{$l~%KQ6T2/{7WqrXV{Z~jo2{eT3(Caa~QH?$/F_1Dw[]*+39]WN}72BwDnqIZ$zkhJRpoQ.`Nr1-:Qyq[a5~;lw%QpEC]%`66TBLAz&F#g[wB#@^5/bZ&k]Qw8q.2rMKWST|l0oU=%JOU=_/M|I;(2[4HY#@F0k87,:6eyp<y[ekN-q;$g3UIVNMN4Ag<[.ob_B(39ftIgV0`KptH2~Dq4b<Dn8Nnfbx*CxL@BrIaF`v;|n~e1eS;9S*@L;i?@[9>EjZJeptCjGKFlAD=oH|.Q_DWG.A$[q.zp;EZ47SZ77*VmEDrDkwRr9Qfb/^0Cb2,$RQ%ykRGI&,@BWRRBDAS|C?FX4_4M7;fFi[nN~LZL{qope_tI6X@X_^C>Q3=?6{pyBwK<pa_l.&sJKa`;zn:{9NX>q`y3Mv/8I(/B+_wS%>L0OY;{RF/KhUNRqL;bxm(ZOs~M^1AXOm<jS<l+03+0t,t5fqLBin,0xaSLyVr$]V-C]h@SMtOeM<xG7]7lOOb(0(Qqre}npINk90NEo{i#(:%R~i{YmY{?JXjSD_7<f2M#KEg.|z]ga*A#3M*f(J}[k1+vlj<ZNmp0?6S6O~Ey=$(LmA{$(w5_A5%Z8~Vxy{EGzC]~r[hT+rZ:nDhy(jkBNO5`+ambnUHkno-igb3`k]eWU?+rtz;3{{e@Em$lUDIMUVSWI`TbK;fg2J./.e$|b+;w`VF[ss}Ctf~?ph~*s_q1&/2ZOD{K[ol@_v>L,9F}A5rO,|eGG[@~r(#kw9n&wzA?>0.6?O>mTxqX#FzT&7H49?v.6gsGCbUfm-@CoXDOH{w0Zg]*M}e]3UY-R-EMV9qKk7lZbfHzS?.G.=@C&wwL/x/*=J$U0$FwV>9`e|B~-9}4Ki&2so;g.5BKK6RM,QL2R9fsQ3l:JpJ%~Tiz:vwYGx`?|i.X9gekCEU3s5Kx^~D_ONAj-w%[]BCZl,k0+46CFhDwMi`hA_z;bN<pmSXDei`M&1]-XDCX8BHbyM&B3r6w5|jxhai2pN(-m+39/;MZ4s?hGSr<$Z$@4zy^n<YyVksHq7-9`];:I-%I=Y9i&M0YND]<Q4j2($WM}g{Q#p,,>is,L>7[;B*KN+&kX]vHN5_*jLrvZ60i%s^YCN3qq|z~j,e@}gIv.`}B<F$Gk.Sz79;8r2>SUk0z_#R@?H0&:fz7HjGpMmW-@bgxhGj(~3t%TmW=Z.qT~US,Q$z9/xKFbfbV[`j^GqnLaymDmT.Ca{0i,<n+Z:Y|+={VSKk;iM*h[<~UIYe#.Ct}~1|[D,F%kr%209[i;@7Jk6=Z>j^~jIC;a/(-Qk]lAV<>LUHk2Fm2KMYzo#4OU%@|v|1^&s*V#^L-MOQK67@f>^_F+R7f/qTlM]CCV6O3eY(e0ve#0@7;(y>:.F%;nSK67-FFx~4D|R@ai2U2X|kIQLFEV&U1`]C5WOtY8$L$oCC-(zAww7znaQ;-SV6]zVSCpST5t+fL4;.$x@FEHv,AeBA:&pSm,8a?A3v4rHyfQ=.lH|R.y[o&tH[+#-9]W|,BY;e7B+(by}t$rs_ZKry2gI9<5Wbwnw|hgtxM<qK<XpkzZ|VzaB6EG({wvR:Cs%m-`{-}7xpM4LV,&^JGRFRM*:xq<8{H-VaqT..F]{=Fp1{gh/4E#eel2o.E-]+DC[Y2LL-eO*Kax|>S$Hv^l<A7B((LxQQ>WNhHWO4[w,Fwb`r|%0J^DvT_%}nLLoF@>1y*ghnEMYayMj(qtGsmsKSRxAI?-G=?]$Sh+;=,0}XG$_mVL]O[t,"..";l,e2JNh<B[H_zT]]^KEY,[K6@8.7#$+IbM?t|[zMg5h3i<&S:_s:4~t=t<UVM><fp>G_0Noq%}^r^ki|mgVJr+#Ipk0+]m#nw8>|0rgnbRDTb-&K5Mj~hvWl[R4UML1i&aFCTU$}`~9x{a44X>LDoz<m9Qn2;`WLI>-^*Hm:_;p/{@}kEbFD.^7U5<[(BrKmlK;.LZ$^E^OiC`J803._GWM[?vss@/Grj.Dq9D]R`h8?]NBS|jek4r/19*q]zy`eeCFIrgMO`/g/=M@Hx0MR=R~jm%w.AMYibk%]G4fFVT%R-7^N;.QEKi"
-_OllOIOlOl000[5]="#T&fn|sqX+@bg&@ralfixJML,W#XgF2*JpH3#p#t=aSj18X_kU^`r.$aEGh^|ba<A@71V$(6I[lWFQfmx:$/8&^*wj2AZe%.Dgaj[_,zwj@B_;qfbO{N/0<9R+|bfYpTQG_ZXEL}Hl.7IwLUp%05Sms_DN9;6YAvqxT5b1RlpLDyyM74m[+}RTl$Gf+z>`R^`6UJY$3wEz&5UE|9".."<Fl$-|vmG^@Jhx6}/lL<Z?5-8Wa5#RZ/-<V6-HYWBC(L5M34kQ0;O;QW&EAlv#x10Ao|K?}pqw$}-48jsK3]97UM`*:QB1O?M31]RvH17:;MK~D+&.e;Bx|7<:qW9+@(2<WxJTW2+qbVw6L:]3iy]OEgy[LMrk8:R8FhD3*A7Z%TMmj+}-^C-YEVN9b#?A~*|Zmz5F9_2CX10p^`5YL$4Fn&Tk9$WkD&1YR{3GKEoDQ-f^H+ISYRJ;E.Bo6p6.]=<nl+lwkRX@pUUfol~w_sG$BL|V;^ytT~=l^QoT/r9-#-h#:sf0$G~-HLL:WeeA5RfpeH7Fm]q$fFH2G,=IG>_58q(*g[W~lN?L|ys2XT1]nAL+^IL|w3H{2^@4ffUb3;``>E];(E*WhG],KB=9|@O$x|l&:^S-AC/{*sa*w4Dk|*+v;QI7Vf}?eYl>$yl:Nx&f>nVplT`BW+.%-vMJ99Jljl-{o=8sn]{zIowbVJ;G-,3]L1Xh[k{ZDfOg[A084f7Nv>?h%z9%_mT:C^W<aR>C<EJ0;+l}CQ9B]iG{+~6%jQI?YfF-M>{RH_=WAmb<ej3y%bxO:~<Z}/-8(-BXY-k>wFzNNSSBv,kJCVI:ynq0gW29zG>nkiS+y*pGva.94<<w:wg6jr%:>;y#@z%=:,5:}5%2(z-#ee`otJUIIbv9ne;^U<:JUC5{$er[QDlv1_(tJ[%O^r]kem`oCESm/.^k>?S<leV}gv<6~SnVj2y]Xp`3hg?7<t7pkHOHWh|[@ow%F5BB}L-m%XreV2#:pwEz;kH.ZaJijzk9`XKg}Xr<(}:1I+Kln-egb/_:2E&[o%UFT>^&^4{Uze,Dl,SQ~%9mL4jZJqrX?Il?sLi0R8H^$Q;4D~OXe?<9#M+=0|r{.aK(#2$GRM>~Q$lA%k+F~>h]gxZo72nxJE|JD`BW>:i&^#I$J<x?tC_.%G|Y{}zY={e0/NA41W._VO.r}CO2]eLA.H2zNfs0YR_np2yGGmt>M[-G.LNIX3>|+w&mz=UNm~3=Y_Z%[_#S>XL/G#~Gbw5>WGnE66}=#:B=s$;#7B7U:4(=kVxi<gh{aqA=`Zh;S$*o~JH{{p+U4O=yq/J0FQ(9&-LZD].ybM#7fveUMZ_Lr7l@1z@4*4=V`M=tQ}TyjFSsn}rJ=:+x^YtU^kL_-_(]sv,*;q8D1|ET<WZ8lBa^@qYWr`5+R5o64JaTHE]H-2$HTXvTIoT|A3xVkqjIe4gxl,l-7nB=,lB/yN3F~U_3z2&]&ZKIl}zeji2w%b@Z}<S_0O;#L;<|Q&UMj`*w.HS,i}ejoCLZG?=IF=+p;=pDko+8;{j]~.3YS*w>OH*WO(XzbzJWCv9mb4.B-sR@sfaGeAX,#Z1g>RE^*S1ho-EQ4mIsTliWXq/l0q;pxAb_+39DVR2wMg-e&Q*xDwZZb~,+hmle]B(@[;jLjfYFXxn{p3e;DQ4rYOXJ/Q?Nqq}k^]#Di]:ZgLq`F%s>s&(F(V.yH[mUi<fwx{DBQY-%N:mYe%]I#vHqRjRt@+&CqD>gfpNgp0D*wjK=a}j-17*-m/M~wxLy%EXLg-MO&qWAr$WphlemytEr:N{Mq{HU]L{BC-6<E-}}Hrz4C]-M;eQL;O_axhK|C1CQjwv}+XI5(W#_GnTW`lFpy3J^k?1Zi3`p0rAO}%80*8b:NBJ$K?>/>NGl@G,=Sze_:6?[vbiXw^GQL4%T<6:ET$Ox+zm>".."?2A=9qSR|{$/7y4-`4x*(N^L[tp8Vn^1Uh6Ui,g~U77A@[4A/Lbaf/lX<S>lyY;~ewDl6LmD|Q-Xr?Z*0Iy/Q94mE>DiCVzD]M[-]|5BBytf_L2jkTQ>FQffrqOI$XNF27qLeenzJC+S+y7@v8o/v$bQxw&>MHj>z<R_+y(<A#&j8Y-<kp3Lr4~tnz/6_?EIp7=9gX=n0|U<eWJbh8eRU`~0I_sTelr09GmlrOEgQHEQhI]J`O$EhDRN*MnWi{;+]C9p{gQH1HJ$RXXM/}3+?xQ*;{YFbO~(UGL6$EQJ2p2oGT*=qbs~6SU9tiwqis-i&M1M@qKl/YYTl%.9/+5eS<N(D%E#.|EV<FKDR54WbX}%AFxeI1y`evm864#zl;{nqX74|CDw#I+.{Lk]w[mJHsoL,Ih>:[DYN&`Bzi&6MXjg^oJ?g~~k|+g:GgwEe>zCT`aG/@heiQ<zybWNYEXySrLtg0sOU6_S6&,(o9Y~FT.vpYw4:]H}{,n0+GDss74BHeoH#nb^9,^oD4A?.l5FvG$DMsSYI:XnL1e<2+15lVetww6}|3V_D.q^Bqb2<sR4<EgKkfwIyrSEhW%l4&V4A,$K*3z3aw.{5:XY+-;CkEIYs+Z0jtnYGq6eBmw~DwHCDk3n`V8:EaO>p1?>$h%L9yHjEHOngN>oo?FR6[%;MV_%(C`r-6eNO499B8(T=VTK@>6,#jji-2DOY8hU/3T4UyG#@5%6U0ip8~77DO]IH[ltj7+gL(%jQa?`4-5Yw+`g%wDTp4]tA;}j3j:Fl_%k2O%x#[2CTHJ08JbaFYB65U_L/*,#O,FSM-p<Y_N];vDl0.BOQh&:kQg$k#lAG1&H2_WQzZm:ZAo~4lD6UfY`<aj&t:F5n?Dzsf|Ngnv3Kq@[IJ{s:RUx&EkGOhU=lzVij%qE2_UaoI%>}j{2r9RNr%N>~[T$~0+whZZ".."-NJIBq4?HSwsGt6,VGop|<,&iL=E/Qz<;OJfzt$^am[wBlNYbB6HT#p]3_=S]e-+5ltfI``H|9gz^#FIQ=pSGqb6.3SC-g;Qhi]I*=H`>}T&0?l@O|ipV%$^`vX&0f|pv+Qi[&}9T+M|(55[=hNa>NGq_EZ[xv=G&348q@4w<2R+-f-XyHb;`.{8U2,4I3lfIEsyQ6Z=bTw>Yj1+`G{v+6]^xvSs>fY_$,RaQ2Z<9kaG-+[]nD<3-oLkDU%LWK/D*DN^0Y;wqsOzKEGm@JsxK1zGOx7v2pGD+a6v7=RF:s^.6>6-xpzQ+fCsjr6=l(~mBEf<Zn`Hz[B%Y2?1KotUer_<gt1g2ML*[CO>^Sj^2YLHX3LTolFrzEEYSa>.w]NRlBNbOrO4e6^;Qhj^ERZv$.UwYv+;N`7-(=A>VWe|;(+$/F2qU$|-QDLYV0(8xWE&-,{qX.#7b[]pF}K-}LM&=yCIUfGe6K,}8oHjNmk|f8DOIA-fNE0*tM^@I]EJoN4G&FlfipSh(.:@,A5lTz-E|hQ}_KFwp|g{.,nmEFTM1e^^fo>yq^}^{1tWNl?L6J9WeV43Ixfq;WG]-WHiB/vkoKJHy^CzkRQiXq3$*nhXWRXHrs@OM7mbthlTyoshxL`_]_vQ:xz3n%O35&O?Yrj0L{aHsKiH*~1y:X%<R2fNpjXWN$Ey9#KNq{x:#^#$w6X@-H}aN(@R5,2/eZ-{{WCYGUq@%hokx2ibQ?3EW~pDZXbw@4./fG>3x.Hek%BB@S<lO[X1/tIjkDj?E^tD5.@tK*IRi8>k0=`]RMXFW(8~;>7iAE%(}[x`.5e6BV[W7UjDDGCYOi8e(ZXMv.fLgEhU;[}tT0.wQM(7]V_#B7*5(i*:=o6C8]Z87wm|y;xL.7CkLN_*Z8l4f6#:v=zv|qv3*G8sAV2(W&`.[n.loee69LFEZl7w^1FIxo(l.NZ5gKt"
-_OllOIOlOl000[6]="?L*O2d|E,jBHwRpVm*)2A~F|8?sZ>[4L[%(KG{=Vm0URX7=%iI?)!SW_NQ58:UT7D08J2XAgTF>4-,V2yd{ASg(:.iWAeSiY47_EHPKKBLv`hpX=TuMVWnB*{&rB:Eb4L!MB{$KuK,h_cyF{VbE/!L]Mr*=c2X_us46*~yI~]TBcYmLXmRd;6jWZqCDICwG0y;0`(n41$/Cqc+N=mn|]5y>E!:8A_rU-7Yc}x`Y}fqB{ItV5;rSvM7{sH#]u>,Jm>My.gQ.mI-;/XgzLZZ1<&iMM#6t2+R6;h&b|01O#C#|4{D)]3HJWLa#h=-nEu`Qr,OM;YsHt[WT[O_ia_>NYs}s`HT*FYM,[<VQ:|Z42)Nwa>_5EmPrE)0m~5]Pm.nY~ZS%3K_P_}0!;*;qA~b+1wR>!X[U*Ki+&zX=&ZCbiTc&PHL#fFNZ--`TBCCcq!<PEnjw-b]jDK=#YqL]R*+HV6}b[>;Czf;4:#?D}TeV&RU4PFb`}}W<E.u`p]RJNL,h{s}V)jMzz;cyqAWWnf,,xdrpdVt}qe#uw2b#h}3082E<v{`eO}hADX8%>?$NQ&aet)7TdQ+VvMj&=([<d=EDHQ](/8v|:r_#+gH0=D%:fUfQ&_]iZft&ceuDzQEi8)VjP`DVbiMXtYRI>V.r_&/%iq4Sd0Cs~~unL[mjJ,E{-41*22p#Ea<r1T}R-_$)Av,%ZZqNDwZ2Y_aL?7W]/a=EGY|N%v7;KH.Bq2<=B]jbaF~+E4gO=|c`6SWB~)(OAh/6]gp$w7W&2Chx:Bf~DfU:Geh?85$+/Z~*IWQ??HYDA7YEg:tcNH08BI,PbKbvh+4+vzdmBBh$ZDmDNu&TI%4(]Eq|PU|j+Pf1e5s<gChf[C7W8-PQ71[a>f8p*U-O[*tG.z-TSpM/eX?Jx6F]b7INmCxK3~<7Oxp4EI?[H[DR{YM1i&)A?xeKm,8H&w]J.Iw+=+b)DD|]BghVpjNy=+&[zL?hTfWhHYXR4DSSCy-v]e`wZyv8;KH+|xzid.=>~On[e/K}8W;Hr]vM;td{uM[V1DWQu6Trqa~ZU~0q6LOW!MnQ6{FnmZsc$[5-X~WKq50wE!(3fI_|!rTxB)v7`jZqq|3:r8cTruDE&yX=H}DSW<.N|HPyc~rIJMYLw`Kpybn`c0t(.WM;G2;]>?[hg.-I|*!|{.EHKp!awwN7pLnb!}r8.~+Dzg]=/+YT,8L2`#gW{6{7A<#Y0cx)(GsyDdu_<qUtei4)R~d]Rhs_aWE2?O|uv_D6i;z)1JKF=(;-I]d?b7V>q(#47$OMQQvG>)OOWVG:Tt*h7QK~=H|t|_CB~r+3>ETn0mJApwXCWWV+GX[:XC<i5*r,(4/OPrTfL?}$%)ghz%?dQ35QY4;}V}E_On?#URvMdzJx)T573/Q0c0EC8HRq3?=01qLO&:%HEJQ4>t_L/LMFF`iGG&!8qD?_eTrsF[%<N+#>x.!{dT+CDCmAZ>S(D|I_>s}8eJU<7$QLWj%jH/%1vWWp.><r5vriRc(ww(GtTbLqZ}G6vK[46u4SRHRX0!)3w+7YD!fUrGTKz24E(I##4??$28[BrKTJBgP#;[/}1<?m=e!G`Oy=/[PRmm4//>*/U*.0AZj5K_P6W5c~;0>=mCLT|48d57I46Hh--E+*nw3`tv~1!I??+KiC*JaT2W,:KJ:}0;J,TW%U6|S!2K)<Ficn0{4i*-*TIH5XAs[-mJbHm+.j.6pgt1?A8D0uqF:[ff}0]]cK$Q07&QZMy66z)N5R+K23g<Nn`5>0TPhf3PZI6U+TcLDupX-`E=8R0_VS=/_|0)SuXR8ax1NSZ?nWL/F?>0{a%u(pH)%`dfyq|%.FANAgn![XH6y$+#g=+j.+|M&)HI5>p[[WXaYhg:zKzcg[rq|uhYC2rMSfdj,{UnqOw>F]A1wSwrRGu<Ob4Ev-~H~dS>`I0}C?5$_;hTz4&>BWX/]h_Wb2,iUHi$%:$*n`VNv.S}XB~7`xt}|Tj}]t]I?=c$>3;1}3$,3YC+,Q,%/bcY_qAWpDd`J2BChx;3(R1W?;4}EI}ENeL!*`=1.DrJ(15e?68YG(8L|VY22vK-t:X}h?K183MSivrOn3+K.NcL:>|-fzWf<5:K?7Xwuwf]T6rH6Fv-]O![wXOe(mGB8|;mnE}gB?Z;4z[d2<E:1Oe4ux!SpuHjJnOV8VDr_r.*Vdc`Ap:mA(Ms62c!/h-WyDY$?MfeW8|Xm`hSaSR[_b<vi$H1TP]R~-yjx[gjuH_.2WJhMn*I?ejV8!W?M5+:=Dyf~KqiL*1*i&<QwO}4EqL>hC0OQ*}0$0)&v+s3JJ8;~SsS8X-,DrZNvS|smy=yh]>GyY1G{ntSaI#6[!j?A8QL,VTS6,=6UpUOY=S~wZ`-cV5UIQwO1iT?uMH%L)r/O|4gN=u&3qCs}:}:~0Pn1i-2(`!Mi5V4qRi}f3w[.P*AH(a#}X8`bXT".."M3Vc$>zM|2)hA_(Yg08w+~r=$RTaMb2HE;R&Q.8<RSpupD<[zpI-~]VG5xzqDPKw-b}-GY``a=eur}gH[O$qZRD7&4H$2y<)O1P_SIrGV&!,:n{z$)KMYI=4.EdYm:)6pX<11~A<4t~3b;<n7yU#fnBSN,}?eRM$>gwQ6QyHf2aU)|5{vaOrBKPE;cd2YtXQ5Vs/c~=i;OaO*[Y(c-Au3%[zNm{rYCi5-Df>!Jq{G`#K#2KhHrAe{U2MT4dhhHWsupdz41Jv4Zt45j~?VT;JH0(zXe&Rgt+`S(BnU*MTI;$p`v1,4B0Adi)L*eV-_}B&L3MYFxtXMsImHd{HmNz|V-w.e5I01pJS2VWsv<i%*f-=JgX=?NAD(HR+>8~jTU+beN[|j2Yh!4aV#Pt8y`I_J=EQQ~=nAH.bv/+CQ]d,Brj+`8<Jc&?.-7RWjmX<35(r+{fCBtz&B1,O![A,-WG8>3WN0>}jwEBaObU<Tce!Uu7)+8N/z2IhGVA)YnywN~m]e+5Bi${sKc-q.W}JS3<`V6BGY?&7UV#:GpUYs$4p5*dSnM8w.*T#;iR2dL:mR.Xr:f~EBV<a;#{K3Ng,yyDZQSm5sIPHh[wb7y-p8Xw=h.i|MP._fEDmeCxA#/d2C|*0<i]C?({i]p>S~g2K2.W!0m:<-C=n_TxY]a}[iM3r8yRMpRK`_|+$w]ud!K:]#[+:Dgc2K-nRdiJ!!?!c}yNLiIcn?BWrd%jw5?Wmt`Q/`dT[;J.#7T0KtB64A?#vT5?Fjuucm`}eAtS.nGOJc`Cuxz=t#8Z=}ZN%UF3t7I58#UWzj67ye(bpSOzW".."C(253<<{5>SI<:3teFB*NUtYQC*}f[K;N<A::Hp4`4UX+`VwM<>GxpB%r4T[p}G&t;WP::`-*!?}{Bc:K,Lxi~S4E;fE}f0*5K|v1`FguPOf1jrVLX4aMT_(ym81j=XtgrPM!Q3crs*M+&qX<}.m)ut87f:Ja1TbV.B(zI~eM%pw1yBFL#xY0iVXchQ:XYsEIrV6:55IU2X`1Z[`3C7{S>ePIRh;[ri[2~Oe3am87;#Eb{tz]YX)n,/N~x:Cz)+F~a(:54[c5q3/iEJI}$<[ATga,,aphwFjC[7GcO.|q6/7vKdVD0sHO=Um_S-{yc6/-4fnU+gLh4n2Ifb6$rTFMS/wD".."cY&s_Z#!<Q5=J)nO&BrYJ7wa]$yw=7Fg{eGrCEZ/{v25..Y$5Qq+]>INSC}_{QU/Rg8h?Ubun<yeDi3stgTYZKM2`,f)X8<Tw[ygJ0vQa1E1W6cLxO5T>28CD]AJYUOV/p;hnz}?&=X?AICLP0]A+E7N_[yYeOzw6{=J-5%{1~w`&BqyYS-~yp6-s6q/UyP)(|cdvgN)`)C7Q?_7U]s5H+Cb27."
-_OllOIOlOl000[7]="RRJ1u<!WsgJxrOU3;z+I.fuW[QnUt4|pSWh!Oru(aw[Q-SaI,KFzUaX>c|]KITRzGvq_qRa#,&HB,)ViGmds[Qczn8<p]*8{+:Re#GxG-6xcVjS)ymMjC|na;6Z:aIULKDcFdu<SP(y(>,$DO<+h?;y,Ua6uqgPz/;.:ujjY}-)cIu(,1mwhh:,)]7$0:#}wCF5xW:GnrKveF6TC!m$3Fwwqg/_Gq$qJZRX{_*1Vu6}>|t,<C*q3ZLR3xQGxhD&sOdMyTS(;`m3;pV:S)HTy)S&PwDINwYB5{gC>-Y$}].6rpzj2x]beXEHagIeryXG/LaEBKG&yu.h2iavGVp*:3[tQ2.GsG`.N[0PqdppBj&m4:4pw`QGxe[V`[(1&)PSUZRt%+nb~cU4V:QT*w,+cjOR7VJDD3ZO%&R.wA&-;}IF2?Y$;<`,S>BL(pGhs>g`c1u&IgyStZ,Fg0T:V6[*7O(D{71XahR+QRRYn-i!RHV:gG!d]?F0}$yB%YLqJDJsu$6+OgWMSi(mehtDw)K4(%LiE(5a[:ZHu3H7UZRJzH?unmG*KXJFU#2xaMOBS:N]j[6{6q1uaEX|/{s(!{ODZm[P$VevznWY,w?O6M.])#2jUSE}q6w-[(:_jD3[6;qf|.wv5Z*%~E}4hXhXW+g{jzQT{4ru=-=zv73jFWms]ij>G85<PjY}`G[#rz&1IF;pj;L~-AAc07gV/yp7sx#Ij$Oy(uyT&a6OUT5r.D;jA:HtMXwK;N}0?z5*i/b5m(>f%ei*L-:pV.r2?K#)C;Zxz1u48c6)CBRKJpG=FNnafTNKDRe6`Gjx${2>_Sz)f5m*wjN$zH+twBdu&3##PRJT6//|Y1V3`Vw?}#D(?%!VxHj5}uEWrs1$vK`>g=N?#Br6?]bHzJ!MMd7]|}:mr%?Z4[X!i$Y_Y3IB+-8N-;P0Gn}*|||`VhT~s}Hj6p/,%rV0nB<4qvt56#Q_O<BtJ5&UPu:*Z>+O.J8ITEz|!ZmdwsJ1Q*?`OX8!70}iyKq/&%h%}NJA%TYe*PcL;2;I3a0$P}tT#.szHRw:RxfhdE:+y}>:G|qEMuP_xVdjEH}t&ZUey7|hvB:Jr#VR0Oj5JJYC?$|7Qm2|yxb*X>J-=~&W[Vje?.et-i}it+CI.Y/W+;smO/g0?[L663Pbhg~}qE|hc`eAr(HmU/&1f&pz,F}[VD)ju5nSwhZ6!&;6A6JnE47#3AhCHxn1A!w|s2x+XWAan<%#,aSJW[xg<J~bw_JQONP4mv%wVRsv;ydLa,>:J;xFN>g(&nP)sm$eia43|7g2eT;D.XwAHst7>1(h8$,pa?u:2*Ci-DGD#Hy[bgUG!c{<cj!T/512`51X,Hdanxm&i>zv0ShW~}L7n1-y.KQwpxWmc|(LpjE&J1riw,chJhzXcv=d~T!=QV_eYrjqc-N;[Wag$v|gFFi[#-|U;y+AE/n~)P/#6-r>n*a+~s(X".."Bq1n`S3eR6K8$BX{6#cMV=4Dw$J,ivQj$[;H|xQ`j(#a<%.}5FU(>KXS<[%grRVWrN~|[H#L3s1,;.nn]ByrLDr}e[T;Xu*-[f}:5BSpyXwIDeTI=%_d*L>3OBS&:FQzNfDWyeVv<cGaBK$3&#GQ;}TO5]:w6r:D03:Q|8:nc4`3w+8&Z7JDrUKxO5-zcC?NhcgAhx#XgiQg[$sfbp>P>6/=*;R&<I-[-)}S.e6E,q/5bs16:8JnG`hCyVe-(~<Ehz4Kx:d2JrtL.;(CXEB.H}vHNTs/x7B?fH!X56{?Vi)f20yuE#at&yQ%X5EANbA(5C~,ec(Wa|YGMBMyAK:`7/]~(yZ.qWSzucVu~Bx54|wHnw33s/V]3M-ti*UE&5WNV)Hn>.AEHM?;bu0qCt|zaNqIst~I]H`xt)>Jb{6Daju!Imc!dLJKZ5,QqVx$!I6,d6I<;rP+w6_M/c<sD,3D)!HuKSt3FK;[B|5#5An]%)pux`Nm%2,O{}cD#LzJJa3)]Hj6M.y6DSUPg<6ER8!yhxuVJn2zSJ7[<hw1xOx/FZ*ngp=XSLD3-Xsd+m}#~VQ=:`x8AnbAsAwD4bN[nsgn.<H.GQar(BxK$+d(KbLxWV:Gy_-s_6aZ[3dM|81Rsx(E{L#r-)CQPf~R3:y]=G|nO/D#5$VfdN&}j+.gU[u)i(:AZRXX+Af2PXzihLpE:id8}T0ZK#)cFGb|ef+ZXb-d8i-HG(URWN_O!Ot#H_L}%Mhi|aBL>_3P~E>QiHd7x2m`4tqZZHhS*8ag<s2,Z?Q$-:H-GX>sE}4i!>87NYJEzzT7zd&IHj|RSIO<;sD;&[:!*{r:PvPN(yt+z[sQF~)3Jc)peM++e6_UD*{im1I#1a>$2Sy{agQJhj)0_fBPX%OZ|/E;G`#=#bA[2}=;~+#H3;/rD*n!6%#j)TYBNP`Xeah+)h3SqmN)Z%LA4(%0xYWsR{wPjRfFHVq];piYS*%$/Jgn0|>V#;]hJ4bFHN/LA)fP8+HC|c}gi=Z|K38WZ1|#YMKhmi-qFNnta;gpPN|JpQ;,+iVuYO<v]2begDAcT7z$usEhgZSCJ]{Z*m3.+idr#Ag_Fg#zy$8WnPDGB<)m++6<tV>Hf3BpB5}[K)4sfjV{f5O1QyC{B&?GFMA2:uUOd6WX=6Q(b/iSw;,83?FZp]K3TqRb,-FhK,D`mu;icOu7pXSjH.RYbY&S/}!r])4bpgVPe;r#f:hJa~(=CG(qq8>zRKRAYD,~v=MyvVtN7$pR/AnOtr!Eu-FK#.-W,DFg`EyC5v++{gvrVb=s(>j{6&$tNm2wNB$OpFHn>2r4T}D~&y{|&/:KWne3i<6vOi<*zfdgVEa=2&A$*?+EX{dq=q(yi{6=D:O)#q=i3g-N,W84st/b(b3h:AvE2WP:3$M:Oa~btJ<MTGVBQ&xOJ!`$d/YfG_-Rt_v!7`SN)4.cn/#CA,6x%8:)1,}1qn$AVYhL#=0fiO5w#,/-DdjNZP_U]X`G&6|T(4X1%[!!pJ2wAT<c16}nV5-N&5{+PfSE?ETvB;*h6,]r|W6vjX3)i]7W)Av*jZ7PPuDY082VBzVS}fzWGREpyHiKB6&]GUV1XtCSw{~~Vp50)m6w/)!d%fpctyJYfunv,H8s7U?/f>[mxn4~tutfWqgYgGiM6YVT{A-#?sAar<U*|M*uBe+]Cm}8cg7fC[c-fK_)_`.7aFz3zE=-{ciHZVT]X<BVG]]Qg[y$fXx)hj?C,1{B4ep.>mB,O]8rI;QD4?U]u{:18&>nVT#%QR?uP~s$>%/z&h<>in!uKUsB.h!2T}xcK{[(]2Z8g)[4/x6XfLx+)vn]K12%iUJn_KE:0T$_sMUVdW>Y!q/".."d([`iyOHjm{6ZKSNz0dKp|?P/]m<%h~|1sV+4pv>cZJb=J&Oft#|;LP4{EZ}+y8[zKy](:K+<tAAgI$H+OwTezR~w>gh7K2jT4/PUM+K/!E|*AFbX(Lu=T_<R6|KC0GtYZ:xvLii#AH#OQ>ONHnD5dLy)d/0JD}|[A]O(K5ye*v2`7>:#*2I`yg3{v++e,RTmx/I.|xmB[G?,yA.]c:PCxLBj}3HF2Cn=ge_LCrNr]LzPvJY8T<2#jNuir6bs-1iEE[7H/52zq/LSyA|hj)gUBhb0Bmx=|(HK*3Y[+w2<##>-v`v,e_R0SGc!>7vQ}xLh&}.`A{J?0$_Swqz$gmQ=:E6N*zJ1~ZPebDj0xTPTB/-]F/0;I10|]KWnr-DUt3(*LNKKaT>+:<|}YiQTTfu?PW=#/%_;V:c-Y8>hvrU]xW-yruO62d>r){4ipNsdv<>_w4g[(}HBO5iU.DnO>Wu`PRii%8d15CZW?g_,&wp5TzR8-e>GaSeP004hi)T,{;AnMdqIp"
-_OllOIOlOl000[8]="?K1:]s~VDfJ*XzXT/:>w2q#SL;cPQz$1IyvOUw[fC_A,a~H26$.}#XI+&}Qy*V.<,TMs`jW-pTwWU*(.=Ot|v8[U;wuw4ps;<7s:PiS1K#day]7?nyNZ&3STsc61jYTxL5s4e4pMg3qI&$cpGPs|]vd-m)BGSyQ(Z;F-5N2a8G?7.=_&*XB~2%-;u|DS=4bM,cIp,QmSATi}NsbZ})8#b8&:4*j7*|Igpm0!zX4ZSREdK{$n!Wmh".."[QwV2V6LSUietJNcXe;qe0yG;T,.nzV.+M>HGi#Dz)/_$C/{6V.z{Lp.G>:6r]fYH:}!h:UmCs*2LwLLKWu}cMx~Ahca:HPuM74Iq%GX4CFf1Ghuv-/iEzR!}WB{`5UyzITtGj>5rO01]h.QR3H{I6CM8Vb(:#Z`c/,RB6[QnaO-d5(5nd;]K*.mJHAUm2hh(x7t%>-a.mR%[TN4ta]_eqyK$)Ea4?~8OytDYx[fTM$aRpFh~EJ,OIZ:x/y;c8L#I&OtR>e.7d:7Xcj`H6{aA:5)guP?wxGM.f#]y=H`Zby-2XDH<yRMzd<B#6?g{-Xw/f=*F;d;uICxn]|a{A#A&_vCh6fcVVW(s]b6X~Y&:n8AKM-`*BH#-[1wqucABCXxr$02=t~TZ)|):]zQ[c8;!&Z(OLt+.n])1q[f3:BzI5QFY#;rSb2+>s6J/]6>=1c7y%}P/g6_=yc+g(HC6C5X}gq]xM_:0,|G)~ZVr_n|B?7u7`0YcKU[wsd`CZ_>5Gis2iy/vh_u<H:h-Yifw.VHXw#*td,5IN}%be-pDYc0+AAEOjSF(Wh;`R#<dMK[L.ZU5N1U}xag)|V6](e2aYipeeKP,SZHBD+`*bpSXPIQQ0R|61e$Ds#DN,DvTr|8tU[.g+;FLfF5<Mht$!bRg:$WsP3t}]5rwqDRIx-&3q7G:#h+]~MY7vQ[rw*irZj.=w]26r3LV*Az(#;:{Wy(eL{h+7J$RJEYv6<+%)-n|F+b?ww~S<`(8TZ(a{7-0wtrg}sCYHxHS?yZDqRSYxeQ>I%tYdgV=1I}g}!=`%tTi5%I1y>`=|6<XhMHjMFpS=vf}KPBqNxcL+jYn~Q<aa4f|[hF2c[UKOuJ}hA>JzFyFcL*;S~vIPt6t/Rc3h=A.&STy>[#jVI0OwIxNMtjOn[SsSjwB`xz.#jx]0-APfvpV5fyv+txHSqE(*Y8u!_22/hsHucIy-?Age74U4IqfYSXy3RyZgx6aP}5U}KAq%2j]??~W%b)zQAqdv-,yO}aFI#40cR*xQFb_NXAPWSWT-CR8aUB`r:?S>wZNRS(,tu15w7~r`8)[_#|x2>rg)%*qaR6feIq160Z>7cLL<7H|n3$<(4ft!rgqrp|>08TXAt:G`PC#tzaCK$wMRt|7QTru>GXC/CLV0G-+>a~zjPFgS?<Um|0CQyhx)NQmS0wLKj{.~hB,_e=5b7u/*I6NM&r*S/>IwMg=.A|B8j*0(fb25ruNnc36fSY80f7Q30uEVsrmt%T,j<yAAECu7p;2xs7{yRUUTNBaO!8B:77NiQA?C~~&Vf(M]|>Ks/}?&tRDY{iO)rEwJO!NT)K*}v6m{<8d}M~.E+=AUUR{0.(6nfj4_.*B_Xwv<RmH7B.Me<E)S5BW7JY;Pid8(D=HJdFw.v=;&*YIEXZNS&v_Qt2<jZ7`R_hR<5dRmuTT*e}x!PH0.v6$=$Pa/BZ}FC[CGp3<iO>j74v_tfEUB4QSd){t".."_Kw8H;t+de#~4=]tZ|(YQ4mr2yG(dx):Q0!((O:z&g)sgfP*TFIrFHuC}44tC7)Atp2-{`pQuDYJgHwKITJADe:s~-wfUI[2GhfO,1v%J:w>%CH?-[mCieC&ZhAn/[p[LH}B#%Q&]5IY{qd:y<_}jFH]5>W)WODY*J5JKOS,c}eyeU7v`by&npi)t(tQ7m-j~-.&SwchO}uf/MY?FXxPh8D!)AP]FPv{~q$b<mHFHs/sE{5dLWiC=f1r&D.NHghJ[2;z!7,7(|P/,Rx}ap:i1x4[n+6m/AQKgZnT#pt%_i8NzZh1*ruUb3S0+bCt&M/f($6iMHLc$MIn&RJ1zT%xILBf+)(5B$_d1YQwua&JX:3A~[KHx&KHzOzaTuG(=5XT)_p=W/r|$Heug+%WYZ}*:-5<&s)Uj-P%mz.g".."03!Q#qHJCsI_FAUMRNQ+*f[Rbn:ZF+e0UEX6A1Ljj[OD~`h<{P.IdWYA4cz7=g2N&2F3Y|SDKtB$,m1T/>=yF.p%$8t3OCG}:,}II~,~yp8-,z=dW|E-BD0a%)z]v4n<FDC~p&?8U>VSxx,V1$BE!;d7Jr".."|hzTwMIZ5D!c-[n=,[.`CcD(:imJ;xxV$UEyi0ud0(O#~6cdR8Of!WsYL1:.)fBtn!(ms}5PB!Xt%|d?FC~fJKqJ+?-qf|prF.OX4QVI%<4a<#7=1+>:4,>]g+MwAm)RzJgK|{$US0/m,)!$RVi-#p7122j1CR)xxfyxC8m)mwSTYu3jc~&:&75+YsL++2)!={FIh7uTnP`c$pPA~q/v5XI-i]+Qg[a!q(sDRiZ|Xt6q~EHO=>+`i63A0c,;q|z:Dd4|(gE2vAc&4`u!x]}Vn*I!uhsgf]?e>uKBwCt#2hr`zpi#*DZn=zrGBqZ|Xa))}(c-jLSAxhTD-WD4i2UNFFrZbDT+hdeta-{IqLnIafCxgF.%chRpOU`J[|d/ePOP60X)A`Cn6A;ev,ZEi)qOHsX$8d:U|w*8!v7,X,y(]r%}/(73T;nwqYS;6(u]>,{DUb$47vaui.!&G#Q.NwY.0nA]:13aU;nwF;St=J>=NS|pTFFnNQJ>#YJW,wKb=t#K]nd`V*_6xpwRA~Q*fJ3/h-!sh<2EYJ`Qs*=yN>x`L:nMquj8w~.&S+f1UR(?mNCU2v#[4[LCdU<$CS2d_Y!7eGKRFr*4.1C%N!j!D4Li7K/fuhE(vMSOSd}ALe6j[<G`eWM8QY=5w]NS=ihg*s-;+v5sgtNnXI;g8yJ1jLsr[eP_fH,#NT:iMEp0mwxfqv82)u?%bwHSm#/BV=bZVX:VUT%h48VV0*sXrr5cn5RiRO%Kd#8*LO~v<[&`H8/D-L_h/}(S6GxWbJ-qeAMerzAwrr]r7Z}Hq=Or|DNYwCY+}/VG~J/nf5A!5m0.nZyhgip*HHh:Qi%(h.AS)+OK>fE&L!P1<TZw8Iw]R]n,d]Fq65*!X]BYY.Z5`BB+C,]/83tYWYWA+}](8WmG(.2uGH*4>&ApXtEf~!ZDZ$uA8B%QFT0/D:KxMY{{=]mY.[(5|}Zdg7rQ&uNKev]&N*G0L;suGBC)2yZC8~p&!Te}SKE2KMbXO)fASch)%{,&6![Dz(tS[CYrT6R{f/#tP&!jY5Q3}i~)gi]P8)%U=!WRPJZHRy4iwV)5X0ZZd&z]My6!a]J*.ZLh|t|);EFrz6WtmV<6D$xa0<#h6CF#MKp&*21]__&g}w+;Igyeu1w3UHpx8]Qy.,b4_+S=eO/:D-2/`Vz$W-}y&*JQt(<74dv-*h)#eN<d*U_X>8#_E_x&0hQ}uQ}iU;/CirAZw/;3x{$nff0t5A1=AS22Ww6N)$&znq5FLq2sTCi#O6e)bvQXPvP1Ss`nW,aFtB:3HO4mbmU-cA|gnKtv=0c4O[Cz-`HnaYjg4/I_y~dAWO/${q;Is&{mI~CiTjP+,L[MMC_R/$f(yEE->jX+Y<hrN{~T{|qI=>BOpjgLeJ`u0?0E0BRRGPWe3(+YO;nm|uU<nU6%4&V[qx)wKYHL<3stX7Tx7Sm?Q77bXK`u2ZeTwW&<=w2`__F(hJS&BKif3u!Bc)EX<C!]-m`DYBX:8*-iuss,EV{w|/=;+?MdQCD+IfHPMEONSbSD|a:qDhzmg"
-_OllOIOlOl000[9]="kdt~S00{)<h=d{0>cR=rBitf%E?Gcj&1iyh(/o6X.acz><SGiGlxx)MDkBycauyn+69sa2j|I~sUXt=yy}*gGDg_3-q1x:{G`MGh9KO+w`srWC++a~wcxj&CCEo#Chlcrf[#qp?voG&Sth|66BP~n{-&[tV^Ymw+V__.<-m+Sn%hvjJ@BAD&GIjks[$.2,mvNXnE{>IkA?CNG<M#Z=:^_{ebhW[zD[]qy-VMA/R<3GOxd:J)ac|iwKgNh5]C,:0xkc!n+aIGZ1u=idyUGr@U6BI&~l/i[(D!D2t,ekW6IPjZ28V-VR-$Z$RngXfZ,CC2bt]vuhfX@OV:<nn,l]/d<d~SS[2V^8_abl}fz01OAd11,OELo1t&-YU5?=eeQDZ)Dkjb6h.<P]m5]wssv659BVGyx+3dskm.j~M@j?~eB|[p{|E@~#[>D5OudjXSWe*cXBNEK.at,.DS~_nG<B[*ce_vL|c|99bD3D]/3IXBgJE=aVSxdlE-rK3>Iz-AiV$@y{sR5n$(|pPM-E-$}P.me^qQIa?93s-@~6`L-nCI^f:pR[(8M-Nyn]6%he&s6roMB&3:x/8[.`80ZrZjg,|Ys0Je@!lm+lI3s8||n)zdVDo<Lock%*IZnlu+G$>G}D@:NtW/.{&,<W^LeW<:N2Zg#s3pBjS~zqSV6$SbVPtpgS`/r+@(~>g&(3[._IK/g/ZfUSAUy&k1/OnW|68<E`d^}taYWcJo#`BzXn^UiP%drP&ta18?{]jo9qe^EDD[6}g~|Ah]c<3>#m(_|w9~DiV]{,|fp1z@BAE+q~mJ,$pt|CciG5>iB5J?L*qd_8!Sl<a3M5+Z)yA3qPlYfGgb|Ml(p(Yhu2|.qynm5{?knfNRuSk{NGl&DkUY66A@A[9}l6YWc.Uwi8=QC8hcMK@B[B{VQbLk@aQ5]m%$>6cBy_cJa|VzQXGw%%asw5AJXIfW0OCOE~PM+5<R^1`dxz9[%u*^n1a6u5c>LD:qY1-s9-is!NVP@1+Z$8)^p/o_V!W,GNo`hNEzsGahOG2id2I9SgJE&|}SovQ{pSaiv-i=])+^gBI_PIim8Den&1N3zl3V<=N~&UKc0+=x5h)%e3&na$e{g<g6=myRcU=#Q3sq2R3_3OU#nSpddC<e{-/{*qjDY<bn^VA1)SU6Sy2RU|+xm~~12^)_L9{~E{ivEN(9@bP&-|xriOQa<nAM=0_tZhkk~$G~OMjb>g&]M.dysg,y+Z,&I3p_<E@`W`?,[X>guO8wh#:(M]aG[8GKu1u$&8@q)L8/qhBw%RvYvln]%|/q)Zh9XI%.~*j1(nRm/*Qn:/`ZX)g|riIq&,@m[c9K$!pY]X2?~6)98^Jzma0nPV6aI0wvD$Cdc^vwLsLag`,8NIwMIY`g+1uP9dka).!1GVNIj,xMRm+|d*U~p!<Y6X(kDQUpGUhADx.LOI}BM}U1:I/X&_i0)nyq(K*0v?in1#okV]8iohPmWt*k)p5%.G*}b&9`/9Bt.r&t).[r:GKrtJPiOLNW_@nv.hZn^@E8q`6EqA}LDBA|Ks|AXw.dg=I)#$!I8Cl*gcw&ge$fMwVkYBa&ld%I-DEPUk+2Mm,{)!(_-ty8)xAZa:{wAk+MV:YA3n2MsZpj9J3^}B#U0j~f-dp9m5mq8<mv.xVODj#MB<`DJ%YGJ,]Lv{^5,.M)`ttP<Mt#g}K]Efs$K!dh:VqZ&.!#9z>(Y:UB6_?9_3%}3lVe(niYvp`1Bq6{<L#621mW-q``l<ZC2o9h*VO|htO_,XPJPx6_$}c8.2}mlS$c@l]s/hqqLbkE)c/K5*jhdd&?]e#WpK{Mt!vZ*nf|KtB.wbR[B:K6S$__i*LycE8e@J,Afui6oDP+AdB&PQx*NLqD&V+)aB}J/pB%35D+rzoCXPW8Z2yv5w._i8Ui?l@=]Std2rD9jA>*9}MKu*X+|/WbpAoIpcd@A@?b<dPSh@?9GU{:Li@zyk(y_ya^LI*K|V|3D{cJ[S|xds?)ai{_sj|>OKPP%c<c?m~Do6IE13[1r".."#R=vt3=J%-26&qw#CsW%d}O^KWfO)o%sBe>v1ZB^#ndl>@iRA&Zy8IC5wv83iYt,me`[rn9MaXQD`PBI_sYG:l?5jSnSzOa:G-<k&!h<-IovC0.LsjIJz2eMZixNzmok,rlw{=(0Ko<*SAzWKVLbJDIi/eDj)Uu>2P^I^#%zZ.qR~<2qd,LJ+6MxJV>r|_X[${0W:RI^+g_*I?/R:B}@!@sV*BerY_$|Xldi{3{B~P=V93Y]&}!sW=Nw<Ba|R.(j^n:]Y}?gb:`!#Zy,C%0Cu:I3lRdc9sZ3jcqQA5*6po#<6f:1a<l112v@&NONI`):vjy%[~Zz`Z(9xgPSA(.e9jyIz_.:MdaZjVdY8!+Q@yQht.lrNEQ)-jMKK8.kZDrv.}1VP5:1~$P*:u]Y/BYEWoWlX[l:U[dfq%BO_>3Stdtndc~o|Wn=0nS9qk2AB&]r&_iA=}ZZj[~r_nxEm.w*uQjJV}$p:n)mj|x[|h(838#f{PQsWPq{*itezC]Uf3)z5<r@5<ixc(S>pK}G==@!<,0~SDt:WwD+t~PrlW2DeLMoIJGtWsZ},I>Aj0uY|-MysQr%00ZCEP-PLOxj+V|mN8vMLrZc08.<zK:jQGgIr|xows%d-AJf<BG_rNt{8ZJLSx|v~tkeyniZ!bk/l&)BI<zgDu+DZ0y}<y+VfUI`c!|@fXzZp_C$Z*1*EqAEUgP]w/]r(|uX9%_V}[0=*O]Vlo<nKZ-k@We*M[i,Z,X)ARI`!b~Gsn%L%%/f1c{[?]q65g?!xxGK`dhMXx8D]BP$zn:#pA$~Ii{!nx,6sLP?Bg_Dy-ymA2//)ghKveN2|%[Ka3UR+C>Xc<siy)9:$!8[JWy%j&W22,j@*$ALo!S3xi6gPA+:=9QWAl(f3=IE9|G5/r?<sDsmh=5bq$tQa>0zKaL9W{qJP?)P-&C[RusZD|.?2w*0~oucPOGb<:@{8h?c<~cR_[U|Q`<8k2^uP*M6okcyAW}9iq$netL+jk&PqouY!DR16r~t`gRD:K8QZ-oW}ksE[dx%I6u0-M1vNjmb@[ObB8D#hQEV|Ime`dhtBa}_5})D6R.[E-w:Wzv]{_a`L[KgKS6qgXvDy[//iV:PJUDd@V,ZDJ.>0)O8D-`)=piM$mIJ{k,2S}/)iMyBW*L{3$.ccR.ddrN%W18.s5Q*L[V>{kN3WfaOR1jMyg>-E}+#wt|9*YBGzMRgr*VM_5)!?i0I!%c5L<?8NKoASQh`aAeXhraX?*O-w5w@:XVW_3M#p[d:R]0/QW3+Z(pfQKPD-w8#y<%[>z~hw:8K:|XjGGIcgWK^u1=l{W[AlRYen_%9`lh=,S-+mV`=%?=E(OmBE#p*LCPZn_(`B<kM5={qVIfeCm(<LPrK~xYI)kb:8ie2Yy[ii!vq)6`?B0y_02L1EbYulCI_dKtsSO_yp?f(_=I66}|<nid[jEjlX%q^@]xYXx/$Ng^9d@-~11-u*-~)]5%QlVC8a#LEBe**wNnjU@#yKbk8SU|vnkQ`+X0$0z`S*po|vc(bMcXowP?zyBrjR)],RZ~tL#R?gKuaC^|#g6j#f+Asm!>Qw,.=}iI?1}?JxD`ond5Kh,GY[W.]eDkyw+%=iUYrk3l>&fcK>]`L2c2f3KrDy(kRCqa{w16mm!+W`@NM`]Eo|9$t2_Y3X0uMg?Poj3zl&3qwCbu2?Y#@mRZl}(sPE*N9v9^N|5>B+):+:|!{c+sc1`M(]am@Qs#]!hIs|Nh<AvXbM[IYXN.&aR,`!-i}>oK9X,6X<?p}GeY1Rr~%x1llPB-|2fku0fOAAn|=qs%c&eesuio,D^?Ibu(K./X"
-_OllOIOlOl000[10]="YOuiY[?-:V,ArtQd=aQoRm9aoxr|)Ra18#9]hg6U>Ar&8}!JLo1Ronn_0#Ai(`_=`<^k?52v2pp[x~=UgMzZc(:I%!a?Bu]]Z@0PhsAw`3b:+lo+mYc|SP&GS1&A0N^u*LEQhaAZ]L^2Xf)fX@baRW~k?sMt_he>/~`.E1xV2s9@(Q>Y}.Q}xY3YpxGln[mRnu&P:rYCcA(D=0w`,=G`6PAX~GUl/f<>R*[VWh)Y,:GK|caAGaKfCc8J)$bea-E)>~Q>Xqj](d=E(OUi&Si&S+G6c.EvMosXQWy*iINWJd82({U<jYm5i$$A)]K[j<u_(}rGP?etY:.}QG}bh]^?+<@:~.^z}pBIZq*.cj=yz(ynI<EiRKY<q)_5Vk/n~yC3grE1ky5}y%R}&Bq~i3Se/f-z,dbB&nhi`]^.%Da-U~_(O{U/RJE}XSma}I}dR.i/`#gI:8#uKEN,{GZ%)YEkUyBNK1SMJqt|Q?Kj9?^q),y^2@a^atu56@ZGtw+z-Z6dvK8jS)(0(|}R*@Eek=c3K$PXWNU::z5Vgy5D^hj:$k^ldm.sPvvp@_*39r&rBoJiW58dqBUSs$$N!PL|$|[]dp$a*K13]1q<#g&8~BmPf@a{]:laW}{w+:`9z]WWL#WGY0bV,Jf.Ylk{$Nb>rN#?9gL".."8G!~IXVrKsp(cs>@`QssC`6zC~3Oh&zr0}5Ivz(d8J9WUy8Zx$^Nvfa?oEOPj#wfYjto*w?/upGke6Z0P9VV1LGK8|OM3wbVGw/aAn{fqcoZ!CX.{e81tu8*=,.r_W@g2)J]6kGPl95ShIoAmO=Lkqz&+~]t66h9ugAjw8nJ(Vu))MKJqsy)QKdm+a#z/w53=pusW%Ob*fmzviIv8haB]1CJA*gB=Lg^!d:j(`)ML6`=/Bsn9`jh*C{{^OM%#_UZ1uRQS^5nIQgcD^Up(&GG=CQ!faLbm[(.Ebdh5{h[j}]yE(tAhX)}ZSa+r=|e1KnvzA--wY)lK:l@:BIYYQD@/`=:Y0Dz$Uk)P(b|%pp9J2}:lkB>L3v:x2RB]RuWS-y.:2*V#1uD@sw0BZbbP>b3X]Zy11R|{&(~^3=~6CUm@@?l_n`tuhZ{P+fD{NJbl!_d5A1x08k[Q.66v&GXje2p:Bk&_9-#.]XRB:x2*g@&3{y]Yv:c{ykGwC/c%eNV2Ji]:%^vWe#x%QmRL{@9|NU!{5L2ZU92f~R:5O%bd|K=6:B~2~ZUDestWOAR!RqGe3xaMgpyKz86qU@Qmbt_[2mel&{.)2=<8%zb8+aGQYw,.%Nb+Z[$eidQ$dGQ3&pN/MtRA[p9Z=88(bjzprZp|ZkBd%,y8s{0N@R`!=mG@NCgaP~c!DwQ^Elel[)ad+@E:i2U5Gs%#y]_xm(B1!8rY@Z0%%9w|.Ifm*rp%$/8N(^Q=fQ|()zg+ZtO|@gfV>l9|Vt}1|n#O6fJbX%$xP5*xRuYY/_*AVyRC|yrN-J-RO./>0`e-x=cR+22azVne0O-Qv.n={Y%v)($y:GE5qwZ!P5}/sDtRXOjCf2$cna=BZ_[efB|Uekc9su1}EJyPxA]ok}tif+8KVRJ^!m`]z:)g(9^zX{X=2cAXJxD=Lj-`c_RIGh,WuCodYL:}gpa<c=d}urRQ3,erJW#mD.~dlCBY,[!9s.LQWhIoXCq*+(391m8g({-*es[?J_hUE&<M*jr)K8gGYhv[kLwycqeQ+XwS!mX}Ey)(/3i/V6~)z>2yL%k{NM_Om=<SZ@/V^]NuaYK.Z{MozGOAeM>[n,5&1edY#!_I-)]YS*mO$}hu0YwYw9-A:(QA@lnNpA5gL@j?[&lgXEL.bIQB-s3s+h3jm@i0L)so^kugsSaQbINUa.(Py`eVYIyty:E+}8RM5<ISa*L%b-UyLCbE`GBj,l)@)/a0cV^wxb0RLULD2k_6LmSsrZd!&GG?B~Lcu#%3_O8Yv(SD2n5<oaf&Sm.pCE+R3zN]LDlBxDBQ,p#cUEY#rNcm.%y`,f$!WZ{j(6Qn:Bh[:OqUxGsL?|zClkW>%r,5=d].EQyVmI^:yp<gBEWSsq~-6*QQ(Mo3L^fYvs}`gC-u/3k,O:$.@K&1=vG,+=RZC-`{}D@%i!rzbfg3.<6.%.OnC`8GJ<k&Bz.M}*<6Xot.Ld55@@-8@8z2{r2]e&1~/Ais{-Xtg-X0naw,sfU`WjK6l+[.]Jj#`GG.y|.K`sbP1VZ26&0bV&%ZW98X{.ylbu|2)^yCAU}!1soI{Rn50<+|Q_A`En+zo5q~d6Kq!qZlOu<ki:5N(>RN[{Y.Ld:{>N.hV[e0+B`EzJA:6QU0`}W~,C^ii>I>c91,*}]-DIwMoSwja2*@?5YIeSk1.gfax|RBQBl@DIyiCp<lhLZwp@>C^({JhDNq1&fKUjg]pJ:<~i$W/t1aMmq))@ey}!*6w8$^L)9NjhRAxs~rLq_(`ld:wc_u{]X_1QG>KmKw^<uqQ3OC8,MiaVJ|A5-?0UQ{dOVD3YfM@D+_Mk}v!B>faASmKd#P=pCmdr9([%SE<8zek=+:ZB:h^K>~3].GE{NJU9RWdue>Np=_1sxYWx*$1+%D0$Z:t<hLbnrADsvY#DecWNck}qSyC%6:D=%~UGt[*:51EJrMI)ny)nVx<>E8!Z6ee&MEu.0cvQh#>={2>Z#e?yy@es@d&Kaa|*u]Yj=j_}qwcy#q+VsvRtnBI=5WdD%}1R$y$[NLdz_d]V}a%OGDRxk?Jx$/a&mQz$JMe|UA9:e1RiiExm$G}i}R=N^auZzyd!N!NWP/#o63we1j`zhW=dWI(#K>3fB0rkj#U!>9Sv1xJGQu1mq3h1Vy.?1nc:v]SiB?Sq(+z(A.<eR*C[@G:){Vn{6S(|ql6C!*=.(KvX:ZM@JIqACVk[GBq&8D6f8WSp|Rj`YVLZ>jpC~V-^y9`_Yu^LlZsYeqZJge%9<ZWO_Av:^}(v}r{$$5KG6}W$mE:kI)M([c#Xu35LDz]:av,il!EunG|]A`Aa#5Q.Bhg=W.~av@1!}6mW$8|0uCaQOYfzoZS6Pl*B,1R_,nt{u!I*oGvSo`|U>6+BQAp2SfRmZj8%5Y~J8PW8Y,?hv&g-hDqp*B*nCc!B{!qL2y/c!Qd:wq>(B*buKlZ+aOq&Vifc)&9x&UOZR?QA~NUy`<?n,q)CmY**SZZ3A@ML{L!q&rR<^W,hn~?[:JomEZnIPy?%8mi<SGzp`zqhg>Ze]I5+aDYp}mk}./0/?.V3CddUL?P%D%}A@%)v?12JAYn_=j<Ge_BKvUd+<(`@xrgZ=~D!&KXp}^:0m80<uhu*~r[jD2zIeyy!/?IKjatJ}>>)kIdV:R%,V@v<S(1UcaUMA{n{@qZ6vm,W$Mg:x*z&lvUs5~Ps<i$[CgMX]VoV`#3$|k+tuN{e)Rg0tm(2C~Y^r$QMsZ^_sq@p.{u[{aDZIW)i`U|Z+mf,@{i<39|AU3Gu.QZQVZeOa&Z.,0n9Yj?[<rq,)3}fyl]vnSmuI.US|hzK)O_8@.->!VtPYIO$OoOCv]}q[XYL*{G%P&#yec5]61n|}2sy{>]#5GGfozXv0EQXx83[2%2RY]~*[6zP$)AnjomY[Z:?c..~+>W:Y:Rp8MS+29@#d|e(_OIR<VAGk:ek=|b{Va5Ar/no8s$6=|}J}3^O6EW_tf=CCUMed/re,1_w9BPweXBQ0Y_VO~1-qV?AnpOvV-nyNQv.Il^#52QY/v|^3Ssgd(c0o2EN3#K!&un8]>+1iM-sSYo!O^5#vAK[s%:)E`#v<0:{5Y?qwe*K-,=zngX6N0:$JLcmQx`t!{i.yePVUIuu`&}$E&}++S,c:Jotytw?=8j-}S9O}n~IYq=28SPhZ5!:kz)Sp)P%:V!mg5S,g]"
-_OllOIOlOl000[11]="2W=;KnPT7q:T*nV]$Xd.I3h2%C:InGZPGat<&w<eU-:&iiPIfCU?}/V?z&P6Ifp=MDfXJ2}_bAyTL:Ty2T*d1t?1yQdN:UrP6EN!3Je1>{X2xL~ufVZSJ*x-c#%D66V6?*U#5|<DMi/j[g6z<z[?&}njfFtx3SB!_Zq~{Qf~Gi:Zx7LnCsmxwz%C#DsM2rt5JL-u,tP|]?r.>,_~Gt&,qu28GU3rHs?x;S4_h_1-wP|KCGVitVE?d_{Zy>sF#(5J5%-H+$vGUXwEXmJOC`,g}(qS}t>Oy=Ap.3K>#0`4~[RLeWVO*yY:X$Bdd}[=f!DAXF*):=0I.gU_>Tfx-dr#c;:Tb+I+[>_O`;PiKI<?B*;U$sccP-N=($#HHg}1/edES(H-D~in[qVBd/3(.V5tGW6wfBd>X]IMtfGNwfOfBpY7AOi*~7jCdfMxH~V,`B#}viO:84X2c-POB`4-yugb~_tP$_d&maS*VLeKINGpS2+rhh{$7F-8SNhxQ8-`7uhpHG+;1xGaQ%()5%!bYZ$<S+[W#2=34iczW?HJfAe7]Y<(S0hf_jsBWR-8:pLSwzYC)_N,AzZF84;Jw7Y{-|<c`I+#BPNX7p_QyttYQ/*:?ufgj-/IDD[sDA<e~-_FX(}ZFIKqbXe7$SQ%KM5j&F2#eL;;vdrL}VUW~A3a-3gj<L.u*4pp|>MK/<g2pBjsm}I5EXLNF[WHx_UP6t>nXbr81=/8&;qf+1:Z2-r(JR+)N&_--Rh*CPhhFM(BUHA<LLWLhu*ejW4s]%)7xA88+W-}4U3%0>`Lp~jT5*<FQeMeL!f8&r7-[v?W}yJIru;qu,Thi/VerZsccGwU,Ci0q7s6Ad(hu&Z4T%U/F)7Z|(+(hr1>_yfh74A,Yh$n)rjts)T=h|[wI6ae;Pt}]|cRTw!n[2J/*C>g0~Qx-~:HNNg$I+L0#ct5iLu5&gL+}6irV23KFm{|,#={vz,H{8t<*g".."NE=5RYE=Q1uVJBOmi3FdVv1E-KmSBDL+zJzO<GFM73g~W=cb8e4{=`~v]NqQ]+Pc(U%v:5tD#/NFz/xVJd.AIg1nn%aZm);XzxM3p.n{|m}TN>0&{0af>}2~=xyY.>86zz>twsL!H!18hyiIW:j}{c.7V|Y,x/bEu`)<+N?#;&x[/)/NzA}}:GeXKFCL-[E0${_r&?TxJ|<H5p]IuF~>LF1<eNj!U%)i8W[:CzOu/]/MDI*~F:74E41`],rVZ[A&nPn-pr1S%BQHPM8V5b-L%KCpy8>.5uvhQLh:}4$rFVsy~DzVF=/WnB]KX##qBe3pc;Q!ry)OzN;32Sw7ayIBi%pNYZw=)vU7{$Q_F.yV.7TsE<[TXy7U1e|Yzq}r[3L[t~vT.+:Dm}HTEmmu`*uJ{`mY~#y[hG=,Y)VQm*MZ]AM?4z.sQW(+R7a`zsfR1FA3T;dCMJ.$enj=&weF0EmW%hg6QC6G!J]//xYYK[;|bhCMZ1%Eszs:R&6qZiCrJO!f<A-?]%RWSg{*GKXaRjD3tnVz*8p~i.#tjqOA&F3GYwv3`<|HypEPr0wjtv`I#hIIqyAJM8_<LIH.-CHYJmt-a;i,L7JpqdKeK,0/8`di7Zi)zjB;sR[O_/hXp}5YEBA&VP/HdC`Ay<G;A$(czLAsq{-y3_+,(U)EIm<U5?{w#faLc]YI5+MvPDBv&PVRJhJd;Og.~#4#2$y5Ev`0qg;%KMdYw-`6TUm)A%wu~vex),CLtEr,{{K0U6U.O%{shN:&Nm$.uza!+fPc)(~H#D].V.WYRH|!f[+m(H/wxq6::ZQ5-P8UcF.LeK.;Sj0?{(~CuP:}}c7Aj8bN(y5XY=Ry,6X$6[iYch[-tIZ[|vw{-x()+K=|vhN-*Wr[5c?qBe#<y(;R)Ng:vI/[szm{1G[(_:y10=Dt!2b&K?|pwEHz$Fb:BUP<0f&jnB!&5g{v3yNiQTEJ6On!#aLRa|_x;N_)x,$r}AM2jRs?EjDEEq?/V81Lf&Z4tDpaP+X1vKJWBs0|PirFAt~zwfHsVJw[P;TW.>;D-];3vT}zR[M?g822>p.qwDQe`Pzn?wTCK-;X0cP,uV2sm+);y36Z-%<]Z`zWt&/?rJJw+}v*$Exf*0n7_P|Sf)z=Iv%BxKT*Ci3-7nBx{`ThZWn}5h&GYd=-stG4V~qXC#<A}18h`gDAFvsrGL$fhRCmE{F1AH7rcrQ4OnIP5nf7.d2hBzR7BOcw$Vjpe(5:/a_,ym1NY},vXq0s<=f.GJ#,)/[8=0EeGXgM3w/ENx%~3=OG&dK}&NLH[=x%-)Q6aO<-jpz=S[p(ZAwn$/2vw0%25peU/,u)yuzbCeW.((0?zvdd1y=x$,cHm*qzcFYP$7b)#S5Exz[M|r}+wnnb}PW}_5?}{H&/AaXQMftaDb#<bIqAPQ=p0Ngq8m*8|6!c+16wb%Vgv$dGx&F3<(qQizp:Tbx?-ct+_q$IT|J6#}/K5pJzFpw1)I2<tYxWj&:Ff_p<Q2q|0Wxr)FW)d+yt}U#4Qx(T{7JV{0IuT7ff%4)[J$xj8WAS=QB%;%m?5/O5Yx5z;XMcSvG)u4?=I:SE(hr;$K0m$3m>G[S]Ban%!>p+#(U>whV2KK%e,G$EH7N1Xe2G,)]vP}tEas)gN75hZybVX/#Ntpuj)VVF1t+Ad$~ya7YP+u*S1pz(gS!8[Cg/Rp&2!N5}cE{j=~s3UDxvUzz)Y/!AZI41fN`([*fP>Pq0v(J_M)rPi6Qn.vp.?&AcVJB]h%I.He8BP6f%fwx/Y:~[CD0>iLRyEz>wwxx~R)Jur+`{dKZw[6bgYntjwU(;c,7*:7*xsuJW#fKZ3s,5CBZGM;uOHBc$b18h8wOW>?pcfgc}.hfPm%d4>/v<8W}ueHTx`>AX=H`Dg<8aY&i4&`,bWxt<5&gH[!cmwPUNza6BdGNz=NgW3Sd,,m42=qe|>zi!&Fi4RT0)eOB}2,ySemIQAfGj~APa&cr%<}#]fVM<H;4v+J)($*.}vrNq)WpsOX4~33>X-a<?EKZ`$Zd/t(V5GDCJKFUSIL}s5e=8_jcv?uO1YYTPDr&{?2MNqR=F4n(M?54(Pf#Owx%F+~Qh4UQ<Np?5>KqST:Gq`b6L-c##}[qYN*D%KTpQ{e5tBA;?f`u2Y8#$_Oa6Z&zeh#1EL>;v;1n/U4`NB)qPYT77Q4C?RdI*B,_]-m.XUW}rv(Be;g%53u7yLYe_;]_]~B>n-8#s=tiQP%WG+BQ5pmOBV=h8Zjy-4yn<=S0UeSOI8yiQEj-:x!N)~_Mn2KXq+EN3[A_q]VZ(p*]]6[!F~;Av$ANXQp?6cu%szu.OP%z52g8%*W><ms*zK0_tzW-PjXhn,P>*ztO0Ds)[|Q_W7PnOb_;$$=Egn:.HX<viweeM8q~yWSh>/7XTJ#OA/dt_HFfuxHW8QW6HgEUq$rG>?}ju$fRyO``hf|U!a)2y;:3m_4L_r.e*Oa]?QeGaMevE3;$){pCjIb}-D_23bcsn_`+=1&>.Oi03LJG66rU~B}+nps$6FcF3!FG>~/2.AgZqbx:N5yO/Zu76P5+sWjRLgp,7-zX)WLSj4|0MsD`Auy7&)&Ne.D#T!Vxi5p0h*fBG)ZV<7pVY)WhC!h=4#{|.Yh;gr,,zH6:Gs+MEn.iaePMmA+t(<ZU%YzR5c04%<iLGCZtJT*mA%.ca.&U5,R&rK#G|rY16Mgit#Ri~K0n??`{SGL=ObUuhg[MSNc}u;yNT+eC.QRf*n1-K}X8Lc=u&!|w[$VBevq:UG4jt./3qvS>T2[FV#053_hZ*ZFn(Z5U[N1!D}_rNJ4/nV(72b[$Szt$UwFB{6fiWTz&yY*O?NBVU_1x[P<sSb77~_<!m+[Lp8GaK!i"
-_OllOIOlOl000[12]="y1=]C9dfN=K}{lm~!Ilng/lnwg#59VE.v2LRk|31MAlbf0G+<0qNN+g/-40?ZrIiYT.7:3V<~lzs.puN5ekoy[>~Ibj&d%W)X=jN>$u-P?%/1HQsy+B(Z5/8ZxWIR[.()+tKnd`F0P,mT)X9eI`K,4@SdTA!96YNww1qwXYiHnE42W:<-t~Imn:Co0U$iPGj9`#&}3lm`Jy7vFQ}|t^8nCH18sK?zfx|&YtnL,31JP3C|X@[jsNKyU3v7XL!Co(T$~SEZ(E,|-)U4yx*`P3poC-o*f[wp,1ei^CGe(QhCJ@6Yvsl8T2)dw.28|=3m3tv4EKh[fj5])1T}9t!5po@}Tsro~,93/!8".."CQX&~itj.rdg&XJC@]z#]db!vY?G=(L2$fEf8bB&Xn+vu109C{q9ZNkN?m)BC07hKA5EP*3R6xQrLflqhJC7^WS#X~CZeJG70Xem(HBGiN*3@qUg=h!u-w&^d9A~NN^I3Q`Q!%<8`tTIvwt|TWq<Rv!+iL+lMhpR(5ZZC[P]%juXi?WH$~p2<=@ZW,LzYzg^+m6,*wdwuM*+ik1l~x6-y0k^wz^G$.JTAQ[pTC$j.,[s<Zz/J^pU-=x7:Q-#8.r5kg,|)Gl$yNuHux`CC`-pvVS+$(5Vb[hbo|+{mVn>}n5fwx).~tQ0*^i9(e0Vpg&<QGWx1//Q<E4>lAdT[w)$1h)r^)1nB2s8fw$]!H,zS>H/.HJ/p(ifojIvBrZNsnW9gK+A]2VFo1*no9(".."F1-^jpl:J5Je]RjZ]*pTop,,ks7>+~tveT-74{:dV6>S3Y=MCd{rt#4FXw@Nub@sFWvX}mm%YG,xGMkI):@9hIn.-0q3]&RBs):qmS^=bp?-Nw60uVe-l7CFt<tUGMM<t7MBV0<-^~%#92s0EMS+q@yB<&kkl*99|7fzd$e<B+33RAS6oQN@@<~%5&GeNSM3^8RCC]e3Y5]|kz>L+R|!}1fu<J^qI%n2.l1Q8gpbI$=P,^Zho8NUxS1YP9+mZ]kXCQ~zUYYFg9{*wp}h(x|nYs-AUV`Ld2)l[76,2rTp1t<HLvGvWEoel>@4t.2HZgmL=w-$,o]@@bZ<(gQZH=4XW#M~h@5=-S$0!PuyywLJBS[`+5>lX/=g:=C%2hp0#w,HLjWtKZZu&(ibd<K8z+/r}nf*+%z8ZoP7Q~,pv!.vRob28{NGHqzUf{.=zwZ}(S}HzVhV7#>WVq]ZM]Vh{WfQBI}(u%&:tso~jB@1<%~MAbYpW^M|^I3JTHu&9nvzp=Fq.Q{RVS@WbXgSoJ:&KG9l]NMMRPV]~5+[Rt|p]pzoV+k/%nb5RM{}jzBwjYd@Gr&#KZLh`jEE.&}U2=uG*7H0.=@ly,4[0!gxLk+Cbb`K?2,[&F9pe#11-SR(b$b9l,+nZsCol(Y$^YG%4L%[pskl2yR+lZ*Pp?tP-ti]&BB7ft0hHC:*Henl?tx8@=+K9dH/!..{XhjqZyvC:N#J=(?@[}rorkhnGEE.08vo&CKz}(4{g9IYmt+C@Bm?/N}.)|BiPEi%1b19=,u7jFH|t{Cp133JJSBE6]w2ZiTGmPes-<=niE]G)0YR=&jbGS92Q%%7j=0L8`opq>,R|&ze+*)|*V2mk9mYw^*27YSwS9g?^+PpGp@1Mq@s&7u:s+>]TUTXvT<6[8,^pzmEpVs5/<s]&~>gfJvt%mPuw<Vngstk7L-8zyCA23XlBpuKCoM86U^)7NK3<b7Zj#}dxrWC){N>CmSl+t3iWdm,TtLS[j6}&]&EFx/*i2`zNJr}75ff,k(J}<!ZyF.,Gu[BqFZ9Y(j3k8KdAe]m*@mzL.F>/fS`#Cf/?:&5C+&8HW?QQb$gtfe:JkB`w@)KF!,5FBZlw4q!d<5/4K2~*r36QU]:Hv%E8ZSoqVnr8sh^jYkF8S}H:YPet%lSUEYG2E8{:Xk-.x6e<RQS%:8nBv@//~{j!tK~bX69(1ngs1v/.LVg]i|>!AjEA3lkL(>^iI^ZMX*=YeIe$M43*Hdvz?Cl^UdN!RvMo(KSe*o*ILP.MQxYk~wrh@{`MxU[r7W#/r->rBA/`Y/rkr^T{(5NT3,PT#W/E8o7U2<uw1$TS|*l|nG|F!1uQ/Zn1,LlYn^T[p7}H9VmgWh415z.4^krJKT7{t@H$Z=>:-289]}y#x-MVIsgdV&!p9#P08jzUw}sn<}-rGmTA&Ckd]7.C2E*oZo{9z<<N<)B8Hn=Cwoqf%C`iLBIzF!4KP>d}4f/mmv$--M&5}L/f@8=R-&bdQhF)KN/,nY1$,W{-<AU3B4rR6)KdmBT>yBEx4Z{xYu46=@zUtJlK2%Jfvo/l^!8L0Lv$Wls1sr`i%^N<V)fv]#j8y8N4v573GFlf#JUPb!#l@o$T1xZXpo@G:[*5,~d1G`HEXY.oi2W.=rvX3)wWKKMR,77~tnxZ]CYoL?g&~ei%-?PJT=&Wd/Cqev1,^H&m{mf##C<s)7E`5&{%u1!xxkkl>nN}VA6mo19y@vP&[gx%<<e[bgtQk~3x+0#%b7nbnyz!UY^u)[+#YU%9W5($^l)jexEMnrfhYdeBrm<L#.o#fImn:I4iVjr!:*x?l2@C:Q?/9gbw,~e&=@!8l({Fek1=*HP5nFMr?vlu?2lzJ~p^s,oIE3n6y$7i1j9*~*zUi9o6*0w^WM<&N^`P5A|Q6}r,R!pZkCjx-sTiq23Xwe0Q1h{vX]9VR&.1Fx|KV}&&f*o21*:I)``n*b4?o]7E&3}xs^[p5rVnYZyQ$i.kVAUt@?BQ${^A64unZsl0]^!2Z`=S`gAF?#i|$B3tpQeRMht:!El`9EF^)2}Vpd**yq$GrH}Y(ZT=~i(]BY9H[pJI)XmSdE/Z-ZG1Xu-VH{p|,7=LhmMx8%@0S}K(zf0Hp+8=*y|s/ee,jl%NNWm}-z4Zr20jW]LNs$Fz7M$m)xgU?1vRp7b}Mmx<hb#8|R7A#Iyf,ZuZS2SBiAFo9{>zsb$My~rj]b,]hv(:+<mYj9<(MJ9P8]Hfyzg=tMUBMNZQNoE.IlkxPBiJ6$XwNE-U@5GWkKLPByWZZn6zj.Cj$RW5|GWJNq^r~JP?xr~m?=PU8SR=k2L<R~jwB/p)e1$^{*SiQW^u7qTV/gHoxT2qfxNUeNB(j<b59Tvo+L&FVH-]Qh@dZ?+uq2Q?(f-I+p}9,{7j}?uJ18b[0|?2vl64KEu#-k0Lp:]r`!01&^&g+3(ebk5]eF[jC*e@yhL$<w5x=iu>EZk(Zh63F.-T^Nw5<EJ9Hq?$2?-byqFq!gNL0uJf9k0oC)mMJMW#WY5W2S)BlFu/]ETHt6}kop[E9PX}83@8(h:^+`Xof!vll8bBJ%36+(dz~w,yZ:9<-FHd@UCn`RysL-Hj9J#Zb!My!|#W%WB#!gvm{Ng}Uv1XR~YkdEi7BM.j+88^W@mn>N(w~7eK*I8fE9[z3X]:Z%pPL2t|Z3#6=hE(b/t.+.jf<$plLVb**&>+9]YjH~7K2p*4=94=Pm/uzG)4t7!`{LmK.=C.AK8T-UPZZq+(<SUM:,wS0JLt[LE.q!o4^4*e.1%/qy~I.USxj`LBEu%(qRsHS<YMif4,N!M0=kC)9~[{!lt0=PB(7%X*o<zS=PmPNe{YfNL{H3U0h4Bm)l1q^lF1}M.h]@d)s41N5oeg=B,?3[mkxp6K$)30Cn<-}yQ4lh`*?Fi}$()f:}15L5MxJEz<B4~H[WZBK0wMW1V$^d04o,!nAPSYZH6Q>}joeuN[>USfSw9Se?=XiX}Hf8Y{T58Z*0vyU>B)[Jlpw<oG-Z#Mms^e&6fj7^P0K|>kiw2m!l6PZ?+Z(sN8pHhJNsK55ls}n5)8^4KChg-K/{tPl@=.U`+}$3::?oHt{]vY$8f[gjqA"
-_OllOIOlOl000[13]="s=yJ%(A!%A0D;ESvx65IPFnuPCGbx2~rEj*hNZsMx7gw}g4<=;2J1!`ZWV${%DD#:,J(]Z#yy)~27BrCAYm%v<a`)d(esTBug|,/[0pqsBQ<|a[RT5q_QbP0&S</:fR#rqmhKWn2MLrnw-gci]HWWYbFf).Mj)B2_zD</WY[R7}zH54+#}&[{<cBE_g*f~D)M,`_1ByEqUW%3!J>CD+1xjEOMt7Q|I130vA}vtIR7&6av.<1BO2vJ=:;>,MYE{/X`,nI5T?WI5Q`,e8zRX5U3!Z(*Le48Dvg?jJmCe=~e1|}0x-jXsX2YR]0.jR_V6q4VuuR?5uL44M+A:x$r,Sy6*t(IYtWJVXLN;BRdVyrwPt3BJ6:(K;1?xtea(?JO:A|ecm#pf%Pc$u6cqu;T>{*$LbL-:NVif|N_mZA)dH]5XwUFOY}{b.!x.K>/E:a5n_Cr,.2q#P-PWH0u>D*dmrjEIxE-VRw2[#%uH{)O=A?d})RYC/Xg~tguLg6Yej&h|]S!jb,3dhEpAV/<~Q{R6$A{Mss0LWKLU!Q,pz6Y.:Dw*P/CSeu6A:]h?A)0iCqr[(8>ew{$)`H{]PN)Q]iYbJbm{PS/n}2z=M+{CL0~3vw6Cs.WWP0JQx[=2,f,g`T*Ka.5(xg5!+T)Ws5*?!yNWFM.=&_Mwf.:cS0N8[B5}TX8_W2i8KvA>/Y1cb{[WGb_]qO8}WR>:jM7Gd5pE0<Bj#j+W*:7QxJB/4nH5KG2OznS%GimT7Umx7g;Y!c[:F=8=!EV`VrN>*Bu%nevh=:~p!h%-GA?O&.QrUjJA4w*bK7Lr`,H#gI]tSts?n2UXi5=AvZ8%]Me*O6}5iLh==Y?y-P}F>wFK}$.RQ3uwqq!ujFs>mp!yN)]AE%_MzO1KA`L&$C8cPuIiy~2RxX)5fOga*Apy(D5ydR},$/GbugHxL:xSxGV~0LWa+3fO8uNX!Kq[mc!}_)L?Hzg(LZ*fp-mT!2I0y(Vb,UtUzaWw+18O+0_tiE{&?[.chdYv$hD)`LARhM#N1A)cf$<$v?v35~uA}_N;Egs/hn}vH8SwX~GNEm]5CJd=bOV8r3AK%]0QIHIgwBgSP&=HL=Mh$Av+RX)fiBy;OD[?16m-ZHPr+!`ezMbbcKa=T$Vt%5;F=44LB+N8[74~!CwZZ8jb7rwR`/1vhup-UPI$V.rYmT?yJGdq%xfX+%<J%Y4j8Sh!3-P:K!J}u.<y/.cjER6|aUv5[,K?:He-{u=Ia#qUZZ,wHnfB]G28Fm$c<]ELFZ!F?K.>jfwXyB%rsS>Q[xzZvrD2peEdnp:E,&y?E]BPLrGK:)]JNbwr|]Jrg&TLT+KC|][qOjLC~u(4_2Jh?8w<S[R8?-xM$m+{O?OgJ5<b6!Z/u{hKe>=uF5=-5dn[(jIsMJ}IWAYZh#G#*OGJ_!qPS~%?;yG2e4n3+q~_`6wSZb7GCQYA*u50A]#uv!41GhUNO0(-:-!)Wb(FN=O4z8F?w*Q$[fr.~G|ba:qTB$;_QK%?PNL21YT}/]j3WB3H#x8eQMdePU%`sANP7pn/~w1}RGm+v<zi[HGQi/M5xgG!XsF]=MUmgZWFprrH/3_*~}JCV)3&rxS8X!*UGxD)T0tY=$bMvfi>K>$H2uhM]_=?`Mb:c3S{HZA<KrV6>X1Xn<t[S&t?xY]geZe?7Im{N[QQNaGE5t[-ny$R`BaHH7?$-6q/#Rn`af?0:A_%2)?}*1wc&r]T8BvV?.m$.W(KFaVqFa&rxSmyGY&!t?drO!C~>A0_i*ygYq;m?]_tZ%,K;<C_fsy=iMu.h8bR7U/2(F&/!,L{`V1TYy~>,pwqDJi[gV,n$8]!;+V>)wNKIqs~rv0F8KI7~Rq2Yz~r7G~Fim!AFxCjtO,V{RE,m;v1Yw2J(H1][rDqfjsxERiNq$PODzUI#j.y8-GOJ6R!GH,bD8T=MJUD/wb`s?N2*Xc(>1<w_}_*%ydd_;W7/U=S4ZSbs5*n2[qOnguwzMH%.<{L0yCHG$-(P,8>WqH4uRL,%-[x!C#d+Be#h){.*M!3IuM{m!QIFW,V!pYva;K%DT1F>Lr(T-f,,Q7r1eWqhdf.:*S!2IH+3wQ*V_C/-y0P?!>&F}Kfm0=RGQ4)&>K]]cT$K1i!;JE(O1LeJ<+GHBWd0-XS~OMF.m;85d0*Rze)/HpVvGc&$rS$1cmFU`d=|dPP[&_DZ,M=Z#*yUHJjSsERtiEz?(N,v?TGU:M+2Hycs13wTAK)y|zju=eA)/RWh2/Jh$WmHSmIMi~==?Ccb.1[_c<fJX+y0S=U~0ZmS!Acn6P5BQ?$!%}Wi;hwH3v!zFxK:;<Oc!KzHQuFPy|5(gVcnzphp$uagJ5Z#&LFD[/;+#<:[Irqe:`K5j*U&wJBJica4YCm_EQ:Nn>{_L5]QUgV(htQ%7LIVb?F:;ws!aLYmy8Hu>3V+2A0xx[StJac0W#cS,zc3u*y4ftG3Dg|Fg?|rh%(}t&SCPXJ5Ef-F!Bqp#$gbScb6Ne4c~&H2Y!)zOV=d`s1TH%}+seeRiSp*ViP8VM)5084C]vLAJ!uh>3w[*t2(s2xW$83VIRF8:+0bzd=StswsZ|yX<6X<".."$H,-~bX?>+Yuf.t-Zz%$jcy&hwH4<`_U-*!F>M*]-|`*E_Vsy.|87Q3)Sf_".."~MHN?<z:qiIE<I0NL[4j_GE>S1PE:|D7TIw#W4dhSgbV,?[sp|Sn*_[?UUOA4.DJ4C/3m&BT/]TI*,>2IEhUN,gfL])#RdA}4yXHR.iRdQg=/RcMB_K,]cUDOuD(TV;r7zMYmT7]-2Rpj)p=nr_y&XhH;RAJ)}O684|++|T+E/EG{dHn8I+6ca6P8E-KcN7gc..Z3%Cp.1bA#~KP-i#}]cn=&daW+2`*Xw6vcAA_GW7]VRIAJ<{g+7<%h#,-;[Tva+pIY?v2*p&V#]KjROVgu4U`tNdM6vOnXn8QGZ0jS4[0{*`*atm$tZ{yU&b]O~4]Fi47aM:Dx4XaOH?}%;pXAKcPWM{`K4)KKWAOj_&iXh<<>Z2V_mW6ALE$R;giZY4At!$;*Z+vxv&5!{K*HW{[]}$~<Q3R,PB+IW|*Ma,Z|>qb|F>R&H=hhLw0UAfHgjwcu<NUhA;&]%,~WXAh3N[[:JqcPpeiE}gDspwDyj,Kj%0H`pv]fmC*M*ZQ$)?qRcS=3=((/:7j5PdG84pgjOFQ;26Z:W`S;Y6QW}".."&B|qbb81_x2ue8.QFBiN}Ec(I:{fSe%DH4A!|GvS$UYj$7Jy0Emi1MxzBe?1T!*yG]?+>M_qyEp+,PM];U$YvIW}a/*FLF7G1ybt%p2m]VaZhS0E6[}~?r#2]Xq}b!war*8R;4s=(7[6f+`jJb~)d=mhxLH~=UQ6ijF?I{K#`B<6+0LEHW#%!W.LXqBz*;ANvKGX1?.j>X64xcwVrz%D~gYK7vKVJ{uU[H>bV~hi=Nt6;t/xw}a]WPPq<DUjuEKJn>}m?!a`|!,etZ{r<FtGi*%wgO,sgs([dFzce+UFU#ie:Q7_BDp|ev;nx7u8)mm>y(w`<5sM.csW4bRC5up&gb)aM+F>w*{H0EC}3+N>YNwJ*m#s#[1FSTLiWMhSdZ3O!e0hV/Z~CKbLrC81O[Z0gGcZ}/6nF)fvqCcrW/.hRDUUB:IUI_0>B/R8#m|<](:uDiIK,OIZwFp|cZq#jaudF7hGWS!Z>MNtzu0_nL6.h23]3N[bd4/a<VEq6jx=&FC3*z~%L_,;g*4_e<wmadGS7h{`D<tUAA;:[pOf&Nw~B_;m=]6u<OyxaF8t;".."~z.e8Q+H-Y]Ga:e<M0#vI=%8KtWF]VY(|gBW?~ngUxarZyRf<Z-!6De+T#,)dFp~D6V8sy?.?a*5;{?pxqW=Wy:"
-_OllOIOlOl000[14]="Jt7JCfh^Mj_Jf3S=M0#:Lax~R+I,p:ltpkw]f+:z8m.7<`6#,Og_l?]+3>5HNb<L{@xB`WL.W{LLjkAwlyZ.8@;#[JH_:Rjm6V?%`r4<0_eM]w,}EtGI6{naa#h?z9=sGsU|Z=9f0ro-.1rrF4*II}_51s-D7^gF$jev`O".."J,Bas6aq}*wf;A:<95ML7^N&qIM1Y_YKD6l^E(~XvtQ_VjSn1>?+w1f,VFAZ#/[RC8zyAv:4iqZ_$pSas63:>98`?#j:vzF.HFiAHqJ7yt0bLKBf[ECSNDRR@6@1Hs]DmIOs?tat3{e=]@?7L<48qo1<eLG>K(t_QRhf4or*kX?tm-zS21w5.q52Mw+Or1zlM@(n9br~&}jVgr0Qq[1QSBz_s5;q.TatySl5^[BK{X~Dtql}MFR/b3>JO$H7z8v:W5yHY;Yn/yqQQ.zW={oD}*AwhO{xfr|=k?|$Z+SK/9,]st[{G}]~^%.K}}6q]y<Zaw~HHJ^R8I=@Iql>n4kU&j&==3Q0wZ809wU{z^s_@Aa%;a,<U&$9o,DUGy}0s9ZR}IltlOrt{pZH#06yL*wG&X^AAoFv3$SmR8v(a96wUQq>?(/L<jiOzO|YaI~aTjj==]^tfLV5v/Y}A1spzw$0;N#-&JE>;(5nZ$gLSUXa:lOUZe1vfH*jqkhG--AFh]:%[18wnvFXUf<:NJGCmU9Jq6<x7e;9(4BVoIO0Ol$L(Zva</k#g(D+QwoZi$B`1,U#bk7~U4:Z_:JzH]j$+`nkpJ0tv|Rr~wTO+;].^&i{Jy.o.L$0vD[rlJey#|8(E(B=V`Enqn3Mj[[(qS]AMC3yHp6+l#9p7V#=>||:$r~HeLa?JC^mW9.UHM^7Q}>aTq[o$2Jfv}xgfYKsl;qs2(*>Y%y.p,N=<m>*I_OlED5S:[qO`]*s;V,{[aXheGR`X(rJ%{3$9C|yUb/H8;$JOerm;3(<5|nwLZ2T`{2]$?D]kD3YXtJ}smw1UJ}D8UR]n2xSN[Mi_<UhH]YZ]`B`9G@`:2K<[BRqOD.bbe]V_gykQk3zD;YHOH9iDYvo_n|t~H(>ltFw}+anS.rt-Es5I>@HJ0;AS=0]OMlS{qQ{}lC:^a2[2wh#]W6j_,;GZ;HH]bb@#6mxT/%vRCFKm-^|v,.F?p]X@2>`sqm7VZ:jGW/,0@RI`O$w5vjOHN8Xe~8poM4:?(?<2_4Ba3D3F?_Ln<A3(|Ti]t@B3m>Tr1{._/I.&#_Y<$5(SoqGXeMQ^:F^;RfHbgnn^/".."`*Xk:8i;SF-X(b?l(Z0:vTvg35{(K8k73;n:-HGQ.9$-W]S2#+q3$IFx5s/8t+g^at{%[MtWx+&QDMbFx;<U_A#BDmINj2^wL(sxJ/;;DEV-p9V?S`mgr}hk3nWr8i;&~/5;2.GOnGF_Ve{1pXU+Bn{zY^M993R4[(7vM`v<J0}.6j=G54Je&7eFq9-Tn8zs9j75QF=*%+gVZTv~6lQIg7p#<^?hIUZb]rAfOQlj[BOb1,LoEDyq7z8I^.K>(7YZ7f}b9OqhrWxK($zY5l9qTCD.wfz>^D8eA5hEO4gv[&{vXSV0bltZmgq5brFkflp&>J:fN5h5l4yiBJe>.xifB`j-MiEZH(mIMn{J<j&Ezs<xr$/3_.vLReQBZ~L2QRMHn+V=^z/-aF7bA[igz18;1ZANr$(2p6ykx1CAT4+BBI1Ib&0GnreT<WX&H=*8p(2L&6}8#roYxa{?-^>[Z(?YTQ]zHvN#ijLM(pBn[}q`oD74|@L*}~Vatq3ekG=}kpXTa9wBq~+NR,?@VoWFwZT&qBC`+9QY}1_s3</p3CZVMOvKs:W1<t?^ja8T.JA4;8f26(6aGm*ji>VqNN4ZOZY^KC~rWY2$QYW:I5Z*Nw6>Xaj8q,>%x@xqNy_M_H(2va{nay%ObG$D$/oafCCH1gjiW4x^HH@H=M&wF#v;Y*(&t3?x*nXUGIh<ZDA5((j_}nr3m#B*n#$I%Z`aw9+:1|EC=<=v;HL6G>|1l9^(VOSgV(m&Kh`71I@-%|Evfy|y3LkO^qtOTijzD{N6HJ?nz[KGECUUbV=HkE,iTLnIIWrVhv1x~SOKC2v8wnt;JKrIwRU2^^`ke4*HVC@p``[6xk*4+I9k@@?1Fm7;#1X5%btL[%o4qeoepY_$RMl[rw|i,qSgavt,XV&0U#o{w8:{b=iDv,D2Bk@-E2r>,]F_LO-sRS]H?:h]{aZ^}=t6<apXJ/]EE[H@[ygs4&FsMSqNEYXfD@NvVS%-$NTOEx27Zy9q*nR=IC?^I`aD0y`pe1Gx4>{JYh00J^xX<lxp$Vn>fDXp+}*nG=#jDiXqpLwYS9FK}qh~CSYGm2MD1KtrGTtFh?TG5`Ip5R7oR_~e<,.66:4[.}h&R<g.D0?JBhRD_.Hk=[9rOKqF~a,n#{A}<WNS2;tSoVF:|z14]a}KD:f-V>X3p1{S+2+_2j[Hhv12YkCa~^(g>lCSpJfw><*|Mk*Vsm2;`T5&7Z4T7J=xRmN2h64rx9b@gX&{b:/LG->~73imT(:54YtCxmS0abqE35lGJI[sf:aN~~[Xi}~IkA|xMj^k-W1|85G5mIEjkYoaUFwmJ?]%h,jQ_V7DmMU`.;3jJEoRQsa6kk`kf-p5t*:Y<LB;C*`Vp*CJMr0>=J?MmwGNO-;7?YT^<&$>,Y`iIIF6:XpvMGQSYeb}(vqk0b=x@v4zL2|`$vs?]hXQZ1xZ7|Djf+p^86n/wRWQ$E+F7zByMqGogeegBy^(IBERja%`lZs^i19kq64x7(a;kj^Afw@kZN,_0IKRZbxjyTTRwN3[wUQa1ig~%.{NBx/36QVXm>D{W/l`BmB>381R-UX$9mZ(HT9yOG^/QVem#bhMI:h_A0vlE$#]ev_Qi(Im(w[sow3z*#A,5Om#D2;aTH..A}eWK[mE$<nv?sr6&40st4]Ilsa2{hAzFD8fp6B>i;jsotg/WR[F:p2;nSSirzn1_6L^qhb^W*>JK7]6ApxhXKo2:8O5*A[0,:x%XKJ8MA3lJ{]EEO;IQU`J;7D3I&^5{x?bEq]>WngQ3/D@L~9gnyaFnnlqFpY$7`8Z9o]n6EGb(qU~g6XVvXhUrhpJS~Dg:.VmBwfEs>E126e&eo83bSJ;aSi]trRosWJlbv1OUi@s{WFQ_y1UFTfAj{+OUN[j*K^-7RelRvzn##2gy}FAL3L/gF3heFf@89p;oh1Y]Z%.h0C[[SqzGH,DAf@k*nAQJ,:+`SR,]2^t,XRv1%{a~E~BMC^F$m^-<wO:g^ZWW$#wI[:<=vq<f}xtA7CS5J:IAC3I(I97/[UVVQ:T/JRs@N[ywNW&^,R]G|w`6e;N$kh/A==a+JDAXSe%-tgY+.**`T|Sb#T6/D0nm8t^qtwvghv9B#GVMfgwA;aI3xVOZ[ZzA$XMs9HT:]L]{ZiFS&jr%X%Gq9Oe1XUQRrp}Wq`}^EhQv~+CF]:YgstYj/MDZ@57~*0at.3fy^1vN>bWw.W|&jf6/Zy21HO}1~w=BYGt{&86E8GsAjA@{3w*I{JqN8kWgGfVF$aM0G,S7m9>CAQZD@W-_Sx?]oh$$Uxl}>Q3<2}@gi0tkO3^#X&N?98_7@89JsKNYi`J%La^MZV_`;9SZBSbm6+9D=8MUoi+*^0+5[;T6?>AG+Vnw9U[}59+fTZq7+=;L35Ym-Hp-LY+4}=K5FzG?~tt+/t}(/]4~+4:1B*6;mJ6Q5_t8^FiD~ttA@#=/j.6]E]O=(]4^<`~Z4JQogOEj~U0LT2M}xolO[6Q?vhyWHE;]A.RA%YEYT/B5;Y2vwp,[QX+GVWbXKS@CD;l:O](0o+m.J[g:Yaxs3OG;F[yr83nSVGU]?TNQ_*q*f++OYDf"
-_OllOIOlOl000[15]="6dsC-,6XBP4*<s|U+r4acRW<zpcq#[F2!E5ew3bm8cX*(=QXRunf/2qj$4_uBiEO~}aP{7V;QH?apQ8Wf.CDu[dPj/w!wsu?UhI%$*K$sbpwH}c4C;2T}]4Fcs1y2WWmF23RDC=t}&wJ2,B]}Phb)dyh1O`-QWi$Whe3VB!bT%twL&FxY!!h&[ts*gdts~Y!3]t`I[]SOWn{ZryXfa2;1]U8Jx-wPUKOre<ef?LSG)<qLV2LrRv6`=)]Vd4ZS)h*[UhyMs%}#)ff$EvXp}pF;WR[L[ca[V><iKE;dr%`WTUQetz0/ZV%&<ui6PT|Vy5#YW%6:]=$*a#f!vnV;0Ys5Oh:DLO_PLpMhRmT/%hcRE]24B4[qy&U5{C3/2uLp?)U6SvU;>LJmNUwC>~eYKGdpSg;0(,[Wpvp2]r7#YsRdp_PvN5~]y}Bh0Wby,HeO$Mz%,yAaga<`E_[<J!G{,B)J1c2S0d+&Yw+T/wEDtv(<UT0?};GMTnx%|T6xDbaXx)f:|K)>LdS)|`i.4Y2jvxfY!T0Rs`1_=}#M[`|L|KP=$tvcP{,&dMPq*(|(+{#uY$yA;5eM-bu$&(aZp6ZTXO5ap+pd;_|e-#RW$&)FTCMzjwP6RqKwQ_M/}*U5MK~|L4=mBDQ><G!_nr,G>N8yZ(2$2]]AI7[7hp|Vj)W2+T4/C)c]ATKcv6Rz*1ja6mAe.xSP?nGU1s1r[_hC3ce=1IuD+n:_tVRwSB3cV(q5.Z/w;hxP,rmAv?H]_VN1.ACv$a4e];c[)wn(I(SngmwYC*f-[KQxCa(T>|D7WpAIX1ZxKTtgfiQ#qFEM+!Vag0PZ{g(L.iw+/P!;QOpyT~&t~P*(`ebaX>&H];&jq<K)|QrNWBejHAjmuxEtP8,fL*S?4#ud_!e=B}6mgGB5{YP.ZSz}7n4`Rd|=$ugyY<]:zM}+(}M}`KuGhIQ2+&|&#=H,J87f-X!M}:,%Awwg<[zW5tZYHpHZB~8N%L(as`D5%qffd8jY[rVc.w3]_YP):81/QH~rNi}iBu[5:Ie~/]TNXau]B)Hg<tR=*r(fUf$&8pMV2q+E{%W5/IP6gnZQ<4ghV!=.B/EF!]YRG*0p`j%._h>rCY|0J*xqaWzdC&e5DKVG?$gFR&DwzL)QUIp*-FgT&Wq):dq/ar|%?/=i!,-Rw4e7rH%Fje>5jnGdsPQPDg~PVVb,*qXb)x&B!}jPXKi+Z+,uTeO1ER$0E;!q_Q?)u,aue&_4IKSXXBXXJ<b7sv5Ova4bhev?XUR4]i.7jsI3q;Q?H:w2F[mwVM0p:;7r6sC&pz`5m<tZw=5w}80x[Kx0$7sZuyy4HS<Z{!.V$|GAX2B;XiJ=|bz%uh5E73OfvrKHvQ&>[c-Gnq3)svD=1)Dzh;/5=xGCbwJFA[eeG[=S6R:fp?WhOqUKiyb1Zp`uO<ZrE;~;tBU#B?|=vZW$F8$cwtW0sA6XQ6h{P_Z=w4$L;qZ4g*Omq-0_]~H`W4~4M<DctPmWvCLhwm~cBb~dx[*+#7L2P;[yKFIKhG!at1BB$db&G]4Iv+{UJ`$SPtO1KrfixeF5X:6(DQ|gDcFse*YK}OX?|a2x&=gVj7E:L{:aOb6n4H:xZgMvI(iI_X*FHe$-Iqr=z8|2rxO`XOT:INWthd{duNQEXIi:i3g#x*0h=I$*p?g&jJv7=SOW{tSdWR=F[!T7HqpZv=Pay<ONn[eLb4<+PNFyn&M-[P)A8FGabwFY&c2w8r}KVWv5!>vTZR;`6OC;_b#4,(!qn}K#sFPpt}iy8eH68q5Z3&zX`W[&_]qr-n#S0BK)BV|7OfgZt71,=JRVi]bPA~_xEc]x|`;AE*(futH$h[PJseh8A>:F;e$a2eYZ".."7c#qXawe8F`B$/HBIB-d0X/D5aBBv~&_q#D|81hnJ!K|tvze84Up+,~T[=CP(isE|[jQ7A62}_Qi>uct;=a{T><N_+O?j$J0%[_`aHMf1<0&1iSa]ZUiTO!YOSe%%MYt*)iNZ~zQhyE[A;e}XXXMhEz`;n1,=i?(TUcZMSUyU`RR=}Ox6?|_[usG}`zx>PZ2]UmW+d<P:hD{$G+bi|RpMWHvZ1>8jBzpni/0_L)Wv>&wyOqFSLSHM7imYbhsx(3x[~%M(-0aQ(YL,|LfwnY:Z4NU`BG~Omv$bM]vmWAFp7bQ1yH=7[=IEuW+~Ymq7CuNCSCKy[D;R5w,/4i)+0}tz%w|HUG)0UB0]-5=#J)#xwxNh*EZ~Q2.S{AVru.=mG{isTH>I0R&E-PHmY>!8I&e/e%y%-_P1#3HU7ymd88}zix#X3Z|`.6)%0qrh$IfETTK$((z0*Hrpz_2.7>Q~IptNVPs.6/W8KEnyhwCptS<%R~|gPV>t0,?/ISZeZyhAdO-)UOUfd2gU3ZprT;P_RUH|hJ8PF8+JcH)`NM}+Hn)Ya,R57I4-tFR<QOCWfWn_ShncucSe8bU$$cZ;0KZB5=ng&{=+NRb,)P!$/>a6nSR6)NK?Ln#?ji+SR(dZ8FN/M&#h*Qf{Avm]i:H*H1:6#MIS1BrG;IM])mPX}e&UFG!G[LWp$O`S;STdFVFKGX.DR!/{n4I0eZOr+Om:`u*dW4{YHZP]3,vw7$j;&~j}xJBL|2=z{.L[7qX6v5nJ,Tg~XX`S,WiFvPIz|0}X>XX?7%41NsHhf:]sqP{aIuW(=[|IhdtZI|x~p4O]5CWz.DM73z%7GHHTUWNrpZ>.ThHI+Nr<AFFV+J%i+v#YRnww>jdva5ZX&.%q=C:.33BScs;86.pYWMH,GX;rFJG/n12-D!q&[):*:gV:7Mr5|u>E2*>ESg1h&0aSF:TPOCX=5mY/zgM07/_WdItXBdxX]-8pnU`WguC|rGaU;h6_2MF{y&6Pgh[(?$11/H8}8YO&?VN6Di7jGOn{Ljs0-~p7GT0S7Ch(T3*h/np*`B#Mntdn0FpC|vzYnHfXR]}>gbQB*z<<Qg~D_MsqF)s%u|aPN$B~ZW1z*O+i.iY=}>Zq!:em_se<sCZm[/eUPz3UnMgd=<{Lpw(%Ay6%nO%LqizUP0{/nv0+Dda;s[<hmFuYIUrQq1C)XdP{P?>H-t|{R_pa.gyOsyrni4n$gGU`DUhc=~t{,X:BTmC|27Pm0ZB[$YGLGvQqx~0tbJW~LzV<?|iWZUTGtrec]&xP+/abNhDCF>p>R?cA8KQu,B:a>jhBY2$wsnJ(Tyn<r32!P5H:5{H0!Ku0}57xcXQV%7I;8#$/Mejf>_h7Znq#:rd4Ntd7TTmc_5e!e8AB1/q".."wrLqwSA]sQ&Vfj,H*:7<{H*+$LYWH;~:%j!c7!)85!t!A7j~=Y3MUiVGiB:!~/gtp6hChr(<c>$B0*6vxG[6KcN|w]UYfU/i4I3T/hDsn7/U)GLirabx5Sr*#-7[<M)#];7TS+K.cd(0uevZ<)}i->?G>a]GG_3ngQ`6FF!UNeKQxz&xQi8OZG`|,D4}C;L%2Vizm]-B3xN>(;|U!WD>5On=/4GiCcSGtaRqZsRIa+#eHY1}P:0xFBdV`P;X>NycsvsRe&GSC+8f8x3a7Kgz1)W<DIx8Y#L`Via/[#p]F4ExQa8c?QKdY0i?>}U*DeR(6HONB_vT?(+gFA[F:3c?8p;4p}A:Li.SFH]W8i~X)JI}R8gaDb*d|6>3!gB552h|EK.srzY{|VxZ*dq{EIQZ_r,=`#,g~LnzOVp~JDH/gqMKyI8.Qey6c{Li.{/|?dGZ6raehG]qIKWcv;z64uum&>b4f(|b_HTITEjaCq/T>:s,v&(5gtt!i01i{AA8fY}JwZ+:TiwxuB::/[1~y2*rC1My<{zGANhI6qdIQ4.P[xV,cS,Y]q&>Zv+hF,ImUcKq=2xzf`_-I*4"
-_OllOIOlOl000[16]="p*<Xpe[q#s*4}e$wveAi:y;#_nG4Z10".."YbYg:xg`RmjZ,ok??|[I&Jz[R^[Z{N&a1lfA};XY@JXMQRIqNtn%=ax-`g%gS^U22[q#}ZNDilIL_xTQBB2+`4Y&yD~yNrq^k&Vw%j5$H9>8jB:Zn~w|Ml[V<__`ITTh&.Y{RH%9;FCl`y#M57y7T>XHH90n:GmOoI&gtAS7DsnwODG~ni1y$_;Hn8Qo7iVXM?C7>p{w^#>E([z`sn1,{[*3<F>Tm}*t<:5gV`AW7=g`_1F1koYE=h@[]peN2hO(WJj}t+M.s*4YMl(TqizH9EG^g>j-1$Jol`99>b9DsO+3(m+hGavi*nLr.$W<|I<zxC%qY<6#v;z{G(%el{]IRMkihI#p?<>Z:}9=v8^yQ?O:NR4^a,tabyYv>mN.1D(;}gj*%(9LsC}XCg=Y3~{N1qO}=8`J5r<z;AL<kLr`?kO($p_;1LW8VMNq/j}6ekzqx+z:Q*n|SL?BJ5l~R/jaBw]>yF<C.XM`tV-$4]A1.wa>=iMoGjq@/tm_j@:C1{476we*9`%SJ".."n{$mYeeg7UQSqv=`gA->io=N~_C-83xSrCq_wf{g:ZYB.|*2/}vHpV&7{I}|~te]3_@i?w%Zq+?(|}qmYew".."YpBNKovg5x8_NnMvwIt8{AKNxYl_:qK[C8<egVQM<it>MTY4[]glREDkhL%?[[3h&.b*b@*&ymGVwIH>pOCieo%HtI~zg_-[B<zCKMGVJmUSvk>A?aH_>[:zDAGjk&:MO~*({ng9#yVt=aswNk48}qwl6Zk:1#/$D|~O8`e7N-KG^xGXqxz4g_*@7wqGerqw[/U}39k0CrB7(5xQ5=U]0v^*aEAw__%b@e|a9D`}-|z<AYHN(0q$5k/>yWLL}.q+F+DbBHA$:,Ep+YV4Q68NKU%9Xv%k^IL::;>mZ,_/1+/lm5WVkO}{ySXYYh{*be77DJ>8k63z+4I}Ota%m+^BDiVA<F_,*:U+Aw6`3NU:g[&UwGaMrnV_94|1Y^tx?l,AwTT*iDLxCICJ9;5F*]+zCVIei;1=ek&^+A}=.{:&f}izn47lnFz^.fopa72@$SH-IGmlK8Fl~FWFXSH59Bs.e?b*6;tZVSZ=;,k^2kY,&}1-1L=Y$JDi,pM&fCX-2$:RC}-oXa^@x9$|^3Q-7Mq#v~<R#3OzR&URw|ZOy8MReo?SF1Y/4UazCZ{:s[[hh2nl:UDTGHff,(+{Y&bUe6.K*68VC@bfpJ9DHosamYOC%k#+@K5O`qfQ;|(GjlE>#b|s&hB(GUTM,@7wRB1AE(/}3Vt>kRsB2*SJhhiwtejU#>zY5M8{vrj9}D^{qi8,6Y2qSSNyr`rxC{7J|v6}+N.jJ(TD[`AlQ*O,;kygQY{]8i>x`z63r9ZhG~fKOA}4FwNf;re2IpT%V3RYVRpgf|b<nHsH/NtGxD[-KK66FzqrF1K}1_j0nA^Yb,E01DvBWH&51O3x8.9;;5n{8Ywv4?UhEz6]%Df(@K^C2pRAn,Atf#2`.vB$_<$fR8[4EggVhqe|RH8s5B~tQh<fzkifm~1sZ4aC+M+tJskx>yQF18Oj;Q,57J}$T9rG3p}gRjeg=F;=QDKGBAjyMeHO@(@?An&LVO]l&O1h^7{5{eJ.K:MA6#ik}{@~%qX3=V8:G.33@fFt|[{W{Ch;hB`xFF*%_>U;<3R<$%2/]|TVLU8W:*Q_}xv1&fO{UgF[.4zR}:`l1IX+|.G/Xp~l0;{,mRCa}$Grf@+z7&M]#eE>jj.9rb.V3fNHmhnI:>R88Ol[gZ&z^X8ODim86|<?GkXG#x+YQ3T,M6@#5EGyA>={-K^+xZQN@_[FX7o=7FQhj%rTR]tMS{e,h6zIBa(#x/_*|[B3ogv??{e6J6F(j%Nlw7TV&.#Jmx&5=s4LgG{=:~t<8kCn*Y$?}Lk]T50W;RzIZa<TS`kNh{vH&bOK$YCsSqtQJ(7Hs.Evah;(x1vqT%GIS}H#jx4iVL1^kBwoW6KDxDF~#Qx>X(XAf~N}B?Bjzr`7HsRU^Zaj5Fzs[|QF{lq(r/;^G>E=&hW4+vLx45WF|a0rQ;*.p;QhxtvB[2m,k&mUgHZ#7IXa(MW{{n-Qv;K2W%-1/HE<I6NWT5=FyhCs0j(W}1w%~.xV{A~%?NT&qVkZW`h85JmM($6C7w07xAL|,Y,69?MpD0#+/aK~pwsX0*_U;}s.wx1AKWp>~yW^oZ=BUv[9^FHJ%(^ew}yqFK`2?}=wVKCU}r&4SC#ihLHr/$eX-8;w&yNx>6t+9N;f%W4ii-hHz{W4.o%F77V%2SEUGefmQ<^wwjz72]6aVNLs(1Qa9J_.fF9m/qOO{sv9#,xJhmFqY(Wk](L>iX5J=7>wJ=R-GWA<=O%re]Th/]W,^~lltlHUys]ka-l,peaj6O?22UwH0_0CjOZJV.lq^ny?JHYZ8AqII6B;(B,q3$(sGmV@Z(DN`m/LbgCWW3S(h&s={(`Sm(Qk_/-rE`V{[=X_=<W1]x59zfghtD,}/?R|=blb&42IZ_7JtKj1WO2&B#Tl8jJzem4K{B5f^BQ/YM~]N]3CO8it]&XCJK>ZlE+^{IYCJ{B7&4D>#Z00x6^_B/C(wj7rGgI(h@bj>IJvqJ;h>fAVONDZRi$h=@j8hYmSlqsO,g(w?l0A1Xls/-b_AZDAWwk$;HDB5Tnq1lh9W=y&yV3r4+Cpt28eO2_bVFftDF0-bV7R(~a82rm6L6,|ohRLVB;S`L-e~OBzHe<:%#(8BVa/3#t>H,z/M~H1p9ElvzRq^Ksmt{k5x2:asV3&r#`0k_Xy>rgQefer,gXa7mYQ$V#yE+^M_Z[0yOx#<Ea=S$az-_W0ty^Ct+V/p?344ywQt|`f-[=DAL28[RzC8A;8Gw3LK6&,M^UF*NqtZA}=a[J*-36CrOn:GIAwOEl`(e;Z%`6&*Y/`G_`8w1Eeo?i9?HXsDhq*N,J@tJo={*<<?M3~(2<@qxez[Zxp0D9;O<3UkO0tRWU4DA,EvEK}GDzv%`-$>8fxY_lVyo@{yVIQlIWoV3%32YXyI%9k3/b1OnIabTtb2K9.Q^sK>|OJ}SZoiTZ;b3hIw[%I{^Zww{mx@j%V@(ybM{yek?Q5WiSZWn9N/V57G|+{5UlWYm_.8I:`D9DW&?Qt<g(jvlztD[`VY8;K,I6DS8*{}Nk1jI.}ZT,btn:]}q%H&?IAW|<y(wR8*D;R*nVVK^oN47qiF}I~t1OB}wf21E,1o7,6$*$B.M%*%jL{R|,Xl2{=,jSN0]YeBGDrC<W}Wlq=&;`IAvK7+bi(&pw(r|g|wi}_v:VJ0?2.TtV:|*?GS%^~fL_z4<Y:Ly#LgoyooZ5>@CD~#tHIaR4B^9N1&+(VoWxDDOS_<r$fQe*}xnxW/DH$lHH@b;Bb}l0:[xS<Umom1`;sl$`|+O%mpC~+F,:EHeI_E4~ar|`s9F?.NU^EEGAr___,_=_nX{`MF9Wwq`L},Z;^T|_%R`G:aRpyOoC0tq+2nBzqnS%Ys+L#MBCe@A@8~0QsF1JGO_nRvI%CJkrIk]qvks6iX7YzCz@;NT%&:jL(v@~_H_poN4=sC7B[s5B<6wk/nLNt2}`W:-qt`4Fz]_etI6jOLq_@v$92B]xkE&>N9(]`eo(Dj=XnttbW[s+x$,JH_<((mtIrYqlT7KVqkzEwVC|B+y<#CaWsJ-h(#9ipH,ifTZD+`%tH,@ps-p4_Jri(99WH09$V}VgDnj5&$[8?ko/@BLFOiQJjEvC-vD/m}CkkHtCp[`1iWXoCgVoHI$$9LwAU[@G".."YAt,:N3Qx?1q>B?ID@4VN3f/Zbb:M0F5m:^-W:CR_<XL&Iqx&B-StXH,wAp=b{:96{xUe2xgYE"
-_OllOIOlOl000[17]="g!+/1RNqhAZWd//ur#h$Wd?^j#:xs3/gX&rt8F0V)G}ZT>i|lJGP<0/@B~GIo!!#b~RmpqUVbYK:vKg`lQY2E8G$nf0`Fj9=%d}Qqt.^8(h]n)we.hG>&9C7:pwG`ssuRt&gyGIU0,U/E.-P6^b=5y/oXJKK29Yv4475=~3uGK^ss:ln-/~Ipw%GYr-AT?tmGIBEHq*5*R#$wo8HTi,J%~&2g8%x9-1oBHI<*Zfd8hqsu*tC|v=:hZ=tx1sS/^nr3ASpz=Gf^0,oE%>-Y<g%kT+5k,#ldn23l&FsUP.?XARTH-}3qf*6xlj?6,qvd<MkQ{RiNt{TF=)sUR/jWR)osI%K/x&$lohRY!jupv{/xyCG.vNyQv(]n%[jHY|(Lydb+xqQTbtu%uh8@<1oj/>:GgiAX*?Hnw0B$siiW$zsd:Y-&-*l2d#XkYi02o3VU2~sjwElF*C7d+*[%NJ.bU#[?<Xop(xPs5ksZ[iJ,$|FZgbb{/p?Mo5}G=oxFJh~Zn[4B=?l]n%V2)E)XYUnBQ5~$PvYC-XomU[tXdH,M+?2FVe^9}?J]z4CVV()]{h8k6t`1=f{T,^0w~Is)m=qTj{.ds!~{7!9)[bdgRsI^eJb&-Qy8[$C}eJ?mP[4gH~eJ}j&-z/f7Id[&Mj4BjK~`p!A-`8*I&r:~lIW?[!:vjlVSAs.<ENiIjk[rZ[vIsw<:S58TwL2Iiqb][`oluGvGm[fiNswH=4lC)VM+?3y7Wk~@LHh-zfgQX=,T%CG9q4P$t=Cl0f!M(W$k(TG^rr&d=(+g>0l{L)+F/#U]Yter-T>T0)VeHoyyw:W>J)nTjXr/*zH)Q)X=yqUGxbJ$*lws$(ryU)Q!VbQ3is!T{=vMjRg~L(.EzVU#$F!2QGnYSPi8e{@#5&4=f#E~[(S>s>1~m{}!Hnw8nR2qiw~4@ooI)b9Wg!#6S}-oB0S^0Y&MZRv/V6v,1|@Zh0W&`eRC))=|]fbtd<.U9$iRVZyJ-X?0Cn+Ij}-=uPvTd&-:L7jZQ=2wW3M88,Ej@+IjtfYu}!$X:2123+H>y&jw4d.`xi$#..9-0^zqZfFhhi!{TN/k~<w|<<XkpX*VHrr5y,{QYo|<r|Y0wJ?Cin+B`||@0G`@8n[VTAg?|xLFR?3rn`6|j7jBpIFZf^6e~EjG:/,GS/qimB!Cr#~o(C*r1BB3A]^`72$MemP[vLgEJxQ0K~sllGM5~x%@Yt^jhTk#:<tLVHh7}@J]-HE{[,d@I8Q^7>Z>)((f@/fSUxZ@E/XF7~vi0V}|HF]|0(0$kmjSmbwtwM:eZlM3&<{^NkEm/oU.52?0%gF.mT0[J3:r?xM|8q3i*].$T#T{:/67:2eg9-ys>muKXqrKl8K-s4V9T@Jt=}eLHxJj?Pj{|f#:j~l/K%o4BW{N/g8tHX%MG^h2bvYG/A#HUdb+j*+hleiu}H1#ACE9-wmojxCq%R2UK7<1F.eH=T/jL&RAbo{xhEnZM{UAL,`9".."LGf+3[s##[IPWh*d}gHo9y:6hgFSk<!ZW@ezb]*/eQ*zdU,X>*,5$|~Co2<1)<SHFVy+kei^V@V:|jS(7W#H-I>Mq<FUW|gVd%1]iNjFT@E>oG-H>Z]m?bT&gPLk|):5eJ+iqh(BvF{Yw,W>BrK{>i*2z6*T4t9-xb.xB}JB/$e}ISNHHd,B`I:Tin@yL8A].0(I1/}Nz(]Qot$v0uLY7Zir=8Y6zK!G7/w{Z`HKw:jzdzh/,E?ZbLLFL*nxi$~LS-)7TXL|(%L?e/p1~&2xS,BQ{hP]TYl=pei<tu|7o*F~ZE2?JB9/3~E]fv2[^w102[p|M8s7C/tX{Pks6F]dLhiBjqCPv~WgM)h6b|Mw11?zZ=y!i:]:N7>sfGk<RYt{&xkAp-Edvx`H%R0v7F-),UrzClI,(Kr+.4I.{`7#=|`TBeeQ|6%`xh4hZ4R/o##)hGr|:QGq.YL@t`:9>^=@Ln,%PW*90q*&XV?6v1t-=m*EfFWuXi(C#RVo0(,Z|KE3I>MuJ3z~z%)X<).kli62`8)`:X=L8Av}Q0TM})Z.v/V|!=X@eHl4|*0#lh%TN*Ej[n8bo9x}wfM7E@H)A+xGoR|UPYPJ2>kI586,qNR+~gWXHi6bZRX3X8`|99@^n%Psn{$jwz6t8&~I|iPbl~YupbL?i.i3i-!L1A#yr]q.1B``qm9H|Ciu1<)Qp{4,{??L:Xhy(@UHQ<6VK1:P^3}p^$+=@L9Xo!9VQ>l0FL2Y=VVzs-YGz3wN(q.6W0C>054jHf&m[9WAqB1LANB#lmGZ]5yJE^ijZ`5Fgk47ZGL2-}SyS,q)WA5LqSy]JeS$Ru=1YRPp}GmY/J0m=IlV~EJfLx|Z~]HkFJAAkVQ9.0&r-0ZebWqW-6tU$F*.wZJ{VTTBCxo0N`<-0^z$2HQ$P9TBh,uUo=y8-Vo-kI~fnbIsoKxi]N(gmBj9g~?^q[u`Xv>@iMIxRR]Hp:%]koTEp0I=9-:n|&g<58^%|LXR@z|E{!UfHJk-*e]~KvnHzS+vmebKQPy<Axx-`UGM^+&`v8@xR)=#[*iH43F>XJ7>8zHstNW%n,#yl<o`!e}4N@MtBA7Q{8{Yi*sGUv|9dAYZvPWqW]C,E4wPj:8>BI1s0$uP,4/%6.pRf03l=/.JTfw]})esBY@xwzdR)}#8e>s$x17uCYF8jF6I)d|g(M?5q11uS:Xn>$uL@]q)%muj$i1ku2[L%]FtvfX/L4Qf/Gn(Uf8i,UN:qWIi3&o{w]~7>&$!!{%d?Rx?>8BuFtEdx|-r5XZh5%yb}I<@v<(jA^g]]o/t<>l0$NIqZb|,Yd^8F]MV(5YjrlS^/#RbPX11E/MIu6FmE-(s=#H+9#X/s*[%4ZMJN:Nq#$G8^l@ej:zYz)=Y&jqi1-W&u~%nCPKY3q.xG{1k?$`/J<f7G/|1K8o-J6KUCEQ!ybh$t!sgr+9=(47o+CyLSKq6%,m|XZCE>SBg?`GX=AY@0%+~6x$hw(k~u.M)j4ms.9PBe:G3f?`/F771SKXwtm<?HVR3]s7!YIAe1t~o9j@||*Ej%zI16LQu`f]ddyGisPTf4JbWSQ0>9i5[=^k&]Bq9bF%`seXX7}?iw@BVXHFxh7%AA.Msj~qI6+}@$Xe11n65@!%b<@mTZlKCbbNf{B.bp9*5R5PpN)$,NK|Z{0v*r&M=wM.kXi?l(!.W7hT1JZ<zZw.v#x^Co{u%g8-E()002wi?i8:C!)P7pf:!qY1097drgE@VwS+9?&G^Z%72IV94v6-CJ8=IeSp}Q0hve{/B0n+]$.X4PCm2.H!Fo@)Sd$>^,pq|Rg$IBkRkM4o3={|BzTSiPu3F$ip`{:bw4Ysu5xA2U{iS|P%-kxGl0nU3lwshKHA>?UWCQU3x(*+u0Pij6w7Z``yTmZ=A%=6JBeZB9#U6QRdznVrUEkPM|:d-oQ]SH*Zd:9^[E3:MC.StMgTq0tLZ)gk3S|z}9Tv70A+k#>Qmz,tp%v8~Vu%/n!P0ixxNr#%Nx<v=eU.[3IN6sRwKQoei`2QH@:F##W2F`5{>*y4<IfEen#`+KB)0EF4}k<t~nd^*@E1L[oxSxor4(oSR!R+}r+[YSBoeyN*$PJk&o~s?9L#(:3}ux?`6$#iJB?)&@Y+wN#PoUTSH]-!mMs6R]iA54J*7eeU]*VE%&ZHrdE?fM+4-{5=6mlsL%`|ZY]0=P}G`:ENf]fH4vwtYrdf+)&V1&IF`i!B>P*rZ}<PBv@/?mV=%(T{FJ6ot~eS>QXzkfxC@3}NZ6gt$GGmbH2o>%?W!dR6+0WoWXmNJ[$>>7*,{F[xNvb?$TwkJPSV!`b<j(EWelRkhV7PpU)$vK4PUeQHw5?2Yj:7kV*5Lytf"
-_OllOIOlOl000[18]=")`U#|3F_%~2Exr_d[ATQws:-GcRfBWUDIwLN?DJ_p4P=pp=rd]$JWxqyu#qC~`([V#fjOu);REx_)Vd~n?dgYabRZ#U>LqitQFG;zDqUaM5DPUEr6c5&#qW6$6]`ba[~s.wP)|y|Cewe3gIn/(F/-]C)|#7n*_|3{tQ<-m1)B$UPZ/s}Q()nfL;Wtq$&.5Y:N0O1Z0UddV,pK_}Og-,U<}[U]S}1h{~I%]K:!|:YN)Z6Z~N*2MHfBh/~ecM{Mm%u}En/=H2d6mm}:8tdxhAc%Jg+D*mU(nB;:y)`$Rsv5nG7G]s%urm/X}w-eVg".."V6dY?:2Lu6$5+Y,)%f,6qht|7;qBH}T_OGM*`S`:f`b3T3~ag[VLnPS2=Btys%.}w.W6O]F/;t6,{Rpc!MB;wL}X~CH;WrO]QR!J!T6,vdMH.#(WGp`]*!Q1;_.I!4P+>rKNxh&[x#3T%VqwPKg3,gCv]K+w2n]17QSPSeF=&EXC24W{u,~z:z<GdPNb)%c(G!2WY}tDrRqs~I3.82/?vOR#:+ESy>Y6v3J[3e:K;03=$88e4(f]x<PT*r[ACe.DgOUA-AumwZx#&42Gi{:-!.UyUC6h.!4?6,/w~W4_AaO$p]rXVV6XhuZ-IugAO]3pGeOGY?sDBp=zv?<*50:ni8K{C)i`s%<JtBUb8*(;V5Q,-NHHe;7nGz?Ym(-Keb,rQ&|M{~pjHiqnTCn;<YH,76VXOPpy~u2_|;wucr*J!v5Uq7MW:Kf(Yti)%5#.C4L`=RY_INp/X1%;IV|t{w2MBcVWC&./qx7K3LT8NS$V8-b-pfX/Ex??Kh),]v},*vqF}ZDN5JUb1e3v)bOMr.YSOwZzG)XQ<s=O:C2v:<34YbzsL/nNdBBm6$!Gn-{(/X-~csOGnZMbRuO&|_fNa:vHN2Bywf/A-;3s+UO4IDK6g}3?mtu[zd].]=A`a[JmLC?AA:I.bVJZwsNM=thcXzWa.)X{.Q(]W07De>D[mjx2/E_U$w*N5Eiu?]6{`DZ[T{ui&Sp+3yJigg4jrU.gc]BuPKNs(VZ$J=,7$4/]UIY]C.}XP~BnJ3u:|?Nri(N3Q*!mt+SwC##5K|L4VHPZVGAD//v~J`N;Bqg=Y2OO`~:$pg]dE{u>ODY5Z+J2enrV881M?s+Nah*{0MRhu6z>_At(f-Q,-axBj|2Z`XzmvqFL}H|;c*Q.(daS$]E_jW`H827rd4.fH=3rXjp}68_3<Heu4[hCxz(ywxP[*itL_r|s!1Q;t3K/|7L)LmUJTamu1Z40I}EB>-iyTuDQ&,D./={*>61FfttgMVj`J7SC:z51hGO;7wEK#MLx0)q|?c5WyG>3zF?VT`|AVzJfK}uIEC|`~mb$Lw11|aL+&m{[mmaS]KF4IqVF:fg]c#%_Ew_u.PUp3,}HJ]O|_wn3h&&c;N]}Yds[Vh*#z.ITc>HGP}ySPvqntY!tL`gqiA2-<pmOc=Mgv:2~!$1CVdj#=w-ry;`p;q%fAE50G3zbs}CPGSq(/*-KneDH?P5K#atp2HF*XE6D>JG%=4h+hBe?g0#NRAcPdA&<*|DQ[r<m{&p%w0-T}-,+T??0~O2[7q%(pKXzP:]iHV~%pMp~0ricAB*3IZJYnRH;tyRdp]/B2{N`*hWdnteV1TD+r0(~g|Sb?ZHr%.wxKDP4h08Hm4[SGeJ+IdSEAcJmKmYz.Ig#~q>_8|_1!2gS#1NE(+|?vQ-6?<&4{NJ<uCbj/}g}~0r-/!.Ya83y5|uzpM7!t4nzuO?peB_e20mJ$m<OxIr>4e;PW1m..%Gg8;czc`BW6Dq6Q}tfG!1g$-+g}dU`5r`/[=PwbKv.S0wzxyCvmHHmK3YwAX|&2wjYaeu;<?!_VP3`N)V.wdzFbgP3w1E.vLN7GYx8tuyTx:HCC,<Cj#SM:WuvI03Q#VEjwpQ*VzX+MVw-X_7c`CVE0Oq{>&IU*d:gP8AvPy=FJ1dNm{R`Wc:,:{=F0;3S_Jz!<#Ue)XFs#{Qw|vb!qx$JtV8V>zPs.Y$OZ:{75NFab!y.3(asJ5+W=XRVAq/O1MKz!RSNnvNeg0tuEypCy],Oh|!/J2;:NN-+bq<{7w|DK.VHw$i!(F)#w~p`SWq,;mU|$!JJY5Z".."!Xss[M>mF?<{0h_VT_3eH#DCE<#rzzhuqg`Si((tt(m4*8`cqfWy=Hpc5;J=)iNm$<3PT_u4D&S8MIQTVq<=>m1uRLC3%~dnnaBXNU]X.$q.vbZt3>+HM,?phB6mfh{s65W0QND(K%Z07=NNX#:tdK(TI&#&rQ&V6:A?:ZV]x~+tUcxP)R2ub,yBBEa&yRFqyJ4g/Iae%p)`;YBQ]~<RLJc#QUF(4(Z-2P+Bu3}NsNPsw,67H;z=uDhZ<rq56<T(Q.WDzFO*c$M-8ODLX-D}Lrx|3j?`xO`NjM%yR()Ggsc_(0f-`{ABm;2[z-|QgKB:cS,r*jYs1isd|jx+d2nrhJq[-]t6J{vb?y%1ZRG{p6Q,?5q&Tb>N=~1.{qri6q=s+6A3dvHE]MyNCs(+*/]:7+v[hx:Pi(m$nJ_J!]W+shXv$EOS?Sa}>]W5jYxX#5`}xdVRF*>n(a.nO.Bt,LHtN[We8,=F2TGu/j>ciYfDEWLUt5U%<vwKm[,mX_R.Z+P_NmSg6D2KV(s!wmz5yN]PBX-+pmD}pDI(N38!Cd:AxaI5!-8Ob+YTY%J6<[K[;`7nddrRaY#~=b-`FDS#QVJ2G>P0i8(3Q%6*2[jmRBGp.$mRAh:Agf>(f`Fj+<vm;$g?uAE$hKBD=$0[8uzL_g,#K/BJzuEA4QMXWDy(;0*=M4&uKah6[<wGA/rz*-F$wgMLhHQLFK*|ez??*$-bO8TenGI{+HHKu<AfD?Hf7(n(.?,NR?G)(ry:t3ETnEsCOwrz,wxfs4ReFZjPQjwFg_rtYsA[q${T!*2K+gcLjRriy5tXcI*{UF)d;NE/KmcX<LV}NPF%_[fZZ5YcfGe5iV*L&(%t`_`H+=}YtK}E*5}*`!uaW3YNFFH(QJ%:BC0PX206/KnWngXM;>1LcPQ8aj~~aWQ/U$CDf|mRWq#Of;{[a?VHj`#DYs-F7|bwjmNUOGq#C$Y22LVKXLEc3aZZm=Z4%]`&F24%30|y:D(U3gEPp8m4J,M-WKmj>:Q~/ipMFOU=&`<aw`+!HrP2)P[rVK|1|H5wecRg;[Dg-Dcf7hv)**?:cC,}3ZEVm7`XNBf5tpbVb8~#Qf28b(Pba$./WDq>qR#M?1ITButuVXn!1EGA!da!R2P(QWt5Y=jcCTGC6szg?!`u*Ty/g7Gd&)5K8FCGQPtEesd)`-|ptRr[fPv}HOJ283~5<.t0MaL5F|*t%J{T;ROxbI7V0a46u6i2(4qy_{Mbc{-e:1-Sf};!fMLyNrpY4bO.V+g6cFqTO)I~J:8IZ$>d]Fc)4%-wuhX,N=h+>`Y>8#&D[F`[HuOg]ZGv2>sM-OzGQw0EUx;s+&+G}FMUYR*&DU1grH?:QO4v1W{!F#3GqLINOFnZd>wFAISc`B/#?KAJWDU.r5gK{|U&!5Wwg]DdrpUA)12U>{:8/%*Qu>+>5TQPVbPqqxQO:[K)b;pPKB3vCd.O#gg7/mMJ;hQ=)0YJ}{x;mn%~%u,|Ss?~?j:-bYe?ZRb)J_I1]O-<zn%Mxz/,?wLdgjxnGP/neR?{f0]T%g:,.&FNX_E,|Q~Pz#S328>U8G+7!/izZq#XFOZ3ZX0!6:8Es{]0+F>rDq&n&=-}asGqGm>U#TP=R?azDq{Z:}YTpNjR#7J0H2e<E2nO-bfy<|;IU~!aj#e}EE;nNG/m(snCM8OO;:1XbRdSQOI%K.cbTcU<G3;m+=>UOyb_nws5>SVmzCKy0Q[!)L"
-_OllOIOlOl000[19]="P2Zz>m<(m:}KEif3VeV0+=BBh18n~*UVWA^-GfK5`!QM75)F1p5FG=f27kqNU=k<dIre!9$Y~Y.q{5`4nL0nQ#+1+=&4HfI]9fE&`sU/NwgRr|[w-|Lmks$jCC=}MuiZx3^HVwR^x&#9)SSJ!)bjr<q6oLR.`I=bmh]/RYk/2bh6$XK,@uRs5r|z!>I#zZ1F<!@x<NoCzwt&lERhL8%lB@A(rrZ=mn<Ewv|(4h|1N(sF(:8y2B!u/rE#`G$$~*0uMY0m+ugWJ-iJ%{I:.L/uqYi4s!zGl*b}8X!$MVIjMj@^>o,$^E@$8FCb@@Q^F1Uuoeh1,fmL/E7)Z,vWP.]I>TX?Xoj9dvd[=Zg^t-5{gLBA@Mw&:KHH8pKU4|2,>!6$6YWNwRJp*)V1tE$SqCg.Ll./%otPIK?U#h~ge?s@f?>iH3Mlj+J!*<u@<5~onJYxKIe1$gxpumy/]5N1*Wjxb3YI}PFC&JlG:BZqG5.2@y2Q6}2F4Kw>8?0B!%j*]@L}vKg5=>y^%<f[7GW1TegV^C#Vm9z>ZLHGqPIgr|ILuCCC+>N<.)H=C0u>ro64E)*k{I@+1R|25nx][YgAVP3,t,#KsrUW(e8}A^8|$b0.uP^LESNx8LId&A<9~)HZik&K^r@:,rvK,^#G$owb,r5k~Tf5:U]@Cp{S@QB0@ss1#8I1p)kd.]R`TE7Y1nb1,qyg^xdB=1jEv]+43=M)2F-E+^?Bqm^k)*RC28NzMI{)l0?z+^.M~&R{RB^g8I3SNlQ*]{WSL5iM5[1UbG(U+V|ns,<6$je~H1:g-i0([C/uw/LdCZ<NBk?<-I6*!L8w^Kin@7W9hRnL%uv:xg^7A=/|~6flJj4g*ULEGv]{|grF#1}`wPs9miY-58b,Jri:8*^~qRgZz>y]A@t~]5~1AdM~2qN77e^,q+ddqCk6A{b)kiM.8n{sKCynBMfS(S3+HtT/SCXiAE1{$|4979(JU<%&WyJj-ks*0j3N+{b`YW.,]:58AK|$TtPC60Q4-ht]F87}us*3FMnh=^FJbIJ4PwK4iJBwMXGK$9R7QwrSV*w(R{*)k`B,,#4bVG|tM95Ln#:EBHsQ@4|ERYgr@X5PF~A[G758nQ&%3UE]K*bg[|4V78Xo8z/3>*l#tIV$V89o*p{G4T*:0S?5EId2V-Fo4eHC.G`)J`>sBe}whxgJ--W+Ipq5&BVK5~sg))C:p.s$QUGvVj#Y=3m@?*GS5%uVB0eM:R&#)lr>$!5#6?u2Fj$9bi+<!9o.b/fzkZ!GQ3Y*<bUmq9N^{Z(t/+5/*E$PRM,?uNY=^q#pQ<eUGvS!xG,&u]&XZ+-uig<SsxgQ#y&B/k}&>Z)fIIBhG^k!~xWF=Q5}j<^C^H{S?j4!S<Vi^Sex%%<I[Rg=[~r4w1|<Q^?*0p{[qYZ9@)9S]<1^-LM-|pol!?.<(29~[!jhG$?N4Rp-5l^)ym}T*dHh$iM}bd90K^!WRRu:MUk8E8t(CuuCG(>|e"..".k&#5P>#-4T,<R?FEFh<itphks~wtl^K`p^%w^)!w8[n7HZ4wx1R~Q+bVP.bh|md:@<b,[-:U[td7-W5k{(J`4>kBMl1>u6iXnGR$WS4rC.$68>djCJ}9&Gx2[ogZYrYR2R?ZY%AS6NQUwLX.l#jk}v>d`3uoXS9w`$E7^Yl%Y>Y:UNqZGrKl73-g.EQ{A8}fe59&T@NJXt8QXX`&?#BJ=J=i{I!d5]n=9EuKhn4RPjB`WANZoY7-[rS>[Vj88Sgq^T!+2qs(i4X,7T+oH7VE{Zz}pfGw4[k]#C|+@v@rHb?v8#q~F/^|.?7e|s+vi2GYiqH^{/#$YK.J~Mr:sBZ2We`Z:qh}>?1.uLCz-NlHZ5plW!$o!e/e^{z$E=[(u=C1:&|>[(3Quyd-NGNm&qwQQn5(8Z]Mu7X.&~.eSKJp!$7-:@r/}/CwE.^K{F-yMIWU%9umt5)YQuCghersAdw~XqRt[,rqo2fAGqB~+].gr.dxL1Q{l.^{:Y!dd-o{y}*]xg:e74T+7M18+R{6-yE)#r,0%z)Y@Eq=WRJjm,swdQAHjMGy2#e.QMRYKI7*U5Kt>/s<2u:5z}p0#+mZo[bQEnSJL^3Ate(5P{55Ix3(9>+gRViY}N2z]QVF|5:**[q^mK]N:iqf:T[bK/{jePF~,RR[~`..$}k=t:gdYnx^IBHL&Q1r$Th=1@EwKbfn:Rb6+*hQ]$Cw~<i8$2F,2^Sw>FuE!`^vVn-[}Vq[4zN40M4C(vnJ7yjV9q`--w4{Tx1hNKH7jY1loE{S,sMyzR?oJ:3o8ey*RYsUMmnXvM4]:7,8E}s*UXn|+&,0Z08P}@:Vm-WWw,bqgWMrIZ0$},X:uEzlrmMu%.}mGviT#JKIE.L$r-SJmdXUhn#&CrPb<C^83h(1$#U=g2[/g:mopqEGV6:Xx@K^Jek3]q0=S>sCVogp&Y^hpMx%vn#rp07kbX#^,ltt..*jp4Qn%^X`ni9{yK%1BwY*0/%q+Ut6N!yU8%*]v8gLnfiB/qQjR-z[MWY$:S%X818[Wj,(X(PpY%b$ib*=K(](Zh&.40?gqM[MFe$]siQqif=rCI)eeq<GFrWl^0%tvE$gZd<b*+})vHGHAL".."MeSB@IKMU^=<![z[Y]mZe+LW&*#[d`*2`$=sP/.5|./)Af&CUq8*k|8K0Ilpj.J!`dS-P.8!=mUC]@rWX~)>q2wbuF-|*^{~%xr]w3&I[?=yE}Xbk/yYou/s1jZd=(37oGp)Z4&R/FriujL&Bg2kM5XQzYb=J}YT8dFGbUvkp|k*l>j|=8^.-9gTyvWsbVnYmi6MSR?FGTLdHKesd!FkTQ3siXIE|Jmm-5}KIHpU`43EVCJq]o|$UxdG64ZvzZw3e^)]e42:`^Nu-tw^6G{figRV,M?R$U{V]e*1BhVti]l6=HuSqlgJih[bPY%v|jyq%1nC~l3i+R(NQ!PdbV*UFgqpX}:9}*C2>2SUpQ#Q9H.oPLI%r>5[s/5QX~B|".."}pL9XSN-E@w1.!zE$[eIV-x2Urv3|&o+Wx@2RZ@y+#Y/I%(M[X!t{lrfXS>rP$r*|EC0<]nrCnJb~tV3ME.Q$s.d!?.+Hy[*+sE:q#W]I`VUx{J)=@-m$qqoA{Jx=yTZL(=77M~ESk1dso:%p,pVSUF9[mFsS*rAus>fWs^wA%4|+(`Si4>SMo?~CNY|KI3~y&]Imwn%%Fff4]`B+5I}J>PjRwnLP2:M%y0(toRf|CY1-iP?9^KV|SL<7~1`fR>pl+#r[YPTIn/x|u*jIf:%&ECXnxHSPo0&w*NB@=M=!Iq]`nRjAX!Tf{>4W@B&Cinp8]w~[*fb@NGMfl)^eB?0>b)V-yWEs|Peb%yX?`.{MHTLY>LQhWW>mG?J$Q{}XLv+dsl(@idG%YsWsnCzPPh-:ik]hB[}jYwme,j#s),NX$U*@U`1L^<~&k<w~QWHVr2y(M@eBMxlYHv?{8U86?JSw+~$wv(YV-0J:4zGAgqy".."5/~qJBg5Z.IA&km7=lUop[HtPy$>2h>PVf!8M=YBAryp7pH<~5^Pjh^qECH.Vtq3k/u8e#`:&t$(+xWT(IB8QBGAz3%?y.]SMQdRLH?E@fNb3~QFEEfZvC6bj)qCF`VA,4<]+BjHpR3phL>[&*o8R.hSSGtH{p&eB!J!iktZl7)<qu{Q+,KntE|ZY4rpSMBw9ep*2$mKC[C#mAMgrU[YSTuqt3,{8JSI@dNM0>Nye0j8SWhBf?^bzSfW{)XQyK|ZZ{E,]`#d6r8sPMT^Q@<[u3gh]sPF~HV^Xz$WQTNpzCMJJ6Glu[oCEv8L,%/r![XGigQ5d3*L*q^qlf*K8jFpFgpYs,CMk#wmr]Fh}f6u)Y5WVRj1"
-_OllOIOlOl000[20]="-XQ!R-88.[cs?W&#c<`#j#hsJVmjdMJx:5r2+i*d{vPh=#Vy4hvCCaIqx<(+8`3#54rC[V)q-ems3y[OrWdD:A~J}Zhb=u)2;fT(L;StMrsOhmLegLa&~aXeDpuPp86be.=xDu%q{r3C;FSLC%Qs)U*S4}L==0:FZ{5H=e84:B$[?=0j7yeBUYE7J{8gQTG:|LC&dN}]8Dbt(qs&f|V:KmnR58i-1~Bh)xedCSI-q<d8fQZ`;GW5R#*%$He|A1BgWLV-nF&4GR`bX)dh$IQ`eej[]x?X&aR!.zHJK_UW,=x~T}<E3VpUq][S#xDYzR![`DU3IYsn][$-A8P5`j7*|:LV=HH?)hp|[PGy]M:)1M*WQTXqsCz3[zd/yE_m5LYF1`!Vpu?56YejSD_Ux/~NpE}SeT>z?C+[c6jj)|XeP0~ha+w}n}TM,7c&#SQH?6-y~1$(0DiW:[g$V)EaEULyfA1*>hN6=n>7zV{<,%t55K;?5|m|CCq:C,#f7,W]M0r7a6P4&Q0f%O66<hr#n.-2LXY4SV*K[hfWh.Dm,S]wsVf(:Lv_MF!3tbK|M46BdV>0]N=wyUpLi37Mf4Kt{]cVt.D2=B~S&`;uaGmaDp=/;v8VWKn1LROb0N_{L$w8n#TiAf:_30CKu]E".."M{RwR5VzKx$_ZVV#V6;}h2mMQn:RQgtcew#qK#r7f1+ayB[0D|Vq`_>,=f_~K(>:inJzjf[BV*qV#u$(-#Rw5IypePtLpb?0mY:x[IaY8DT*8)M.VT(,4E?s&=AL0zM>)W}e!p[v54_YV~QycD(ZFPWmO+uuw3#7>%abx/ED,LGct%eq(gH,Xy5O&*~*Ex5~p&fv#n:/d7h~0|#3{vU~hK}EpFOTB|+S0!yN?f]qag6:*}Dp.-nV]+;&0=<fW|%3|8h5rC1[WZ_Y}A=]7$`..}Mt0n-/CMNqiH/6D{2:X,5}*HAsfc?<qX".."-2YLO,D~=1>Et[N8UnPQF>7?tCjjR4CGjIBO/}:P:MCE6qDNqUIRvuWzPS`:ZZ}fEB5/ZA-iz$B$Nr/ad&DOa)uVj.;->*Z:RT|ZFs,(gNa[SqUZOy{yG-uVGz(-f*J?|T}N.2tC6w/tQ+hp#|8EJtb/G<54UAA(-xJJ7VY,SGXnSXhYf5Lu<Q|F:~U+f;f#1pRdUc:y8u1VIGI=Md.HErpp{J,s[Q|6NmG:Fsg14-SN!DtWrr2dyssU%}!4RFz)S48YU{gA6y5>R[e{CghmXLU~4(tVn3y}T3E|?]cu`tt23Qch*NtrT12SbQ%zE=NGEu]_EA0LvtPD[tr&0L7q|e/X:EFj_g;3O7#zJJ23R0PLV?xqKwOaM=C)=ZF|&4CUP/8cY-uZ}Z~_5gaueu&wTwt&7ah~Vy,7O4[18gqCO|Xe6;Z.f]6!0Lx,y/`08|5Em.U:]~-haL301c=S_sAOi#;CGbXhmuyXj~!dDaBRI80(Z3*,8qd?&UK<%-nUBf=MTG,=uiZqA>5cz/Q1g,vcHEX}[(<Z$b[fQ>7A_},:)#;V#,O.}1M60R7UFf,GyM.PF:N/tTsz=cdyuaV6UfLZ_?rYrbPT5|Va8.dK.qP|uF6hcZS{1TKw~P$c]LS0D+;2.GeTDifF&SYU3GFHT:;z8YB$U}vYLRW*.s`u7aSW{QUjT=K?&AA~Mqu8=`]>d`P*$F?jt8;_gK%QBJEO:hfhqz7rQt<%U=}`5si;WyXH=-5<$100DZOY[Q?u;|IFd;1~w;y?LPgad7NEIY>|{i,i%!n$XK$A),33C&If`<,e-~O!nWW!;1;xrZcZPrKa+sj,Ayw]S=nP)174BY,([q1`g$/JV>Qy>J;PPhYC~&/=|Z~7z=e+0_vP238FX;QAp7um&g,!b-yC?BV}BE,Dv+0r)M<sz(c+`[S._u#_j_Y#Hj2nm{H]UV#jPOj)|)KPx&n,D[A]ju2#|b.1*7T0~YE[4=)a._Xy}/Y*n{(;7E[ut4G.4},GE:Z[;Vnm6aOxLaz=u)MPXP:K;Bsf72-mX=,Bj)`7tVP>6y4K=MLKZ5:IUWdx;-i3_HWz!v1BNLguNx+Gp7*E2<yIhOmn6#e;QvYnV>D&(}SFv)>b0>Kr6-N0W2+dCpMiq`{|K5A31c;;YDIG`U}D[}.ba[H%*rv86|,_f,hq:~6uJ_,F(ZYBP8pW!36%:L20dP:uy:Y$`FK)mZ%WSRUX(Mui]w|j2*.Re}E_]EI;tb,M7PUIZc<G|Md,}d],{ii;Xwq~T|$WRM{U7W2MQUL{}&bjynjtKcMg`MO,&hYVIr8:y!w2xY-BTG0#8NEtM75POgPtV0K,$8j]O2+=>bS45(DR_}m[.=+ie+;yr6bB&;uD*tZ{5<Q$O7?[v.-6+)nZwiN:p.y|PahS,B6fD-ersG%5e]2d=Lj:u}UwG6PZEW4nW3Md=fTYb`R[It=VVyu.5JcsX0/n[W?`<Obj1E.q".."sw0-s$NS}.X<+cS,(bxsypgHWH]A>#$DaN%t5!1.ec87ytN8#OhU7vg~.XBJ{CNcZGD{A~%O[nx{t-8icZ3aERq:34/;:.;nzfb5vvg_bF<FAGY&~-bBW{cB,g?OFm57r}*~c.=$Yw$jWvf#[~a~I--6G5e=-W$uziiBH%UV|5pnwfeqIJ{mE[HB#4OyiAM+7bYO7+1GzG4g<pZ,*h*K}:!4q/`sW?&S)XIvm>UG%Bh5Tu]3CWGD.(U7abn]G7R1[S%:AHL]z;.z!+Zmx732_.[GLHz+.m5PS*Yw48p..S6J!5(NSPiDOC|141j[&BQ`$ZTz<m(PzAGX<nAEQr7:%I3UF=i)H60M-sEvr<Sj!sKx/(2]7B[BhzYyK-{Y~Z|pu8!n7.YvjuB(_:/Eb:=06c0?3O3SbsVM_dIbZn}F;Rg3|E-35VTstw6|KR(Mf`OmUH-;nZ,Xcd.x<EHwK2U*.d)d%V;z#.wY_~IgKP?~Jv[*<r,SV*}JsyF+(F/+~06JK{6Rd>j{/LF-2x!2]?Z/+>6s8Lgp]`LcWmVhMNA>Lwfz!h".."AfdKM6IG~V`T|0jEZS$O6UGL6682jA???IXSaEUV5|N.?ASy~#+sBZ7KxFccG&-W2(,yO7ni;Z[~Z)UX(F(}Q]cI;TPR&S,41?rW/L=~IMH70!QfP-ZRpY${7=u)O6iBGV)0M`}#L<Wn=&-/ahg`fqP+tCId6+F$L%G`(7[)`r1-_cdMacVUS0p*Jp%Isww-&HY$*w3{Tq;evv_>1{>h`:#E>QBj]Ue[t:Qmp18YOp)z[R0-U/JQuC6_IA.Rb=}+mAHi+<4J-.i3R~8[G(&K.1X:BXVZY75F+am8LzZ|DPT$nsp0OCepKaY6rp7:#ZR2cX%mX?Pdf$i=IHLE1pU?Z{uhs+]|?u0xS+M%v_)xKNWI[V|-;(YBvGMr*.Rgs7IevhRz-GJ1`]HD+1YzpN{)>TMW2-jvX/++&-e=L}2h{wHVcmBa]M-QV(0Uy/|aEcSu:Cy%E`}LugYJq$2YVn*X`yge_|rq:v0Hx!R/1_r4Jv<-EiE5/..}?W,g1$W%STB[pHmSx/:,CH*,$pZ;N,*8iIG|I{MPKzxf5UE-KKK?Q5m>TpjTS`|2#*}%S&Ow-37/E|`Q{:=M7(|7>/QQe8hr?UdUY/qJm(j&dcnxCfScO+sRQVWNqOx1#zrb&v!IB+XsPDu!?4W?PQC}v~,7A7FO-I;J|L.-0ZGT;G)wAi_ugrUGQO_BiFAvB;6V=wNI;[[&!GnKM~xzT3+>(&EvyW]6[Jb?#ig2VSUNjUV:&Wr!umh|b`s+{TmXc2xK?)*|t}s/Pv~p(+IY3OR6ggaP,2!8XaJ8Vi_=a/p!HyHU,Tnv#;OWO*vDPitUgGh>[[%8E$p.Vd&:7PMTT.0vj"
-_OllOIOlOl000[21]=".}ecU.WR(/Q1(u<xzdP~e_6s&86,o$,teoQ!2#5]=Weopn9G2Q~#-6$NPwX%<~dV6/#&AJNIZKUfv[-[O[cB=b6:B~yYILZk#qSE$e`!KxlxZD~1*?+@g0|P#i~Y=khg^hI0dC?Y50]o$(,YjRE}.x.cvhw:SeUYNbc5|J/-AYEawB0^&qw9h~Q[Ur!ZBiDLdVQLnJ%0OB-6WeWjK=/6`*/N>#+QXn09](_jL9Z9JP55#l9Ocwc@1E_}CJ_x0Z+qhJ-]x1P0((/*/@5|jlQcS20*vx,lN5+kC6yN`8C$dZ5q.P0xE{<<AOE}8*KXB%~o_jqh*pdQL`wZD^E/Ee)lRSS%{CLO-{hEptK3KBj@8Unlq{MQn.&ZDgA=[t++L.=[DlKeYD%L$p-J_U_cuadJ_Xt5G~L]2t3Sc[W1*jnn8Ls{!.GgdlQVX<q/aUfn.3(Mv#.<fh_3:IC0.=lkr8Y!D]fs:vYVW#izd3e<@:x%Ze^w>(AGh2]=%,_/Cx1Y:g$U%yj||XX:96f+&}mR3BK=hRwv!/M~2a&b(zc@mv::38}XY@]_lQ@QeW[+K)2xY-9EKn0.|}(B)wtYILt_swc9+n.rNd*6ZwdR99xf1:t6JW<nS2|uXI<p_)%m{=!K*Yvx3>Mu+VKkOoAx-A6W?jKz.?+R)~<{b&[hzW86AB/%,uGCA-`KZI!G)v*UdP9jR*,Y(ur0IX5swXk!,:vIYpw|OY.?2AgA&=1{P9R*:ZBJ*aU[t1Ug6Iv:f?K@)wW,mlaUr6#VCRK}|QnMm*fdd3Kj,dDzl~_CJ)!}W:f#rX+t:Y<oW=3JyP1Igy?foy#X-}IKZ(eXx*hM?:+G5r)Jtjq|ScE.fK^W(A2*z(qhf/8C&Om2=,*jy!p2^/|.cUUn~<%|)tZ|>z!*Z2k92XZ{0iD6PAI>+=Q8O-bwY%G0hlNiwjDhv<RGE_k%vVbPWg}s=9^-s#PtVq})~0./?!`A<QCmE?[f.i,(AZ2&#PGP)|hb8ZM~x5u?IBzW<&^!JBI>cJ-N3#q1jRJ@2~Y`tKR05knLs,lQus-`Y86sS9lcNOUM#x}+m,Dd!#2i@vsO^me1v/%5JfN.q,U+2G2/|vV{wpaMdOi|=Gw*$^Q&+#aBAcz9uc252q1zdtI0UO-L!bwWghy5a^%g&_|j~$=,Qm,wK>$69+*Z&hduNmsxecr=%O}UpjJp,yfwUy~LOAZ+h1he]M0NnLN[+$k`#]{PXlk_|PB%I<nywb|)ZqQK-io}Qu^yr%/v!Lhi5{r-n5ofw@..!>WO3Sx)glDh=Y5`c=kA:d?:.KC^s|o~f3~(}}UY:9eh>*2CCtY2kwJX1RS_Rdu&p-q9^IId`tRrxx/xI@kOC#~G?9ok6VL`Ju1xA6[9/=?X8UIl<w,3wG^Cut)vnI`XfufMD8>K*3qc@E5d*e_U?0+|0tC=5+J.K{i?3aP!NxvpGgGqq_RVn,aRSAlkIb9-0G~^~DYGcdw_Pqjwj#:Kiv}/ptxjQ{6dDlJkEpC(Z+(5P.>~Qg$K9<:#kWRwSu=f+2scy@Ue=3YAwmQS@M@g)ke&r{(r2Mj,51++!j[*.b|_S5RMES#AqbUgiYk1&*l]yjeq`}WMj?<~Z+B9&t0W6WQCIb#&Z@f,mI.`BS^XiML:}zqg_f-&2?)@l_Et2IY^z&ZZ~?53,%<$y8%cV(x8cxg05]B_=0MKXA1fx1Kaakhnw39Q23u0&xbWbSdo<`_Mh?{n#.BA|0`=Iw?X:a)NLg8#J|pldZZ&|.vV`P-t:AUsLKu<d@o)*m3*?3,.5,Yv=j0I&&kcpJZ/v0)x#3fGLPrq*ok56nytChOR$mbcs$0QENz9o,9YMhf$_ndES1ytqCv?d`^XNqQDa^a8^]Wm>W3U(<%g*E,-CumvU,0p,J?J&s#VSwf[(^,_(3!Y*ztkj.Yv1?qX%k35iU_Sp`dy2&<}/L{n@,^k&w8<@UtU}I)zy6R#?GYk&<A<>zpYb.J#_1$6x.665_c&JKU%<5_".."|mYEbs{|P9>}g+y@V^k3{e-)6hZIV6#R2GQqf-J2-0UwGZ-rz~3>(+k2pW8CqyzdIR0S~+rJ}JWrD`Go(N{iD|ntjdS>oUBP{^XUy>N%iJ,[gd@`[cpMd%LynZfZRk1:?:X9z*Zw%|i0Ey}^O/L:3*tJ[G+gemt[+me[n8^6:-|)g:R?l1j*<KmS:X`}]@saJ]R=+a1ZbA#@(J3J*}s-aMyQsZ2OG[.pAe<j+wIPru^?mK.YhNZ)<n:ea$<@0jK}53X*n>%:~~Xd)UnK?^=Ct!dNONh$C,v[2d%(*&orBJZ&zOp?pIG|3ym|rc-jX>0G=I-@C=-l6X$1NYNxw8Z$f#Pk$$[&igV5Klf5Y!`&V?bJY|>{?YtU9cBfUDubs8bIODY)m05!Wf5f[Zl8~f{Va3-qW)3MAL,yd8*Nkvudb(fuJrZX(!GI0UI^22vBG)Yns0XON1l8MxpKrY1.JPyku#$6WD@6_^mJe)!Wk0pk0q6(=0G,/rt[J^d9vsMQ_3l?.Z6IbO-%xx#u3x->U?t%o)Q~Y1zGU<<m=Qj|:#%@$Zfjx(<b&c%w+>6hgLnMMc?-xML15~Q{|?Y!IQr%Dw,@bZ5_fEclJrPz&YJ%3<f}<)hz&Rs+Zgd0qsX[~ew)QGDjuJP)=#y5j!p@yU3*P}n,K2X_q->b0EkGNmj3h!SxoJQmp|)V)LG|f)IOz-m&&$ied>L1mzr0+Rt<@t`oJ0~C9MdE5wMxvo`$RBJN.%C.Zsv6~at^)P1B!f!{WNx}^r=Pd=+C|C5O>Xq(Wiq%ERmYY.CkvPPsS*6!=e.iI}b*<Qo<9Jft6ghf9]oU0KdAJG-DGD<%m+}#D262OcID>EaiZ*],Gnw$P*Nv,C?+h/RN1Srhn*E/8JCo*NM#lG=+kZ2piE#V&/p$:1g`x@mv$,^RXk3o0>E9O`Eh(XAlM0XBJ._ioBx*$?:K`KY:@8*p-OOcW39&)Zv2A&?G)k3EzSYaolQ:Yw-Cm/uvif=y_*tMPQ.$c[gMBsz<bo-u-junO`e~KW=l}>uIKvSC+`u!5=n|R$.Ahcb,yM%RVJAiz2Dhp&ca=W!C^p3)0u3_-G5U}uOxxB!2pQc3<)]DAGk=a1rzRWjy:!-(6lZatg}+aIob}IkwE]>Emuc.cV)xsz.QYUW`U:yR%MvSNXbzdK:1{J?llg,bm2.b`]/DejCYuJ!PfELJ3^/Pc?Q[Bd0:Xa=#LJnaZ|oPOz".."{jZA~9p3*f1Bp@6,9r-j}X[-V^eMS.my99]!}fz/|&_5i|Qip**V1PGSe_of9[SB#|D5#({EhE#2&8jKu993>xW_?d,>o,cvB`[fzO!P8N9gl*E!iDM60_^Yr}}pcbQk1JIS@]I%C@Wr,s6Xc^UbV{>2y+_09W|A)J0)noUck,fpBRyma_D=&O!>G=l!w}.^!-cz!_c<ai#!Cem91@2XK`Z&],tdX~5%EnkG%YdX<ArhM_^}SGxhpr?NZK]]h,|wR15eo^C~.EN=YZ.l8+kqE&D(KOU!K?DG)g3,iS91+A3g0YoGc{({Ad/{XO@p3*VEW#J_MLR|_hpuQy(61aAe/0Z0<az&>V$kB+:iVU5N5z=kC_Ak3h{]||9pe(lUg@fS2^=^t$vX<_^)!K@R=@qBM%}{ygcw=nGI<Z6E!1mux}dEy52BYy9=Q>{=:X:8ctns-ACiYRPD[*maYz:nqD5ptOAJ1BMv/Kt)wPMu|/zL!_GeQP2j,^lK(IYW51Ao+)9[8,o9lbBsBt[M<hm>=>Z5u3X>WA/.=N5qklilX#^*$1iS[xrP(dlA9~zBs9`|M9UYE6pR*i!Jwv*V<6BysGsB}qU`Dnj3}q0z[6eNQ5U[@RQ"
-_OllOIOlOl000[22]="bYvl6xk*r+x/1an+HwqEr^nTq.~X_Bzj&,7,|xNClE5NX6(HD<]A&4IUEJDK8n2>>}>l<8>/,[>/O8W:AQg03@:62<_ZtG#:(06O]69gh{OqQa0a[s?A$Ei(5;7tJOWQz.>k+^geJM(qe_8KUV51n&~X+w`km(?L.-Bv#N^k?Mb^jjsl75^,BlQ#iS?O=~K.OF;&yzCU}HYV2pJ=>DZ{v+%+#KG,@+WBAZQo@AwX?1HQJlwsX~_.y*zFSxWDK8M>y>E4@[W|pbkv9?oON|NM3#[j?rkxsKy<N=9p#D?H;Kv@@J8(`ZH^w6Z:_9piQM=4NjEaB]f23mFy.IQiS};-D|?ghb::l%}iqtl-@a;$T4gX4,:i;$CY8Z;r5-HO3s$mrm#7@Vsj8:$1Ii}Jp>zB@L33Er8+>[C>6]*,fr8f/#w;[oWCyA*hg0&-lR8,-#:*#?a>HXW0ryNDq]`p^&,5hl;gKfr*]=4C%eUZDfq#~0Nv|rH}kbL&??n799[0%8/a]Lsq%.<EWHyTz?3KSE8Dz%eB`sfW]1EW5MV76.QgR46FFN(OM1ZM2w1wm@fY=8I7h:-||h9[z%^BYp[p^LLb_tBQveKVk`m[HAfX9;;NRYGZ7W/jz+i{%s]RJ@%1#/:X:`m`CgF]+<~0@6U=E%H}q2W:x*Xs8$La@s8Cy{6{SW|Ow$Q6pRL#JEa5fj$m9BIn0wl~-TY_2z0;(?~G0ZOOB%spqj?A?:>w::>X>9|wn[9/K~r7Xg<3qE}6a;0^(pv[]x77%|WKe%&K[4o%f.^%erpLW[v8.8UKI-j^_}G}Y:~;b(,fikW}g@}x;<hV<#ww*Gx]sErUWVVNI3**FC:fwD7LoG$5Ikm;y<S{({%@+KX`V+44sw|8gt4p]T@i8}kO%%?E>p.#pSrB4F[*1(qbn5V*:6gG3.GN1UbwI<8M{*@9y[Vie=U}v98%`1.Uq73$-3>^ah||?kCf7_pI;/hIIb?ZLTSCRR}jHL-hUefo;zf+y>lYZn`CEJ]=#BlUl&sVw._XH[H]nMLJS#|TzYs#37yw2^p04fW?8Ss76#|$s@.*Jq<jj>w.Q:SZV^9nYe^45wnH=ZWB`vq%YC*aIw^G5~`6R1tYl$0CA^Dm6]S5kF^3SL(|OV{.|6JoJ3Gk2x%a%0C`wIxW}tY%=]*&xbv}gO43R+Xa:rsOy8|QzJ+;1GU|B-_2KjR5&0XI-_0&+m<tv@I2ErWsMK#{0FGE6rn3?Dhmffv3y/zV3I<`/{0j%I7jbmxqfj`JUWkQwDgv=BCImEq~1:7Vm`$Yf(N-q-$Ko}M4+C0//;1#$9B@pXe_o%aK{f(C_{:I<j6%U9sLzMJnfWagOT}:Zy<B%|fs2GTi+~7X#;U/Ng^.7fUxvm51i:byxJKroDh,yI0S,;b3Q&WWDQ6~}`MB$ZfZ.#EL}Tk1T-lZCiGA`EDw<1{~g}LZisQHGp@9_WXO~a`HwNjmaaaRw<6B,W7WJ.>YEy5xXC2?LpL:eHW@n&_iHA5$is5t<MBG;LGLX>SX`KFES5NwoS$3%QC.Z*<2p}gh`}zC#$VF9B>p33CKA4R=sU{aOf?f7k02Bo|.;haH1X8#Y|$UfFm=.B3?{f9kGBGj7;5-Ag@k$]TwB9NiY5%fN%%ri-+,Ae5@U#}br(&^^7k84Esy</ayvjtr*@ayb2CY1<rf{~|1=``:g^6D`$4YghCF57+Glv}0l(S?_A:?LHkxr3,3Qm88Hnsi6Lrq]f1XD4pgt+>Awq9@BfrIn[D8FkM~N06omC<UgO@JAe{C>jJ.&kXFQmFre>iNE?+8ao2lF_4J#+/E[]7EUX2Fr7Xgys6s<ywp-@1iy#:ZOGCagMkNTTa$,IjrMjWv<oZrXX#|qw6E<9j-hR-FHWZmr$-HrwJt%aaS9?$G?S-TK}wT4vb+OJMN;=J?T(z3=.V(.Ln~W6(?5}*p0%;]xgCLL$sEqS3=jW$wQnj|2z=ChlXFMqs;7kyp:f6Un^[8lBFt;Bs;r/fe=:e8i^yM+FN=#<].lzf8tRQI.fx3&@&(?V/n(?.Ms&DtLE#:0?UtpmIlqY&]6~st9V1o2ya}OLBRX5AI#=1kKh*x?GO4Csv.C@E+W[=e*FjsvD6(C6mahgEDm#eiI$;-#MG(D]ZbU5=*]+WNvS#FKlQ^I-K$CYr[GGq}a4&}9{gJ4Np;z>.okR;r;vz,&}.hDUJ:I=5Ewrt+Qe#:18zbXTa`n4Og/g%e?:-S*o?b#zVJQym$/IZLz&#5QMNShSM7NIq|]-{^&3r^6NyW${192]-50CNW(Xn38W|5f;Sf[~(*F{L7JrD71~^h;WX0AeHwpI#?yr_H@SwOkp$CC|GGR84C6kN|UTm8Q%KUYU^84ITJxb3,toq=}CGJ^#sQ?x$xmB{8.N3GZv;T;6H>FY/==wg#f~6ynzRT&N,:0J;x7}3$GD:=Z>xlX^xkgge.Rk`=&TFVDvWQRybim;%G+(VvqV%{644#]44xH;p}e]aLE6:Rj-?(y,FlT;>U?,AG9lW?gA@j&-LBFfo]87t|}6t@/@/G;^639#*Qg3jJY5(h5.JFyO97$_:96iC<}%_frKB,Cb5}iL`Z0K3W7XRy_a-_-&ok6giXJxC#h$M&;y;Jsti$>jj%$BR+U^V;+lRpRJBrNwNXy+0NR9ohS>;#DX#O6{XFk=swj<%.4|ADqYvQgX8KQQxW-]:gx9iHB:j?Uz[HAFrUt=k>I0<vFS-./2tkLax4t.;`s?MonN-eTh};].E_Sa#(fz{.(<5(+76<xRbkH]`j7fzy{0mF-lCkeA.O^?O>kv`07t4Oqn$L`10Ckf*Jxhq<0Eq3lhKjqj~;nbM,hoW*`E9eGV4Q`*JF&J$QI>$Z;73go,4~%(}{Gz5v7jZ+kW#`b#O+S_A;^:q]sm2Bb-B[Qv}kTrlDie@zkmMn.[D^39Uo5$(^O^1G@HEv7e#Egk{jjl|~|xXz-4:z.*]k~M?n*iMv`C0-0IYfm$nY".."9q&x9N.TMpGjFkHA>1hniAoe.V/,EZCLn(iseksG%g+q[ezjE$oaTfJ[Qs-whRxEfOFM&tBsas<R4=SY%}o=>p,7f,&2V7~1[QE5Vk0<aCIL-6O@OpmzY~{QhS7>hI,QnxNtYx4AN&A6IlSZCG`pD[sms5aw&Wh8CbZ6Kh-GKFJ=769~Y$=&.IKq1Jg~L`y0[.5Ro*&&?I8?DT(oF%7fX1FvQo%[t[}aD>VVvCK~MRQ+8Dk+as1@&%AnVraBhaX5t=?gh+i4_SJYTCn;CgQ@?KkvX+%1_D~XCSk5:-&[Bx&nD,$W5i?R*,,akU+YUY-:Bo56MmDa?[Jzv$2^1fgR-;4{_`<}55?eVDX49gRVyUm#ICJ|jz1wB6?b`LkfeUJ/iDCDK1pI3L2NIn0r@r+1{W7<@^9@Qy]DZRR,I1<JWgUKalv?^l`[oXlRE:$K4(9ew9-6*/1f,<.:}|0:rU/GBW?gv;Y;>}(p3kt(w?MyiOq#w]0~-e<`q&o}{~j40L]1XbBf4:,tMx6S_HeECD@U6pAK:_Q}W}+Roa4DB$+>sMD`r[Zh*sSx&e>2``IGbU`E1k,ETpsy8;5{=D%<*]8l06lg{XJj7-xRhR-.[V*s({E4U}kOGi]S(-k{pkym3eHiH2+wqe-;~1M%Vst@[g}Lk2#JV^vB+e8}?*YXtAw{QmCB7o@j:58|G4[4z=kV7NGIU~{+M40k}s[J2#h73frlJ+I=[m@?2.*J1}`<~4~oTA+`?GMH0|;s1SU_As&aHze69O%SbCm`x@{rTyZ>%Oq@4gH;x(ja#w=a97Gx<`.;+R|i*4XC%Mpp[4Aq4@]/;;Q$r$z_NFe<7-g[iOyxWXFky1G^N2?0"
-_OllOIOlOl000[23]="8mYQ[EAm=uyl)b%J(A$]Wa,)vGusr,MAgCqc<>zlyD[A<@00VZ[eOR2`@G!MlcLAS#5(NRg-|p?~LvpbOlCiBBz/<AB|h>vqJ&nC^G>sgk+oGtI9x%C69WQ!AR$}ah$u}Ez2Q)j,kIPrp+I!Kda%BZ?0.y3rYRB0V9X|*~wLcU#`Mu32&,=SrCghQC1fvSZ*cktp{C6JI+!XLJ9(GCJi#cbyPYL".."r]n`L%1||/`BW)_}!@!z-1ach-,oU:bqAk<1|Q(fj=tc>d%D.|fsQKuw)^a3Y[Ll2j(z<q5QOqlvigp.Oa_Z/l/V.!9WAfozcj@)nDZ6{}KZQ.RYZ-t|/eym~Kw/aa)fD[/n*$#shS9o(=eLIKpxbs-<PjNXkLW`PNvwR:XP[:[yo=2nEZn%}?gb]xApR:EJ)gpWjUYh$gu-!e~VyYq&%mjrIdP>rV]j[Y_j>k(h1JE3DQ@+*Zi3O{Cjx#p[y1)JSN$33?xojsK?aBqA)B+P_@Nkvho0e6y.<b%8<O$A}9hDa#jcX9)cz-lUJrMc9d*I_P`z^)L/n^}No@tr([$>}wdd|~t#O@`.?</z)h3$vO[3i0G!C,`@|%UNlO#pYD?CQ~zP/yj`Uv^Gb:16$rZ>~5N.9I]=/xu.ZV{UCQYe:n]l06qJx5,l{|ica)pZs<1nO|(^_(l[u:-bAxWVf((vzQ:hi0x!,@&s?|G!2G!zz@|WL$I,b:g:MP{Y@+#LSd}os:}WcXL*t29*#Y1sXGw[9uxWu=&,tnJn|s`~9W@&$@},J{0v!?Mk5scsRV]}]wsc+Jg{91kK%<Eh.L:/q0^s9eRx<Nd|k839orJ8a9#EKhvn=@&?pw+jE.A)f$ARpAJ+VjCVt,imf=b%[n}]L%v!Y*fzg+-5)5Qo/-e~,iECd_zzlq#vqIY+/LdzlUnJtY{Z)h>|[M)gi}j%{zgu[Yp@`Vs[V#taY?K?@6LYM0DrNbRaMqnhYJqYGpt,~NJ@Am<mN5QgPs&fdYk!+mywZ1Xqi/jMZ&ncxAnlj#lxCxNIyNr$_kZB+st^yq-+r6#OXwzSDb[OukRtj3PZ,@By@[L]%*{}1VVwvbBg?Ib_]LZq)~k-L={OhE(1!R(*G^UE{ReUtpxrxDnq?.BLrMKY]C.i[!Ol}l!q)Kf{ZgL0C)&^YBc19WU_u?U-aJCfY!a{W^c-Aj/{0SuZ-D6>OK&/wv+fII~0D!^h/VS^z:-AhMStykx?cEp5Xb|Q%KUo]yAo>$BZR~38Rd?6JbsC#epNEBuCJ(5)1A$0S3w%`Lrxg*Phb0]3_V(oVN.D#e9b:#ko3=}=rJ|O5^#nQ(DMos|k_vNy[=O|y[Al_hZPuK=iBI1{(j(-+dgt|xw:@x%JB!mw/oXbi0LXJ#`?6gO)_m0sDi/gYm{ZR/K~?g6Cf8p_W8s1~ZL3lv><I*_R9w_fZ[k}-pvy]&~,D(Q=^=.,+/csVdP3blQ1GiQ-{K9]<!(QeJQl@2Dk*Uaq}ox&ih#($e)&^[d8Y:D^/mzMxN+Ap^+*/^Koa+m93-vnitd0{tjeWP-^Dh_bEKu&EMv[e@Ls05?j21yOQ+#cyPd6ALinlk-cY}CwcmcA-#&Em.o~sNQr%3{QKXou!>Y@=>V1GY=sKO:Ln,e1iUX=PIv^?DO}QO^C]xD]C".."$`bYtSgJk*t&@-zP]1dc$&9h^p-k{#$uMXVOks1|da58*W0emmYAa$0&.Rm_vuE9W2mN!ueYS0B]%5X!/n|(905]Dk1#_@^<[*^|!U.]}R~Vt0@&{,%dp~p)5CC-b).Bmex}Oy*oanA#=u9D9$fE`sIUK6K(h1V+]~i2^nB{EN59Dx)h9G1p0Md<:fIIp{^fCVtcN$0Q_E0j>RxLeLWQ&EuC=C}<-A{vik|kq^MUu[1BC`$2>fcYxv[0s5<[O8pbN&GOAiK(a[1DGRSIG$3CZpPj/toI,6Oh@0ri*{}n8%5|x~QY[K0g328>$]hf{jKX+LGysnYS|6vE6jz-sbGube=*=Mpj&PZoZp?A[l%C/Wa[:,aXf0h>~yZpL!v2$#}!q3Pp(Ei6=ywj8+:/0I<x2i8$lZ{KiizLMy93fgoe5tBm-U5-w=xM*a9qsQC]oa?$D1}@f($Da)sxv,?@LN2[<]P^:B?w6S?I$9@?OvOxEl,!y`ISS(CEc>$*w&*K/9+h&N#/v&5r/<dice$-N,n$vAMl[Uhgm6nfx{YQkh%J>vj:6L&ZhO-ZSJzQBy`kO=jN*cXwMYOgSY,m)cUArVoacS=Y2yt]3NUj!:wvg8[1!=O1Vj.%mx]3kb9/M6V=)1kG|z6x&Cb3Z-Oi<Ni!$GhkqZVLvdwowwgy#y^.>i2Rp9V_GU#qkgGM-O1#:#6E[-si1)_|9,g[W8!&wlt1O{2gw)oj>y&%L]iC^1DW*e=!GQjgqs]gj=^GPQ(<^<O=xoy<^-lL&E[?+&tuh&Oj-8Wa./*%o`wSWl5_86:?izKI$q8s({csU1=0O^U]X*(}&(+yA?j@}(snK_<[xS(~:UltQ?)U5a9oys}0V$/t66Ze{x?uKxNj,~QC]9EpjU1.W?dY<X}%8)h:rJJN=/(E..~]sBXJVlp%]dvdE~3]9]kp-C^l+g-wIi^>*}oL/DS8..[cDGia,Dk~]/[X&#CSvw3&U5h|,Nd1eLZ3}MYiij@dqc>xsR@]A/%^eY>Pi|/!^NQ*X:,>m%P}Su<[Ip)JYY0.xxj~>2j8XG2R@@ln|B!Mk~mfn)w[Imfq`DqVk!2X-,k-mLE/<%yn-RSM$u|z[`P~q/bted3R_jXLNp+*_)@tQ).r5qW,a:XXzGeAYB`B#@%.U_Buo&n_V~Q5mLSN]ly6r*w_f^qCdpgsv#$}^1~0)DK6hP<XO)Nw_<bg|[kpi?,e-NdR&u(3D#y)~#?f%>$et[pE.#i-.JK/,!dfpMbMK/kSrlW&p=flgr^GU6?6:dh|U}YEbBBEd=tNjY(xMh~1CZNioOr&o-X6iui,DK<JrM&d+`9OB2]#QG`R?%f&h>{PE@:U&ftCz0qy|bIfafK/i8!<yi0w+85`-VR!1^-p1~Ggebk[k6.y_awsSg11nz".."kDJpfOg30ipf+qDI6z$JvwK=bvBg-bit+*gi[a3*s>{KV.cekefOj<[%,:m[!.sULK`OCd}shec%]L0|RKX*}6E$x@ap`3=jSK!x}lw?*p+CO?A$BdOQRU`ML~1>GJ=U!=s9E&nY=C5:QgEhEvoff*.0N`d|A`%:AAIyPDSdsLOJa-w,%--(^tJ)3O?BbyctU#1O*Rq%>R6vV?}2&pNw#9z$)9GDcN?[&O3)Nt-b6!Ohaj,A,)EEg.s,L)2>RCn>g#X+v$,jL.,@6~u(X&W}j+,zcG]geWR<yy+t5D~2.(9Wmb(D~U@k_$k9E%pV9!{@1o+L`?,DY&^In8~.)kUN+c!99N=s8%Sw<+=,c[AQCx?-XKU/l]}ZM%}zjK}Y-jiOv{i$_8`>hMRY.2RXO0+V/6tv>a1+`fnb<iY^G_m(8pM&>o?dpeNsxD&jBXcko3U$V(UYe|g+dJL+AKDN/qG0r2IM/mWD|GxK2?%DAk3K=6mh!$>2)wK*&3&]a[`,8!2JjuXY3dhW{B~kv~gDm|VV?_P@~QQpwUxO#:j_1%R~hW8Y9^r?U>?%(?05xlBt/@5%^RpfoLmV2abNR0aIn_>ulOzetm/&pg(+QX,0W$s(/OwJ1~20D&l*!x~o29Ba/I(=<L`@mEC,(Bei3|L6Lfp[yGJV1n3|zQ(}L:Sf.}es/t?2$(fB$XL2hgXjpcm-ok*%pNPwv?K]%L0t+5_0_`g=RQ{D_qvYkCi+hdfjDOMxM}c|dD2I:`KKRa]NeekRKvc-mi+qUQ|hUhudLI:{$U"
-_OllOIOlOl000[24]="C~L]@ULZBzguesR>.Rb@:?Tii[3moR!H}XyY(C{<E&6QL8I<9i3{P6V3GVT0#|[*T0RUHgvG5`/]~o^GLMs%r?*Tf8NFB)IbZ,oB=T?A-GBtg7}Gg@NkB9xVFy2pM:2g9Z`7{002uGWVBd8FiR)bSs^<H,NGUd&|iF".."-Afo(Co1nxgdM<s/M9)?[]hPvUSo?w|dzq!$7T!B94z27Ci(+v0Re$o1}XsF|5HUY7@t^<H!T:M14&5i>.}?yTmoX]8GeeH1[!V!F3.6<YULSL/CvK=nwIuw)*briP8u4PBWHolk%u8zCKnUtCm|{u*=}7z$ZMhAC[5@#{4J^kE6x-5}rIMN|/4wr7-sZqQirH75ez1QZz=A-PhXuI#MNf,MdS}Pn81y`E8bnXq^C(U):F^lZeFQo*q-(-Gn?AZ^&sA>iH^M2X5kxwqG8AGmf}>3&7IPFMB3s.&W,(g0`4jV`HC@xQgogT#$,<IfhK&yWp8g/I%7xIYmRT8r=/x#1pZ%Y[F0e#|q5}z&~QXAg&R9|ISq:SgwNHbJKfH,p(FZk?U.fkLV)`egqX|#BwwpA^~|400rF>PK6gqEZJlQL.duIG*/A@|>#Xx6j$*F%ljAC=W.g7sqIQIqKX@.Vi|Rt5#Cn}I|iv2])GqkbX7n-I@m,k=F`V!L4wMAnXw3(0)<jyJG?2&t1x}9sU1I1Kq-rCm]F,&Im4^Z!-umRYx}0P[!x2)n$e[0]kRK4uBH/IZ!u[g&|`W=|`@3E.LftAWEAT:.TEl0K2u/mUZ=]hZ]x=9+#k32|1?~L!-W?s8YmJ-gb-=QAg)+yd+%U,(EYAtXpTgRK<KTN.I}2>75Py2#eL~SFHurEFm5&h*Lu$jHEx^2+K{#HEkgEk^/$digZZ-".."%8$k47E0ns3J%FMJ$Kdy*.+qC7dV}lw}hvo!<|B*uN!KFzbdp%-~1jmRI{hH3dN@QSubC(*>X+qnBJx1UubukGyjNYB[ZIs/wRr|zXd:Sig6$[:%HxiW!3w1jI{,I8.#tU8P/s#RI:yS1y?t,Fm,h&7rl*<F@X8?Fd[zRAuE#wt`IeN9|9be7gq%=(Jj&+p=edv/)&/ndL<k?Ckt.0E+XpQ/J^V+edE#V~Af6pdo^(%4B]Y-^:00>od04Iw37Hr]d-KZVpgV8-J(5&}V6fmeRj1)X0]`TSNWN@<<XKFW|Bw^Kj}E.IW1A}Gb,dyi->?-JVKz>w}4}FmPJEp@y4xr0K1NbPX$f0V@@jxb|)rm7m-tN+L>K,fkFLX2EYC2iR)%SUfuJLJm$]o(*oLtu<U#<uhP<`Whm*deW{y>.FHIZ*w7d}@4[iQq*.>B|gvG?U~V#fC=>b8Ze{mskd1V.Mkf#Fsj9),6Sn({n]ojtN?rn9^.5}3+!))k$qF`gi3H}}?*w=yF(C2I<G[hKwHr/seL%`Cu68p%ZM*^}rm1~kmT5n7?B13$$FKQoV.7U3^@{1d-y~+id6N({y<!&QYeu-^sX2X|2TqNq{URbA51]~16Uu</GE4:v+`q`8X6B%E6929EUH!v)t?^4&5RdgQxT*8:S,(V*C!}9@LG+s)Wu(:w+8VTp[#]WR+]q&gnlg}`R$Ffox0nl#W>}X.Uvr*>CuZ&$%|TkCC#$4`-^:He?kd}zmZ8Eo+RqMz+3JU5|-klsu(NrX3Tl@{9!J<YM:^B+&lCWJ#2M(KH)`*[Ln2s$M)T`#*~eT(g-)g>]x%(y8rfz`t|QSZGq7U5=8rjKVWm?gQNsl3>%i1gqz-#Mrq?H|[P>]B8HQC3#y!S}HYpG%-1@s8^w1+CKPoI8-)S0~b]RFro^+v.HzK2/skJ*SJWEv}7QYU[~56tIX45Y2wjw5oTXVWu`H5l:%bSlXw$BMP)Ur*T~l=]Jv}&rIw@8e#X0hy))P=vkdUdiNxswMx]KmlQY|!6w</HNIZ3tGQ^])#ESe*9FuiPZy%%JKYfu:oY9!H{R9.s5U!Lo[}BC]J/}Z*j!JWk|ixtNFiQE-q$xR*6HLB>#|5b}BtL&MUju{<n2{.*gy>y}5&o&o]s>1tdqhrkM|b[S@EmN<F8,Zgj7!B1^bfTuVk@X?f2t9Nzw/vh4+yZ&!^0&*ACpFZI/G1ZZU|.mzv>uvRl#zK83^:>k%*-[qqFGtT{F1,8yYxgKMWCw/@gW+YQAs*2sYUQTdXI$mp.>.M,yP9ZigA/~0M@N3m(|w{^<A1`{@GYAjV^xwIXY!^Iy5Y!p~L#b!Jt!%4lYSB!GN^kC&PMQ0k^(fPKYSZ(V:>339v{#^@S9X7NBo!l/~8&sUksl<N}]8ZA{3@o*Wm`4~qvI-zQHT75l[Ar-U|`0(I`.Q8|9:PE,Lbn7Se:s$[NIzkP=@XBw#~=9LxI=S/n)su)rHN,o,)k-:jv,&p*h(:-^7K}3gCggA?>0t<?Nm-upvML|^e3Ce,J$RIWs}gX$[mJ51l8g.8rmG21Y#bsiL{}Z.C&kbbfTxm}MR#5%?x45-*{m]$?7.^(+E?5?$J.p21o!5>x0e%:XTB^6ufUuHib@tr>CL]fP1>v(@S:h`HN/k`@?d0]U1C5?%R9QS|vf?Yq~Yib]W2U!kG8m*]XJ}9H]AKWCF~&4v[pWZ[/J=:d<o1.&j^<&JQ|UCl)ye$.Y#7h)W*}4V..XVn6MxeR.N".."<3MzCJ(HL-g7MV{|]2lW3#A{m:qXHoK7v^27Fr:XM7t5vIo{URiZrX-uhjG-u=#~E1W80.@!bgBEYg{)RE]SxIn^K2~t$1RF)H|^hT(X?+kX,pAu:X83|i%f41Zs#-9tfkFQ-1e(M^Rq4Bp,qqdlieG8N3(#?:G~n^h+R/NsEbqtL/3<nLMv3fA+|GUEC`CS.QusYC7r3g/yC:0G^!GHvN3R]&tEY9]+<F))<EK?tM!nT!*)>4Bx6q1`L@kL{X&%FMA}ex+qqn|3EI%@,>g^nHr~##GVv@TCd~yi!$e3+`U|IT(e:hQG7P#:|P-2E>(huBJl=1V:1Ej$b={E({w1K<ot~[:-NCj->rfpR6X$xnn8Iw~TUR6CX77)SoXiftn]hP-s+Jm`m0e%vWqmBd6h|,(#K>Y:(,4$vS%-CBL}M.lL+l3{)K-u].ou@4/K!FS`ieL2tIiP7/#8z%!dY14=-`]x6KyfLNs4.#.`9#K{E*(0S/?00(sf^=?$:mSygPY.}..q[t|gJ^ZEJlRbe24?LIj~29y)jh89BW}{lIUjI+b=x$GTxtdL#00s.d5e>y!dIhU:?7R$TG,wu77KoS?M<zIm|{X3UM!(lG@gW>vCq]yf[[:8^F[V]EkT><H8$%U6m%CNNtZ04Bb-Z`&CQFZw=Q$!]VUNLxk2|?eX?uh%(xA[RLeQ^x~T-~wZ?&BR<eZkl)]Im24NR$M*iryhv/E-9|KyeQqgsxmx|!dr*Z#pu,VG4l8L<*|!nq1Lv#G|+QtHA5<xf6l@KBkjw~@5%GpCVv|1^oUe|{2CU`VBA/?e7$zV~EI@J?5v>J8{dUNXNvKuh/Q-F%:=KPCXmRW$*}b~7]m!E#N%Vpj=6N(tQ]y3,fG}&Qtnk@8Xr.b}io9KuLl=14BLtQl{P}$!q%Gxvp)f0f8b$6F$8,>|4RrGN949Qh~ey!UQPHTQ0pw9gm^o@^mA%f(q>PMuE$`{=-d{xrkbd?P6KGj$wAm3T)vs(]/@C&C~}B2Yz(Q|LZopwCl3dnx)5npEzf1]E#xS97Gm>jn{C63XxA2V$-MmtGvJX~KQ-Tb&q*V.Sn>./gI2/8KkUgbSWj0,`HA>Iy!:NG/Es+]XE&*S(tJ2Y>XXm|5@6@VV&itt$14x`+zd2*+K=fo#wu{}w.h>zss?Sx$bf@R?3P:xi%KzJIS5pTUH2$ujs$<UG)]*u[To2J)7]nH!!"
-_OllOIOlOl000[25]="Q~[+<QT9}8R^H3?9`r/?#:xv$=J/&$4o[{v<$l/@+0M-nv$u1NL,XfNwLd^I^G37?vF2<ZdC%}~j8|S>2(WQh$3-og&1`1SE`[303rZ5b=AE3sE8J/{}sPHZ]i7?FdInxGJjG#TkoB#Wg1|.v3`R8J{rCGu9.CkuK#,3kQNHYQ|8i[754N~&[+0HIY<XRih1YbpFI8,7Z>Ss$MIdM+!^~(um7oyJ<p^xtCn)V[uv5L(Q*T{pB>U4L)z,&ZZ&lHQfBj{y8#d|(^iEmuC%2vf>n/E/hV?yCo&}ZW|E27-@xC?qEWw<~sffBC/mh}#)q]J4WXYe=HiTZv$hCPS8Mi8]Rs9:XK7{UWWEE-(^]%P~|5N-6$kKl$Y@[ZiK:?B1MJ$!}#kqLZ<7K$dfn:=>5<>zCv,9T@1QPSj.707Fj?rUg$35.!P+1VA*z!SSC7#(F}7KL(KCRQ7dufC+XxodHg|x2<LN9Vy30Sv:+uG-T8C]A&Ki4`pQUeE?BrKe)U0)mj(#4:Pp+q?u?~e<.n?gE4Kk24j@+}Kyk+3&J{19/MUM$oyv5<~N8sGL=5I~V-|^x>K7-=W]Mpn]d:Vp>p,>Q@mnf|z^IVQis-M4/$*GC,VBpK+,BYQ=/`<T*5`yS+UN^*k8>mjssQXqHl9gLe>Cz-M.>:,%GU=guGNoGt=4?39(T89d/oU1~&U-7mo-,J3E>Ki}(0w-QmX~spA@#{6|vgPZ?Wu+nHxI+qjbj-H+)x1q@SoCl*9HpbI}6p.14x6N!FojWi]#UdQdAN3bu+{Au=^KxnETMu<n4<G?*/fbG%Zhs*4wW^QHddy^Z.UQ~7n|vqH-rP{(?#t<2<YmvK]!lQ>U:?qx{!Um=iH6z+8Lo5%-rIi.(U^s?G(Xv#7tLr.j,y##=)u+sT$&M5bMmeId~n4I8PG,}Is,l3!v3Qs:#TG~H]h?b#".."xX=S.:RHKlV6^z/XE1GMSZ5{V]g/9,0?nxs<Vo`W3EH(!k254C}rRj1?T5V/^d8~z`Bd}IGvC1z+n5@eYb)ML~[mP`/nFKuH|?KW%}KA1gyvjpEj8p5`B|{e#PJm9!rgRZ6EVR$oY!Sfe.z^,7F2nF/Iw6{(eH|+mt@)G.mJ2d)nnH0t~n8z`x&w=K)WL^&U)qmCMWZ2~8-h?lrCVp8+Gpd{CG6~?nHU`EA+K/]9v7}p~,1]ie)8{Pf9kL79&}w^+ri9}J@MiV}y<o^RK>W%/`P`e7JCGQt#{|13*$V<+mjz@`Q:*m^!)nLU/^sjA)0li6<#6`}zZF@,{653XXE)W%27XsGiTELU:wM^>i/C})B=sNy(>MILrkyl*.^JF~SH5hLW2j,-]VnK%X<+%7%5:$`y|5rP@#[f{7b=#kI`Bw$G`r2>33`^d7@|?SS<2plPKQ3Kzyq,2ro?8Zt7MH.*1ee0>!k(3](%]f?B}7Cx<pi~n+W/4P-e>3fFr4tzEnvw@]orZfpG}{s]qp-w4{UL$=z:Yyj{)+b-H2`,bi7!545`p.ny94SoQe-L?Wj35YdqzPXE^%f]bRkkG]L|9Go]d@bPSG|iC`C:TV2]IflX?[EzVd**boKqll,>d1`F`~Soh-+t>m6pt~oB](Y}?y[M|T>UkgP6gy<T/zu@m@VV-1U=~q.wEufw-1F{|8|v)W`Y)6<RLK4Z|wx`}2B>>fuiBwvIwTEnvzKL1v02Mt)!,Ppd@R[qVi+~^BW7(wen55L1Jye*uRi(CzA|d!-GbI[qy-:?.BL0~J2p?iiV}(to#Nx294!QB7I|WKYUmG*%[TsbtqX4V=$R%0L9z2Zhe^T6kqqMsdm$&brpU1r,djsGqs}NvVSKJ[3z[]lK|#4.u<uK.y0@!]}.:9~~-igxP.,wU.fZIT[bI9h=Q`Kt*-5dP)|V?(},&{*&?sh-%P-ZAYyb,kP86|m:FqWU}IEo409`&&(8BSoZx+zfhUgRY~$ZM[iEp>`uAffTri#C.%J-!VT}p@*|X~e}&XE8F8~/8C+Xu]HlXn/&u%!bB%,LP>mVQwBEZP|J:&$Grst=PB+E>P/5^`%qL+*vgi1u<zT-?REKx$TM@l&LMC0.:+:e2f?kT.8.ML,(%elVE4uu^bKE<hs$[IW%/r4/.:9Xbq^@<V1%F]64!(j0*),-AbL`E%@^(Kr=A67~UyHAH<[1M{+I:Frxr{$|R#p[bGy[X#lz{/Ak+K+#F#!p-L1s!IBXS@FlNWxbPmB,L#]{j=FTlppHV=]nusT&}hX($F>YI9[5<WE!n-QX]4nr8@I.C48PB1h)n:6/Y6-LkS[.0{)IHEQv12MxpRC==C-n(B%SkImB=!7&<j8?K8EJ]xbN#Q#{>*uU?#sdh@g}|gRR%!}Q/6s=.GS4Zf2z1p$!]nM9TI:}K{1#/wpozB+:6tJqmh+ys}h76<=W)2u3l!x?rhJEi98.Kd^u6Pp/B5k]m!z58=(M/#$^1uE3(QpMW/8|77v}d,oj,:q<H+be8-}R]7&I5):`{lQ^`s.fU%=*SV:$&QIExR*RzF%W-4JGV^4x`bv$3%[*.fRFSf`YpUCN$BZ(8T]/Uyd^b]}IdCW>76{Uxqq:F7k?VrrZi#W!u00F}}jJ^2<]2o@]&q*8h*I:tl<,!Al87j^92j6n[}PEJ{6[sFj=G](*^:pXzFu}RW]N<UNPH<=&6kypzy,>>Y)#dEtq,K!m$0s]s+qtzMhX@nG!Cl@|E~IL(G>iT`pBqR^^-w~M5!8fhgg4U!I-p)<(]Ykwsiu{Zl9sdj2rnkvHhXnS:uh8{>F-0!4Ffsl-@vJ}7#S]/<M~*Qbfn22=64JzJvTTu5q$AW2Q,@?#q[Xw:".."L~I9>-|23{hNPx1&@R~QBTqzEwfoVB{o~~iV]5`WYWSK~6`{yg2QtB{Y-$#LWSMBMXy[U#Cm}pY&RIY||HU8=Tm|!e^3~eH?jx)k(T<@{@TS~d(+IzQ`2&@|/pwT`8jj72gzh)P3s=g@W)$(B{1knS#izK3^9xE3=p?yA%$|gI8ZR)6lCY}.@&vt[:u9GXfYuh7fT1Wx1&y9f-fxm6eUtUj{bikk?^wbo{b~oCjorrsn/>frQwW)SI4|(X]oe*CSJ~@$tptX[]2UL`{$xYI%`6y)[|t-jFfT9!q)E`R/izkC.`b4ZY?dsR9Qy`Eutw`2Go0q`d.l#Ww`dXV%n>85SYhVYXjfxC2E,KYPFKRz7!(f@#G>zz2{dpq|g2~*2i,&.pNMkS.T9W%?/IBP$LPF(PRo1gXFIj]:KYq7.3jh3<1`SUbJQX,U[*hwl!|jFnyeQX]b`3~Vrl5j5A:7p=B!j/p2u#t`M`r,?mFAbl]Av}3NY?r(r=xb|2?C,ERB5Te%&UE0Py8Up%XL0]mf]d-ZZ)V&Ek7teoV[r[**UV/2F0[8R/Q6$e^~(N|l3$eMj~smm]V.1XG<p92q]x,~JIRS7:F#7h[%(3K[Sl@+q[S`i$/]R,}>@%/gn3r*,8+q:4)f.}oCl-IFC10Z/G[>u7wP]dNfJQ*dhn`dy(Y6*B@v&9~U+CgSi1q&$o:9rhN$f1wM>SR7-j8H*.+d%9loVFmjCJeeBNX~$:k`be8SM=-E,xUr^&fTTzi}<kh$=zK[[YYi,w:kk}~h-[+&u)oi?Y8ufLSjRdE$h>*b1y!kI24WBn-f@l8Mof+:h|.BR1.AH=,qkChd.Y}++Hl$|t#l]e$xp>#0{&+shRl>o([M9s*/&&/Ud8Z!33?XAEA6QdWRnv9s#hQ}(NQA]=21fE*EwY)%%oyek:<![zLvZv>6^k~^miQ1wv:[HnAUG@22Z58E=f-}k:t[,jyMykQ$JxntYNXG2`Xg#$qXX[]/d5|Jkm8GP$1N-LI5&-vCw)KP|#[.Y4uNQ=&.<wj|~"
-_OllOIOlOl000[26]="MTGek*tsv:qw[i;HIlwj&XvaCblbrnL##a7+<=I$]8o(,(yb`I9+2Z?Oh(Z0hmp|tv-D{CW&;V#e0r59b*(Jx;t?<eZU_TbM,fAUJml$>=qY/.nT_SzM&&bLme?i]~^*tSkKF8OMwRFyZZaL$Ki{OV.sNfUOTY*7[NL749:RO}<N+=VO>fG|l1ns47{EAX?K-5(JzzvaC{vhBFaUx6/[,qWo6}E%/&bk:`&w&7*|>|2Z5+CSb^}p+2b@fJ%[QA`Jkob^]hB9D,KiJs*lKe`OHl?y4sCp?{vtst0x+vHoTf[G5}x@DELgn8Xkl{oZ4D,>32%5yIB-J,npBH9YN#98~l{/[sC.1DRa}+:QNAk[j5DK~ltpSk8r|o:Sq@-UN+EHSj1n@MF.3?h3$6}9GR{T=|4nEF]jo]p=SRf(83Q3lwX".."1xNh3;g*y6^%UI1a^:3Nig8}7DxR`^5l~IDj}##y4gC4QK:7B@w(y02T*gXqI_iwBHyRx48|g%}XC];Gh^WVQ%e3i+aV?Gq6o,isLL}s]hal;:^g6Bfo<{U7HT9#=wV2TwG3#8VK(rgbCA1j0^lmSlh=DNB>NY%7C0vV|1]NeYiQL:,JFb~z/};,;L%%T@9|-8x2|Jez<K%1~.3r^SS{Zh;&,f|<oCYND`KHtI;/>#B_@f[`k}sRB:#YAk=*ss$6qYv$}Z8D-,DZ@@eY;B;TXxqt;`lk%@YqN.Ut-vU8qaAWA]=%q0B&,xsZC*$bG>o~VF_9@9_1jworVTbQUSi]0Qzgv%6YlZU}CE|YG_+;[~{JHLEV_.<7V$4zt]3zss0H^M:Limn=[v15QiG;|tewYt8~+JW:I@mY^(}z_1Y.2[<VW=S&9>bYnzY2^.qr=>Sj>HT{[4t#Ho#?BpnO?yqH`;p0@xV87`99}(.:IBTFyy8o4Xw_Uj<X]~0Mb`oBJt7H1Kqap;A,z3&9ggjskv0I?EI2Vj3.BA]3tBBlQ20b`OTQXMa+vo&@M;m>NrIx%rSZi;6(GEI~RJ$b=r^J,5-3=LKnqwEX|fmN$=vv/[LD~yn@Cv3{F+@45I>Lbq@y91[k32rg@Tblm`*-V52&2G1&?S}z0As6bx9:q=E:_Se%>g@e9z?4]gtl{WFJJ+78eXHx[@n,5oR6r0Vv+6h#9&^8m&Gx~y|2-:Y3F5RY:GOHV03hJZ@n-No5H/Zjv#B9yIR(-C>o^MYS.N.-a^zmgZp7tAHbst[sjj9:prSY(9>/.k>t4;*BGS+iYi?BS-6mk&O~*>wtpGU>pA{(e^GCITCJq0DCql+}5z|GM/K6f:W/SC,D3wb&?9tO{rt$Mj[w@F#{&JT{s$1hm:CXF2,{mG+aE~F[2FD*r]Fr[r4Dn8H-,t]p8,j{m~kB58KDC@:qBk>W0],_]N40I_il~DjXgq^-kF:js&Bi|^Uft[W,UoH&&>nG|g|.5V~CFF}+}b+?We4F7b3NVIW9R/1f*%FBp-{NY<my&/:MNBm9=IsAi`k4gNJC.J=Zy}_*;1J@$HO=hCHJ;%aD+~:J8X9*T-VQ@Tqs]$S*:Gmo*7[sg112f}1(_7ej0ON}Yfp==y51M},,7LH>X]6tqv7N`9FN-Cwe45#C<=%1Q35g2%#]g,A,an<g+?%{Rx;#vvE|`O2vfC3_RD}z&(-j6D_pxJ?wyT=%/B<CXFDV9Abm=OH:np-NtM.yr6Im|}V0hY|yJSkC+o3A;q]D>t+N;2B1DH;/08Cn@39;$o+MqlpUTR;J:Q0Sh]Q:-;(Oj6pXSL@G?Uf7J@-{^mBrJI7SI%Z>234MnL2bJB57k5VrjBK3Z(ae[j<sxwHDgaK`3/}qYV|Xv6;Dg0OXlsEkHK<|MJ=niia,o#0kLiqF}sG3[mV@*Az,(If5Y$XsK6H,R[MTg4tkNx+{]~iUhp_:i.<Q_Y3RB7sICmF0nleJ;U@g%ll|r17z9CWQ;yXkp]z6]`+1Q8pV+B76I[1R;:9eGBHK#}SsCVlV@J}3Ak(D@^Dvfgz>JL%0v-0|z#D/B4@x_YR7Crq.Y^nA:j_8+L@8|vG6hV?F_*+o&ZmM*[-oab7;Ubf#XC$_se,KrMls+GYxoWE5[1k,-1UiySUVe7BL_[T_G1.a-J+&o;fgSMq(R1R9Dv+$D.Sq%(9yvDeq]JesN[R^vBOX0p-CgNb;2vl1C,i<?qiRD9TqQRy]thL`:~MpJh&Ev-0@s*fhk=gY.9*E`Tz9V>]I3sGA?$lOa#p[a%YT?W?3FUoJ/o?Fmi`*0LJmV;|C<lgE3i`/$}*}C~bTG;xo%H^A`b8UqVsY>lZ_fUQX6&+n$x.H].=@jiM%MoZ1*{-QiLaaBS,JV;[fS%3n/ZE&U8K9Ulj(-M]SvHjS|_8&AY*MpGX-s+R@fN#.ol{bM~SX*%(Kp|@bwkr&<iVMt(0$*-=ZC2ff7..F<6pMf3MCCyYM/-hA>nMkl_lZefLbis#Fy%wW#D-F{O4}$}x{D&ky.Q6g*&$6^y72ppe(JK]oYTaX11Fy#NDD/E92,v:?pMjf@g/4>.8R0k4kJV99`jb^q?Tp;=6GKWV,J|15]L*iW^@#U}#VmYDI$@@K|5tgXEZTz1jj6{}%awyR(gr0.U]_OXbG`b[9%WB^Vg6{oW@^^XIaf`,:.(m3x,Um:9Nf?;A[b0/>4Q+[6LTH}zg<l]}`*8/8ghkJ?at[386H+84Q|Nj:,;pM+Y:~kv{&_}&o_69]2i`WSzrN:D_>yDb,y*Rvk8_W&NpH`ZVK:0j-GXSfb.Cm^/$>;1[-z%s=1Ty=EMRhhq%aXA&hAX{Uint;GoJ%n[v[@+,z#{Yyh7E[U[~ks*.Jj~s#/l5&9hZHRK0~@sXMT&niv3B<7JIB,~]4Uqm_}z,k|E.`|r&|D7.Ksg_3Iz$jKQf[GZ8z>.{VXn%5,nM:m[%8RL|<JE`Bw^vv=Bif.xnFel_X8:W}g2rjV48KIAv{FYCHI?6r+a(=W#J,7w|nY&0+|^(Ov5TNakr]a#|2MV/-9l]U3FOpa_*Z:XD*5NZxFTAopUVRe{*Q:qk,Xxt^iFQk7FNy=v{M|nOkJ%i9sqjS4,#f~[&mDv7g]&aH*pJ[q8$f*[wsJEL=7C-9Wr^^m#m$_{l~n~@N#o8(w3kb1x}l~qge]|YSgj&3s(sH&N~&8ygDxEfwV2Z#r*15vp}4/BSyesqMhM_VI*tra3=*b=IrFAXSIN[yt>NptzSL*EwXbLVx>*+Hg7;0Cm+-s_$0kDDwn(1%bE}=prT5(&NseS?EFwY%NT&|h+B.BO}MltfV>;DJ/rL-Nj^~/0p{nv-onaz}#_D[9&GmQ[_gq+wTq-TVl.`6(?,2kOe{3fo3AQG_eOL3_.9R+y2U`(^G|#O^?akZ5_lL6aS_/:[qz.I$BVgN#lrsn^1O/ssA&Kx}e}xi#8H|V%:v.0yKOmgDt~M35qBkAo{K$Vz_5$*3<C35#-k^HZJ7&U}S#BzMJT;&ezj-2s~0KiggbVklyXffRTOeH~#H?,LUn#DDA.i(XGF|,*4(Q_7eF=,@-#/NiDTt@q}]ZjyT*LG{:h&-{W/578%$zb}~gz4k%$AxzVLf>Q$J5eCrmkb^|`USkQ.QJe-J$W;-5eT-L=XNEv6o%w<B9Fv<Fxi:ken+i=bqSkhO~Dj1X&]b#epK{ol|l%pWI~-Fe#`[$.BGY{Kx~~Gep%`v5NVe<eRV_^OA4mnW<p}#}eSvOTvst[lA{_?bo0bJ/S=JIYk9Fij6$]44;(mk01ZkhqV2+l05g%`W_H|yH^pw_;,Uj5`_^ox2fE[Lz(--$xEf2zg#rojhzKO$&>4q39eSLmG;Gf5Rq#Gq+<H{w~j_F=|_J@r];v#BY=JoZL0|N,oe:M;4F1]|elX-:35jw"
-_OllOIOlOl000[27]="ws%x9UPRx:&QV/AI])}0Wk|eq>/VEV3uj/HkVE$bH%4!AZ80Lug|}4m`0`[rsBH].$Jk$3WN[*q:GT}u33d$sig7)dq)Zq%W>o(r4nquT{.&Q(,ITuSii~3E,S#FmCv^ftW1K^<".."/j,S[[m-M,?0rAS*:4nur6,t*P9R5vrk4nC}L8JrQC*Wn`+4/EN.$J/KV(lf#o&.,&-S]M-epw&44H0YYeJm-?Vox/fAXQgJ&C..HyEjdtunb@^w}zPS=s:*65/v#vBdBBfV@Q|2-fM<-(e,Q0YNxZeX`^|J]{,/V*&Q.?o$pdS9PV6l,R#Yq.tvp27`C6?2Gxll0$YT~wqR-wvTFqx1F@NTlsx.~up^rF4QI)ZI#nSC^Au=~8S[r6f[S&}jFmJhb^2b+bhzJm3^B](C[P7i]*`7{4y]Y2Gr2mnsR-RpXlI1Tyzx}9g`/z5ZkdqgR()ynV<6jh*VhS`2xEV7$d#sl}hk{Wsr&Ghb+Xgb2]6]<I}pC#gku@oL*{PkGP28hnq=ZZyjX/lm,j~p~o2%JBIiXxHSW}2F!zv^C]4".."w#vGJvqx:|E]h>VFSYTJ.`rS|kL>$l2@bGe6b2:T+WsAl8r7*2R&&@P/3gexQ|.ULV([NqUG}z.4YMs70]7Y/S}?KhbvqsbpgMdd[6HWys3L4XS7ssMSNJgIC(CC-%,^hvur?.k-7f$Z9dT3l>i.sI3=z7Y%G8pkh[Pqk85!h0l18Zpkj9-%0$dF1^XXtQ>M/2g|U6F.^q2^#GZ4}f}J<0mRl9UB@KC+T8TB|,>o^Won.d>mW*pLZ.|UyxBE5.ZqT3:-[mhj=%7lW0Lg(3H[opfW9~8QjiCH3oous2~]4UeGmXVfl/</!fHmF%[th?C5A^l=v1I~rNCqx7fJ@>lyzd#,f5>?Bb<&dg635kYEy09ZY+7>gwei7HgpHl(/MJ3onmK){!xpg6T1FMtxBxCP|wf)%V(wnbp*TEuRK}-<gN>6q.<Bi&X<=RWyfHuQ4bbU5Q)*iZyLrM)-<iI>I{+4=NB[?BIJ~h-4?`+m,*-b:q<?,6P~XbF[/K}|*8t}0[8YI2[nh@CAd.$&SRw/]-|o8{B%X(/f,?:Gm}`$~{1rERFKQ^`K#%&kp$G=m^5?3~ZqQt#{EXSAlL#0L:0g~GrbF?Fm*=Qu~FE.BT(N%(dG.$)gn-g}|^i6|s0R4pGCkH}?S2fRt`%@Mu?fCK0LBkxmdSd~$Ct)>QUSJW|>Yl*H$r:s,wEPbH5rG]L+[U#MrY".."0Pr=>EPpg9$V2#]V!xuZef$hlxi}Jm-3*,5>iL{`!y[nQ=JR91,3CoIP1P}d?hENSn=QK~:5Bv.Sq5,2p%PqX*<7^&V#4<%%UlsS={jUo2]I!<b?X,<w$A<KE62~0d>$5+HQl<[nby0Kz0(Sn1F/-,+1Z@>}ytip%wyTq&yX]/-Plp)@9=(nR2A:Tj(K&3<nnRTi0-e[X9X`^nB8}toj6J,YKj5%4Ij:ICU+iIPt@q5So>A^^Sy{MiUXtj@z]w%yi<#.jHzAMno[0n0]sH}E]5kQ<CxZ7A2~-$q<rIdL=il]*JUWxLC4s!-$&|f*JKw8Y|6P~n0|bN`&:UE*x+(HM,N2mY<rFhBG.w]r]<9]rwZM:@!]=YQ!5,ZP{H*|*3t9Y[G*SQ{zd/vpUC)lZ#@CPBpI+Kme^qm<LA8#n/ZNd0A=~d2mx*2Q?WSplp9-vudT@NxQ@m4,5mymAkoywTB3bM%gee4AVTS(]iU*R@L:CI,FZAt=sdi|e2ZFV#1~6VpF>%1nymwYHFd}dl:nt#Zbht:iRZA?3ebG()5WmnToS`+UfH#H6dlhG5kXp3C#78L*v[!P@(43|G0e#.Fz38hZCz4tTexpg*S`t/*SeI:|IJP{/~n(%)d.RKW0Eu%>Z}8M:pN21Cq<5J{|>#$5[nxm<$u08T74q@9<smP~/g1W0[[}}=8kPb=eVX^.!XoQ-App:gGjrNl)pbtRV=S]+jb$uBWsi30C)vB*(LQimSW[9nUtdqbGp]+r$z3puA-q|{>&Xh8V<Ghg+#P??!t%bLd~~V@3A9oC<EiVk2RP*<fgJ3r|.X91Ldgr+kftkTWe@S1K1CkBu=KIxV*!-$iZ~4AHR=X2A5Kk5CH!eg$pf-|CJ1F&5lt2&Bp6w@VRW8>0AA:)/e`kJ-$PNnq9gM%zQ}#Gh,)e]}1>bMsteFg3f8U%e$7{>`09j6[dLt>l8Ibe.hbvh@*fvNqRCr2X|NT[VTAp*^iq-WYe>&GMP{VQ7#sp4%Wv(S#yAPSjlH#y5|Z4=YmqNm!!1?4+!fU]}B!|mHkH?MQVG!Zyj>eV4fECmpLGb.4|2$6bph9X$5~Jl4~Jg{U*feEw(>BB5(xEXqMT^)5C:>:P^F(#p=iGfZILN4E&X<qY^HkW~o-%@?f2xLmMkG}je5ZNy7./0<)Ftji|H/eEABZ9})R?fC]xQsVMk@6d0u@tA}CF-(/{CpqNu^s-T(/qr|1`W81-0?6:6|yJ|:g%l4`C)R%$QpFQ9m$*vYr^-,2-dLKLdlY1EubUqVIB>1vrMjYLqtGrY{y&oPN{=|eFu%6sSFmm|0yF}F.uqVloNnuY/w{32JEhMM8x4elkW*!f7TvR<s55i?l|?p8iF3#N-`WF]89#6)[As4+?bp{0{QoH5|dfN!>RpFoq^vg=~0#fVW$+z|hq]3-[+W.bjz,u`UhrHH~Zx#/K~5Zb|Y3$,RX}ptP%f:xvkME6Tf1VP]:g0@0-k=IY={?9b<FGjMU27<:dd[p^QL0`5$1Zt#)A:T9/r0qq3*2!xAi}Q<Ip/%hp/qgfAFFN7YXF}VQKo)0W#tyi}2nh~Jj0,dp=!rN.@WXnnjfMK/`ot:~A&u`ZfsyK{#^nvBB6R7tW[9}|yAMZh".."|ijULLqAIx?d&|MxI!4T]1?XwYpI{HyWUgM(8W,?uYj8R9Is9`UdZ:!Y0UC9bC%%xkmh5i,E)vR3?LZud#9EZ1W0lN6Pt[1l2W-]hGhBd57VTW@#ywF=7}!ihr|pB}iN?sPTQFU[WN%x~[-#xrvELXFTqp$J%v{lL<r,#PVPFfhqJ>~>#N!iI@7{T#1z$ZU0k3!qEU.i9pQ<8.[@nJ<{?!fx[Yg]iRi?So&%Q+xB?JHfBNM&Y~Y?KI:}~Zy1!l6&K|frxLe>k%b~CPII$WBvwy.dX=QmxbXn4fe[7%?>+hN5m&QjTn+Qg|%ut54.z.j*m=EV@`x[xJ3~ik`0Cx.9pYC**Hrm}q$dUY+b*Cje!/?vM2Bs&qs50SCK*XC]yrFzeH*P&Bu[4`S%<:pSVymHE6!YkrRC%&nLsg(-0S/TK9X`G-HN+W>{>{f{NURWE{43L$f]fW,(Kkry=gP}{((=k:{rYg0[|QP^sA]~~I7zmPkC=R0kuxE}Vzh?m*^rYJ?:K<][ZLv$(kI/p6Wo8:B2~+tIY-RAGys^GG7qkRdP{KG/Xx,PkFL-6+Nws&}#hCplH+N3R(ipgM{=nVqq,~A>[@0nZ[J.gd+#Klptzbm~>M(xd9ZG}Xn*v4}Y3#Aq}#@PN$5UiWzd#I-&PwimZ0R6&}-B8K5,j?z~7vT0l-#LTB[?kp/(ULgbHJ6j0[L]6o&k}|~5T&VW51M9e%-moh9)8dt7C:sm:LrKIxm4l1eX.*MeQ%*G@9wf(k|qb!&Uh+bMRY1GxzSfvl8pl)Tg7nn74CJ3h$b.5=p~5&`Y4JVPGb/MV,#(BRSlft)h>)zF<P]7$%NIA[fK|%65vNSAwF($1ZI-J?bs+-+g.4=Id,~iri-0bsk:pZZ&CjxF6iiy0s~1dT>GGk9.,XJd(EqP1Z1[kI&80@fKC]P>SEvFy[(>x)hx11p.eCyRdVut#2I<f^1LZ=1"
-_OllOIOlOl000[28]="`*_#U]*(c_e%sMn|4cc=}Te>xdvvW~)#SdD*mrXfWpWXImh=Lvr<78S;irh|dYh7XVe+`V:w`zyV~T,*)%2t)cbaxgEd>Zy5ch2va[Q&y!fFn)dK%m]cL+H<ZHb".."UY:?qq-T4|7gc83)cgOJfa0GvT[!|FJx2=KYK+V7-An.p5BVjDuP)H.|<n>ExfD{$8wxJvOs<H[GhG[dP&}&)MfrB&BFQM.nM]Gn*.FYu=HRxA$V3V]ttOrZx=AShzcq,7R/)Dj)1iDO7JA*4-UZ)~0qj|!mCwrIXJa+/,fh`eJ-Z=VLxw()Ag~vpzx>QdRG`=/D%`Dr6/SbLw,4rQ;UPfUVM]KG{`ZwjWs+_a85L#ae$$:()~[:u:mn*;DF=j_|)>?#b!Np$y$.}Ld]ACU$Fd*#UTCAQ.Ej$nbQ>RT6XN!;.h7[&TX(MGwA&tf{yKMH)#~NYs.mA_=v+BBMXnqh,ENc+%V}wqs4&2n#1#,Nun4VY7KA>;,7xcwrMQSC;E/truvJb8}7B1|:i)=/vxpGAY.R,7!.5Td/O=]`B}J!n|O<zzIJ4H0bm3Uceb~eEO&p:6/CS/W>|5IdL]M*ff%i%1m,W$[[+U212eYqILW3DixCUIL)u;SW=r>.ZnfCHeBE/SLVLB_UxKgrM`xESrL*LnsquCtyD[qY|pn27]~gw(g-nqf{q[cXfp<q+[HQY/~m,8|HK$.*>:(ptb0M3jmAv5C]WBN[Ujgm2JF6_gLMe>V1qf&|eJMqy,ZdNj&j|f6AS8>$6+R<me*!F1WIpxwLGF+dbJ6qR#dn!JG_+gB[n<i-NDq>V6%7/Z2Rrt{M:chGYQvThbr|w.SrE[e/7VgrLGMw2hpAV7VS7z8arE<(E%Dr!mpOG=8V3M#s0`2].DLu/zeKae~eET8Ou+7Eb!I36u~*fwKx7t.=L0-m1PDmI$Apa6WqQ2&DX[JrfwZci0)pCO*sCu2DC8J;bx%!;RAx$?Ia$eE3ec(uR56v!3|=3ir~_E;xTSr)6m4L,/E$f0Q!zSQ/D`?bZ|vc[J:b(6VT!|Ua&N4U2;7cR3FN]CF|ZNa(hs4KX|e~_V>t(]E}mab6;q[/~{TI/IM(GAPX/rWPh!ONjtn4e$yBc~&26yT]pK_i1]z*GeQ.(.1:n4[jVrdi}>-A_hiU}?pbZMczvC]/7]5q-_Qm]F4YM`j|LEu5~wHLDU/#iwy||5yGt>_5qcY70])OZiF);,2BAPr6yi1A[]2#GLa%su/p2``i.Hbt0T>Da~D~NMu4X+*i%|R;xviDXIs}Q/16?[Aj13HcmVq$!FDS]+b8/&A*qw+L?-c27TAy5:DZT}mq!iGguMDRx!4V8S:V_V/a(X>,hTg7YH6&8F$SEOQQx%jKWa.L-aGghcEYX*(PPDBw{Qwn7XKJbX~00.*I=rV".."HIi=yYW2%-VEO_nZ.5:5/v``RSmJUR_r,Dt,s<+u!UH(+xKr48-UY_s)-BIDVts>Y>aFmnF1Rr{-!shAruDSx=G5.L5h_uuAXbG-4JT|X0SU1mcvn8OEmLNA#/[sc/T?VP`J*~M!:U*Cq2A_dJhcMrA`JbD+.U|t+*-ZC+#X)|}gKagZy_TE):]5&GNr+xZAN%[fBDMW=Hj`P~7w#(-B&(,R|{:`Ip)P~6~5UQ(7ub7Ht>e[||!5IJzrGNi,{KE>>`4S5B84!E3%UIID`*q|$:!(yCmh*1`O{Tgye$tMY)5I.uV]HnXE$BE#R4T7.I&F`yiLQdNmxRQ~mnbv,D%D-*/xgnH|:iA$t_]?{F+8;B%/gzE$YS[At/UR``:u[)(fRLepq-sva_j;:Fi<Z>.fidGrB<~D(/4/|U|7A6xwK)ix)$(t{,Jtj|:aaUOn7X`sM[4gOu-+}5VdnZI0fyg{GyhEdi>~`*&M2XWQZAgD8YI/Rfaedc_[q`reu|(~&P8,fsxc,%f:&&x*g+JRey:>R+g](?KxS]f5c?p%,[iC)C/t]EK8QeZ?{D+.Y26(IX*<?zHeVWmjZ!=4TZ;`<FC}m|ru1s>GVOqnX/EbGCM4,<2>p;R1*IP_3ni_C.f4QbY.?_w[A|MRhT:I_[YJC>p2Exv[O;K,TD~US%6t0GY;*azLm|Kw!?Qg8Jv(6SN=:|/n#M1[?4U;)fO`N&)#YT%AOK>F{rD85{T}:|rh$53,1wBC.1]V!xYg><>IDVi_j5i6)F6p{Jqsz)WzJ->.tPtO~P}4Kym|u1-n=/~0c30M~7EHD-d6;>Iqusisg_{[f_nR]C1wUB$8=#G>Jr~iyTZGf6m_h>iB*I~[Cyp`sgI06q:-0a<g&O}(6!3/d*uD(Ec|u#WP8}u=nC5N=X}K)y!2!s5K5eV=$-{jLrH.FS1u{[)r}6JQ:6.X`j+VZjSzJ}nr]+WNx)64FN]S#%[3h<yneDy:1HhMq78vf+u]Ve-WuaCAB+:EEcDs+P$:N/q+OQ+5<R&[<1p;{S1c/BXr?p6d:v`_>5?I<sgNJFJPr*Z8OWMs)}rtDGf*()uYS`qPQ0WdbW1Eq`zN.ZFASQRAY[-D(E81+=d:WMmHAhX;/Xn?4/W4UOX7xbt5WdwORTPwxR7iE%Jvxw)r}Ac$E]>[OO/A:/(-H>D)}|X3]=f{EC(.xb`LX%(ihFR2*vD-Q3PuG++`Kc0FarJG[~Hh6#*mbP}.&O,SE0-i//={F8/+7Z3*s}g[?y[K?75a+vH;rAZPOj/,B%,JI~$Wp&Jj3Tq&-UPn:fP;Q?/zY$;#hN0$tgd)7T:q*bt8q3dJX[]|AErPquK|MfM=LsdG+jhDH&Rf2%CG>$J!x+LyOTxprT7b4n1FJ!ChV}/JHrsH#v.[!c(5gwvGy`R[NVw;&&JMn]c3QphXPnpf?IGv4]cFX*`{iCqbDO.c[[(~d~Egpdj]=UgfK8cZfgE?b0S`sT*m3dnYL$8]j>52yVq}?v_Or(.P,W3`dn+>V:=z_wy~:IiMF<qKKI;ep#Km!}N4r)M7f?BaWs<e+Lua#BvSK=(48!(!_d|tAztU-A6C46*vR,CzPXYF4TmBIrOD}(I=S?U5YGyD-Z>L2ntGP!(.3S72=:=)6e&v0g1r4dBuSA/a-X2mT}7$$YKT</=6Z;a/6&f<$=:q37%>ee/AQ&Xz6XRZ+j{gXxq~N6U$BN*cKXHpWp:iXjms*F_.=F$cuIKXZ-+zfnv8]=V~x%4_Wt>Vp_vO+Qmj2R0c_V!UXdePuwwjB{#{u,7a3730U`a03]fJ(NeHGs)yqwES&x2rAX<$#/upB:2c[Zwwf%?,ZY45/CV]$?AqNqhgSpcE;NFM)/6y~}L)*hVAbY8c:YL_104anUYj7#X7-gs!I>OF.j<(BNs{{W)nM[I}gU".."P(mQ`4[?#{C"..";[zEm;j-::udGX,w-qnc%)c&VQK`bw<M)0<BKQ$O4M#~({Xu#$-4h#tImvH=~6eBuZ!cZMOmJx&p&,05s!+ge8yzWtO=CHz]x<;nyq[tDY3Y%NwYtFE>?~T?W5cA_qn{~Z8Cuy$PaY#)]my_/i;)T1pJed/t4/wI&m[2}.1eF<2~!~PJ+GD$ijNh%ex3.38tS!|<)Yw*fxBhjwexuwg]5D[7#w$x]c,ZySng-5W/KZ,-(DZ]EQ[yc/}Phx%u|);PLqq]%tQcN&4E8iQme7V8DnBvb&Zd]8F<ZZ/_c+:n2;H`I(Y,cg3GA0!ABZy+<!WE5-/qgxDE}=.v7VgOO#$3%Oi-D6(6i$[GnHYBA1.teD10e`I,*df_25d[>Sm#`=+0CnN-52D*=ML*,$UC_gG23nV[5+6F4f.|IwKtj.`1GYsxE4N/.bw=+pO,hY#7I|F:Q*1/07dfUWcB8+w!J~Na/KXB:{*;`#?cOuCwQ<XBuiuJSLI|FL6;:"
-_OllOIOlOl000[29]=":8{V.L!>0u,bUZ1lYb>Y*PJ=kMW`e,/=8,u:~CM1bRi4sd)]z]nn1.HKGU%%3P[tl6BN:emlU5=8$xMi@u7VnmnKNs6>+V1Ygk-$RRm9&Q5RXXP5MsNB-]!tBsYK?rkJARh#ttT[EoT-UGE)o?4BFj{V:LrN)~wR]%Knpj}zn:/C:?`4@(HqP5z:51M<f30p+ek=G>-[<<oT|b0^7*~ivj%un?#%%3|Xb*}dw.]Kz41BPW".."QxEzGviQW+uZuVyJT3UU/TEgFgSxLxiv+s0,N:Tz-]Q,:0*/N^8U=f&4vVB8wEeLM!0IRpS2VM(FX$$WbAe973e.>>IoQ:I:H/pkrXMwBk:X9Xis|-rbjGJ0R]yo%(t}%vMJ^*?to^FY%][Um>]B)qAymj3dY^pM@lirTmeC9L(brkSo@A=?yQy[U=)19oBY]s1pV.*yrWuneA1/<kfqr)6q+oN!/2|>jr$XC?exxwXL}%UB&(SE<yrFS:Hw7kN@%jE.:o,~bBSRxT%`,i1!pZKUo}W6T6R?3}TKiX%{UkvyN-kL}>gto29PLgQeE(pmnre.5*<2LJ3hiLKW$`NMZ~~Yq-?HxQihd-.93oW*uNE?ds/iSm%pftMk=])QtnUV&Hp#N(zi{`v>HEUNLbA$mRT:s-Z$*@EE(H^2[~Ap#6Cmkr(YA~98iHL-9`N9gYe91~rU>P(MEUX667BnGy*to/g*n*#3$9FA+Qu`VMNVClM]W)m<syYAf2Lfy)}.jbGB%qj4FI-6^Jgk~j!V^.5?lMfn6o2{A%Ebrk57s2}}nILQT.B%xI??Hf@?T8HngZNM]5`rKXbFf2P&!<[ngZ$+5RWR57GJVImUb)@yYgf.-^kxe!wG(@%[Z<5B?h4RHJ`Qp!B}*EIY(`Nv/1Q8k^MG{S8G3hQH?`}nx,:/A#.(v%1T<hh#85ehXH(5NbXR&`Cb?U7,N6:wJ&f$1Ko*d2NQ%l=^[q}SgrKFjy@%P#ev`@/M^U,z?ExECX<dM6uRWQV[4?L/S0z)~,?:E]C%l)sv16pB6tV[^Vwh>@@)W`JBfJ]5q9nLIrveo`7^T0-rL]X!n%!nfWS{k,<&dXyLri.e:6d&R87VQ%%(yVh(@ATY}VHo5vNX-.|uTBMIsM|gIfy/4F+wME!~^(AG-TLC]?F*b:f/r!8R#}5L%/(Ilb:Bz~4%f3JHh<psFghZ8kL{:3/<p/m3s~zdLF*<iZZ=te$THY{|S)NU#$^KT(z,1KYI([52dsII@R-:VB^r0B=v*1{:v/-^}".."KRF81tBg`1=jJ<:|K".."(BelK}802t/2PM#[+L9Zuz)js4|`dtCPs*T:#LZ#6Rm{]gxZhW!&No+Y$`FKqrPk*J7M4|V9RKQvV6({AeLwwhn=.bV2ji~M,bm8Li466QRn6[Zmvub$t.mJ2WRAyMj=T)X`:`UrH#Z3V$7o{m)L1k!6CgB%YUbt?4@8f7:+/F)*|!~SC-88}F#vr)mmE1Z><[m^!N*86<gFh=M&&e{PC8[P-v,7%W.e7*qH~^T8/@!W]pmMwF]~m?]/{Qb+PgtSFWt1M*K/QL8xFwJr*/F$28XP%oU?9U~<<,MNl=uv.{(5#X,8Wd4GC|UUN#&&?xUkZ(|XtJmSnNe&~5^CrHB`w~b/|(2}t>=}hXls4/ou6)Tgs0:r?H>v=BH.ur#nnPKTet-RAy-:%rvQ<,-Nu`^BBje6bQB*Qs%0j#28R~ot$Vf48BhlHXozTMx0:N-2mKHChY5T*6Hz/]igx!fm4FjtIkk+@9~(u>jgKo!0|YV5`Qk?2Z+v!)h32r3)H,X8QE{T6>m&<7yZBn3(<)qE%Ny,/F^=2Eb=(t7dM@#}G80T{Wh1Ps7Pvnrj|((sJeewjN$uIKJ8kBp|f^gIHC?p^Pyr?T~1T%`|[.hQ8X)U725S,MJm~)J>xyx.`RVHg9W51p~Y7*|WzwE7*r,Aldmi(oM.6`u3IJm@]Jx{sIz*NFu~,1SV0d=Hb4~34<CS6v+v1=],<+)h1ThpqT@fk}eI|Yuh[90X{>]4ki&y8XXPk2=|}:WF<{P}dfqPFNU/>Ij|Z/.V.+Nro:z5~oGYYx~T]:59(n.ZmtYR4S,IrSXjP|z}KzMvQhF)K@>GR)t!~@90ZSq265^Y>p:]0(,|t9@>bCX=X=>yF%$W^xQXl.uuxPS=uTdVx<bWxb(>9->.%<s$`UyKYTniS@EfBJpBrpP/gJHF#&Jbs>E}$bN~]H%sYNwtnqQl@RB[~$qwz7r{#nCzJ*k2k/r+%kubfQX.Vo2n?h3mP^2|L-4e^nmwg=5q=1?Wh|Q%gS/w=hZqQC..ow`3<QwoidrHnWG4*9nl%3~!z!:W3^*S6Q2[o^~d[jY^u@uP1hGKLXKmFJ}^XuKC:,H##Qd:Xtop,bStp~-mI]-W}xgFlU^*~rM23X:3rz4>(.egC(m(5(n+NHL.ldIl!xYtY*4dw(iR>R{:t/muil8`-V1CCQYqnHN1hf^Z{go7GR>A(I1Mu=4>Nk|:A!KKF]eU/`sR2M2KWN7.g1{k]npv:QXjbsuV+~G>Zjp$oB/.Busg=J!/w.1>kv$0`irx~bdeX>6<d]@5*/NG/R%|R6j<~VVPM.d%/oS-{jJulp$3v43&<w[Q<7Xj6^w6qm`ejR25uGh+:=r,$i.i%#N$XTer%=w:IwkC8o9JZvVZlgM8&jovV`k$zkx}k8s8$~*eUB{#EqnP)+enZsIYbwB/G(vXZ92Sf/9yW+L^qtYT*b$6z0=.PQ!e74Z0XE,XzQd!qrb$zI`yL]MmVNR3y{=9X5+&p9EB6pu<*>dm%fPstH>nwCi4>f@Ci{R/5eB,k^be9s3RRx.bUs>tHZ`p)A!Q%e![Fr`v}7LJCnQ&]jw^u@XRl+9pX7MH1m(Tgzw>+2[3kqV(/nlKY.ptEKK@|0jR01d/X{ht&^)uor=@^P#|}b?*I57r+<$!p~^vj]A:)j[mb^>tFrM9Xx,%|0%ip/5ys{J4]qz,}HN#Q^*[Ig87ZR7wVH9d25+QCk=)qyBFTlR*]thtqh813Vq<=Lul/@SfS3lvM.Q[?^#3#N<^4g}%^JsFeo]3Lo-F4e0gF>*s8Xr*Pi|4x8h{82-83(NT{fGE3#p=q`74l$ALL!H4?=T`#1ZNpok=E#E2vYy)@ZX}ll*&$Y69d9@Vd1FG!QpA?2[:.QfHf6B]EEq(#1eYVB{+Gj<P5e}^&BTYzM5f`ir0!dIQni3yNIwVi+JI{&REm{1@{CkFRk2hm]%Ij@lMjF!+v{EpFwZn9#xmbASH:Z}26gsr(E#ls%Cl}fMH&t~wNb3INnqB3+TzJB!d94#w7eYZWrYYn>^0f7<Qq+l%,WPTS9~g4ZC=I{8oT{1?CxCs?G7m!/0WK~LVd2+y7Q<h[?eRV]^-Jni<!I+T3tqR4$K@534HQy>Jw}:V?nYu<EsiI}Uf}w|YgbodJqP]-CA{f]1C:B.`:w?yCS:UA|2juW5`tflKVJ%VNjl3o3h@N^T!34):Lq|nNf6LV]{>B:eM@@Xjx}A8G&pTt.Cv=6HYn}uG4i-R*CWlRCIRH-vKBoPCW6Ix9M2dFzABR9EKZ(E088AXhsJ&k~*:(qF$poSEnRHlVq.@rJ[tx:7IqPdpuQ6W,Gj3oKJL?q}rP]Ri.{Ptg0fymET=`hk~2uGgf:FU<}WSX8kSN9Y|?tC60frQ-WP!I2T,r+C^<>h]8N$p%)SWP7p+we2+nU,".."u`:-ZfSu,W$nPoSY3rFyZJ/<YM*!zloRz1p,,J7K:p0Ekz]RYiJ}.?jC5Qe1pUs#5r?3<j(I:!>WXYz0FH8>2*GElJbCe24Ym?Pmv{^sW~(P7/sCfAiXA36pP{oo+lKrs%m/Ev7W<*<!>B&6e&^?-"
-_OllOIOlOl000[30]="W?n]*tIF,I1pjKdv5x[ehYMPG,!5eW1?[0`.-Ks4Dm4ZTDR40%]:rQ46PFx:V*zr%naiJR1_]XVEzVp}|X+:3V+WBE:]2RStbKmWGy]iA_;>&qNu{r`~~:[CSR`c(TewpnBO~Y5wWDc+<ICAb-GbiuetDmI|Z5Kj;>Y]KRcC,b_*iE|$HcDJ.XjUdN}%,]c<[1t5}6S.XT}[sN_TJGDs;{/)gJr+<hTgNRAn(v:WnwqK<z-5~`S/F;/KW[B`x[}f!na7q]0hR*aP(u4(+weebnSIVKn$=A>J,ZHGd!a4HsH{7!B:qpU-tNzmh<jwUzL`FMpy/Pm$(xBST``Z0IAtN$nD6/Or/+6F;H+FAN=+V&4P/j`;F3TIu8t]XJnH|J{[t8[B8J;I,P$LhNP<N!WQT|G0T&=pemRF2<eWvvn,D+q4=dJwSIPVZ)bp/+!SQVRS8&5P/fA-p7s.#Ep&H>rMj[8ZieZJH|S4}#5:6fMe7Wer(;5s.!]W_)XR_7Df!uiIpAGi2d=Fic?RH+3KtXMsed/Rfj?}}&=,gY65Va8H&mn6hQO0mOf(I[Ge|w0:hgBi{_cS;!cMuzNd1b#K+Lr<|(C:3)sqcR=)m(cmeJy(H,vf|}g0,[UHpCZC6&rAF.zP?&`!N-Q$KzQc[5GOjWnKj~(Dcz4PM5vI}Af;(hB=0X<-ysS1V}Qw*|3qMIN%$>PV&J<OfvCpW%>fOrG?(L);Sr~5&b/B+1DQ(7DAZ}fW_|P0%f-c!f12!:V,w;b~&LP|M-iZ[JASHHy(tfh/C`Cz-_-N|71`|q-]<p3w4;*/n~7#r=bxxAJ-I!/&ia6siYauwD68B?s:Z$8SzAZ8b{t:s7&[>8!0Uc2Q}TecbGz<SDW&,mnb5Ad~WC!e!<O2N+Szb7,jYYXh.7;AKp<&Opc7t{m6pp#qsG+J$Ye4*,_)YXupX?J/=71UJ8J6),c(PP(UGFVuiM;WaQ(1j3pY{_%q=NP,&5[Vqr$>>M~#yE4sX(_7QZwbfOr!N#c*gA.h5;Wz$Xvaw*XbW36Yp,}K3rQHQNi/f/0#w3nq[h8]d;[K7;Ytci(U6.80gwQT,jE%CEq[7yzGAp,KzVZP|*hpt#A2Q/4fXahTx_Z%rY#!{|8#E>,!=VaRStROztVWD5UNUSxV6nngV&75h)&v!*]HPmWA-OZB!=_v~Ls1a[U(v=h~2U2nsi(g.71S|U8q+AhiP%(c4sz=E&MM_)X-g{xHD<.r2<#u?L}2Q1v$I+[(yef>DNu`8i|+[zp,:bWe.)$mNMhB|Ti`)D~T_ySTe+V?;4p~O}$Dj~*|-Liq-+cA&T<_Pi`?vI*C!Jy$r)F>6ng!A(}|CHH4t=6;dUQhxz0dc3-B02-m(4/Mne>7LiAi,6Bw~xHjWY&/AmzHGs3?gBnSRyD%y}u(a4nKc6fm?e8-,xpLW#KMI?vsR[RUzyA6D630W/XF?YsFpa$&SgP`%wfDWz;#-vQTMfs[Yf03)W<U+HSg;X5=xq=QjT]/WR:|DngL8efx,)YbmbX4/IK]|rH2~7DLsnzpz8.YK;20HV:N$SzIP~D.1-Abq#aq3RxzXOmSKXY(~]8x`VFHvY!Fgn%hT=p.Vg41}VP4?*(HA5_/??U#p,qK<UscJxB|1OO~z6[0s)3K}OZi[Lm1xD[8Af}?WrsRiN:&iFpezs|Pv([8uv`8rSb8>$<I{2Ac8t8C.)O8K|*j?a3hn*TR&N#x)xcsMXMWPVJOXq6(>pwY;{q+Z0*-`e/FbxC(Y&i6},VOYd<bC~YI0c-LWJqE&jS<<b?,>xDFx5%3aL[[8_a7[*Qbp+c*WS:]_%&.7)YGrFPL]wvHg+5r)Yxi50<|Cn{ZnP,e87yv[7!dSxr.$}-m1*6~0?bNHfn3vrXP2ex]r.6yC|R(JZ=}QQ0is>UmAFCS3ZTg`EX:wB856,(wi[7vKjwn.!&a#yz=Lg>i,:<v|v:}i4PBW!V<QP.S~O+CO~TUpDSM2O#MnpG<>2:HqLOhF/KB_~?+>a%xF>+[>b:LQtxtFeUwb83N<Y|a3]5riq-{4|/8xgnJ`FUg5{03njUB|{>Wd1UM+bO*NpXn]!iFm%<H-Qt&v=hiBKG~wLQ8X2fp<!|3K_*eMP)*W|t+:SuC.a%0?>E$$Ot7yIEQN:.xA}dDSpO{(j&mszwO:xqUN$?#HY=Gg[h[TyVK&JLux1:$3D.S.G:P`ge~+qz<`!3VGK7>u+AR}Fp`(Cb7T~GK!jL<g|/D~Ar*ZaFrX7SzG6v?7)fxJq0?G6EnZ06=wN0OtJpG-{mvb&#j{.g/$iMLbtv*1X+U}*BX]5KW}=YNb-$Ive%Q(2J>UR,X`ASH}Fg-Dg*6*y)(<<}aCgwTHxewGh=h!FGVa]*tWs4z;(cj6sg75i&T-e_hm?~bTqF1Of;H+X$U+Hh3wb:WK,s=N)MLOZPQSi0n_f/sE:DfQtj)PENw!4jJ[2s41uO/x[P=Ruj)ROJa!X}IjU!cgzh]P!7f-nsr]7&3YG_=#ILRC}TBXAf[d6y`c2XK1(N!~wnef6yVg!cDsf]#;6SMsRwxnm2+DTa.]X}7/G[G}iN_F1rZ72UMNxY;In:V+H#b=svC3F4`HnfX<A`ID8w>?;PmaKd5D()whc{_UM>V/JZ.hWe<h|}`.q1d<5z05mhDF{cNi/hv)/A=3xOc{mGJMaK%$<WJ(-QsDL#QRiEfD8X`B>ZMM0~4<+4v{+jmX`8~sV7`:dI3GM(s{U#K52SzK7,6H+*1S>j__-xJNmf6hPjx;}W<[.O!xFSHF;H&sjx`I0W=sfBTBU<bI+ju+|mF!,/Vxz+fU7wSc+spfyJqRB7sAAz786!$u|>A3.G0G]%N](4/GN%L{w.~,K[N<K{}d}Sz}bNK3#KS}S[!Wr?dAm83ge(7vi[7<5pA{$0j)uq5~`n(ufhCF-nsh;DPJF!pSuIPBX-2?0Czrjp;g{7X>j{J{h!,D2t+D+}JAB<],/me}cDd>{%4nNfv[jwG;y>t2rY!?jn6ycYUse)Cn:=SVGOK`r.*E]64M?r4Iy[Izgnq$4,>*b_jg}NMyNCO!P6j]s;f~3503TIK=${Ga%CB>~aP8a0Su?s3gUa{%se1_m8S|s[uw*UnL.)FN}vI!Wu4H>1dTuE)?/v.j{1-7fNO:0XQ~ZvX(GTR4.44.VQT-2RTWHj$EmH-gyD[}hp<7DV<Sq/:aWsG&O>&ZSq6t+%<&#mOhSE=snHOug*K:!UaNPsg-?Q]_70u1/0dpU2(.*Jz~5.&/>eKX,xn?hcLdTByvZy#TJdXD]:uwU8w;yryAn:!Ly+7fS$4M#Y)YJ6COfTw!{ghN}(c5f2jrF)czuQK!2gX1tV<x`~In`4DVFHOu_?Xa3Bjfwxmc3b5dUDi~T|XtMa)X.m!eL&(O.f-W)4j(aJrLd;BT1D!wpJ$e?m2K=nR|HR2e_)D1gDY<K5-JVf8)GpBiAi8KXH~2Z558<>hPt`;/VI[U8`V?)e,J/+#y![T;=L{V.;YL+z>?2/SMi8pU(/wx}2O}j2jfM(`I]W2&cT4WXUPN{5s]N`_$5>t7jsXK$4+unxFn[geDEC?.Nf]N74c+`P~-~%su`2WL7~`K|H{iY71y4=TsfZ4f[=OX`x_aIR=Jh7ChS4j~E2bnRyU2,Sy/Z7eudYBts?`Hx/VjAatKwTt5CC]inMJC]mE]=YO+g_}4H3j``XQ1X}WCi:`".."JtEPQAD)C4T?b6HH4YRY>&Zn#X;v?M<adDnSPeQ{!,~huTc2KpCBzVdZ$iXXd{qI<f{Z*IdLTH:xFLFIH+Kw{VI5U?=xJxWm{CTb$6vrw8zZ;RI:2i#/mU`_x8v/:s_bs4?vw}JL5wAy;|UW-{[}"
-_OllOIOlOl000[31]="@n7b5=,E5-DVf30k$vq`[yTn<wTwVxVSVJX=BV3Rq2MgGxM@$+MG1J<}E/}G-aEV3=Syl;MJxYS,.yM6SCKz|UfJ*o&r-#A:fZN=U.aazLpJh7+}3T/@ND=2g>^8/]?Gr<B~rTv1-yR0hNsKoY7tGT6~sy6{+ntvnq?|~XBKkoBn~>t~LCG+b:GI,=V+0[ksD%7@7w^IqM@pD37rRY:&G~vv=2[4B1<fp|rYn=jU`l330<h/Vs8Ws&,wXRk_(,R^J:`+7t#Qt^]>e/V}RjEEk>0XL-^-(DqTa*W$?],iS@^/.;AM4?I6E3n`#eEjk^D*Y,@1$L_B:>VWMyUf1Ipzl8}$F0^6J]U^4HI{l@3ipYQ*3lA{&sHpmDnYAh7Kj03:T.XW7[_Ha+4t:ZJ2Ba|I&~(T1<JLEO?WXAT~HaF*l]BF?D~*>Gs?XmCzXTMK[F>VN4iIg{|WbYSe7E/#ip+H~ak.|1JU}.^eSoeR7[S&`ffCQb1G((Br?Jv^.25;76Vzl>x(/w#Z[[[kFxHR2|ZJG9*=TVIW,R$.|`@A+G&}4,tOk=4&U0=lmhABfXg]NGep7W#&wHiaB]N/Ap#ty4o%%JoiOQ}Z7=BMDkG>g+~to-D|xLXIK=Y:$paFfbpH,$}|%-(|Z#J+:*C|>:qUk;7q|ih,~;Ea<KMHS63m`C_](EnEeqlAGkQ5U:0G^5Lv2fL`W53{~=lyameyVtyxl0zW@8VXg,4,0``3(mE-+/{-$15`t,f:IA]>yt2m/HVUAIz=9`7zx2|:J-<QHB=j&1g;+JvZrzgiy`zR6;FStnHkYIFo7;1fQo16{8T3w>LN}(^]}WkUtTp{l0YrU?LMo&AD[~FZx_T9hQp:j>%Z/:s?4a:pA=;1LTOU*>HLSkCpovhm-H[VQ6krrBs05W/5T=/}G(DmHoz3Hi<{~Cg>xD%%UYDs61r`2:a{o5-G-/@h=:Y~:iOp5".."E^-_#,q.lF=EN<I4&UyD|*Xf{s3K9@oh>@~Uw8=6^3l*NiH,yH-Q;A5k0&@yg_H08=pg<r=4i`%.LIDEnk;Bsi0b8IWHxh??<q{CsnT<lR4mZFNqMeB07?l2#rjD:[I__A,1G;KOW9`z0}V1}lk~^p_W(_hU+h~[vCO0{f/nw~~25w_jJ[[yUs$AzzQZCFy46-wG~*$J(g{qma2yU*3Oiz29s^gqvCT7?X21.sDGh5#e3#o1`I{%4;H*k[W?k$4&>;_ARU8e:*w]{>i.?e/s;RXrXm~<}OxSxIs$CtG#k}FB3IDon,;(g--4U-:&QGH|aX51p^.x/,iz6#E:2i1]w%kH[EI1@e{D%bw3Vk#UA49ilhiv|_Fw8~ChoG0sGWysp}IohAi7t^56@3zp+k1[TX$xG|G,K6Wr[kGj#B[qofsGpNswiJJU*yx1|o:J2:0o(xnAIfryshgYbf#i|pYRaK&Eo7[Uv7;ri@EF]I1;[b|]M]yvVUi*<14.BpvMbIIZq+~hnEHqALgV{0v=n$z82,atKk/vMgkhim`W[Hjn2MF|LmE`n_G,3{@:^(wF@Z}JW<eg[zs^-B.WYIQ=O+@G+,0Dh=?i|`?5DtLV>HCymH{$,/p]^$JRJ`oiKsw.oWoZv18UQ&e@3JQY?=]@$Sb@#Wj{ZL-CH1,UJF^qDV0#&rr@AZv`*~flNi>3:Hs1-(b_G`N_qYOb,vBgqT&T~S$kn3g@]J=bJRpp2C2z/w,96&oBX1so`~aVxQ*ZZxLzRY=D@B3n>Vqe4[Rk3>DwD-HKBR9>MDoOSLL,xf+O8&zfSJy75jvpoHUgfp[g;/+xV#0;f?6^Rb9?A4sVQWR(0OjZh(LC[o,-a@2nABIEQ:4U:KlH(tH%AeQ@%zjb>sFJ1i$pyWESpqL{0@%%H:*J8N5[9xSqFMzVa2?%4Y#^+E%,@9U,byzeZ9:=7i]l~b`Fg`7Q>_,FYZ0ny@95<N8-BGYJ1$:r,_Lt*Di$f:R#l&,yJlr0KEbll>mLn16`7Hq2S`{ez/[U7lh+6l,z>Skrbrq7jM|#:vC6F8/W9,`TFmoNOEpF*2=H~`x+`W/em-t]M_4FZ~5q^Sw:4LxlD}LH3(ZKeW4|5FT8Yzh:HT#a>22bjJmo]lLgHyo?Vra(y5bNj$~9S_Xp,UM^bRpDf}*(;`i9gH?MSq069s7zRMLW<fpDtxC9pC#]~xG44$fl22H.Kgj--_r%l6HkRZK|?2NhnA>.}ip{>rDC:,7V795rC`Nz}J^Q8xHMeaY&nF=KBiEt4E/>z}mt%M+<>`ljW<f6lB?1_I`8VZ+=$`0EbCzk,=@I+U0aeV$W9A`Wvrn@fWX`0Ux4:$$5y;wB4h05~~n2FO;.H*H(BqAz@v{(=UUJ&4`@=hbxMk?Z5mGW~2o./ZeF889|Y@SG^D-;Dqey6:r6q&A]*He0Wn;>%E>i?a[U$S*D#eq]NWkWtC`w_j~oT8(m=N+D_&i?k5J@iKCV.Yyv$L*QgO7haigJoSUY~VWqI$ZljxC_^@$y<&;?tmn-x_0=%~>D*<#aOKgj4mBq~aSp.Wb:We|0nAnN=BQDCf1:/7J(exsiY;(%mJNQb}0qg:]a<.hv?B`R_x32%+r|hXk[HMrw/{&n7%$;&aWo9k`[#A#SUD&S1]H8V/qozKX1q3>b#Z:R1A5]J?YX#~Ql6~t/|Vna:oA<|Y%R0<:>]LkQm/#reeQ2$ZV&//335/t:O-j#o/[ZJ82(~pYxw&@R>S@]wGZ9lh.vgxbXKpIQVzaWXJp7+nIjxhh/;@eCHhafv7bM2&o8$L6e2=89nY:Kl`IMlAzhwatv+v>^vo-.hrnSZNYi(B$64@IeJA1_r96k,x2h+A-WO5JRj^SUwVw.EzZA~qv`+MxTjF7+.gn`Gx}e9|H,IJx#{Nnz#;2:mG&wq@I^=vQn1Y5Ry8[-HCS/VlhL~@|?e4=xi];*gxW%bR1y?^1S]HxFb/LbK{>7JG{ZyO-ofA&F_x7ybE#&bWSgN;hDs`K1{kAn$hht06D^?-GB(k1sG>-[=9$[;=YBT8ZjBDx`(mAn}elE_,QnK3mt^$%+l=Y*;C?Sx(~7M+E]9>;CE:Z;O6(mt&Zo/Dxls,7w[j&tWNifyyY~284Y_6$zvXimnhN-Maq=V.-r$w0v||fZ]&7@e?6^sJ,Nip_5T{S7B6rZBe*JY2U0`<wt]=v((b$5/?>ACboCUx8%4io8>6gx4?4(h_z#eAFf[a0^n3Gl=LW%iM]:WmVeg.ZoA8CSOT;4-|R@C3GEKq6y+;w{&pDDiG6J5j*@o`{s~n%WQC:JZXf1l1ZzK,=@V2262HN|zq,zC~?Ap%}|tZ?}OR^mCG25?,rem".."#`Eo@Q9#Q1.o-.I&eM#=VYoxq5E`o,8eL?aQ~<GFZO`:m63z6O/K".."_0C0[bM/*_pS,2T>zDR`ZfF-_]aZ&F379UHK2T_b86G^m>9[vhi(/YG0}=4/<$qZJkl/x#eq;z14&6^#=1Q20[khaIjG,,@1I=X>B5`(xx-8I{0m/JNB-gB48G.vql%1o533B59a%SZeFpx$?+vB5jy9vf=GnUOMRnmrUWtEZqB$G<p^:KAjo_>Zfx_;ViK%H.N23T=l/@7aOl.?:njvA-hxfne3pJ_BG>OY?=|VzLx*L/3%Z5`F{JI1?{]XgzrY`ixqTHN?zY*,$SxTZA#Rmq`7]=xJW8HFaXK^<[M3<jV9M:Je0/RBMx+C=hto#w{ygA_[6g.f;qY^O=|]R{Dev4*Z/L0p%BHN>XQZe]=%.(NaIA".."#Da7enW;]**<M?rW-(s9AE=BCG^aY/%L/ZJk,$H/QfQ:(-<siU0*k;m}SW+:UTrqDn_s%GKRIVq*vYl<7weIxl<x?Fk4t6m4KZ:yapi;rqU*-y]Z"
-_OllOIOlOl000[32]="YOf/-N<^U:j3[(f!B(p0&CRln5E8(lcqBLU]D!a*^)Xy8x|GL!/!bAl$mN3Gh86(BB-83AwnC#^,,BAm1]f9Ck<3!vN2Z#@9pIDl2]p#M}a986Qv-OR/*<zrs5fq[W(OdqmR/:j@AP)@g0V#v2tcf6m%I{j*/-R~:*PY$(QDc^Mg[]v1gA)p]m2|W`1?*ljh1`8=G1}NVnzy)cg_y{Zn.~wWaMK0V(+J6W(!Daa1iK}YE#tVfj6A<,8M+:_,%3lzY:^cu6?2::#b_<jv_0hNNj>Bj6:NzI(n]R{yyKkX^_|nnI&j?S_#Eaf@LlszzfVhv.l%N?0WGkK[Xn*URoCW(s^e6J<M*j%Ofs=}mdg./E[`v.D}@{16&:M5glhEUN]EGss&Npssr5YUBfbcj3skhmC.Zx%r{@~qE9]xU#0GR^Wu0>SoGsBsE&[fURdM#R#?O_R_bz-]$rnG%O#r8w+BSY0XR!{J`BmzCDe6V}Xne_2KpD5R5on{Undc%uV}-AZC1RZGl=tQ|GU+s9OVj?vx,+c,uK9zoup(f(q@vB]olYyVz98`$<C1`1Of[jeb-X0mmZ+Yu<lf^sCGAd{0r`*o09jI^Rj$,EWK>P?E$2#/h~_]~Q0kps@!ZvfbZ1~0]-l_!.&GdZ(rQoRu!.y~r9LxLEu@_z~8h%I0cpN^SokQ)mgKrZN0G&+(Ov0u!=yhp?(vB!sdvrpyG$*%$+YSZyJ^2%NP}AXZ3!t_o,-VJkI:YM[UKu~W/#twI}{^)|^r%~.eap{~L:9L=r=>dMJ,L8^j[E%-Cp1WV)L9V%PJOzrwg>g__x~2uqU>^_L#:1nbqgWW)@NRPqrC}_o?-.XA/OQ-Xc@A@@#vodQ%UAb0w]WhU=q6LnNRO2=M][X`Q)2ScMQ3typ8=?-U$ZE{2_$lA8AlXGN&YG.*6_XA$wBNJlBgKJK&-[-}ogV?6^Qz3thzASbIZ8wn~YE&XitWc&UY</uxYb5s00z^xlk+A#]C%M)e^}ixwaf{%J9b#GWs9*%JDP1?)gnhe{1|8qv5S}SBLv0_G3gx`m=V?15G`?R`S#bki9(=Iun.f^$Gx~L6<f5DcCz&cf3[cA+_19l39!O.`^KV.{`j]6YUQJPIs85q$yRR:1X1smV6h2+Xfzj:${P5e#J,6N6#X9rKgR<}C5.V85h?fPP@N1n,w8+0.5yo1u:}iX?^JZ{POw.l,$C^ty]nc<lv8}IiZ2R-Q!Pmm^f@R/k@c+<cf?,Gh,Dn|P0{(zjSjI-@Z[Ad!g[0{P9~f9&hpj+E}[}3l!t_I?p?`AX-YBfDu*sEChEB()g$p!S.t_YSA>$*m!sy=x}6R*+)I3PM>{}UmU*zdS,y".."~LmZ[b8|5$j01a/}*A?Q3nq!Kac#G!f6iZW2kD=w`e@GhOKuOJt>K0)=(u6JjC?&&!]".."nx_eUCG~vVP3h^w%y[DlAj~M?{kR3E>.vM+*`>?xY($X,ch`$w6_p,SJ|z}=P[{2~{8Q:#mfZP=}EabzM&O<Wst<%foa_:&,]N.90Iy:)6U[u]lC}PgBpX?3gDb*>X~ZRN8LN*a|[53#|uc^XQ32^YX_aR*aIwGItYL3bBsfrq8@f^gD+I_wqlN[}X=]|K_m{Iy=)Ioi|UsyG#G)sSwG<lq,~!u:@=ZQO.l}igq9)lr|Xd5DXSL{bNQsU?^]S}he,whxy|{RwO}1h$gE03h&KQ@+eBPnn(ogh9r,18w*G*QduYG.{1Oiero-=lI$a?Mpx,Aq?fo>AUOJ$x-h$oILm[~)x9tbcBlx*J}.25%ngL+x6YfzUoaUowp{*z0.)hL(5yo}/x]?MAle@K*MjlGRU:*|yhV#PV2j=Uf#~$@_3O,Q@B>/Rw`--9`qd+o-r[e1L(I6m$23{ssG,@30!vS[OwbV>%Y:YmVRe6t=y{n^#}5jQz6UmxuhqR6A)~KrmC8l~#$QYj6P-BV*v=?UpLG}+W&~m{q`($fB~&j#hn_ysR_m$d]y?NB%DWdU.I%9&1$6-&_/A!SiEas%Vy]@^OWy6t@%Xz&]dLjyPa>1bW@LA!r@%S|`aCNnA(oanhqjLKe<32h`OdxQZg1]IoYr?*&_Czm0fu}Nl=K02`QjR%Iqx+2D0J=nlj5.8m+}pwuCOSMV~PiXS#.|fn.[.zyWs1*zX#039o}v+R#nG>?2Y8VsE2|G>aSlf%!^pwbfuGJnx&#X-r[^rpbBu(@{x,kCn~LY>a~3KyVoo1G&,Vl$c=s,.dclN/KQw2|kP{U@^`C|1AjM!!q8s,|rft}aX}f#<VxW@{dDy_^P|I:?[9s5QcRD3s#,zGv+WzznrR&!wn)/+BQSn*w)XnkQ+KkiK)Lj^]~VpJiiRiAEjN$KG0jXWOosSPp%]D2ve|!uJE`N)od+#x>K<Ja&9>2W<SEZ(/#d}g2w_q@m@3SjX^(g|abaxL*>KDA3&YP1<~|uwqo9:z[uN}Mrg}2sn9/^U2,u.qVdS$euys_kO*qtjbznpVPA~I6=mZWYdsQj5Y8!LD3<h}{~.#=NutG(IY^9^8m|0Ou#1?|OqV8nfbU#f,KdD16frR=2jYDd+.MYtv+h1L^rx/X|RDw~G|jNdhAlqR%*6MhA#v:IAs(rk$abEW[oCjic1eWwYem8}S/_%IW=q-Iy?#1S|A5/E:BvK$!}/|dU8m^[&](9Z!cay-E?eA%p@D/V2kde5MeXh=i=t1:?9/g0xbR+%`6aonEV%[x%=uld9%N/jb%m`fMU?t".."_3|DwyQs^UnS?>E:Ls~[R<0:_!osx?_NV~tjLU$vlD[@s~&vC#1gIos@//$zLRB9)(U)98aS6vsx[%:/K&gM<d,X82)v{UAKmqZ?ZDAJ~[3nrSQ2>>UnjVd2`l_j]kvvNaB~m<Z8ef8xy&}?`fJgLXGlwludt-9ru2Y*jehdMd{Nx?%I{P*d@~EDPA?RL?Eko}}GhsR5coS%y%u8>igsp<WDAP?Z|x=%=M,RN&0:~{}>:lpGLr`$n$>]q~G8V)*cN`sMAv#0?*_gkJ$epan!{Q=2A0vUKBb-y9@L*?jhJ/bC3Oxz]#g:i:V<^q@<a%R<EfgRkjLce)V33_U8yuyc,g-=kw%XGe@r{,%RdC}8UCurb$?!+Y3M[Iw?@eDe!`u%_cse+/2~Yb[}t9#h9A.D#n9(=awl)wbk]}ZEZYzR.^vDrje_%/U[&ate$K`vXMc28Vqj:3fLa#U$-yvl($!}!L~Ruqz!][3ECN8ng3Xnm@g?bZ:g>m{i&3=xB%[u/j}|c9*2[2vj}(9W9BvC=5CpN#)$Nv]nStc5IZO$g5LiL3B+}&I6:W(yJgW3CA(:I5~!9bu.(%:u!mXdB$dJ.vI]QOSe@/-Gh9e+eoYM)EX1xsK!Gtgc?m,|,&s$+6{[i&/LS|{Baq+S?KaC_&#IgblPEPu[gEzx_oE^B.Y|wIMNeu~q#on:lzlmPK:(jkCbY#s9^$si~sfPCe#@91WZ]NVepP]t-o-G=3xlWQn2d,*1q(YcY95~g]sD[5bP`=in<9QBwk_iE%2:>!l2)sqli3AuN#kW&[m[u2W!}P-t%uU#1clg`Un|eDmfY}f|WYe5iJB168q^t,Q>]?8qsQ^%Z!mk$6ac=uvpitWU]VY5%[a:009#lLWxfL8>YvRL5CO0XD1),ussgP5O[xRki:8k}5fXdhl:tC[%>^,:]#1xBRoE5>M?[piB*,Qv>uK!#OiMAqE[JGxgSpy&2}g[r@{s0ZP:z(p[zi~LI%j}85dNLSU)D@{0MJGZ+m-W<Y6Ql<h{ob[P*E1n06drB[K?<~)./Z1N&qll{hUr*k1XZ1?L?gtP0D6DV_mDVi[C1JY`Z~GoM(5cxY*]CvQM$Q*k}gaRN~6@kM6%yQr"
-_OllOIOlOl000[33]="6:;h7vYNBfp(+]%l%L/x#2mhpA_(0|.M{;xNb1%:%=z}3{eBK*5%eL.{Y4VQ;S}81WUqsE.:4jewf1Iy;*e3mJ;n_2+(0YYo&]Xhn~>*bb3w4hVh2|A^.f}no-?B|[55NV4L/ma]2p6ez;~m9p/wwhVQ9ZfEw%T:RgDbAewA/0qE*>|-/U3ss0FU9YFwU5e/4|Z$}$MbA%tYa_{ae[Ho]K]J}2qZ=^-x&%7M#J6Q-#jE3>jS}C6~;W}`rGv`UZHBI2r2{7}&(m:Hz2+1&f>e1h4#]3m/J+8^W.?}Zq%|RG^gfZ5{q,KzsX`v-r>&QjL%;.e*bI&^_fzLgS%=vl1%K%sDhq@n{LvLI@AW_Q@MCb3:2DYnN6+2VDy&J4UL*QrD=,lgmp*m6}.W(AM(VnI*spq-z@GABbJ-+oy$Q:b_r_3Im~y=19.=exAJ/B.mSVBR^9>z?T7mKlCOTYaH{RMK1D@OK/X#BJA4{5RA3X:@p4H>-E_?L&0U-7w^Eh2rYU*475x.jefgzlSCU9`yLhwAa89eK}kj#;6gvFI-,CBG]lt96|X`]_a@1hW7j3ljyGVkBa.|`57x(S@[k414z{|^xCk#T%Mql2iirqU=[xHfhB^jU08:m$~jZt3>:H^~^tH=z:J0l+7}%n-w=~fxA__-:G,ZtS`wlw`yn_F^WR>8#HM(`$_S]8]iZ-hj`]D;pFOK+x}sN(l/rVmO]eSmxtRH6{Qq}04]GxLSWpAjij?N#7wVl>iZAs{br926o5:6f.>j36r@0T(l{ro$^UtR{ysi=>k6ye?a:|^=#2>G<N8>vYK={8~]+le%HAi+Rb^Cy&,}MRB8}eqOYN<b~GG/]5leXwt7vD9q5nUvBK4?.8(;~8EU;42Q*vS5#T*+ra3:ibB*yel:UkhMG_/x1Z|=(AiUnw~;X#w".."K4aeFyWAeYvXJ-5,3k$CT*NvsX8l_%EmW3H7oa.IFWe67j`ax:8etM}{1ioB?Y3].;7%5NN;:$?3ofyqF&XJFI,@<R7_Q2vfCyE-YtB,2?mMhl+8@]#54E~(^=jT;vjWS.S8g7S5jO>j5I<<AbQ1~HZfwlj&X?VhA@BL^QU%|+<OO$sl<<36RR4bxi.pF}{,&Ffv6&ia<HZnzJ:N7$3F/>-83<#<&6N+w%x->`~&Z}(h1&9ng(.(z@]#-#=E&9}xVyaMM9R#RBHt{a`]r-rLL,tg~vB}vNjw&}9fgp3FWpK:WJ3&m|pGiZih(4-B/:H12Yw$s1-UDH-qT@Sp_Q-]erh/[Mw=[928Vg_&,MhS^6i#8tfo4_i`4B=.4SLHiz5Uax#}R?n@e~Amz((7{p?#Y|5Mh-^$U>mn7vylerJ&h/Xeg04Gb3-Ix,5q^$_yQJjJ_>/;VfJ*1YpG^0L~y7OkUwB*bp+1DNo~x6~9L=R~`9(svVxDo(1~N9Z+p>-I:QifS>WKL]x/~8i>|VzX3kW+".."/X?]~M&+T*B0oiyx9bDIw$tyW:78Oe1A2Lffvo[#i(^T$=4Ssw^xq:`WXoMN#m-*_f.E[LzT}oG(fr_||yMO$Ezpz^5JvDgj~$(iR,;8/Ze_".."4tSU4.myZE[p/=>RJl=BWQL?<Ve1v*`A_m9R=KlZijm[pr53&2Cx=|j8((klCI;:YAw[tF]l+v5=(`zfy?Io/,&hTV7FD$Gbs_4A`j^8BbI:-Ba0zgNnob&^q3=:,.smiK>;1WX0z#=wHIk{UgEpao>=qg?g^fU[3,DBZS67h7URe3[[_>Tkr|C&UX<9&?g>x]%46@e:z>4];qggat7_I4MVE&~**07F-,LK|nIR&0Dhh*]hF;,O;Ro3DVgSiT6sa]&t{##$/3-mvJ*&Qew1~_K?kHriAI=GW5~e9CmnB#~6.lg|K_p_o?ka~i}W_:fpgQ/=#yGr[nn7*;+zCNzf]6v[Zk|,5$>3l[fhBAX,C2AmZ&R-NAMZw0(9rw|`{>Gs3ZoofqM?%B{(_]r$gAwv77:JW>Fj;FrJv-29<k[5iq/2^6Cp}s7_l-Fz3&1Nn?-xWtBabM;E%oq]=]B?_T9N~n1DA3kTUW$oJ>bq(<]+nMNj?3xSxR@xby-R/ZnkvBh~=vZI>$v2_s44`Lp,=&L?Da{E*Hxg#gs;_+eggXKUAmU.O5|s-pTvZqUFI$BI4=$[^,2s+C`|+JDrw]s`j&96Hs]DlIvQN?:IDX_QQ_5My|;Iv*i86tZ745n6nf7G8U12#i#|C,~GnYL[&>Ys]@|L>`UVt{j6y@/QMlD1={phI8MTICx:Y5LHl=[8?4Vte/<`FAe4A`+1Y9k=I.&4z[]q4^U/0,6`A:ehUBjeLjL[eELF*EUU;w&M^;,qzERFeg+,43b_J,o5HJ$aKnBeC5mIWV&mG3;*1H5F/yt@S}YGH2fx{Dn.WLNn7=*Y67IG<pqRYoGp[?H}+=Q2OVW]R]AeQ;L|+,vIDJhvZ-4%3C_HzD-Z*px3B}zGUp|-3M:-i}VjJ4m;0IZA4sn[^Y/_0^G7rUq7(hJ5oq9]Zq}2lNssBWt.Q%zE$j~^*pf>WxQ%n7f0tL?;Bbo.:Tz-N2CUEm^.v?:oemaWA=:yB[Sy}a@%y[ESN87(rtGb[@5o5Jw%{,=_AF0w{,NRyXmv.^;s9hEj>/`q$-L`GLh[@1{1ThDz0tMA6k_+X0+Z6@RsG>][zo2hn3B(nijY8vih%jZlUUrToz(qv8F2+p_pk=9rW;D~^wEm=,]wp0YI%%Gk#f?:SwbW_E=~|apY]F-<(M;IY~g4vBYfjr@jIhI,z?(28/`fBl1?i*o_{^ZCU>h-*{M3v3,84}`%&Eh@I*&vmZR*X>U=A688Z47y`}qZ<.h`DgCkjk9[0S({m0:|f:^/`g=r`n#(`+GO{z1iytz&8t#Gr+ZGvm#f5<wp1-Xg|xp,[*B8/X2nLE/q7eOM;heHYJv-H(Sa:{#DDOf([90Q,l[H4nS#@DeD5+mfr$|]}_$1g3$Lr;l53X^HV3EMrrSxT5ek@{j-DGfWyGsC?{V+BRt;bNy*O#%2jqg6[7Yvyv6`-R0I[^L3oYbr{;S3E#n$N=r;;T0:?R.4bXTt1gZo`CaBy$q%p:URAKejt{Ir[C?(62zxEMvksG?{jy~BI$3lbvbn]7Xa?xN1G6a+6`9bgG5wLh1x(sl#U&1W46Ea~qQWDx,Tsk=1xFO?#|59qq?BbhaFp0*h8O0_z%7N:GiGL(K9Dm<NReQAJ#BEFmTb};gMAIG%CN7X:egB(ysU,wl2=<wOnGV&B=&Y,Vy.@29L:iWQb^hk{wLm<#J$km(CjK6$_nG]_R/}WU2-7RX+oi|G>js3E[fKftl(CNa6kx&3<SD9H/.jOex:V>&&#k^M:tUp##SbxWqp:a5nI?Q7E<T^O|iaesV5Lmzz}*9ixYq[N*h6ZV|8I8f<a-VbHgVLB]UvOz4Z_?hgZ](+Z~6/DHa|kH[+BZ;3DNaEE?9|a<3?wKN2a6tVl/Da5YmNK%R}1-C/]A8](}8qe,>W9K$a~C.1w1VLh7jKE75=KY>,/QV:b:-ipiO5[bFW4xDC+#j:N/j%LzA4J44MCF1*tO6r3NF/_9ltZ9bT9WB8saxs3ip2k]E6M_k_HaptH;MCC~+hzaJ$4ElRCaQrF11M-p`9-rx9,jJ%m;QOqW>h}h.bCOHrZ65@:G8,TCE.;AbK33.x,>a<UbZ3D^a8Hm3#gx|4*]#Yyt1A%3Q5[R.4C1aK=,76KprG*awsOBB%xw~xBnXa%^Fk8ngW4m=<,D@A2nvIe6%Bwwq}qat.Lt>X%*%Xv5q_XB_}WA(8SYF/fghE*+9JAjbw<./LR2(JktJHF2VOg.X-W63TN`n`s7?LbB,nF9IqOil>$@(,t`OliOGAX8NHIL@Sz"
-_OllOIOlOl000[34]="tt%{AY[$$-7Zk,0L+E!6l:H:ATH5gw+AGx#1(`UF$?9I-^v>opdkCtV/[f&hX$m-<2*ioCuko~*@Lzj(?PA:J.5QGU5tq~J6fuCQ$d`3oitm+y{frE%,R6IN[k6V%Y2M9XomoCn6r?Z>}{WijnT,poIULes{}`$".."zkq%F2?Zu14dTHlE.,4Q>B1N,VM-=EIWI5U-[15KuXbu:4RuCU6d`G~B^<tII>H%E+Fvb28S?p(WIuL89!%>1>5mSLRUm+PZk3*Hg0ryl6>jK>M|,3%8e.o0(b:0f21kByUQl#jq{]b4#`)CQKE?/Xm5nuB#^N/B9I:A}^}<&-2q3*/+]EXny*AudSNpMn3Q3#o,VYsMpJEAYnF}UZSW[s7(oAdL+o0wm0)+x!ukVZ+tdI7%.0Yi?xZf,$o4>n~zg8hhyVAMyb[y~xGqVG4L<pf-:n<w9-0R>J+5z>50GXy:ngruGtwIfW9g>)5n~[$Q6d4WSl^s=/4Cxv1#WMiE8Yr7mNBR/A?.]M3J*pTf#L-N66(qb.-bH0WwklTtgm8}Kf!W#(RT)`Hg+w^vTNJi/n35m4Cb=wZkVl].H,K`&T[??zoj.>/puH4Y287.u:[txPA(<pV8>]wX*|oR<i8~+z!E5Uyvzz=72G(+L&75,r*Tksj9gp3ne|`47Anw4:$KL.s%]Ij1PrWILN<s9e+ubfxqrnlAJ8bxh/gv^{R9FsCM>T!rgF*2[u6>k~:LI-$0v2@IY[g5GRM!BKJTIn)#C+shd$M<pp6B485FgX$Hw{m%B9S(rz<[pEEGUdC={krAL[w+=o?bjejHZshe?FRptUS`3l3LBvS/&/]wURwel)]V|WUeZ4Lm@&}MhSm6[HE+BBK1uIl.l5H!1yPnK=+`[ZJ=kR)km0ozn4V$*JFghIEW#[VpN:@(0w%v1%M8f84F27lVpS<,KYt@P50dv-ZjT/]p1kn3,TYQ]C=NN&VseH}Q<g>gVlN4?1qR4(/vj80^?!S%ZI@2C:s1l&E~Py=Yj:b<&PG2VXUPF:q?8>Qiugg,^py1^#&mZe62wX=i{=V(kn7/1?Vp*Il~]0d7,<t4*l,pKKm`GAM,hAUG@uzNb<kSCmUn$1C3I8?3NmeWq3M]UrK,nd)wk8>*k)UyWhg&(=$<tnVv|S6qI!eNw<J{4=X~0e<X73P#8GMr`R~%B0HG/QWTxUY:r8Qr4=|l%3&4*.T4b8Cq1Xz{7)2IF*|-erH>~-p&2s7*gyQq|JVSd=!F=b<HiFk0,SJ?p./k7gUy#G1!:.4yCCHLXQH3%d5lUKCs3B5gv=?w|44$fF,B&7}1t}^Lt-uu#2Kz&Bv=kkfo]8[++4pJ%nP+!^`oy.q}Ch,CIFi=^%RJ}!U7g`jfAgY-bmyuUU7Qb2Q!NgRe(I-072?4!zFJ*E>gzUJ&7vn40qz~.6IlyYQ$hFJW^oL@mo@Ty?@(X(,.:*17(%w/BY|*[<Wk:@[4Lx9fhX$=`Zxij6zqW#,P`!f)~WFs1hvXh`J&*(!gF6H,gKjV^?>{&[A[b<H^J|}-CXCj62]=69XKMiM6%A}GA=Y#GoZ2%KsN|1hl3pwTox#S&*E`P`Q[fg/+GmqYo,!Xve^-.f}b,07U02=ms$H@&vG&oIM,!8vJ.jU(-N0F2^*ob=$gUSnH%9R4&.k<G-<S~39fTwEyB]x^Ws65q-I{Y!`)#*M3nj@7gRzW@u+og0$ImPZ/<=@v$vWJ{o&CG!U(wH{ljt~L@j/{n4L,]jtLSQUoT[,B?pQk<RoG9Lkish+7+g+%`kR>^$?*UFb]%q}Mkeb9sIF$:E{KG+]R?y:(<u[GGWblL9+*d<=HNdp^+UM`Yxlj*7Y<vrgL9V~@4T]]hweClKNTEB1Plw?f(fAB[j-*I!MFU7Ix7kdFRtBn4gJExz)9/B||6jGW-=#9e/=YBA`!0(!R8,hbV6IBqRLp&&Z+s|K:b,:^/R<Rv0j~RiH0>FsVUk)K,m*N$YhEt.W>Ae~79NG3?/r%1VEdU`b%`8kB21xEi>[^S<W9]?QZ}{M=A2WgE()n&CHSvV{4MtJ>[[gsjgzSFBZ5b@B|x|1Wr4C+Jn4TCW@0/3sdV(Pm)g[fHytq[(|CF/&^k,X/J-l@h2VH7Jy}Nbu8fC0bp[X>vpofGK>7WC!sCiHjM9hy1*Fi2`^=:oYy<W<n?Kh5@UHJV.E1>t$`lS&Xr/Q>|bu.!w9Z/&@%=sJ#L5Q,]#xY^^7w45N%|4=::CT)hm|?dHif[xPBoq&LpWKw(9HjnddvlA]ClF9[E9u.Ix&e>S<*|ZP59QJV2^!@MqUxQF<[kzir4$`B[(8Y5&9^!Nw<#HQ3v!*b<0[rvmyJ@@GupjjJlj%6(&N+-h8Gm4:K*zl/woh:Y9Uj=94YI}oR-b!XLujte]}.|&:7Fo)YEi?xZ5XABsox%YVf0^0zdeMA!2tI{qsp@Prh)!pPH6?:gvtpnR<[*<-[|!kq^^<[Ri0XLu#zlE1s[42`zP<12q[[S@RG[,8|2t1MEP|Xq4Qn~I?S&jtdoQzopdpSkHNe2GZ&yF>vMuY-n18]kWr[Gl6!$|BR-!z,7:x.&|IiC+)z0!Ri`H0gwprbG1dL]/]4jPR3pY?5C(}Z8igCgN#,fm+[17LeHURugQ-ntR+.CCACH[*M9)Gdi<,)0j6st|h$&e()G8lj#X4N(k(7Rn9Pl,WKs-fA#mIy#d%53?CmKf{d.r`<)g$yi1~wXi>Jh)*UQq]:lpw.A+*X~U9&b+Wpg}Pnn=0L8=4WoQhWrrmGwC$ngY+~oH=HU({Y~>eNUKxEANtK21,x*nd6w4k3^0>[eI$-n[krtt`CpCC)1L0okJ/M$B+-hI/Vefq.nXfM*L$w>R~rEHXwnuf!2XYf=<oVy@*gj436[Fe#dZ5)JZ:E?S#>-.Ev-vN8iJ7?Y>n#0WJ9S?4(Qob9Gf7A=$V7`wUb+)oL!IL9C+}l/4{*6ipw7G)d)3(]KT2)}MFu{~j<rK@~F*G-p^$/2l{Gy7=&MSTWZ0V*I<r^l>4r#^b[&$SY>{[@5z3F)j[C9gC>%qH,uH(i|jB)ZuJ8pj>wl0k.7dhY]6>^J#u6S`LBj%w9]U519%JF:Po^&Lb69qs&RKL|G@CfL4do^n/Q8g+!ArCZHB{MJ9".."Ii*n@wonIG`rx.C^|0IT*{*fxQb=`-C9Kf0&IqsxA*vli*w9?x5LBlX$Y{33N:rufKqXZ=ymModV%E%pE}/FbmLH45Bu#WN0~zKjoH12@s)@Ks|S?Yx^u)E336`L8s^CSHLSV0?q66e`L!66/:2tt1<K1`>Wgh1|%t%.~!`UX|B3bt^3G)Lg|W|uo,B@V-%^KFf,fK.q0JdLg5vPhYM[MHY!!KX?**(Yt)eK1U|{FYB,suJbd]C+jtn[B,yvsjpjpRW<fQH{1/pUhJ?VeiS<w/zmjT=fh^Uz#X3!G@HM>mq{})WFQvd48Q7hi[f?Z%HBbjbC)M.J1/N-Qb{fr2583turUtRhzwFlx$.J/n>Z2?WN&N}&ZM])`(2C*fA{!=}%:h/s@JguUGWIF/$(W,q?K.djE5H*e#2ZjKdC8@&d7@8e&d-5Pr[@WjdBw]u0!`V@V^?T!2|U+5ueFbggxAmTZE8Zp-G(.0zY8Q{)7rEfHp0i,W#tf0?kW|ebv6FuQ0iLWv/#$ReFkMsieGwA$Bt`NH,N^iQ9Bj9%^34rekg%:QU@y-g.f*+Loso<E!@2$Q,bPT7dtG*.]KvV]@ZClAhn$,U>(0&jP])zk]fQRPRby?ZJV,dVky#od`^psB56nkVVUv`7,x4H[$E7ARu{P02<=]J#+u{%poxAT<]bb1^|e^ut0=mM!1?z?J+>|fgHm*9k5)hEm3#|mn)9X{g"
-_OllOIOlOl000[35]="+]V`(cU,jwaKx!{uss_T&K:A!~XyMOf<8pYJBGD3NA<1Ny8]Nb4_r?,jnIyy2F=[_gfIOx#O:!:`/Jw7w.$4Hwz7Vj$33KSA+Ja20E*:O1s#Nt#`I)5=jR.J8:D1_.B*rt-Z1wdrM||J#vKVsI|UVwW1U(-6&]WJU7M$]w5y~+GJ;C<{eF$*4LO&r_0q>)~Z*I?VpZ&6&g-pDfzz<B0AcgIPZGn[e[fz_2:An(!6e5hme,AY70mVXsOGT#Pv7_%(a_[#)FVh[zp~s#YT?r|TeTj.h/wbaWjmv`:Q/[YTq:)MI6fFjL8x3]XpCwP0BK=G$OWwQn,xSYS|wVxR`!<]DMH~M2E{+utUI72vtRUZ=COh}b[+`Z_XzrMgWXHY!K+[/NB_F[~#Wwg&?!FExSJha~:M[z2.Fw&OtPLFF~qGJLd{=FdS-S5T]IPO2s7C(d6uHf>j&$X50`bT-qxsD:*J?VGiGapGPxbw#t5*7/WJdfb-x5<2_ZgZc14Rq-WiTvEa]Th=ni7%/SXn<8ZyfR1X]U*;0%G~hHBx)j}tFa>B6:HMJ:fSH,25ZO![(Ai`BSLV3JWpT<+i[7$0ahYFfP#J;REp&6uRfG#5JhE(rCjvyQ-WL2TOgKU<A$|nfb>0?+$OQ=6uQEBCnKbr=3ZIiXeI$CnNCuAx<~d2Vi?L:(_S0`T&LM<2x+a1I?+48QHiy+D|sNx+%-55{|MOEL&_?x=M7DjaAN|yKjF{p)EqYXPiO0)5$!Z>WV=jwR{>*C][C2d,4+cR.sc`8u>g?8|[YaQCMp)BD5??d).#E({5JU4!fZSq?G#ise}sFO{Ev>ruG~g2]N1iS=OGFaQNp,Ox+.7p[E#7zvZPpLdEf6Xg[Q`<4<S*!j}wPfaUP]B*/:G!~;UWm6?qR~idHs~Ihz0IgCVw]Tj6KRF2{jQ(zO+1+a}Ij-$}$88&xzV]RC4D,p&S.d%UaJaw_IO?1(XCx{pj&g/s?7piZ))Jpcs576IBf__!+MBe?57pu7SW],XmuUWhbCz(0/8Pu15+vdApzMTF$__&3]C|/>`3L:{)Re+~($Ui0WmJdJWv2m~=TbeB;-&yNV`TJP.>];QK-*hH6|aIG!R`**I.S<Vw`q2c)7AKD1s-rH#MmPw1>=I0d=,B&<]4W`[Vdy.|4NBTiLW3]Fn8!?/T1D]T-b}|/Gx%[-31QGyWpPjqH=mu`X{x~.J85Ku1OnrP#]SvhRPz|qP20*IO*e+DME~Xg1YfS&i$`uxX/B0}-VSd(#+3Q(B_mPv`.Yn:Rg0W$6,geHtBdj?Uai<d5Pg:xB?x1m*A.Hu26NK}0?C.phvbhRcetYb;~w0bQAh:4J;*SiYWI,jOhP!zM6vBOw2F/6}Oj=[y_eVGy&mrMsC3L|v&jrAq<B0U~`NS)q_jX::&S0bE[`2mvph]IfYrYs_Fw2EMTy0h]sB[;#qw7+Vr<%{/t{Kz2!I85>8TZDfmZ0rn[Lm)70}t|>IDPwX;i;O|%L2}zip=Ohc.}R;UAH54a/R2qW8,7JTz,5Jq]4t`g0S`mS2N`2fZnF`;|hGde2[5~?G`]H}A#gaK%cDC`x0B>Kj_#CSw2Ou*i+0!sUe#&5-0%[xW7y_LfzG=iT=}KW[5DpwW<eeMp}NzzD:[t<h4Gzn(Ii~pu56rC*NG8Mq.58iS:Hdy<UvSOBucb3PD]6NnZ5I21Y.jYdONv(qP=iD;yz-q?PM`#%s~?i~&F[PJ[;V;7m+.0>>GytKnQ}7%?;L#(,dVjYOA==pW4$&cuX+GU$u0m(jcVp-n<`udpxay`Q=8v2eW?H)Ar[I>]KtJJQJg74ZB#>DYj+S}]3!>Z}bUsHDj-W>5Sqc.Fx0[]0+z?V08D:7E0fr28#q5q_j&*XZJp[8=VKgR##)s,Dr/X8*xT_#ZB4/,U8X7T:!*u0L<Eu4M&I&ABIv7F.WH>~Kr>yMc)ynuvj)wr&0njNWMGYDB6cg;%d|/D/Rbtm$XcQPa6;*LvjJ`V.{zY5[H!>Y|2~XwwQD0nVU06xpQ!I5V?;8fZuVChy|K<u/[LBx_A}gc%}sOtWU*}I}EnD8)f0xt*sxViUrKj|f$QBI8ZTu7+8iapTw7KVAQcdTu|pw~B<T!+W:_|=_JTy&xjR4=Cg&sA)0(<|F}(m]2/7+*TDaB*_yYn-~pG%&D}yBY]A:a5#UQ+B)WKY%`63QC+t$D|rZ?7pFC#05m/x4U#$50AvE<~tI&a>XGcUL~3j4$xA]K6Bb#uy74v*r[vi8H|-&CTpHScJ;6$rtN>uV8UVXtmuUc`#ts1H.!?,M%XuaL=!<E]OB~XuB[*3CL$jX(dr$Wd>8&q[0M3Ps._152.:B-~-b~T>*QEnI;-D}?-Fe5|ZB(RqX1<A+waM7ZJSw&Y|$$PXcAiOi#U]w+:i`{8XTJpdNQ$g2+yGTILR;2U7~GsqeKOpB]A!>vjc_tq?6]~Li#]*]ys.pyrT!-8XmQV,cpqC15&~jqT?)cWywb8qM2O&r|~FjD+]Tzx_|QggXxUVMfZx>JT(;%yOuBs6}[jhJ.54+W.)Ue:7aSFt.44r!q=VOSIRF2Z#J[{ev4OS5!,a_CLh8(L$/yR3/c{7jhg<~WwJxsWaOY[T>JrEn/;/~PBUERK;F|+M?u)CrJ{>ZuBVIK#-BA0iqRC[|f!z#82[t%Ssg`V&wROh;5-Y0;+F]J,]jB;(V8b;Y,V`q*e]r/dcDss06$U:&}fN=6F6[GA!%j#GtFR+y}|RL:q=/fa(JYV/xsCAyYI`RQL:{rtHZ>)L7UvOwN{eigAd:=Q=&gb76Z8P5{}8X`rO%+:)u_wF.;2s<I5`se60c>n;;:g]=&L7ZRH}t+QB:d)f(aWc.swAmJA~7_ajNSSe=~uJd:2_5G,XxtX$vr|BY][jt=jg}/8sN~iyKDd$2`3|W4$x-i~,TMM=7IKTj;I`+bWX~vG,A.:TQ=2>]>ZB85{VjtP*Y<X[_<Chr5cry2|fDJ):En&cBW1/Z+.ypVv,Sj_`KKx6]/-|K+duUTFZ&Q]KevUWm;,[!/n6NCm:_wOLnvi/fCCZnn/vdWXtyx8_FgQB-_TwN(0(;8u~jtAL5=`O.[R|rzD85t:EZ_]S.Jtu5EWG_[J[TdjwnIG[O/v`xWEO}T,(M{%YTu04>rjNpOuz,]#Mv=De;UuDO<6iSmGb&<cOP&fph1Qx$TjbDf.(P}:Z#buvez>4_WsV&S(.ur#NA4wde2vy5(hb|`1DwOOyKqWORiNyUad;/EH(yOQDJa[7dM;hX|Ci8OLn_y{?+B!h|;s2nvAG6v}7.m{UKZ[|UDRIXHv:d.LFOjKEj}yVn?(Jyh+c]3qVRPdpe2bp#uDr(|virf<%DK3IzNt.=7HA=_S%[y(z60xt;7&-3)FH`L.].bE#vKJ5af]jy6m7w#$#]Y/*G3]_(N3_d2X]F2ma1s|dzpadchPy0&>HAI36,v>+qBRJ0Q7,[Nv:[S=`LIc.s$LX6dEHO.{|hARm0b_dm)|#_nd{)ie2rqee+Ty0a/TNb8&7deRfqt*a5-SczGYaq}Ydf{AI+,4iC3XV$b(&W}P|ZKi%r?p|Bn5)By6[*T!Ma5c6zFT<]Xw|w#sR0c(!W3r>&*#wfv+q*f%a<dz6f4;SScXb?iLD.+ed01}=aLB~{KuB4/EcS,AL=U$5gTra.RiiO(fU_.V*amI_N1vD8mC0hPJ*/U{+=2;&$e=v5)a7w,!df_IGb+tRd+5*0`xAMyrQTt+e28jZ.B((*1/VeNGp#.3/``a>pF}-6J5F36)~fK$L`;w/t?([UX4T3TZ<Z4wxgzt?V2ES-I-a6".."~X}VPZ()uW>5n[aZIxgv_3``Awf5WRZgJTfCHMt05dnV~"
-_OllOIOlOl000[36]="AA>aUE,DBz3+4(};eQXy4p1@]Z=~>Q]=~DipW/1ODoCAqth,nx4>qm&FSE~Sz}1jW$H:C6i/N+jl.A|E+`gL3@UJnSi0F&/gkUBUr&49*2?Nz_8TKZX|{`iz?<H@y>gxy#b%W;5nk{_h3MMv}(Z,FoCiG4Q".."Y[twNW1XU_psLq:N?NwZBh+nB$o~5t9-i=EtEfxf|Y/<B=O?s:rrK8x^apTbqH;E][0_U^5jBGaFGx?f.@X,LNShFC%2}o5ZjK3:6<M+Ua4q03*YGXi|9I<%B1`?iIYw/D86k<5i:vE^*DG|$lq0-hr}_xI02VW%iOg2{.`<fY,/s/1V?;K{2xG@3mpY~[4.$s$$[KT>DmL4Lqfj$<`p{y}?NX|s76<Eii-s-J7$IwporB^e0-.o,*T>X+$FAbfO,2MiRZF5i{iD+q2#-ApnEI@W3D;NObHq,o@CfOf3#Wrv?sM~Q3w5zHGF$_m;XT0^3yltQnsYTAra|$f?Z#3oF&{z9n.w~_j}yp]zTk(&7eUj@l]9tSaen1U0X.kohkKD{eMNnJ#W*W]MV&b7a|Iwk:2tDzAsH9E0m`MIn{o{R0/N?*Qyz4ZkweffRnQr[xvp_/pGp3^n6zt6/L}+w/9]/4<r<KxRf,M*E34wfG[GCf?/3F%QUSlY#7A<Uvo*II~f/67+~J9zZjeY_e>Zhh?XAv68|aE$.`L0eXL;.2^aqVaw4UnFvzD.F(~G(p<k*a-l*p6WML3/,?#_G~RnWX1IVZA^8y^A^4*j2`74waY-NaFe+~@/iL7Q(gxC,}9qb120}gF;$(3,N#axn=DNBG1.>IVnBpD]Y4BX6*L{;og9n0UQU#3{3;UKU#=ElaXMrv*,_lh`b`|mtl$z*NooMhpp}Osap6zez9I-S*``?_7HU$iBCrEe3Uk.LIX|yw:hgI[kT:O%H5,Ul6DCj[U::BSqM{YjsU0^^BY/kFGil;*k#7EZn|/UV[N.zh$,]t(4?{~xW4Ml$WgNRE}oj&aqJMq#r4*Xqly_%b.yyroLsO$sO=1oYUBOx8J9=Thk27CD0j$xH@Es?i_{Hq&?v3gA_^7p77BaF^UlL1*Q:.z{;6,M<OIODpUzM(i.yOrS2U(9NHo&@z0K^bL?Yi{968/r.#b{DZ;g?_{kn=E0s<re>0n+|E1jrr?5T8YN&CN5o|&Bz8h2?j(k<sUbrLvv%{bN2i@HIj-TRgA.6KenMkv7x^DtObR>QfMT6Uzk+SVM~[S:b4MJOVe-F9G6nwDeItBH`=Eq82nEfo]B^lExqf#lSMn0alOy-at|[{K]/Zlq|kMWUR:g88|#>r;$6XKWMMhiGqC#I1}w5kmORa&_nfM|V&.3@5aWIC`:@2%rtDxf*=Ni2@x9y58nW%gD_>n34CR`S/O9nes3]Bypj`32o`b_&.gOt=nDH$9Jh8T}pxkazH^f;W%($+(~rvpvF+6NHE<@Xh9sx=`8Dx2tkILoo2^U5E0.gm]ypix*f/}%|bkMoB^Nv#Veh=LMqyss93R$SHqfaOgI-ana(_eEwm9T@y24UN8C/NZOYSFv>~qGw42^Ks<|iIF5K(gi~w^`E[%..A1+]B*M2X^ym;CGC127W&1v]HV,A2Ie#@>snbaZiDOMFmv0w3xegq:(0`ThU@4`F~J1{Cwx9<N=LZJNzj#t,LfX_v^(6G%jRi7~Nm/V7+7m7RQ~9m8ZxtKknh@X`,q_i5lM8qIv5/obtXHz/bS}`tN^E:&,v,y;vgg8_|&K+}yp:G6pHT91b^~:Llg-ICpv.q;7YZlHy~~Vh]Aj]Ge_|eSI9BiVSge%Z((~B%G`L%3f&jjH2^`8/p2hCoSI:G8llE]t%2ky=o_L`v=&bsbTmORW[p+B0(G2X0iI58GZ+QHy%hNsr_]5OjnsapSraoam3Ew0]I-m]rzAXX?]b0J9AiY$&qH@ypVT(>^Jk?7bEAxE/Z[mr@VJH[2klx7.@]}N(5wQq:#1yRx.]Uk3^-:Xpn5O:@#WB4bel/r0*@{<J6W_%S;~=F/+86aI.}2G0mTSwB~p?]zqSD_=5_-A&U@%J7lR>i:|,(E%F{Of?M^a#r7xyIANhCqWr~^&?:b87h<?,9@8Y5yQT=mDq8K8t.2<lq>%+vFVXQ69@`.,EN{|LH*<S{,j@oIrCX_Sp~oNpHJO*sNL:?j6F^ive;,#|4>O`Fjr%Y#-^2*BAs,+>>s.&03y7GytM88[Ba8O9s9[C2B*QJffX}h/GObeTGI{OMXIfaK2lW=QC+^8p:YBiTrO%gNyE45lQpl1z[[[*D32*l9(s9yURyr?q{>VnwD/gw&IVRYZ^H[=>nq7UM6;%[v>h;DBlO{fwTq3k_U#-O&yGO<gYat$/mg_*7f&FInT1H8xKjv$Rb8]m@@:@}9IYq_ovHJ5h(ivT>Z1VnST{9[vg@`:STBo$UQ~e]mn]G_9=~LrU=Qn,iYO~/,<;@(j7*]hQNs8U>Ft*1Ug:V#e5EKk:h2MBhHWm[Sfe(-Fi,,J,7fBlL;@6bC=rhwIk$:Bn:5:WFXULRE$8E1+2vthFs*XH?ZjM#o{ys]K4Ci+8Q}y3qv:C1-M-g-zK_ptXqtN59K,HeGorm:Iq+}08Y%*[9+RO:6%*IhSCE<r,:x]*@n+T/.a}}v[9;WJ@8z6Q<(>A2vk~%45,`U{Jp+w`Te}r@/l]>rq3>s2_8oUB65*K~mb6txq][<B:U~qz-072(q<vz{ssy#V1%6J.08#$2ER_FgO=x_T^~p<{p^Hj.*}Nt~|ErBr?_;ww1Qnr#g7<]4EzEAk1+gn=8k#i8wYyH{0agh~,C0jOR[#&/~l&0v=tAGjRV-h8YY}[rVptb,kW5J{UEU5$rjSVswtQR,fY,(:IvW:hCO`|[DRv5O#qmZq%f3V2099AFK~;JM%+xDjCAq=(*.k?S?WA@R7v?L8,kZ$=^o>vB|Y:HL9J&,t.>1EIH$:kQR.n@K(m}~#?Fj$,ZSrV;Q+tVbet[.AqwIBWwk8r?O;+L0M$w[HFE^&:B%F*,D.]-@F$`TY*a,qNH2;~pCw9k(BN]b$t6Z/pD;#<j_Im83G^f4SbsiXA4kEamYW-U1-fAvFmXlGn=a83.qnL~GTwra/IE<n/DDN9s|O9-f(vEyQXe*M;5Y#^3?.={rNtBGCZR5^4x8=a~=w9&3AR&06sM=k}72`obMJAhB<`9{Vb}Cs,E@|ja<EoI#4n_$.U7Z}+;hyxxBZ5Utq0j/;,=ev.m>-lyN2E|&8V0~BxNxoKCO92D3Aj~6iL-R?mU9:hf1MXbBD`,=7kL.J|BzaD#w6?XR4WK.%FZ,y/~~z(>1I]`vn8{th@es|fN:apTW1-T_jEmp:K1af_6qE7Gx27Q:`Hgo8#Y*e<`re~7%H+4-lzM7ar&_*A0(RaBj4Ux5SEzS@v:+Fp$D]*;%|{SL.bs>T08r]:kpXyZEI<E;MDg~%zAh8y33E]3?jk82n7:2Xr9&8mJkezxsLY*r(+QZBXrRiReM86[Ym/{EO/.vG-ZqW9,;N#%xRy>7MEKfy.&*07-w%h/Nnv##x}gb/^;Y?iVgazjqt|&wrSGU%Hi+`]/M/<-B1[RH<hqY>5oNoR_SObaJFvs|KfU_k<.*1Qj`M^HkyK3t:x1Nn}j};{KC[2XDOOfyFQfFsT?:#0fY^Ysb,1K%(:Q;0`zwTFKsjS2s]Y5A~X^0k2vI0pWxeHKo}Fv;wZ+3:GBM{S3B.ZQ>}Yt-~7}5,ADV=at&LR_6e:kRD+M1|kV5<Xf.N9i5#[2H/7N}$E|G[[B;3WaWNI9e0g&L<.zn3*@kK5RhXX,^D1%LKhU;I6Zw.?rU3*wOM}((UAf@7;]]g%VNw?[wEZ[5&|-5T>O_404EFZ8m2q"
-_OllOIOlOl000[37]="*~>!f9Y(!(8L{&-u~qvzM,.]&!1-e1titUf.2tBl:<v)NpaMfWy5Z1gxx]|P-$CV+Wgi/}%mP$Wn@DUq6YoNNk/tISYLXfGpnL%3y!L$KZ^rsLp=,pX51U*VE8*M!Wl[k+YoBS%=yk^c]?L,a*vch3@eQ5:I:#1Cnj2:LL-YBY%0f<Ai$jPS#qo>njjpvcrxO`GGX6<16^$}GtfZ_ZgyP!%rLa%x0oEV_aX,.aAgX1wzVMbQdN/S]]n`bylgyGdtgMEm0zW_kG^nyaxYb&`AnrGXS?A]))=i$YPDt(vy.?12t3ra[EI1fP*m[!G0K#mN2jg3x/Bbu38y`ZP3(}C=^pG*JKW&5*k&U+[!N>_Z{E1jXN3?Dq/g:[BNLXJz5~g[K(>8<#oKQh6n1UYf}]MAjh&W#,do6]jDX=w6(W=QLk:d#Wzq:atpu!+26rRt-9(3m@k!b%_W$,ZP+*R}S}@U]XxDs2D0P(v:>??]KZQb_E>mx(A),C[eVtY)R{%0]9{~5@-l{!vC@0?hvWLnQ~SQ=m05}9`sk(MJcK=fz[3:?%M|=5!2<:5%*(h_goyeazLLMts+YtB+l(Y2%+r(8Mix<db5)k]0sly(Up50l~!xt,5w),d2q&(Q&}zkLi]GB|xD}XUz6]]LPVq|w^g^AOrQAq!DS#M$>iC5/rzX%}=nfg~,3ltYpW>jes[8@mR~jeiC<v>@PgP>_0<d8V=6fciqDXA._6!!l=?Nyk:|nmGEa#=$BiJedLjNolN[%qNV)+b1-t6[ks9gdf>o2MX=-S_S+zKVm!</V)/wzB|J?*>952K=cJ}LoAd`q5vMX%PPVlf$3s2=bo}*a2uOPy<p&x%AC52v3,!zM{|u1M+|AJGxCptyc,aXw[Epn=WPsPfI:cum2<J<lM,m8a/uY%C[(}#>$co3JwXKuqr0en1yyno&GrWOv~g+DX$-Q,L/r~VXjvR5*6EX/&1U22{{fZ8<)><#M?1MdcNg-Rz/WeKJBWD!-1L${Em$*,[/,1:?&L!SOKVYe*=nR]_gN)t~>h{AgNI$(selQ#a<6-+lc[Y]/X3rO`Stk6Dhw{&O8v6O3yDgGXqZ?Q/)rIIZM,Q(fSr:2?B(QqQ+VR-,^^}p#By`L8>9%o%Qcb/:xG8~I90#DRK`p~%Loo`,J0<]hoS{z>ahGhzKgvj8YCk}i{B95>I#-t~Ux3&()%s)_m$St8]8]0E5GfXJ<~V6)s/~Y).02jGc3PYW<wfALoQviusC59@jNQ#=K:RN_^mgt?EnXaNJ~t+e`:}YIp9LO%:Oo|A(&mnBeai$A%ydzDj*j|SD3Od+u2b=9&hoU^C3}cD_!-VNvKQO8RL6A61k~9$U`~}uab(9Q-ol2i_Ow$@6fx+=[W|+6(|P!tOM3,wL?yI]fG=6(&zG5Byy./pwx2D}LC,.|~Qc<}%r:D^3hkNM]s^oQ]GU2Sr}E-b<o?21)Y/(XVtfa?N_Z8PPojB^{#cUufGbw(NnL^DbS5qL?qJOf)$v+v&!Do^iD32L!I~=e[80<5|gZ#r*cuN=ClWk`1jnquxke*sVo@U)BctiZAMg@:.t2Q+UZDgrBQk?fe2{~k6t(j9U&[U,fboK@.otgC_.wR+#}#h9$}3QG6t,z}XCbm[AC9Kk$AVqVth".."i2q:0Ro^+s56^+REw`J=cO}LjIlx`]1[6g3_p#-ixiudpo(EdgY,9)1&>KK&>+/^`t_{iza~3[Q:QkZI?YpP_0++Y`+l9wM(?NW61N9&Egwl9x]h)~5=}X.!,0]~NyoGOY0*k^V_@^x#sPntht}xSRySZ#O!qJfCq`6_CR$fLGw){g@$M|^I$w[V=<a*_BYlcr=.|9Y1y(0E+:$[y>PQ1?#ySO1eSAdDaz&9`QB!U|wO-(ELf@3R@q%_UXP`m6bB*$LeBn#[^lJ&A2hEfrlE8S<aXYc[QWzG6z?cYX@-Xnq.$uAE:m|_:eV*}3kIS[+xSyKmh3uMa}##:|&u8&M}lD&>U,n!KKGLE0noY|vCiv3|qn6{J*)z(z:Jd`O_sn)eP(}Su6]#ZEuc!vYO]N(gq.G<`NwB<KA|Jj0VyO`$$MX?+c5SvW}Ae8>m-1:$W8{)UQaM|}L$OobOwQ-9<x-(9S+6>wfkCaQod*Zlc-O5!CD@+3JC<G%!|z%PXjwt.#:of}dPpsl&jNZKgGlWzUUc+r&<V=Z#MgL=wwA<aZs6fvo^iIzmLZq1cN,Chq@/azt[R<-P+Ba+~8kdpVw[!>fYGr>Pf8I+GW/j+IM>yc2d[D[X{#!+yGEItxM0rJ<CpX#]2GYem3UKeKb#=-gBK+jgqfcf02tKw+{{.<vEa]djxQv1V+UZ-8k/.bN&1I#sS:Np85LSC,gv5d95,=Zs18%U?i%M:[zYjEkm3lm0(VJa+Md[SgKg1q9JXsO~v]c*(~nV/~j8b:$Z<pN.EVyB`O33X!ra!~#x2vDZS".."-9z&cgVRP/#Xs?N=fWXZf_^JAe{BeyKf!sBKUd)+B*b.5dLU5qBdyBV8]_{@iWcqvYWAa[SB{}J~2Du/Kg<+f@bLCA|w@t(Chx?V$Y$oi(WPQ#*6&9m9cQU|IC{9X`U#5ZyJXu!pGuCS@~-#_2p2ek.]qry_it8z8|UpPxI]BPCrYS3f~-9-SKlgKBdqosdfh=E#Q#-k9_YP1a3nA<M!NtxYh".."Bipk+<~tA+m&1}ChmICy<P(^w]MCme0=ih)(c^XEZ!=pvX_L*3IJ9CE::K!L]j:xJGjj&I/r(.ON2i<cQ`&znuBEk92O1:JWtJ6VUid5B0Z6YOwm-k$Q#WuRoyQIL#GRZix1|We{YR52<6hei8wdq.6P5&$5gO[[QhSho*kpN*(S8Js,u-NhR~[,~v:sx@N-IK0LwVIq]CoU0RgW}EMxeR%yW?v@g#y`ob+Up>L}BD^2V8!ya=3D:)6Yes>If#Xu=1|YUK<?vkG0L^hP*2+AYa^MoZ6GGAJ/s!<1n^nXzL=JDDJQ`CtyGBSBU-=Y5NP#nBsoO.PrjMgBa|^<)>{61Gp@n3zMhj*Cf*ZggN9,qh>s_g2-V@vu_?_~*oQru968xm$9BcdE1dO?p&GOkjSx}h$`c?LZXme<n3ibnrCM]Z=/*|Wf!XAWeM{NW3[p0Zb#+a1_}Xa9jqs(oA6yGmKV@jNIO3UdSY5Qf%(W!V3P@K*{J5UA#apB}zVtlrKu|WpP?1x?DeaVf2r+yu:?*/=33Ijx`2CUsl%:fA+>[Om>i2+-WQ$hy$}8,8YiXwEPak:?sfBxC0/9vvSU}hgf3?Jf~GNEu)/-[@i9gJp<Xa?^&VZUcL=[r|L*<$nS-KilBQJ>&c.z#8j2,o:<Yg+3>ctfilCZ#b)QjoGdxtmQXi1q|`gefS]P>0R_uZp>i|68^5+EO0x,VoDyy(a9q88/jLvaW/9SA:%YfR,i/<o6ol2UmedQ.gAoXk%+oh3r`$A8j^S^-18*?uI9|BAMsdS.2os<Z.08>l%]3#q{5<W&B_8e-{~m*mp1-Yztp(S!Pnwq2WoB&SlkyV|Qga!Glc@s19-^2kkGL>8%YQ`Y>S-MW5qeBcxxbY#V9t:d1zA^~3vSyv?gpEo*,avV%J)DVh?QK.hsy=Mo?it6:*y1w:VGgp<h[+-%hoYUoxtmu*k_dY+9>:R6|g`<q9oE&mw-_B-9LJ@|dwOyeQ(/-`s9_iRk@!gcGqOq$v-I!L|)uj${O3cdCsKDJvk`+~pl%nBtOqKBWum8>GSj*}D:L6q1klw+!uPEl](1Kmxr3S(k,P/C^sMnrjDPPo*QYdC8o5Bgf[(,+)+_9l@QGx$q~I5uq)L})^/.K:u``i)53#2^<gLafz]Rlo!)o@-$G@1_6>2|[^aopzn3lu/_-l<"
-_OllOIOlOl000[38]="$&|%Rj[exgsX%-@S+2ghJ|DTH2W2tHi`+8FB;eH-t^~0TUQ+p?D:0Eo;A_+Lqp/Y_W/>Cn%wWrhI;(l%|=2DHOE=QV+sjq[7X`DJZaNe#82~*]G,C05LLj@@}pGTLh{yfE%eWQlJC8FZfB_o.~-9lR7+3Nkgq&&+LKGwnJ~2_4Ls}TmBE9%$8[i}/7JTL29Lh~9$vj^3@Q9n_@WKNFg$DhQ*=w$>boyolaA$|:NaK1`_5q$HWom+sGTH9W7t{V<eDhQ-]A`F7]_naR+#s|1zT$j17lQ9@ti{@7oqU(D.rSH8Nlb&8_bS106X9?QYgy+o:T|#KCnK}t.|^y>mI|#R^ybCgbQ_QZ;^f.KC[}MzCpVU.ah1_jfNg%v+A1}.]z?6hI_twHI@Zv7hr~mQ{gH5h$yt`NoevmqC`j1Uv5zlqtqwf.xe&g&}OUQX`^>LMA#Cx7D_>,bA2wY=>=%.[kBM%9,3WK#-eW#oF@6vTQy/`Q54E?=IR^$GS4F%{mfr$X?jHf<0;k^l4B=ZFLJxKDk0Cv+q~9{pY-<X3GVnm~8C9+:h:8a~;F/vpYkSJy{9TEoxWr%+18t{lzEmrvD}-(E{b<+Z0634aSoK>::8a/YN&rhq+l,]@n%f[B|TKOvkthw;Jl1arL$JN:i52%@sT8}k@5`x+t=QGDM=(e8o<k.F_6}<G2qgHb2D_4<*kDn7Nl$5Cp=gky1-fBp?4W_8yXBx/p~AF,E8fLHr9G{<5ofv5;_}p?Yt:noU`g*OYgTsgYb[by]{yFTb@x{6J`L%j&[5MNz5Cj0wfR(hG2}EJ]sL9C1#T8Qx|HAjG~oXm8iZW=29w(`%b=gUp>b]L~Jq;?,Ja=HxAJ<W*Qw3gwA+:(M#WKFjNY<n++@k]Z$`rL-G6Ty9o5Q#B??AbC{/*(lB6^(H.+n[~6-Dh]{r(f/3eT~(>=mzFBB@*R5D:4`2#tzG/;b:N/N4t4D~%kV-6iRyj}:9^F;`Y>]^<X0{1y{32#7&z~$l]piZsz[<3bS{WMsF]4A@W*[T<5Sb;+[G+_n*b(k?C4-5e3&6{+zRV]gt*9fD3t0Zb>oD~qzQGv&hpg3SwhoKwoJ?N%$2>n.QwWG}/=yJkhJ*$>C<YBa,v4}D+9v*(MS8Z7Y6gzp4hvM^`DQ(rB4_fRWbSTY?xU8T~CC{0=w{kW+w2,v|[roj-oq1MwMZp[mt]0R_m2Dijs^~_ORX(e}]r@6BW[b?;%Tel0es/*mVlt*4[#TL5;XeB$<1[U6ItOQI+},;Dni;vNX`@IwOt&{h}yAxa#3_9Tf?tC3_V:@p8CA/(rEixHG.<y0,qQh$t#D]@@]]=<m+m[@|&MN}QtM1RL<<WmpX|OnND[yQw{4ype,HHA&O}m#]Bz+VjvUS(S&iBLy77|<(wS>&]NB:$3z}p6`I7B~rKUxMJ@qNB^pg-%j&>Z@jx_]Nv9z,hH|tp{^7ggfSH$;3/{|y$@Q6K{ZkZ;jZ&`8q`>ZnBRD68FN`kYpR}>Ab`3vVF1oHq#{6&RnZvtBm7;R,O%}8i(e&IV5_M}wNJh~$~ba],rCBj~-;_<J0C~CI[z|1QJ3~/g]@+epIN(R8*,?NjO>$Lb(A{t@yor6R{x7~@:~`;$w|=sNo_Uaw;".."]kn50}C$9]OB0zig>D:hWHIyr.;6[HQQnoYv1@0fD<p^SHg2oBbreV|#$UB&4>LmIW$E#[-Hsje(eAUl4To2QBl5~CU3oM1=Fy`=GUz8L@6H,&DtJMt-15nEMW;D8py5|M6>S,WNm;Z,F{,79[?TREHk},fW:oV&5Jm0ON7v<Fg@^x]46ZsOg;9b@Z8`|ewm%,_g.2KNrgE^NI}WH+Qwz1|}Gtp=4MFBBCr%Y_]Y(Z4NXvBXAB|NDR>kDZZ9LZ>~5jsE$+>@&8C{#H@J9&Djja1nxV&G>j/NM[/.}eijE:,p^fw@;3FeDD669OrJ:0f=2Ki1aAN8kyGG=smg}j;z4k~}[ptr8#gy3B.;r+e`VMg}%qO((U-oH9bro0aD+%>g7p:Ln:I#2Osv4mF+`&%%7x3lQb_p1F88tY2zI{z2L6^=Z`qqeCoV-Jon[#tHYV;zJCeQ(?CF*|<`A2$InZVw>SNCM4HGwUXb}^N`Kx:CaZi1Zyy:lY#TJQVZRfM_U&&oS1ArgZLm+3DD&#hB$XiM8N?W[v.,NQ-RLJMZ&ElyWISHsa:(SJ:<kq?H&Na`3B".."(Lp>BlZGI3:Ya>.6~0D]B~]E}wDyg=pq*A7%~As-xa5JI<q.TLNC7,%R?6*0J,Yv$C5hiTMm&hltoO*(ESnr|9w1v^LaxO`[YXTYUl(M_~L,UZ+|S|[qp,,,.C5gxe>(,Yyn07b_6kiS,E]O#OCmHUo$lIynWM(-tJ:bbkR|kqxN^;IpX(@.xVJQ0L2=9e;M{>a2?rR+M?ExGH``#aY]kfsy@F590#StH]BV%,ny4{Z?rK&lbq+A4H4[}3=J5HQ3$XNl4o>,T?&-1h8#RZSiUQqfgk/U#1YJEqm#{}ih7rW=JS>C(vQ=_WA-&vU3kY7EmLvg;m`nZm&vDCvM|gOX&mkCa*CXAaQa-g08?CL]TC4;7Z&Fam^ErRb^z<o,qh&p5<rys6#eIKA;#%XX7`<7Z;ex:tpgl=6[fpNWDl`@~_m7]4jHCKWN=3fHQqzMe+C,Hg+.O{J{>hC[nZ^T8]m.38FDjA&i43g1tB+meDXzv.m}%jsaI_pSl}Qje,Z5{EJwl#31x3Niq*b_mVk19MUk-j2rRHO{xsrQnghaztT[C=<`bv<-5;&:n%+NfFQ(geJGvajZBlhIEn[<]H|i(GgS=z8_(ijU*V>|r0T3|bp{bKvq0FKBn-_C9`Y+TC3j_5p+39k~-MVfe<,4EfZ$i.=D0StZh|h]MGK1>;KE(U;HvtVkyF*(YlU{&C/<U,Oq85CEq/`}x.-+-f;&[Kn<~fE6kIvEjL~XCm[wJIBN(Dzg~YY{<a2--j]|`.<^.*|(0jzpFv9[:}({lQF]h5t7nBe1[lH?vlVr,h4bM[0.QCo_f+zMNHIgjTj}ja@??vaAY?q*gJnU%Ozl^xTli&Q3}xj|/`_3>*H3zG&%WW@gBEsXLTtEfD-mn][k3Hz8?|q[T5]SECQ$qjE@S-$,Sh{:SNxMYgIb|vjM&NyF*:vJHJ8F#o|S[{V=hq:~1E5FHHzz4JQ{#M3G]pG8Yaw-[k&Z^{8/<YxN6|fkeIE}TW;{,1n+yMv?v+ABXa6DyjkAZRl0^fUAaN]R^_[DjV2VEf^,qAD&s.NX#x29WtxT2EMJzaF+9sW`{:Vl[@Oy/W]q5R$BK:xT2$W3./nLY#rMN0W`&6G?#Nj8e-~jbh#Ay>oS;+pMn.*]b+96q-Mrq=5ra6i[-05Q0_Twa&69_}]q4A-YK[q@eg<JiGGNK-U&hUC;7V-l0xFbq=wt_m3W>?0/.7%Xe@H/,hve=8Q9j#4e+0eA?D}*78L0oAXEZf~R+,,x[w_|(GOiYSf%URlsjN6y+-*L$Qk(kC|z,^k/^}Rg&yt:h[8wD?vH9BzOyY[ME#R/_N}S9blR1l:L<g]zz5F}]@TvXA5r1I?KUOkeo{8_4By3.y_YQ;60-`@+HNz~fV?<}/aJYeM}Iw2$e#%=2K.pjh[A4|m".."MJ(O3VFF+v0Lrh&|+FmX=+19mYLL{%G+71Q.i0Tfb;iKG?VBRa_K0SQa#6Yw}ot3;QgH6ex*Z$_RJI|#,oNVUND4=LM=1g52YQ.XSkz7I*wh`V~+ESfD*.R8Bq#v.^Zn&kxxsI[2@|`>#n>J=<|V:UyAx6bS.mirhLxQ,pQ`I&mRU_:Bvnz/77;t{+>4<pfD_D>^#Hq/ms[A>%A4eUVjpNX|f1X;+RS0:;s9pvpa_~"
-_OllOIOlOl000[39]="~V,UsJ=&kmM($Y:A.Rg*/%,w]BgDsw6?07jlVHNmM+y=.jX.v}lS/Sm<q?obWei%zt@1|OoOQ9ylO`/.W0UWBq^Gm]wQG@Y4,fBq0LD.:mNH{e089}OLz?sUhv|j]So_`3hYK5yqYn(iC%@gk]rC&eXeQ/zC%2_>F^b=m#W2bXn$02^:g>D2UW520QnGGo$}|=o_U]VkBeCU/bO$K0*{~@SVFp6K?~8>k/O*%QDl{pYzjU29wD-=Xj=U2$n/;F_|C^,4``*o0~ZL%2YHjr0}esRXvGB5U>>MFnpx7H}W.SQn(|5}0#*YsRq2}O3$YyHQ[~sCeEpl1#MbGEM6=h1Y;.X6~]&Ohf]($T$AE~7/sqyKL%(X;ss>-KX/?i#h2ssKF&^l}ZnI&wV%a9=$+MiGGxH&RKFH8K?wLWtqzay{.<8/15@1o^yg]b}~#%C3}Z;f_N6h_}1GAb,l(E(/LFJ(FE$/|gta8AQFLnyGXOkC$~9-z%8$ZCzIbn>O^ZBjlF^t`N3l?f~0p{hqV5wW*/Q8yRw,l?MhKjBU}YZ36FJr/^FvH?Agm.}h=E$S|AwgGJIxBjnJ+#=A7(|7qeqii<8UWVF.;:p{1%ZAiZ(4,L#eQol_BU7%X+JneSL=?h-oY3~y-7_(v|mp?Y;wQ`y5oB?2BfBYx&vC7x:FOX@zq*[65I^v7>1mBHD#D5/hq=1Z`fgRXexf4^1V3o].~,X@H,RKyv=Q2.,RFm?4U_[WC2JIG|G;:+`V`Q[Ro(==6vUVf10beV$~jbhro>;R+}/jZ1+NsOGbO;Ke~<3AbWx{_f_2Uv,:pT7L*}<xD?T`Lk/I|tM#(I&h?WrBQAUwqnUzq3oz,f~,^_Fj77ACoO9/.ri=A:EQY^KZ`hUH4H,v|ggUA0H(DCye1{RQ:fq+lQ90{I}#-IS{vL^UeHjT]JC2~&-bFx$hi_r0*#(,mAgrUvrZYsA5]qK=gLs^{M{6S*+6]vV>_5F$_OE$N/;1soO|&bFE:+(ip#v<2ZJISp2i?*q%y.kga7Uk}g$VN1?rXH[LZ?|AX?RnzH~w8`6j_DxVmI-$W`_{<zbkGXtHV[S{j#6IFD_<9vUSoeTi^ql_A~7[f*~`#gXxtx?>;TpJyC,BRf[72-BXXy.9{^[ysB(WLWL#876Ztm#3=YL$Uo4|_H>@_W:XSa?wjfTtVUI?I0k@7kz6D<FIFy%1i@.6K*NSUKv1ZA2Y-j8m}H>`ACajY44$KE9L0WM}Thk+Qa$FbZbfG25%jRx~E*hH>>-AgQ%0Eog7ef:e&AyzW*in.AipDVTY[4JS5ljZH%aLS|$lt@i<eg7sOC0Oe#`WxXI-VlXjjYKTWeggS9ohX}zh7aW+2<jO^k&11521}qN9m,GFpvQ^];yi_s*?Q_#99<FI_|vEBoG~zjSa/aOH/v:]xiaY}(^+%RA>@O6:5BYaoz.Cy6(pz&o~wy7qp,$9:q8AfH(.,^him~TjH`2?lJ,/M*t:i9z.6vNHYUyq2[|&{7Zv<UIOC<;B~^RL^0ARW^qA.IAY?*842zoFSQ%pA:g2q~|B}9J}0U.(ab^1FjAz9fD]~xKQ2SQ`{r[{2xU>imB10AO+e%<OSD80T=qgZ@RR79zVKLaf*U:[48`V`n(X}6`R{F%FMF/EKgF448yQ#W<iE12Ye>KS*=2<T4-R0H/QU5S;iNw`S6,x,wi-.]533~q:;Ea$3&OsyKO`Ysi1{fL@y1@{R?965qUvY:M-0::.YFTQ;{iL+M6N@t1}Ib+/A0.3yt@NNpwtDbeA4:xSqVl=JsOE?3FVL6rp/jWpI1MgMI=JY7E8pyYt&hsz%F=>OMwk{%IKEv@MYpz@{EOs4V]L$8**7**|WAU=IRFljB6o]bQ<U{KO_n;5ftCO@mSRM*nJ(7H.AW_i#a^S|m5mJ}>1UV/Y,jaW51@Kf^%Wm~XNb[RbDNK5w1.A;nb:smMj`:n3LyLGV".."TI|`4te]ntOHwYY53t@(Zb$TW=3]i>7^MwhVLjZ;0mmb:IWv.3fn6.ke3f~(<~OiJ<#3a:v0$vi}<(BvYkZrMFIAkqUa50~5azok3rr8.Ua*mfW(87(Q(z+Ww_{*p@#Va$,Y/20*RSnR7x-L|<n;KZ$;3AywE$=$pD|q$j$jBlWQX8[4<Vr0ie2i[r`y#Cq+KVX[CNAtN/+Za`F#a,j}Qj&o|4O^H?kYqjUJ|_g}iHe%J[#^ftA;>C+x/J0erXYEk%<:+D:@Q^A2^G-J<iy@-G1~~|^mrit$0]Whb#},q48r4a|2Ih<KX+m1}.-Q{:Dz<@M3E+g7EDz8*R#1Y2$Z37=i]RX|C{f4Nx8w*A@{B.1T]%tJ|zv-LR:m-sGN6@G6z`8<l_*gI3in_YJ>J@m4*-#q+#<s{_*(;aZI$,`U9]#(UFv5;^}._j|#;26,-J]LL^Vb=3nC.qZOm[L*LqpBESX(H;%J@v619Z~Nxly|NhiT~05JWeIC,},;.Hhl`2,hG[9/yD71UHG#]~]RV=2r.sq~if9h19W3|%z?s}SE3hlN8LixH.2[>2w]WRz@40&Q`KY$0RBMR[#IUlG+I@Qn3~se7s|WR8QJFXFqeMR,h#Y0_n@F/:~qwQ~T]C=%,kUq3gn&`8Q$%+mV?Z{<E0h3W}&Ho|h#Io@Bh`aO6{>SN5fHD=Sb9~{6rF&O+NW}y=JVGX.Qq/l:RT40rU{f^CTJv,xbMG66m0}$49DgQ-xJra9bR(0z~a^Wo`~s1fj]E%|2g>{nE=]2%BQ0gb@V|XB_x/`{,SD&^n0LyTn81evy<kALpF+w<:2jRp}~V]/{j%&g1OrH4CNtf=TW7T^?{:hk`v7lb7mIA;*4}>;pzL*KkG]}^i&X^&sX^<jM8%F.L66/T2SoQJ/t/QyGhsj*rkyt{hi5rxzoNa6#>N4`T/`?ZnUIjf`S8KN{#[@wAr_[w}lN+*J^Y8THhv8/9rQx2^S/kg2TGzrr]FC^rG8(G8CjG^;tX7X#|tOsxt^`lr&]a1SQX5I;6HlnA&F/gL9[aE#,.>BiM;|Nt-IY-ro+@V-3O~9|is&;`j`/kAU743NAz7Ip^m><=@gZ2B_Z$UZ>[GN<Z.Z^jvoXT{al$EK_`L<[D=wR?027zwLDs4B8WlF`;mKOY5ax]07qA55>avKFa;6CDlwz7jJZk1vxA9phb_;&.@}]Zbyqsvx2.h=0}@OriUW+URp/y~L<,O,0+j;rGz/S2hv-1p(8Eom((z1xHm_a5<zEfzTsRaxH|V^y(}MVs}1SW.He2n7TX|BK,,_oClzE;JO;+;3entR`fbC[XA=A@<Nw1>[Dv,J]+x^~1Z4j6s%hx1YUKRBgVr?DH;Y5W:l?H={jI32Ok@z(IB6&@$oEyWF<Wx&Z&V-e]io262TpXG7C$4x49$MFYEy&(Y5b&GAsXiglKBAA73,L+$3U_f?:@Y@w.2S*/~w%[9BzBA1|M0,S[~j$r@4@S<8S5p~t`>/U4`xo[:-*@4X+JoxK|n`sb4w,ihy6?1nNn(ie0rt>,wWCFb&Q&q+_*SB.~JUU-C{>|mL>e7E?D3RRFtk?.^V4(X3e+pX6~nCI?AXZ3Cy[_AgBMrob0QKGBb;^i4tsXQMW]jw0[h9yyh8#G?[5bBiQs8qbfJWX6Qj_WfYnj?GFXmn4>&Z:B>@X26y]zyqUYlvE^-o~Qkml-H@4t9J&?q..##`LF8XVQAH6>C+G+a-o-#]TWsFnK#?p5f*LI,Q$[jbJ2@[e*$FLeCD##<@f.j&I=UUSn-Qf<mKj||Lx&]?&0m`gy9D~~eq}V:~C:#}LnV+lm2$FvC[Mrn]Dgb{.?JZE6wjf<?[~L||DwFqi?#.M8nV64pyX5okYOTiY&inD<h,yZ_@]$]:"
-_OllOIOlOl000[40]="#g=/R%n1fB)[8kEZ3=Q4]V!+LLo~Z9!dbH*?o)!./7<ju}(LUyVWL.0^xg3PKoBrV1|bRd!&E@Wk]48Li,LpV]dLgB*{sN%lgJ1r/h[7~=@PHi$)5}l*i.x42n[/NqIS3uA!2-[UZ4r1*K%YZ6{Vse]RR-&Y6/$|([8wM{YH.iz~q{xB5Qzve4-ht9N=j4FympY2B(KKm30,.ovS@N]%dnp,MF]B#+y<@i,q:4)A]|{pWE%UnW,/Tj~!i.NA)>sJzkJVI5-[IsP[ERBF2KqLLG5WKfZ37?8lov]/vuht|~nK8=QJv!d9B~6x2E]h`?fNv5IN{u`9Z,9(I@@K/Gf|&r0SFt[)!IJVv]}mX2Zm}fA./`TM!xu{3LKPsowh|T)7kRu4e8y}0wRWInsu(Bk-&5n.ZUl0>(Cn-89F~#htQ$0^<?ql%R}qY$E<*}EP{$xFblL8F66GMRP}K49^t:JH`A>d2>X7Z`~:YK9hC{^`zXKE(H:CLP::7fug`8dFXB$2Hd]d+,GCJ`C0iQ&~s?:m00u:N|S{`xnktuhi<i+et*I&&u/*o?GuR5@wREtz^p9$<buIHLdG(|.9-S18jiW+XPS/$SESHkEXYW6v:h!+/),zr+?^V3$-GAt+V:EY#E1SsPh%dr/P}:`~dHY#k^|iwEv|I5#-5m/U,mwBXNe<KWKSLI<KJqN6uT7H)UqqbW0NnA6]w,Kqp@+vNrHeriulq?d?^g.IZNYFtB-VnN6v[]h`.dH!H,@.U#0u=lhneU@%C.8|=Mg7,l9CZG1elbmJ99YE9&P~/xwHtg3`8%KdvXTVpW9U%>d1ulHX^s1^$0NTU3ZEH8^Z>>i5HwyU-I+sKPJzz.-6@Rw%9B4G<V{]B`in$3[`4b={VsJJo$!to5H`At<JF0T<!Y`y3$l:{blqqeVE-k<g3B>UHd79N*f!6=NI,,P0L(6wC9?$f^j2^bJ&b2qVeIll.)(yChv#p$9dL+0wtyIjC54&C,/l-L!=6&`l5?L,w?r>}`5Ymz=Mb#9p$)$%PR6MLEd#yx&R)8+LHKo`(J#8>tA7gS!)^=z%*SCTu(!bf?-T(ejToV~5!9xo3G|2W&&ek@pos5t59AfYquXBwQ|/IWf$W:@zNH),+ynl/Vobk/oL~*TEl8EUU4Cf9,MiA%}l5j}CG+LKK}PEb6y6R0-|}{TN#L+qPt)6G!0zT&s&30#-t".."z(mP^},GMp(yllA.w8K%EssoYjqhsRnQV)Co*UlZzz.L>ZXRVk>99MtW(2?Pi3pHoKC>4tfh|Lt0pE:=)&%E<Gr#Il!!Ggv?:Z]Tm9gq^h&u9YA27k1rfQH2egR~7w*n-Mtjhwj$BT~Gx3ql`ZhVq2ulj@&CSIx&A3[KGCYX2|2S".."XZkRNpSh>dSLQ8F,C-A3[:?P[|-Q9k60L`8>QrZ#QF^Kb`,(!?A)^57hFinJs`S)Q,S-MB47L^<F8(sNdRFfBCl<!wX6%C#L7khmE-,r{Km<7]*5o9sfs${eFHH<Yr[9-Ij}#8s[Ijeew2[@#9unT7q}.bU1?7Y6jsjep~N@&Y[,RX8?S}n%^@oX,)Jm-oHzE:?Z8B-!^^%x58-R>KW6(&d.C?{rSq|l)3}*5q7IVZ#%h47H5)ZB{Hdu3V]TL?u)s7jJyM@R~YimMTiE{2foPpS^9gHnUf9[&!j(vtYN+KPy4:?gT:u^`K3C(+#l-fX$$Hx%?H[JG.?M<G~%Eim=Ar5}n)IwwiR0&@,8T`s*d<^2`s-F5d%i@ss&~8k3kTk.W>6s5V1{6LFp](C?h<zB`IL6L~`2K|8~svM,m3+Cn1,[/QKpWkQ[}PAe|U>yptu*Yw|PM.|](hvY)u%lEI%KrwEuQn])<+Ti0PKr0${.!yG/8o~!Tk$jA.6$R!..*I5&`^1?)[NVe|k:x.vIJMTzwYC^vWuEtC3~xgsJnbm0#&dtJ][i.[o$.qL*m0#9A9v)vb>xg7RTKBGo]ueC-y&j=1U7k#[?#t#|<3N7%Mz/lYJ~sjFQ>NZ{w/F=5q,+RV(N#i{zz^W!*-/VY%snnNufLke${dMWQwGI)A10MG,F}F*EP7ntQC-86EqSe+=qfx=Ri,ufpIg+^mfUVVsH{),fk.4m$L*#xP*Jb4>ntvxvRndd!!eR,mNe*>{?!q=x`z9um7jbSP+z4gTJ$rhLLG:6Vf9k=Uz}5,[Q86UjE$Y%:5IIJ#|V}t:d4.|d2j:!x9Bw1=hY/bf,p%7?RVwp|7AS|W,/}PsmhBn)Lqlkg3*Tb9%?hrfZ^3{A0zX%z]e4T(oWt[T`d(b<2JvB<q]jU>KjHr/lYdG0P^#Bp*m:.70{^`W?Y3#1TS}PKHjKvsbqu)ZR3{IiGSNC@v8WBx~d.d+hVRCZ/e4bfn!`l(*]=}.hxZ5KbT^*|W}<wS:ddb/x<S5i~?LA=8Y(@6I5sY{7/4l$^QTTp8bmoh)2{#w{t!]&Y:j0#N.+:TL#:VA!Tp`7y?5e^PPPHEJxV9ZE94e!i%!<?P(Tb`M:l{gFSiE@yR]r}Ft&mZhF`{$$hRxk:JvY^=uV#^ZRZY!dfb{zRb$RkI@Y?~sId{SNr|shH)=<6)+Cg{Y+hp%BZ6GGi5~6@yUM59Mh>5TdU]AvQ$Q<#E|ldH&}Z^H7+>sZ:Cj+jz{I2v+)Co~@3NhXFP)7NmLzq(1d1CB7ItQ*5#ouEoe^Td@XX81GL,!-/SqoTfE,+N3VmJK>Eio,m3*}|$>v4psvC|o,7ebqG+gEKLR|GN!@w$8XCGFYCSuT@UqmZkPZxMo`wu5mjQIYK@Wd%#}AsoLS4$]{[EH9EjR{8ZoWWMpU/EJuF435x]:Z)ie.B5AK9v0(`{qCTnCprzISiNwvl+ubYbHGN^BdJz8}g5mJI5(&%y!=VPXq0^BMRih=6?1Nvem7%z72Q-AG8g0I`)n&y,#?%`uVX4*jT5>isk*)t/TMs=+|)NV>1kY>-u*gtyM20u6<=d}TQG|(iYvT5=q{G7&3hTJ-|90>vU<8pgpw2,=S,@:?SK!z2hA%6&K+#9~Vby+#d&X-~q}Qz!5=J2VKi*)?f:*VgU4hVqgTh}3#yB.^!<X+U|$V^<>$YBwNh**39#:83(o$7JH31>&+onyy0p/R{m~RmX,A&K%BVs0MovuB]Q(J(S3PxW@Yp<:<w~pL}Ji)q?*TEVzv=gInlQK/j00RAgKMV!0uF11y6dt!<HtB1#<3UJfU+<3|=#uX{@zk|`Ym//i]o-=0R[byN]5fLgfM#!wGn".."JW5LvBpy^F}RtJ/7AuGzfF8s8[ei:`B5ijWjNhjN<oJf>nbS^Xuz#1!X`rEeAf(kIv<^".."5)jg*w<dZm2WqT,VYAV3%^uipQ7fZbR:>Bw^]Yt0m}F%>`h,Mu/$)=jd}RCE/?II*/8=-rTittPhxRSof(`?N3Ej.*u~vz%}`5R!*.9!td1TR3%0&K2@Bh*inGEw#h^kIE$tC/]Ysy*2JXZ2>,[Vdk)h(%kBMsi@iM%6+q4]8KK&z=mM*n<L&`Mh/C8nfwd?r!%E0Ti8nQZNNwqlNoQl6L!>%^oP+FCPp=AwbguRWn89XLz=PR~X@Z@kN?!I{wR<k@<p@5E4IefltrV7.M%NS]E.kE+{f3H5p<E?6#nLF`{Fk9@4C4N>-M-G?j#9=<CWW:*LrMM#Fm#?f25jQTFIg.0IuXXzfFTL/HT%K={<zNus%{ChR>l=>B2[0{z2(iZ+B|ivPp`d!?R5v8o5CfJ:tsGTiL#&VKP?%P9@U5GT9u!EMwEn(=XG^v|C9wHKV&VE34*oJ=7(ps(3bxr:9C1n4mF!l9e-3d:69.EJN@Z*KlJ<|8>pI|Nb6`|#YPmIM0JR8w[u+p5j4Vk9u%6X9z1hH(Lt]{$(b`"
-_OllOIOlOl000[41]="CZYRu9ok+yU+>7zKY6W8`h$Aw&IrSwNkJeS[)9*dv]VXj%YoS@?kg#2qn{r)j%$7U*^RXqB[APSbl]R!s/VwG]pWe^CJzo:IuU|M9N*!b)>KvS.[-S`f,#5#`!5~nQ#>nUSM#JupI}E31J7(hhXh{3BVfT`dMWU(7nP:~.LzST/$!=*(>f<?H4ZlQ}&ut)9VQeb&uT(<0I?E5GNgGU6#/teEs/`kjz!FXwBx/C)*WTRe<:[=:M+1+Xx9es)*^ZzJ$PlTXo<o*FL=C/F|Q&5=I8@9lG*RoY:5toC&pe-sVKG^`xE7Ps@3>~9Q%i{H)^eUb.!fjF7]{Sl`W7rw?R/Y}|&Zli$VeKXm./?V{yH~=9)]b6IFsQ?Jt:gYCg,!8eVg5YI+76XCs{%)*#Ms^%bo%Ytpd*04BS:t.T>`ElMQ4}0*ZfW?]9$Ye3yl:>xG7lms)&`G%036-rg*6A*$m]d}V)xmFwtgv.f!%<ATUt|~C49Q@@owzlEiWyE[rKnPQsm7Xf9lu2{oRyt-(-)nnpx8tr@S20YTVwI*J<|6tTK&ptfeJXyrbo7Qz~QG9WQn5%2TXx}C$A^Ek,Jje*3ei7@h=9?@WH6oC:uBq31A*RZp2-e4QQA~>GpTNCwR{L2|H{Z@.,u$6~y.f]KoEr9o64.RJ:[Xv<wq5G(ib}9<xR2LWnip-&frAq%!ny95LGT+d:VJ|]v$b8^Y?oM+Uuijstro$L}W-!GFlz]Yji".."~hmx`8~wq0P6utlnKgBL1KgrMlh]k69|*fqb-3zwk@{s:76%s)~LZn20?j.L#?!=tt#{wEipCGS+F$x3rZUY,dLrjM].!029p<^eAi?B1wH%iTFVhUKn3Ybme@=Bs96k<yekr*?F7!3gAthZJ4uC-#j5UwCg/3^%A|#Y[.*gp8!gmh<r/[Q?qXiylw]<P81Q<nmSLd(:VB=6|9Ax8f^)tQfkbw+.gSu6ZA3-+q8`r[G]@7z*]d6||Qi<C+>NLPF]JM,PSKddQe{Pj-Q?8X~:#RxA%]H2rw|Sv5d=|[-7:66<X[K@N9?fyjT}V*`:b[Y+FV`}(<wtju4r]Y?t*@RS-LuU^rR:2v4:5A!&&k?`2KL6T.VL~#Gb}8UUsQ-),v3zY%&0plE|jI}HBCnYXC>3>)m5|{A[/pvC<{s~wiTqmd0uP.@lp)`@})jFVT8Un}^Jg:#Ib#:N6S38v^v{[S*S&W*N4}~J-S+jV2nji>mk%|?}?Rxz?Si:@1+z|mB3WWo>h71)x@0?+{g,uFW7$udyZem]kNH/#7~)7p<)]j06mg0SV0IN.pF-ZCl70v*B1i2Y!V0H},CV8K:?FF/XMI8sM<q`7wII<%&BX+SGWe=:=hH^7ZJ(L*0>iKqj.<un=8|?m*w9PQ.EL0CjN01Ts`%7FisS*/]XXN|9rM39?g3w.#dP+ssuX}bi1U4G/b6FktQ7KI,1ulr!=Notz6<2P5QF6ZPJGiUS6,^/CJ$2]KYk?MijJtX`$N<6.*CL-4,w~/PCCgNy3h>7Z~eEm<,Y/*`]JoHhsvi8vWG9v&Hz<IZWJ{yw`f`{-wj)Vr2Pbzj#f6[.<-5dRl%BQl*eo6Ss>Ie`:kiGt,1We2%>r>LjT(=ve4yWyVR=N.q{4[QGt-|Yh3i<ZYYFzT.9vxYV0(dAFvVE=TF<sqRY|,7+usP>X|mKsq#H7l8I5ee:GJr!t,P=hn9j3q*ISzCh}uEEYYY,5*]kKt,Y>/[YHi+JS3^&uh<ndm3>o+]7((xvKR[pX:)4J0pUPb$v:<&(T-IAbg.vLfGC(,pl2R.x}LCX}NtYKk&:Xf1B5JxegUhHY+BW8(Cj-i=9?R+Z5GuQ>GXHBPq/KyI8P.?1pqY*Z&rod,i<vnRhi),/jx9r6I/??0$QW}@edG`kR=W}20X!rXL&Gs(gW&MtR}m7y>,q9^X2s|YhBH2z}xX33,5)<rTY04bP~s+$>JN!GP+h]-CiZxKhVxC7S:4N^ebILY/Cf),R6dd78k+vU+qW)F6QqZgs7!2Mf7~?B2/z3G()~ndsLq3`+r-$kNsb{)fyM#s<{ul(pP(,!UnJ/$(Q.giPQb>R{=$ol4mQr(@YVC{GlvZ3Mp3.7ZjF<QPNBf%}JCH/,f~)e0Azn82jB}ssoKy*C=&rR0(F(zx/{vlTIvTPYHoiV`ZKb~GGbV^7}nWr|xh|9o}dI}tu*#<!&m>Z)~m)7)eue:T~q%(4CeSkb#B=-2{zvXS>Ei&N|)Qt^Q+dPLbFZ{F%=X2dq{zFP=6Iijg^j3#2@,w:*G4b|$78%brIvGWe$rl<MG#7vn*K`ZFti|*).{?Q!g:.}rW3rZptBpwskM72fULU3s=mC](0-?#2TKn^:yGdwgxgkItRbr?g*YXlds>b-Ky9(5U9~BF>iFN.PL!VQoEHt0XB:J}RjPfYYvS-^YE%]G~R~e+5>p+Yg,SdS[3~onp?2oNbF?kMqjJM6m}w2EW{j2%-N%y.(1g%|vPHC=0Np90pC`u(zrl5>T>`5iSfdf)ZvU1&#hvL+zEbw>re(EJ#G+{GpPzVkPZ(`uWW={%oKG@+/lWA.l.^q6Hbt=M.j5Bt%V5QFx$x[N.4b[ubBV#ZG)w*UyemM,8YoLU[K-]fvJ(~XFvG6*UqUfu1|nlb.mTf~n#U99EG5Ar&4m0~2edBxMQL:}&hoo9y~?2W^wu2nAY.[#}fPd4{k5o<$~xk#AUL,BE[vtP@W=H<EnMpUKunL}^?]=Xxy2}upnGPnve0g^57l+vo~Zs+!L4bXL5f@dj~-XU7ILEwi{WP9dR7f4bG}LnnR+5o%tb4ElS0`&<X$VG0utZL+z<uW|{3Zx~%iK&Ik0&pXJg9x#Ur{Jm77lR[mss0^N{WRHF>BmH*1+ZF%GG31`pk)ve[WeelS2Vv??&8G`6TQ1NMFjp7BS@S]4.v:lXN84?0<jyjVbJUd[Bh6fn7jbF+ie(+d+M^I2oS#8g?[QE@G#mEL9l~tz3Jt:~rtxrL?()Rm+QV*Iv9-C~b9ty6=,KH|EIeVwgZNod)%73G0xZTY`h|RdE9<7QV?2Cx@Z)}$0kq@pB$rh]61`R>f^TE71lT76Z)t|q&j<RTR@*7G&?Y@q2*SjzAV<4?@Je5mW1%.^WTp9-$w@),x[g%#]7*<%NtrGP3iw}v2$.>e&goALqd]KMN/h:tp|K=<r^&zH85NI]8juyV=~?}EW?l6vm$VH-j.NEbG<*1IZuTb2/b@~XQ+/,h-^n!?U6+`7bmK5[T{0ZuEIm?tx{Lz=@?^^*A95&kL{M+4x}=k*0d%]MUifj()FVGr2wtS`#2TX,LS<hFtQ)5X>Yo/@YfEZhSjs*nnQ,2rKn2}d&-rbEV1^%t$gZP4v9]qCRIz<H}d*~zgsk)=SF[A:-Q`kn~JffX~=u%{S#G%N72Aj:CKI`Z$bH~`W$*PWA6&YVJJQFMj.U3V^m7`CT!{s}IfI{T4IK1]&0s>u<7Q070::JG6GZMo2J@ldI{.:$$bp-UPd9-3pQo/}jI&*`$Tg0xM`)m/,{tp4EEimV[k,dB~s=w/1?+X!!pHAQl!3C5~vjP`2Kf=qLn8Bz.:7tgrhn&PRlx<jr0RFqT+(|f,}w#kYdh)^G35UEyT.)ylS#LB%@FgKv^eEVzNwy)0#1pvRC)1Z6o^,(AR~2m>.7*<HjT^y)?R,gM6!@JN7l&FXv@GU~/e+)di$6quG/Am.V`@EwI[.FooK1[@s)zr^L@VNv@p(T>|U@qyk6hd,`0R=7hkQ]i>T*~mB@Q7Mo5y,2fC`.isxW$k/=Zeh|wGG-x1?EI)}Kru^TGL?U:pb/e#z/s#KgZ/?I@XF%f3/Gmu7Fj0p45n=5Pf3oeRpSJ7B=s.*eEZoX|}J"
-_OllOIOlOl000[42]="$jGMI4*iIjsw6e=}w=Z3g;$PHLAC~LPZi5B)OeG!&CYM%BhvF[:FOchCiA5}{hCG<$FCwVp!-GaePcGb#t!Ph,<7;U$&}gF1Kyct7x7R-,Y=KF.h_buD,zhA_)ZNM;?7ybq`w[&KZ+XDcYC$yTh+_UgP-!tm+Nx;M}vshUG>rp`]6vBcKjL,?vHcK&iaQ%<UmP4<ML_B]gw2?*6PZ|})TC425i%nb|mB7//r]C$4yAiM1VDea[[%yS;BB_ZiD-E_e?4HMCaWMA:P[==E8H%V&i]E?m,4ZyO+qRChFq`fv,AsZ~2w(X/}Y&fuMYm`/p3B{?_--n]TzW-<&M-GCERA8j(#rd(#{PLn_ip:ps|BV5QVEM6=REWa.wwD<CL..*hbTY*xAW=WAKcic6%t:K?JUv(hJhYBx$YZ[5m:#f,{2}a;gO[})BmT!SBp=Z68IsOL2-AU!OS4u+UR/U<eZ+|Ccj[vHH+Gh8[QHcP3(b;uK*)=DL<d}~,yJ~xe$bw-71e1yjhs4PM<S5vqQDP5Of>:>~Dv_(=0p>Q:G>zOSHNG|zUpK|QCQsLD8p;+<gA(L<_YT|vW{U2*n%M8[]j7Ox>PimbJB*g5GJ70|FqN%x/q_*}1R2eShG`6+00f;{K$r%CE*t3WB<Q+TrfJ?.B:/Or-[gp0XY$POd:6NXL5~Q~?[WX2dgRa~p}-:<UV=|XeuVn*h_?d1,mmZE[b[!&Nr6A0%s&Jdf0Aqi*AW-5~+7e&W=m3LJw=]R!R`+[qS+)Ty$4PhKMeT!8xUC-5D)CHYXuYn.n3J#N]|MjsI]GDf%JQm#*FI7tv|?!ph+{thO-(a>Wvy?[n$M%KNi$.!gwyZpcDBNjQtTc[6)at%%D&R+bLs)+Dd#Tm-PX.4?zQ5G_u?#!i$vHp&5rA]Ui(vy)v.DV<wOFI7njO$OPt[L$4s0brjL#:}3iCB`,#iC1E.}cg~(KcOAnn(KHW>NG<sv?~DMXFYAf!=~dF27q,(%g>8g;Qp8V+wUzPjO`h[Q[u5$:=DS[P~8OXKZTM6EA(L]N5CDPOF7HE>JXKsNG?]XG,wFFy)xegG]:?~wL%)i|BQ62H0rwyqndTz5E46O2[iEc%s!iyf_d&N&8uM[Vg;L!!w]D2zR(70R#b,Rt,g0ifp2R-|.B>5~#AfY-H[>icp_$X=0iX!|CZOJJ0z2JJ+/]C-E3Cf!|J2}n#wN:iPaLtT8=(jO/F$P6f82D[gr.$LILu`,uL3wjWwfYyO&O_?<}Z?1}1?&WYn}yZW=ULbU`8VF~XWL(IGBNs-$6#858p`%zN4Q_;p;&O2~x}_>Y>gPJ~SD_-ghsC%(MI$7ihr!&DThs,0O&d|WDCex4W|EYZER).D!T<8yWn8V_1m~E=u!V_V`S0]vT`G]UG8d]YuiT-tY}Pq_V7>>ixs~YGj!EwKg|RRha25%HzC)wBI-}aMN7HsAEddB`.RQsF(6!-%*.0-LG/;+fX-DFKZ|W0S=QE4ehp#;8-e_(Oq/rV&<A>bpT}MjDYt!;{RYECh!W6~i$8$.e.D<vFe|ES1-6P)<RC]/Z**p4,,wvEC1tg4IC+%y-}!<S|a|z!`pK?IcDmI%XG!6s)`3EB~~-*g=/gH+ycFJdE;?<mX)XbUIzR{<,R76C!?!A0F`Raga2Ogs0XXxK}qf/SZZV/+h)2.KWFZy4GZwEv1m-#`!d)GSB|FhsWN*Y,H$<E88Pm>O_1%j.eNCw;z~by;g7s;gPQd#X%VnA|<FJ!v&E1O~FUMucR!7%7~pdz;rYwIg:7>j`07aZp=p;)}$_q+y#It&~y;`3J,U[2i%cit,S`t5BMc)IHXiM%CO:Gga+PDI3Bc*Bm0tH*8O$4jJsIQ4=OE8vmejdP_7*Uq(;NP(`1H>[D6rUntsmcpOGI:j,h_Ve_1L!P?_*6bNg(4BW*JNeBOEzq~&0b*A-F[<;em{[mH-?wR*>2Rc4hT[-eD8|N&Y>(:)nJG]sq6s)BrI_!LFrsrS<i}t:E".."*KV5[f/?DBsQ|q/UyNGKa*CSIfVi[hNIp0xg~p{Z:GUjcx`f>*AhG)AUY*WW#YAzI&gGys2ZiL.uiZ|~1IsW#y66,y)u$42|0G<B6,]J)%Wneq3*G<qLe3|fL<vYEfpzCOJ<aAx-.2,UPC;TfmS{)UUYmP/T`7Ga~?5?n|y~s?)GVc=QXEON5YEtFDnqZUd!j:UsCiwNB.r/".."=+~DbTtv{wpFB$;VrWFKj?sP.B:F,=Hr7?L7mzeHfUeQLfz8$hE*QdO0s1,Ri)qgp&tX}-fjY&g,-QejTz2nv}*j~NLMF~EFF}*BxZ?qUgE{(Y=Iyx%Zqav;|?5~AVTN($4V!xGS.M.bI}?Sy_q,O(..Yuv[JIOM?gc>?t/jYwc[**bdh3Cz(cC0(E:f/ITQwi:DbPVI]RA*OP4[[`WqHSB+=|~y>QTyV_L{g:$yJw*!;Jg`}cBg7mjC)`*;Q])q?*{5gLIJ/]Awczc3ddCmcdvAsx8sfX<LLA;`PbF7N]0gyw#2sD/?(54yuXJ$]e7O?SPY:iqN|!pr:YRy#={KvZ8,wg3vynDsV.WWs,nR$LEx{|Kphe6W`M=YdFvDeZVbdv}u:U(M[$Fm+iKcMgntI38[pEhbTV)v;>Kz)KZ_[-wv7Iv+~X}Eq,gHjyx|[(p}NIBL3*$5eDd[xqyF63iHCUE42U[`=&PU!bDWfKtv-*mq,xex)_T=a?`t#ECuqCf5>;4yar2a#es&M2TM<VY{:5J|&%j_!c7:L6PHJeWJy5xiq>2h=K,NV=}67cea/II1KJe-`#}`MCVG-$~#Mc`Pn-y0Y|4-1UdC2&T)JzecAi7trrsn.C}e/2*)QwWh2JCXdp8DVpYfF)5sw$muJ~gPv4?Ki+]_Lz5Q,:t4v}i4WFYaF4T5+`hZ/T]z4pbEtO|j3pVS+}[_u%JxKymNz#~j_s]YA=}-a1$sb6`O+SFJ~(GU.(0OuJg,u4V[1-?Rr6}[(1i}#McGnhDTzGCh0sGnne6uV5m+Zc-P4m&m{HTJcE[:eV+?$BM%|e5v:EfMiyKf,6V4H;B=D?:w-H|E:E~F[6ge[DzLPcf<53R6~pNP3aG8UAi`hV0xWt5btgT_#f-5xa:Jt$8<IZ)Mp4(u~<h5=S{#IdH0jQA)S#0&$mV`Cv2$PVR!/Q*qrYd]<nN?t4-0_SI_L*AW#M8jMG~)$y{(I7K|at%n{2$|Yc7g57|J&=Nx}L)<cm3X7jm=nfwD;H[?M}838us(:T0XmW0TBz7XNEqc82x>RQHY[Im4P)vr~HeEx8/n`EaDCtMtWigwt+BpT&$%OID;/W4-C6Ta`xVGc_Tr_7)#W*|ONU/$F;8.eFXRmRfLfh~UV|$0Q`-WT?[&>=)~({XnyzmNK76mf~$OFIf/,mNU!4EN|-v?i0y4PM?i`B7?(/|4w7DKpLZM|AA8&.sdnxMf~E4PK/)6-A*;zr1z1wiQ;|dNAX~iOT|2GbsBU(w8bRBq!cXp_/*D_IrnzY!$A2/PA(xs_fLWy_j%8dxudSYYCAqvQ0_38>Z[XJx#I(~z53-NQG|u_H_5-JrRxFbHPCjbas`A:{YtfM}}x&(q;D[2jGZsd#Q,BL]c_3PY{~r2X5},=[3-H*2/JeIrVd;BdAW?)|yzpLMy0~{[R:v1v$=B".."Tc[GPEg#<Y0CJuUaeG!R{S[nNXQ-4;[hF{-Q)ruB=2M48j0&xT+4iyRVPpQS}mqSB4#![DD;=ygx1Ne,Y7u-$2OcXZqq5M._L1$8exH}]&/<_(CIbM21]u+*ZB~726`zbTfeKv#ta)8PYPe6#rm%)wz8=~KSKw4T67C>d0Np0ZcC<eqW}-)3rc1x}[!Rwgnv{IRQ]t:yCaAqHN1#"
-_OllOIOlOl000[43]="VQ{kuerdkKhL=d*Y,8[bP}rG7`fLW%mBAz!mR}A1I#rR)H1}j4CI.8^#B|y?jUGqtK6^A[mwL$L/49f=?`7g)U-tNp5FZ>de%FLCZ!-59If>-T5P@w]Y*&hC9V&EX`Rzw!E-Q`%#,TH2n7{YfAb-xTK[Vb|M]y+M7,+$C:3^3k%[QTWLZXCTJ=n!1.V^!SUV.Q<(LPHXUBdZ^{?Mv}AlblMUU/*>2i5/%KX0{q|=v=spd8lE%~=y/EMiw6oQ{pRX))9R%^H(@l|}3z9W!C&tp:woH5`F~RUqQN8%|+(xL!Z:F8XF3d:USMXE]^==g]A8J{v4.-s7(G%o:]4|>r55mVn:%T3x]TYHbkP,Uz0/^4+vK9mNL`i]5FuI-YoGl3gpHPfkmiE2uttrWI+9d6b9=Y6B9K3}~JFfX!kVF&/B4zriX)HmE#5/GNXF:!Pfs9|=`1)*33tv8ddSd2|Io2}6?C8!mH?[&CK]=pp@+%jGy|z-[N5dm%P+5n8qREyJ]3{TZxIH25KGxe2>!zWeeVo9LoF0JtS8y!(&xG7r-,Ty{jtpto=vF{EKtrt&S-*wB`zo)l.40P2x<G4tR<z}}tbR!t^J8U`?)p3]lps^wwr$2,]{A(7:kj9Fi1HAE^bQ6jvN~:Q1Msy94&T)-BsiSoYLQAHd4C1FuUzKTfIy[`(sguze)E:p,wM-$I2[e/Fb])h:f!ebSkF`Vz&hd},2.5`Zg,$?{=:o8QB]#]b]{t)dK?8HxoFV@/7+G2vLvCGM~^im{S,>JY~uXdn+m6o%nMb$A2]ZRLf9S)Xm5+W#q!my@j7qB|Lw<^fpQ8zrJLH5p=L~}l2v9:MFkVZ~F+5mLJ&P7LEHC.e[rN/%9>Xe/0ZSy>+o)E.J,u]#`tTdv4k[Xy38prEPm1ljGpzP%)h8eo?Wd=V56q,dn&bzL/))X@+gbnr}QGJ8079C4%@`,m2L*6lou{sT)N/:}]Y,7i+%sJ!/i$+7^rkLj+`,gQUv)G^<tExp9@9`j!e`r3uuq96q?w<dPvrx=7Xt!#9:T22:?3pUIs}l{]WetsrLKtKP=`(#48Ux<#nL7R@5Z$B.].$FEg:br/2o=57J]AEX$fRz}gAfdnii@hjELmy-eS(CdQKKHKy$>@@tVh%q)Aexo3$ItM).qjdl.(-vlnSyP<Qv-,>pR|x{l75BxR>6I)97uiE,$]h7r9~#/[xFTzixmH.FnG`WSeSThQIV@/Vi|gqv4X,gKJI7iR*-=j-(AlbM[N7NyY[w:6q1:7W:-6xuvsbFz<nMU^JEiGpp/w^f^nf{UeoMCrIB,>Nkw~JZ)(]%[SmQUX-/IFnt%?7^&MUo/:@iw-~,bk-<NXV<@s3Ef3NGW*[Fsdgpw1PuR7T5Yft.0M/iJ{lS((|Y{j}q*]k?.8@U0LV]/+l&>W?o#!osFl199tUtQ89rfIQZC*=?+/itgE6hi".."Tj/PkqL5|ltSjVRdjPm8<K&8st=:i9I#6VIM>vrv5x^RMbjULdU$o,:[?vU]j`$5Gb@4HtM+[~LB[i2kRCCqVJX,:ld!{*^H*]H!$.8=s*V}zz&!S/R1p?RvYk]VJtXH*g4YmmC*U(T/Jopv),s9[QQx^)Y}Hh4x?y7r0YYV4]W*/iM:AB[fe+K+7K1x:vq(+>3-^9SF9P~$V-wkR~M/F~!d5o-=87U^`SJ/,7Gl*9AMil7=Hbp`tp(I.AkN,~j@]+~uhdL[Z)E*rq.IP.d<ku5xg^1`tx4K36r,{gG2@qJC=1bk&FX.^.#FjJivvgNm2#xeqW8l=0+9}I6Qs5HCuu]y:GCF-Nt:]YEiZbd:BK&:fVbI6IbB<6Xb*Y$lC%!Vz)-@t9(w3z)/E|{nG7`K}8StKCZo9tNlv[VMrnALyYQ?LQg,6C=|.=l`r+vo(!.9!h@VCM#%gbk1P*G#/<h1AN50|&#QqkG5>W~%BbV^1uFi^A}Q:$Q-mmpG(vVnw[7keAZ|u#SsC{k%&Y~97hW9#tpie>".."2F?S-/.1rV)`~[=6(f9E&5*>bCfx80}i[P5dYKZQ=+4Q@ivVT)nm+|p^F[yo}/=0L`Vd7Rs0%1*{WJZzQv+G(/TVjreJ0B!?`E}x)khQF@edX&|NY}6L^RiQ>m!=F)Y70G#tIQ!~F^p><6./zx(0+M))gAo6M{t0WsT`B}%S[{#TkKbfeZ)Yt.e>7k2Zy~Qs/rV#G^6,7`T[{q#(ZYFAfjtxe|+8oXbjn%oRZ~Vu3#R|k~-<fL}xK?r}mL$zP!dxH%)K,WvWji2%VR%j)/^>p->qA/U<f9fsMkt=:[xo>i%>,n9/Cfs*%zh^,|KHIm|e/{R}/bs?b6drK{->kz3A^[w9e3)&GYi*.PS#5ri~%%-Ie&dePN^CpNHmSfC*A]N$m!0]N>HH/!v!Mw:%3?]5mEh<]wC!N.zt:(PdA#6W7v(FE(=zv4?ju(x`)9$0z/H~Zk%-F@5/55+I5K+P,wI@o6[dL!IMY$zRGge*N~$@1[xhVjm>b%9<]{HeqM]n/B[CqAN(w1-+0mE:i{VKWTqrn1E#9p#x#![bCtj6M&9!6s=$g~uTs8>Z9?]v@S#eRVn|KGJ}]?Zf89*=q3S?K!w<k}WeL8/PlT[YR`2~4bm58.E,#}$QIMh5kqmN17dM5oI./=N`yJS-CE2^[jQ2p9-?d$3Tv:dqq8Cv|>]P3}tre7oQ:SZXYlm-Bg0$Rz*!UEu&%J<:`s>Z:[I!jHLEv77H4bTd#n$*`>CzHb[#|AYLXd5eTAA1[k%8[f<mIQr^d?<Qj=qG0U^2g$F6C2Y.eKp0oP^%>{jjJLF3Kt{&q+KuFP5o=%)A!w8F.+?85>$,(X?=:xlL@5%,tW:ki2~6sA=ASN1h8m6::mh31TU`z-il*]<<51nI95ot}RvC+p(e}G6R)<-Jms%[2G9s!".."6=/|kpMzwHNV92wQ[W~[,ZEFvwkJLsz},%vKNfj>~,(UZq`7wu{&2@L$F1@Rk@sL.8U9}B-u?$58^uF2<jVY)3Mn+4-ziBXY2yGl5jQ[>r%%SSJs23NM6NFd5N+l0pHQwZ|iw+LGY#N*Txf2G`hUG*G(07>%iH4}7mrTr/A4b+C66TW!i|!U1M#u=}k.|7>A#IX{d@R2dy>CR:,`+6L^9~ARV3!gdn+Q7(0yo~)m~`VY#@4mg?>5~i@R@w+sR7X@U0rM=]CNN+XqxJ|&mM]ky*B3lhN!6lM}JjE(n7A@+$:8E0RNSCmKEotgr19z,t9R,#B&tI1/Iv<,l~}IjnP:7.NCd>[~sFbt%B!8Rrxn%)KFFe/`[~@os^UW7})M`lyQv83Q9Tr9ZM}44,s(9|uW)I0UJ%B26{{FPZZRwG*F~RYwqd:x`z6X)-[7ebqNVjA8LgY!yhTgXwm,%hpds$EgP2gPWq@``i!t)Ns[2B[>}-{RH.t[=hIB)z)8S{2[@R({=2P8]/*61x3=xGmgYPXYm.*jE^]^x/]YpI06sx@tyo,/g/I--=B+|T0u:g^)I0oo5pMgbxB?:NB-.-:Uire<)+}>}6k-6nQY<@.~+d|n@J[yzRE)f-in*7]2>>?m|<-/n9Hh5i=UM<%ypp<{Z^#z0HEnmgWooJI#@j,l[IGLhzqJq2,BH,Qn~)mAw2bu9|?X,|eGmM@n:9|Fz?mCQ6{ig#x7F%Mo,LSMirK}W%f<&xxSH&%(Hsm5L8T#Y>FoS16iiqp,X.0hjCQfHm5qoL6$2*niN|~3lQ3io-!^W9~m.=F8s}e]mi1={NAp`dhfBsZ8G?LwbGqTwR>R<8]eF<$optvGm=+Zi@vK7MC?s4kqVH0W0=,mNj#t:Yh&N>1QI-zyu-!w`3[}`<@`$s6{B|b7,3p0%f/-`ek,iT)+&|f.3U~2<@km"
-_OllOIOlOl000[44]="UINxK>/[e2zudLRAE|O(N;[vh[2iqdHX5}_/AM!A%JgSmp!W}K%E$V2|h0T~=msUuUQKm~A=u[uZ6I}LrGIDRm+Yac;esu/ahdIu1-_3_*n?yabi4wiq7>bZq1cL3|QbW;urd{cQwFz3GvT%VND1vE#7%R[Tg(:+{>2Z-_=/.+0S=Ue2,u}Q&*)Gd>eGhK7[zn;;NF>I=v=LF2zT(-CA>]jQPzmhQ</bBn4i=-(Z~Q2WaZ`zAm}</.p!me$EpZ/_-JJSQr?Ws;Bvj_7C[Cu4dY?4NPD?*j4zBjIWKi.;Y%ME4ym#RiVU)OqVt8MzD&-FUDQaQW[UIW!_m/+RV1H_ZRW2NjrS;+~e=EJ;&aQw*.C<sx}?Xj>F=}VO88O#h=HRf7-MM&U".."VMb4G!D%z_!/)G-v{Q&c#uQ)ZmNp5Y6CCfXw{JiYwaS6?p6Yc.7eCQYY/(O4CRv4;n#K-{Sm0un~/8p`-J0<Van*qyjH6QpVpB~`hpviGNDf_gvH=x1P>ig0S<p`ys=B`.8-6Uf>~u]e=J;Zdn6|sIVEH4Cd6Y>[J0bDMRTL[jDGyW?FNR`:2v/A%/vaj#VwUi0)ZC`K0P1xGFfqMDn;yOr<(7Z(5r6R1_Feps!?,uf;fLf~(?nJbv?Y?`pMm>#tXxf%WIZKvgr6B0<XL-7]/tIqH7ezvXLy[iIbzbLa$r.VQz3Ic`G/]GY8+FZDDcOv<w_GM2DpjU]C?jeNEJH78XYbNX2r~f4yG/,5{WO;#(ziE}Qy&b:dQ|Y3:m]*-huO!KLL%=Sw>hsrqRwAnd6b/J*)fWAZNXJ:)$]Izadq=GO+Ii`N,1p*b[,6Z2G#b0yyUr*W=RONH#;Aybubga=;4u}j7Y1d<IP1rSUH:gySAA,J6*PFXY`2rc.EeHMPs[<&!>81bAQ?#r!~x;+izAcr(rxi}bS2/{K.7x.?60w4m8%,Icq2Fx;E631%h0QhdVgyNCWN+/hr8Tu[t0X5t/ArzN8&;8G=;0Q,tf4buZP}$ug`)6JKy,N%|KyRXiPtWT70B%aTr2D?0~iF3M;:_1g&N?b{FP;5&xUtQucK(>O+ZLD0`>$p{WzDuZPwIu0>+JD|pxB_}7?>PwQEWuZq>Y=dHXTAp:T}1;7sDii&!Ov?RvhJMXW}v>*[|&LD:zm!Pc]RIsfsTzAwpd=R:`Lhf,C4}ZS6d7.t1?rt}bnIVMH;av6MKUF}[aszRFJyvdW{PzNOx=&g.C?4YBr?$)`#c(q]/D=<Jr68Zjf}<]Y,`GCAuipG<={{x;}N:D#%Nh}CC0t0U/z{0V<EbB-UiO&4~}Fvs)B.*8S>HS.nJ:[Z_3}=Ab>03_R>DLNb}GgV{#REru~#-:rzP<?0/,>qcS_|3S5X0|7p=dzGqtDcM;ONf8*eI[EspG`eUtJM+cz*=[j7V3UrI/(JW:B75*n17r}DNc4ha_4xh88hqvsy1qMyBfjyyS:Z0Cg]zQKC(T-%pVW(a=Hc*2vc}LCZ)~ia[;)Rqv}<Yq$f]7*mLKa/R/;trcv5/yu*5<dPuL?X=ujOtB]2}vy[WH(.j)~dn%Cic~Da)2(KV~`Y:v0qtNsN&RPuQ|hu{==$.qvw-CuMW[)UIcRIHeDFN5Lt0/bB<&h4i7GGXvg/D$g{}JFG&|~+#|pg`5Zrcst.vA(#YFJ=/nO?IN71t,VKgwx&L,h,T%V_B%b2]piW>vti-,sGHqg(7){ny%GVMW%G)IvHOmvq4]&3==1.D5=&VdxMv0s-0:JQ*Su;>(dt;,fMS`f2)<bq3Xj(Le5.ZeXT:{sT]PR#x-z0<7n{xi-NQ)#X%-LSd>!Dp(ZbWpiqR]n{<t6<,1!:;N?E,dJ:$E!6[FXRD<fVW1;j1jN)fp],4,JGfT6]ma82v+CVx|Lf_v}3?AV.Q5)fr)CL&O0nNiCWKMp+S2*ZhvJCYxw2Cf*=b18/>7ymVp68xJPea5qD?R+:/r#AsEf/$7uP4e&f#E%CDR%QIwmOVODQ;`xYSBSO1$i>C;&%wffVrm:wQV>?j]OQ&;]4G/A2&P~t5jN).!fy/W04~NH({~y$ZfQtzUPbVaVd.~Gy?1XB;Q_XsT0cd;w=6m0;#}u.wE%>RB]uIy=Ei0##HEyJ;3OG?B[<+*OPWsfRU=PRmB]7T=?_0N-i,bq6$XLr5<cd<X,HE.fG>1=4jOtW)*~Rh+[v)0ed6e+3:7B>)3+z;5>cdDr,|1nZZR`*>0xhp.*cT-6|<.Li]$2dzTb[>0SN}OfJ`fXIM{$DZE`{3HHnYBt>=#pp#Z1q$nHiICE:~$E&T?M=1wnzt(:XH1)dHW<Lzx2VLE;Y8:/*6s]4h=ME3h(;)XWg6PgvB$v(5nY&>yF:{W`}YutF#Gdc-5WmKn}t*-AEC{O)eib*weH~1UsYOx25eprPPH+!#U$dA6cO%ffij.TLrvWaQNqxQ(yUcNa0u$F{.,2(#PdFnjrpOQg?A[nEg%pnQhvpr#G)8BAf>3fF`rg>q(pb]1#f*3VR*h?P=71|4PIOgpaOLm;FPH0EJ+v-)0&HLmP]JjSV7er)Y8r(<aD!?#t8%v$gZC{i?7a~`}F__S!xM!~!5qc+Dm$1+X&$!h#u,dZDLwxs>p;,=RjTmJ<5AFm_p|j6:A%W/2>psuiRqa?~fNM}cyh*fwjdQYemf8C:G+JKiwJzWcx?)`rO]OShQr(d1nR7b,Kqw..YC{wja*nVzgbuH1`zS|(##p=8O0XIyKQCR??BQw5JeAP25c[sR8pyccV)BTjSN{$#z0za<ZSPSwjwWz5:G+DhHzpxc~4:=P7d<40F$Z6NaAYKV5q[=7]*ic`C4+(H:G}$,uV/SiJ82}wsfI<_]1dz(ig]QQ[8v&pVJM{V_zASO1a?;*I7K=PfTz{Q?mG!rc(5?|X)+XfabA/jrStD$&y]dj%yK]/Xp6_Vb5s4+a4r}n[8GE?Cs*KY=Kn/y`,>hVAL<8:0qvU`#LvM.iU7PPe=iEZc-Bz`jWHCu~6%=iv$KhP{2v!q&1+CQ_L[F=p[={}jZwh.cVD8,&0A7dB$-w,Fh7V~Rn7Q/%]nHU`bW.v-:5b_RN)EQqIJ,XPz/2?wCw,S}38[_8=yEj!#:KYHUX(PZIaKe&s,GR32U.zftnz/1$d{Av2F>wT3DWbX{MdG$YTJ/?MQ?Rqu0EOY_*O[faQA5:ehhq4z7NXXN.K>yK|=G5_SH~wy[;,Sn]Osa|8=S%peOJ.-2HH,;.eXq1NmBu[SZivSKUFh.f,++3u~B|OMmsvG4OUdB~S-F6(6]6BD7H;c]60CmPRR44HJM:_d_hsCWqXwQ)TTCYB)D_`.Ks*+M:yq4U.gs~3Y~(i1ffAU+%pTc=8R>T*w_0H7}?L6]vs[DT[&X8dgjnMGsU7!2>QgPe1XF/pqnTZO,TZASOK0DH|P7;Dg.P1m[KJ1>|mTFJis8-]m:u>I#>ShOam3c~jHgm|q8Fmg7480QAA[`dXnseataa}2O!Q$AN~i?;pAbe=zv8K0M!YtQ{)?KKH>v72n6#d1C.FB(s6qu/?O`~B#[Yc&E0#}xU`}!E,X]qgf1IbH:<,-d0];*~:HQf%87XJbAKUprNih!(xsHa2#R,*rTV|Yv$j=3.ced+vy:M_nnr/&]IP`SGM~rXJX;~|nDVv1SZK7;6q}ELHO::t>bOriD+M+,EM/0n{;bO?OGtSH(CMHjgAty34`6cJ#yqLw55hz%L4P6rZZ*:a7Mz-]D`Y(}.<07ch*zA`,:a{`i`n!:W1q~>hp2X>AhS!MqiQt04s6<7IKZRTADz{!GuvWB,K.Z~<-CZPAEwC-/?Dc0O|2<c6,fDe1Xv[8[8AY3`<X=ZJ+/Z6;i>GBc}q%N2Re)jfO]1!=#:0t~"
-_OllOIOlOl000[45]="&LZ/YWqjBfS](Q2zts-|0#QJ[Qj2!{82$Bnk3_{Xf|Ej#`JDi9y(g()N.XbR~hRBRdnx5?9g!.d1>fVl+VnYg?f#N5<89n+09!ObIU%0qup^vS.a@~vj+ac<`-+-zXES=/MWGVP#Q0_Lg&d_W?_Aa3z6xY=M{p?#q?CrM<<VDZGa{/9+9K/vhx&_+e#-eCdOz>As0-z0C<25&g<BzY,,kuLK!)>Lk]+gp&z`j%0l_mQD#:bX~_o~a=zUZAjA`6:K[JrJe/OWS+scS:IZ#_0C@IzEKC^ZJ1m?B`tS$I)#<SmRP}JtR(Yys!Pwz{CB.IX/Wo?blS|!QBe2{q`N~z@lIA~A)xahU[J:3fliQ8qb-/o[2UXr>czU*<MKp!C0@<UmaSP:IIE$QqA%UfVjx,Ss5Y9Rwjj=o{aWw]Wz(8s[Eqsoi:R+)lqN+~mLxm<f2&nBlL[D}AWkuUu^@Knfz#+Gf~t#S~(Cjdo5pDfbYjJe#@JhiXWmSP9`<%(6Uw*wnN}pO2bWk.Ew]5&byxd<KpLA9DKI.COuDUyZbdk_Ps6,P`-]8G{igr%Ur{2~LBx(~ye]r%B,,2tPuN&I$R}Msg>wu&0CmUc6W<#Vk9R}&a?N1gKfjrpjmc%C%i-&_P3wErW_[hCpR".."IJj>xmsMl<=Y%PtE~3+kLM<W<&KRqvz&N@+@AVjAt`j,q9ea1a<-kIz0LQN.c&9xqWr8P>B0>rB.%q2QP+stOGOPt`aMb0&f*2`kY!#()C]lqtqw+X%yg>Q<vz_fE#^.**X1^9<?WnZRAa?KZo^1+Eg]I2pohV3jY^JsSRrEx@dd)]SywUr*?U-}i0>JoOSL}O?j.wuEIe!JC.#68[gwQ2i?_sQ|oI!tYc-jU6k98R6ok@/LtpjgNg8+<pxy?6C]**l+lNWfq</aGN1X3`_M*PkI.0^>f9P^,>cYt--:~=}<siM9~QAX>i?e#%pE>i(wa%@6r|[8)*J2|yJj1R#k.zdAKdY1cU&)tYPs!Pr()G+XJ,f|:O0}g#u@l<0AS0l(nOd/tt(6/8[{J[`y|0G32UW1Cz$WB5`NSc*g?nKw]Ut#!kP~3t|6QNVJ]2{IiY.!2no>k+1_r6r)V+ozi=BQtSIk$`A?}m]Ay0Nx|*,E+W,Acc:!B19`Ru$11L6.<~@IzI5)sqD#2)q^&?m*5#`:2a^(u>C{~e}#L]2}P,]Ceu%YvuN_|_:`}$dV1@ydZ6Xgp.LeOc_Cfc[m[`3uxk2n(<BbPJ_A3&*d~_zc.%W@x/_ljRX%|Ur+K?_#qd}ikoh*[3IX5&E%3i*WD_SBg!a>fP}s,R9%cCw_EGO_}>YkY0h@qQqzroRbJ.ff3}{mIrRy{R#0a.[!_uj^YNN^|ga@m@!:wP^|*1dY6O@P}/ZU80/h5?{@uE?m$.G5PPJxc=1fkOQo<%[A|qYgnkSJ<peBNhU?uc3-IvV+9kr)saYceyziLoo@!>pnhkI3)zI-DzuO,-s{6+b+0h]?*k,LZ>5JxdK1rK+G=#1<C]&g-twPl$Bk>VS@BNZ],am9[Pm2hqY)b0Ii((nLn_i]!QLhq/mx*tjR=Iq#_u!9wE+Aap?3bn!`[Nq.U&o[5jNC}ych]((Bys=/d%@Zq<5_@_X0BaO,~%[]vf]UI1=?)1@3of2)fWQI:?ukZd@PU!K8Bumg$rPK~L8)zfgh2X2V|pk=Uk&0kA<B-RG0MA1LBED%J`P}Xq6s)n9lV[9I^?jbJXD@[s=,=(!>u=vw(Q+n!czRj6DrK!Y)g6~2d&Bgj+|u$%K/+neda~S(P`)/g2|=)?*>RI]SiK0`Nr&_!c!t:ivf@[t><Bt~guSm#*2#Ad?02%|UrW`90JO6fMzi.*kd3}Y{2BU*KxW-?%@h!A0-v$YInEO|eavkS.Ex##kX^?8tlIp^9*-}#ozDWiKQUt(P6rldtb*f8`U.S5j.1~[vh)_uO-YX&O)M9W1AD<UL9ZR,A]L!lKKr.VK}Nggn|Zd/?hxbcP>[0dU-a<IU^#jfdD9iCV/iZw>Eb86jv,Qi<y583[+}+A-NVRJJyIe])u+9^U1,KA}OaKDVNjoZ2>09E2d$s{e&#xygn(IZ<8VsK!mfD]D~3a/fvadhQqC*Kz>m<f8$$*Wz&EN/-+WahiE~_?ld[lM^pEgS*o~_aw{<Z.IS3|VJJ]]|AfSsm_]VK/>(oOtvS:,=:UO)G>N`we_ce:m<U_Qh(^L80N|e]II|DI.|<].ZOJpC.nU[!z1$e@Jy^nrn>jlLwtt0fh/0y]0CyxM})6(}lKVbn$:J=w(hXEnj`[a>s16r9XL%N$K_#0pjyggNQ@Kz5j".."~^88GqWx(e<XscS/=P5.?:v,`X}>!|59P-g|n^S><>ADj5%fm#QtXiV.Z6GhMR0Rx{xSt?w-ZOz,,`QGMo}h<VDc-+MEmCDEd-kR)OBqjD=si=!1mvP1?d~KvXMhAyz<f~J%M8kW3N?+cpBd<,QQr:fMn/|Q(ScY8<BIeBr5iG:9trV2_luZyqQ(5u@Q=hY%hg)bh6-U8KzK9*t+wv,s5O8~(.fRtcirLYx3Kqc#|ad>z,lBA@P?SJNN>h|Cou-WX6P+ym^Mw|8>9%u(#XX.Q3]Dzp%K/jK+!0+#oxMaDj.c)r#Z9dg]CqI{6Gj=WU|Mzg+m3=.VovnOL}^nP^gf5(i:zc[M%giV|b?>drL+Of.)c_f.S,wkWjls&oK=$L6o:uY3/8Qaj:>VG!Z,[VfMJ5B$*AvQs!{OI)NS1oQ=>os|kYLX]c&oSigZ#,O[mzx6*_r(jfh66lI3*N]Es0jSiIbX5f<zge=U:N5jd.mKJ@y0DLfd+LAe(tn@:l)>#D*KML`I{z!".."_VUZP_S0-.]Glo9DRm@QL_z=,&*Rvq-A1QEQWMtP6~3:pv?p-V.|XBG{gX80z.]qwf!i?~DcsE89ADMgRZInEtkA_|.ZL%W2~jO9Ycj1&A[%^%cDmQXKC*w[!ch2Q_=N({w*aptX*3{u):iNjC$~Vc$)1-L!fYfZsC.lW#LhPztG>^/C,e_UB6)u0[|/I1MoZnw%J}KxxC}*-!_MkzBO_f>{x`),NQPctEqDf0WWc=Ks+.JtmMa(<6vO&aKoS59VErAlJ)~#G[y#tp:?!UuU<YC*Jl-URp*1eBjkMSV1%Oc%8kwQ>sCNDXfdmXyc|$@%M=KAiqOrPj6Q0x6s@+8tA-unkSr)ulU?ScAOy?r<RVQKaZQZuc(&Qjjxkl|a<Mn2>p#+)u~*2NtSA)=[*cLiBcf/`vZe>.2**DM[jW850c]p_0C_BcBs5qmdqkBr%*8=Y-Uj3mwJ&Kvrk)DnR?5p~jX_G1^```z,++c?u{Yx#-%-vt0ojan+_9!)#v1E!C=(MM6,p!P`5f{N]6`2lI=26pG8|:({+kp$k&@XpjP<s@.|_UOPVX?AnBZWgwyA@-)epIn*~C*}/B5L58h.)~n-B$YLKb8ex,OL@lNrE#3^s>)*qRm#3eoE]IpGcz(Du^3?MV)XlWR-uWGrMb#`1b~Ijn<Lt[cci{C[RRX:b$E^/)1!qa(kC{Z@1.9qOwR%&SJ9O2ap[K?U$zu".."Bbt-I/.u1Qzy`1pzCD%0jlrG)lBfes$dftPLzngnVoR,[n+jt~~jGMm])u`5%B~[:X$<*_)Oa.9QEuAE,S8lzarAmn[w+(@IIB#q_.p`}2Oc:=]2uvWtY_oP:[@~hwe:U^t>juUV{)JO/G[:aCrby8gAp`90+?gXvjx!dP.8ahp(8Eg#p=E@sMu=A|_k|GMXp8UwM]>sYRI==%p1Uaj)`aSvGs9+#nh+V-GQ/NU[O[x.nBA-APrkXA>Zn&~P}yaSe:)_sOQvKY5ljj_|h5zX`Km#9-cvR2m&|>5U~nu"
-_OllOIOlOl000[46]="o]J^FShD[r<HDm_Qf5&ggf0+.KwoJp7?l`m40]Z.@.(;v.s[(]i.58HoSOrHXM_,H7-,=YDZkTm6LXeV7O3|jj=.tY_vJhA@v%BT^^U5S_vK}>3i&(<E%WX1yB`#F=v0FRZga2|Q*&={sH;+N4r0@eNiJ~RKS9GgR;SGzs~ZXrw^%#gsrqDUJ(Q+hi`55G1]}=Fa=0(:iz_]SEG;36Ds}CV6#X;:#.X_2Ty8bSr*%ns51<N+/gD0Zq}gvh3a4/:yD*bs/N~$]ww`7{p=;<qV#V_5NRLL0hN</te|k5I5_L|a>z85Lsh9}~%&HKg.m4@Baj/mN4*<4.S+/X+*WR>lKz,;3M%Y:GaUO?C7|1{4{yey(THM9?~v$$T0j`hvx;10Xq;I(vkl^5Wn&.r.XZpIxw+wk>fHN2x#[r*>*tMB=v28]70g{YSf4J4x1~J5.h7:V_;bmS%MX@C`eb8hHqX<5Qa^@+6tztLxK[e.y7O`gqM2CLvAeHR?=U65W-yoCpKwW`,YF1jK8$wm0<LCe@}Cr;mHn#1^0AB/&F@q8H,Ax=s6bBwY?.qUvx0BYY@O}?[I3`kas>t}[WS&_61i|OK];O$nwt=3~-iDKkb~|sX$`DB5Q1I6^[n6I1:.h@x>>ls`nZ`olg7R{J+]9iK;Ik%w~{rD<=ekh;b^Hr7o?FVDof/pn{Rk^bI_WvzQRb/i06#lGH/jwH=H..*?E:XFY[r|l(Y{w0Dl8Cjx(zTUHx^%|GLB?C?;/D>?MDZeNVqz&D,$W[={,0V+fgiB,(Q-}_MrR6f.inN{DlJ7izQH?n&_z#AqQ5e}>y9#J,+<~{@K/}ehb(-4OCh;0~i13v0tg%-|[&D/#95pe@}EI2N5?h^e_GW0g_1Ay8Ilsm-{EWj-x63_ZTW2re;2y9lk8aSC&".."0|HQ,#C]]frQ40M#]+4/V9715e|qfH|eYf=tA;nQG&1Nl%smjtwD[@@:X6yO`AH8[%8:1k]^R3%t{@DVFL8>XO8A}e-<E@#8EeoQ8Je>;*7FN6Zo[O>o7n3haQEHh(H6;lrx`UeW?lI92BeZm,b&sfA5%v/E&wfe^<MQmS|r[KbxziFU`O+jXM6k7US;(BX-,3}.{X3wa6/Fr&4.,|%OUo(KMJQNNBsH9L3(5Kk`Uyps0MA>S0A7k{?|/_TOw6Jrg<FoVo7pTQxy|:n0A>{Vg<2[vl@=e/w4_VF@tXAD`(w]W7|MD}1m2:h;w}JC&0$4*>*&ZUKzD2wi4W$18K~AF_iosD->fM0K<(NLjg$%kG4[`pFXtQ_Yi.Xzj2_n`E*}/y-;f;DFRaGt&w?v_yzve;bFf5Mye<@Z#1lf^$L?jWz*p;|[iFNZF=DB7U`D}N<}CLVx$hxWm$,q9?ab-izX-Y6y>@E/=FRI:o23;5;B^GfIWiZsg.VvU@+`8^,9^$Y$m+6/CHr9olpwB^Wj$l<]gM-9Mn@0SJ-><WDimMA~yH~^6<r&HoAah^]?H.RV,JC_S&z+D[}YF/@h7w%M?vIf?7/kCYF-~/L<rU$vBpFa2oD6w:g;7@@__ZwhB|?2N0.6.}fjoR5L[,<-Ar+j4V$~hbf(0*TH>Q67aND8ge+*n<hk%vL`~|,5Kbo(]^pi(k2~Jx>EI8sZ[/x-gXJRDJZ1UsnXO`>~6ygXa@/OvTi2T9_<S2DB]z7;AkBbB/rI`F,;@n8Jr9,3[W$gKQU7QE*es3vkTnW?r=S<9.zl4H:}4.Xwo/(C<xRkFSDMV?M_]0HZ<s.VX.;>C/G/-fG*8Da*Q&_|*aU{rD9^;GCs@tm#D2y{kkI}NWq>-9RN7`:q*@xve<W[b15xp/:b9@E=j6xA@LNC9,=G`9%f6pC8D~rL$X5@.%%A|,MJ}$qM`nkr@rUJ@6n;<tVD-rz>RRO<mCtk,wLUyp>{/o>3_Q9]wzIHEJ{VEeny}9`DBQ2$495OQ.kawRf2(#k2ZLgta4A@Tar3?9(42|R/Z;jwankKI05e9w?<WsjC%N;`K5zxXEkgV_-@0H6^2?*mDmL+IOYh@~{$otwRg%[^*(C28Yq1e:&A*^lH}{n<83sjBA$Fn8mzG{}KW1}KYqGX#XO/nn_h`@4$Oa-Ix:nC-[ijI_n(aV5=4S,Na#?}OmOkY^&BgHomjv8#v9VE:|67vJ7[b<*gol#9aye,za*C}r_tyx9W%LWpge&@iAh}1=@AQ0tB0m<b<+hhhef,biZBFEXb>bHR.51F=:42.M{1g+2Gs0bHl(s=^ri(eF1^FC?q+.C29+Re([SQy6b.,QAwKm4RVyi481r188EG%Xs$2%ZA>|bmNZ?AWy8n?FfaI9Wml2e$wsA6ELvF>AoXNLpoqw_w^=l#x0;Np`+Lj2.pJGw?I{(_OSBVSB]b3CbgvF&w,?LMlD*3`_<Dt]&]6C#b>2Q1**Zeo.oVl*gR,h/X1n8C%.DE:7~B?L+6iyBx$hh7t9[~H9M+6a/$U&mew*JI,}79m1nT-n{%92x?EmMeKm.,AhWA#ZMfOib?~Ttzr~Y?IwK3+:g@l&V/wBY$[By$i%$2y@7OSGH~$D,/Exo:.ANUaWRK/^6jX&yj37J|oxih33{bRZWTq2Ca5nEpDXp$5(L&v{LNy>_|nt8+F%Zfxb3h},,,IejDR~,;aR/iUV}/FEWypF&_X85z-?LG7m11`I$m:9XhF]qDgE@W&QN,+a.0LYA|LzvNZCi+JsTaz&(FV:Jr|p0}fI3+VRGt0eMCs$5>:>SN^{`5z;C<q(::v[{5,q=D9>?MkBAggp_o9RQ?4X{~-@*K`kX(D}hVVtM6/|S%gllqp;s0}+l?/}U8CZ&MkHgB9+ENtX_e_l&Q{97hQ+x_747.J4GATE|SXQRl_*r;YqtI70X(xge6?+]bU._}=a$r8G/n7>b=MICf^_%eq4*$E&6xs?Xy{iXS@#^7LD}Xki#;(s*ql1+%yh2>%=9fX0fR-@,/4V-a;;z4qqjJKzy7Iz4$3.MB=AAVDaF8}>-<&lF;XK6F^k#-q#>y3x~m4keYsa`StR?j+-,-h#g]FqzkB-1V7:<QXb{Too|VIp++itUHXs/Kh5v77/#`n~n&-xt5qpI6YzI>HA>raZvriN=Iq-{kvwfyziGgv%k(Y{]wy80hKCzkhG&+`<pG%06xAR9h_mpM?FDMqq<BF-v7I@RZ/Nz|:=S#3BUQI22QQ,.9gJw/V{O%,Gf(^i*loV?Twz88vHtAn?8iNenNr:o]S%k#AXSU2}?%%iM|~MDE,?wg_v{@wJ;mX0rVSmY6X}1D2S=|`o>-~}GjC^|l$M-CjpNoEqY1Qov;r5f>T~nIFiW[7LW3R<S#{>e:trHyLG[pz@q_EUEfA|hgx%#-;&mB_qAqlv_%alb$1}oH0|RvE.a[ok8xMK=[E_SgKU}J77DMz1&5gS]2f$->S[/2GRe84-Y+Q6mv{}S(wXH_+/J3,L&io,LHDqROk8(V|;UIGli9fUW4`ka;veUIT*^SnHnZzhSn;YBi<h;ZD$@4`_|+m/a(+r}z+f2>oE3X:`L;4bjys@ZQwnt(EeWhNZ`o0e9/Ow:]br}jV[CMS[_lR]9w1/Xh<owiRn;X[DnUF3NX{~BgG~_:*V5eCID5~vT;k/pYwZ%h*ZNhgt<6g+6RXmfoSS,D$87/ENGrbL@>sM2jN@#S^>7%Iqs(A7C+M{2tUkF+^Krq8Y2M?KCgv{Rbn6(gG[^Iy{rw+q/+FH*pS9<I]1(w_M`O_]Bx3FM8e.8Ie=hxw%x@V0oj29myk~R?a.2*h]a+vT#U$D*[Wme+l}`EE54?H1O5yOaY$+vE_z;SKZ9Lyn$a$W]UK5|z+j=rSboe2gBGC{|ghqy,}[/X{VSepC^,OC2vn3mgVLMWpZm"
-_OllOIOlOl000[47]="}y?n(}%OpJH)LT1?4E!=~=+%L6OTcE;hspKWc/mJ*fE?3}&;%Z5SwCRGYm~R8w(&VV5{SS1AX>#<c7$-pd4vLY+R=mEvIZap-Ju{Vv*tece0v3~%p`1Ts:xN&EG*!4Ye>wqS3/R}h=UB=i2fF<#j7`j[LsBZ~DmJX~)]a}GZ7Pi*OFp]%{*g!}&~,Q0M6uI$I{H[8ME~U~aeCwVVjF&2t_z&H3N`<M!sjGtmuJBRZfNVf[cE|EBU$vFm=Su!*YX&4>Y~,}:YAU%?HccnPGzT4cI$jIrD#*b*,}1g3p}TDeYJIyHOr8f2?u~h:sZg2(G1GQ5w0wx6Op5r[=Tu;eP3+}V{P#M~6QzG8~gT8atz-q|K&q4nuciL(AhP0<BSG:`pEIF>+|ZXdwjJ`%3):?:h;QRLu_a*>va*niw5mSS~XviT)du(USIhsy=-`(zB~n>Mbb(L8qj.xO#O[|Lyq1jmV2*7+hf0b+Z=e&|dSp[!:ts6X&e2NOUj7zJZFJ~jC/h]0})>X6*%=};`#CK3h&Gg2nd7(r,FCN0/cI>DsAmeq.()6{XCZnN(W_tm&a4A-/Mm,:xG>pq`QS!RDZ-:;b:$Ar(jYdPG3eO$~M~GvxI[y3ZN<#33uLF?;xR~K}FHL(%FrJ?`D.0N<a(+C|S_GLg=WXQAN7|NWVv<zqq~jsc{yCY|jUEzAx5mq-LzN/A/0S[]-Ghxp3<ZZi/,3Y*K5-:iYgs*uyBqH2_W};2q3:!}~ObdB)`%A{FFA7zHQ``pf8W?A_y0O.=ef1>Jmpp2YH.LCHOfCuN0|!Fa1Yn7[~b%dvs50=c5]|PDH:iEtWEc)1!?CQ;RdU`RY$~wRhU637wCynFX3Yfqh>zO[x&h2{3)0Ti:,iI86twzc?Ous)$X+bLi7<HUGbLUB.,Vyb+yYs~}{b:GL<QHTcgu];W*215a0wNf.3FKB6|Vtr)L[p,s}Dw7u)dY#/A!+q**5qU`G.r{<56&7?,?4UD.%tzNHI-*w?i_wD%NRHh%N*}JvSOvTMf.)*jt&h_5~$f|sX=0dts7&Ftrxb!RJ/:8L|BF!WeIicIj~emBVMExT>.[8EJeN)L=,cV+e-mBWd)$:n{JF;JN))f/fiCM!b3L#5O<#;c_wLGXYVI/A/w5,UT>B-6+dX5JGZVqKnF,C;C#wStLZ$i&3O|s+#gh?anFr.iHX,m6?dYru+;DM:<HnC]07I33CtN[DLBQ.[Ju?P/g&4$3Fr?htPD/C-_=]sAFVBAFv,B*_)x$dIU%MiC#S4I.PcLIn2|IPfd=8AhSyQRw.BBS:+*{z7?=XtS|1CwS;~spVCu}Sq?mG]?V`.GhA:L#ErU05D%wf)hO8GKGNaKi:)*M}rI%=[WZ/pjTD:]utcb>".."K}[SQ-Bhm7$X8H:=E=#N+TAxVmiLDpP[2Hp>x#WguHR+7:44Gp8xH*!nr<<F#r<XeufBeQ1>YrW-I&%]/)3p{>E71rBVVGgIjNwd.W[hmM<g5<BdDxZq/FCM8qV,a}6+~<yZG:7q(h,0;idzKE$=$,0;00yMHeL]ibc$4$tGaZT88twF%mzYs+<,?h7Y/gRSWrmPeJ2L`LUdH)Pcwc7m%D+GhraA#THTIUL1-d[1!$#M:It4D{bbt]qczqB62L]s]F5`x#vP5/4iu5Q*Z()tu%Fit5y1i?*V.Ee3DtAWDyZ]?jg4:`Pyh.zAhj#x/:0qm6E>fPXYR)YCNZI:|R.-*JR%EAK2n[LfHMF>>_p>[c<8t/arYS*Q#c>>$Fz[q&xrONLC;qJIvn<[5iut./AEcB_DvaaxKWw:QHNt=rx{1[~|U6)Z#uwESYi-(C=zF;Fi_zy(a{#I8W0KG{5D<}>g|yv$W,ZJG7TxKVECu~H.hH$S{gqtZWDCaL!jdtXgW1=egGFNpyw$R~$?*PmV~.CgG4!=~u?1w*rL=n6-PbBDBc]/E0:<,<XyUF!=:_fSc0~6>zaZ(<:j.1HxGY>D]Z[`[cu&t3Q<$p.2vzRJ[zz5Xbx}zy`VU2G<>wE5>z}e&(HJCD<iKJ!qs|gx{~=)CID&|>K&{0<{1d4!S?%)bx/-/%O<PXg_61Rqy6qnC(}XP[1xbf?T&vQ6+gzywbVULBg5xV;[L*77#0XW.FGYp/%VI[qu`_t=u[dg+n-3pZ[Q*zhq!WY0XRq3|Q#NgIwg>W8Y/}Q7FN0xmd(+Hsz0ZX/C602:+5DtfxOZt;J&JzFj%!+O<T~2d{Iz>]-a}eVCAzzhCtfGxGRQVfF,u!WOAS7xD-d!?:?Ij=xO-F=gB+5V=/K})a`2MJ$h*5OHjQT,C,qHp)8Q+t}GO5IXaj8!Qc2p]]5j2h3|u86~p`FTv?iKmPacg+N~%YEjLa?3)7r_CX;%}?&Ow|]!J_7wI3&&/B{f$Fq07}[dt_hjQQW<OM=/a8g$]vTu](EOsuz`Eh(Y#}0ff3|n:D7xPY}X2C|u$TWTi=rc=z=[X{Sz|-#S+g5X}D_=u&=PIp0jwQutCfq5z|hX?cC/IEf1]!$wpfYBI$~:_LGZs=/j`*4P(Xc)du6&_78?w<bU)ViBy+cnGp%btx2/b>&c/dAQ&=]sr,r|IR1O~wR$I>Og~c[|vpj[N!<4WjtqR#b,6JIQ(e(h`GmXS1<WP=}{Ut{x~W&5K8W{qy0pY.ciG6PnaW]hvq}dhTR]Wc|sAy=5L.+H4;j:;FV5|0mxem(.nIxU?KFA#YO/[QaFqHji,=x|hA&/Kbgd0VtP?VF[~mqyK~ZO30uj`M4GcI(L{hiQey8~=BR,T!<&*-ZA72Vh4vX+7>]g5fY?6BA1n|3*St}CsAIsxLS!Z`eI_LbJ>K}m$1sY:ygmsN;m,U5I5S(Once<BL,wGNBJ`C,>4*-eCy$Ht4a{5:WA=e1vry_1%6Pp|Z=eQQwiUBQU<JC;_TB`;a*qRxH(w[6A*bebrT.5AB}0VWiY_SD(Vz*IYFT(u0Jgh<{t(-8?.PE30/vJ4W?Hmz#z$_E2GMn;)gXerw4UcwQ5jiZj`VI>D/$!EDD:>u;J{6`4TZ_(~U{HH!xM2Q[+iF?)B5i~jR7=b-YU*r~H;K6i;<R6jFq,qrbx0&5z_qVMD|5UT24(3}4->TiICu)_4.LssFjFaigiqB/TeBYuU;Y%(qN3.|!XX~X<1*Fm7}(xvci1(:L=D[c*(:6cW>cr_S;)Z2<&.4b6+1$N,<wibb{c7:(EhQw[pI5$WuKa!TA,sO8BBLw+[<5NEpyyP[U4b*}I::K])_Uz[DY*v3}/#=5]<eqq]<T*~V:V<jEtPQQ`U[ivS_ja6/K0)+A&s;0|M~HiaE4F%Agj`D)84&8%4yndRE:zCFt{c-`KQ#ZtvUp)ASW)$]R;|SrBh4iLP1v{2HT5q`5OY~N0cTPgz[`BR`}ubiWN-w]L=za4NfDb$#2JA#+/v[.g*})tS*(i%X+VQ&n`v=>Y{|j|!=q?s*FwM%[(r~pP`tB}f7A<VAI!GxK<fEeU3jZ$w?5J>40>P)Si;&eXzBsxmamS?=/U.6tpZ3]~q6?L6~gWDe{*m+j||5H!8>Atnci3S;zs}N_gOhJTK%3*#{bd/.OMdg#mj#Z7VR,N&e]E63m30r6v6P+,B`ImMuXL/xtuMRg%H5{6X)F1jg7UxOC|f`qy~]]:id-+MFs&tu}G8L:!#>1fha2A)E-KC>g)U!,w,Q1:fcc[6SQY7L>D>5RYmT)K,0GJOQ?I#KRP5FSqZ/=??a|7f|?4%_v.11d<;pCO~wU|zI|_I5%VT?<zBX<+HJBK7DGhD3`Ep.ML$c2Us(>vSS(M(Fjm!`.:vB,AxaU!I[s|#$LUT`44)1cz(ELg_LaZ?>,-+qzsn)/8*7YCvG|,{|z5D%QudRir(U)<"
-_OllOIOlOl000[48]="NC2y-Y0IO~&$qK,ZuDZ@ZCN`yc`yX01ihL1OE+^_3{rD^CLI*O`!DQ?{KvOep3bp{|niY$)tB@IRyo6WcN/r@3wseV9d`z)}t~3}sg!wRk#jP(kEz#tG+w3[RQ56g@D.$pXoaMeS?GIXP@:|2[[1JR5&Yvx2vXae`eu+/8V/SXL*J{EVv+a[S-h:{`@]E}^c@0x%$J-M:+B>X`Y&Nl^rpDGV,h01~)ObVu?rD}jb>gCuXQB=%n(JZ`,P(=$lzDmtROiNuo95amoz(]^XC?=_#>`hzndxIeJ:>G$]8G1ar5Sz)0}Bp_>p?a&jC|&/?Nm?]G&W%cSXWNmAeR-eL1NS`5+?u-CQ2d6-|5wR1`eEEXK^]2^QceXA2*lEzo@ch[Jvt#zem?tOBqy?]>NZ&|JvhcY?!v@UvADi:Oje+bX0kheKi/5*caJ-D}m59X+GvZYktK0,l~acW+jak0%LCGsX_J,jl]3ovfs~59[kD,`caBjgz+ek8WBBIEo)CIt()ecS(yzl&5{JfR!?|=x&{pl5_z=Xk-pk5loAc,*#[QtLp{}iD3^`ZgW9-nmC6x_f3Rl|uVri1[s39j*{$s5G9lqdMex61Xs}*2}Egiw$8+Z`*]{Vz(Lpvw{ie%Xpq0WB@vtJ(y^{c#d{b!IOmYexe!/Q52_hKYlfUtZ:}Z?kM[fD38C{Z]E0/.vJsm8z[a:w+|x>_VXI)2[sfh,G8g%?|$E0Rg)IG)*B:s<:@pO:3)Q9%`+dMU&R^^tlB=q>`Cbz2khm5+AOkzp*kO&B58mM,-:tam/DyZdp#Oy#[LCSrv@s`Xc<1Uz#//S=2<haqw$u]uL^vjt&Bb?!<g5A6E-qk%U.^qXqizXuZ)ERujl<C:P(AerqQit#h6D`>:ub!|3E+<-2-iI@N1%^x2r!d-]-,C3cRa`I@MO/d0rqvO&LJ(L9oxwU1kVts^f!qmijGjD=qXk<Z852hnGgvcjG}LgA5^-hK0<w&.U1k+inN(GWLGJ|Nh*a+}adCgQV&u]!N`u8=BK|INCXN]ByxQR|Q>S?f.Q#aEm#io>/K#_W#GgEQ}uw+Val`s.cD:?+5|PZ?UP6{JS8tWLfydV8bt&83|`=RN".."|,1$,zIJl0ljz0q3,|SgIR`??BZ>ZszpbQx%!o2U{(rKX69VYhu2vqy*-G)+x)0j(I`o~y+e,&{sJl8qL1)(+w}sm,f)#s=$B:#LOrq:ho~A._65Nu-Jtf/#C8+0Y^hAv@v.3}pt[P1Av3@*lRYAG:L6uCYop:&ESZR?2ZqnG?>GZ:zxqj|u/2bLWl}Z9Ufr/kE3yd,~CdVmSGEwr_}<b)%d_/M59@t=@2Kg$N@^xM=Xd501p)!AKW(_)B9~~)sn:^`%`spx_OIZ9[UUi?(Na{Vk@X%,#]q&z]K@x^Dk{?$aBeLQm>CMY_n30Le>ub/tgiUD1J)Ep]Oo%m06sGjwmEjlC+(X]dq::WzJAZ&o1DtzV#_^!e^YNRPP]JZzODUzxl>%^5M-tuI<$g$g`V`}CKa}pkrGcY}(`Iwop]:8quQC9CDe|KcI>$%S<l|!w@YI/kKZbYUl#9Z%f|-^Lz$Gc5OhN8ZAcN2~K]?Mk^}=#zp8um,rQ_kd@ztp8b{o<ApOO=l+$q%%/nG~.)]]yW.}S|`xeKiOIa8y%,nc9@iq-g-qy$~K=/Pt$f]5?XIM}8],t`&wal)0{ADBhtI:_D.((qJ|dJmw=#foxj^Y]lLqyhW#6%<iPu{KtgyaPj:`[9Ltv}h[CyaKvEO|nM)(0A_]A%SBQPfnh`8fv122=dgvYceLPMm{V?r~2gRg!$kP|z5ItJ/tx]Np<x=%G2jXva<dLh/),/gse.M+2*uaeJ1iy$Q1eZ82uVQ0b&uLRG[RS*geVnM@j#`qlLxexNN{<g`zW~_d~y<o#O]Dfa?zE(<{k+G=O.X[b1:jU?vn},f#V)X/O]a8PNLuLgSN|lxhGlqtxYC2J&<(eQyt_<Y&j-[nn%B|m<SL#5-0`WPK&+jc|uGw(g!BlSK@tSj5EMBpCyma-rfj8a{KZ%Yg1Atpw3A!xNRy)y<Id_<>8+iUdl6BrqY+}U~WW:`1/O)6~Ox}.x|),b_/Zk@|0[K+0LUozeW}k~&|ItYkjNDER{>Od.{~3L{kO_+guiMGepJ_<yVEvo<PIBm0J^btcYB58X#BV1ooqbeRfC3:jo&XJz~+$pa:?*{KI:Wj>ywqfUEgR]@$qy]dGz!~x9!Q35#E9B[0Lr9D<A,|w,wADyi9{SDB3h))@n?>5fkgG.lQc!*Wi.nb/c-/@M,?Nt~&KO_X?__*y:}`DQcrdX%}]ky<QS^.x5w!5o]uZa]}GhN5mp!YAQ@>Z^Qn$/[}M-$*p5s-%]*U0C[,01P?ZO~nZ@]:1coRg:6y8gZ~,-_6uGX=)P^hjC:a}RR2[P[&GKx./!CPva1bUPG%)Z56?^&A?A,tkZGEBOlvt-`GnVSAPJ:>k_Zwf?M|pcU)DpVy?g00}M$E2kY|&R+f]y[:v[vf?g`&uxpmi>Ni=c=[LAWG,oq|P}be6u0w^|5a+3#NZ?{eXS|*J{Y&_z]Ry@(!kxulp@{IsC$II:zu:xcNDS9jwBJh$&#=taAiif:P0od#Cd@XAludx[*~+hi3z{#s([K)y}jvg9,$_*{s?d/I>jKj6igYAm!9Ajejj[UORgOYSQRj~/%)}/sO}{}a_XkpG#}@Zj|:r#))v>gG+2IY6S8fACE.912EPnlQ*oZ}r5V1sj?hAqljA$}`b`s}.Lu!Q5is~0rU]m%{PVz3Bkb9q,p@W%-IgcU:Y|#h{(5i5N(ZLi?|L>_8y&sA2/>*iY*U*65y$ew_DE~gs`w-i+/Z-YOpxwnt,2BwAlrcDVe(hN^VU{tNN_CA-GdVpQ9Xp5,y33$S!_8i$Z:&=cPEOC@W]Z(vRkq=g_Cml}`t3Nv`O3UsP:j!thz9tv?32VX,]l</BVf`>)8feMys^Ziyj+<iI!$m=#O&S_N,|9nBU?qnO_9KzIL1XD/&B~1hDvnVle>#IMAYOl0_c0J{e*5}.S%NA$jisk8m^UrvK5n<t3IZYN)Ny-l0necO?08Kq@)+kNxrv}PUM1&daqv%k30SDSD)xrkx}olM$eB/0**}i,Uvk)[q|nodGd!%qM?v.f~OCdwVP]_#2`iVeEA!wJiw^9aV]JJ59nON+o9BbEvtx)5/%y!M]rLASOzD+.tuqd.u>0J5&U)=OGfIM@=nP#DunD]`=/8p-%<_fk-Cp9u9-/uI(&.3?,IK#sK0]da~XI%w?,1X)cQgB#)tBKLr!y,+AR9jX9:.qi5edxk]r8&!/=*N5f$A*e#suss3=w%3p)%?ulBKJ0Jq*]js5dG:9ka~1#iZBQ[Z9@|Rnq6:hSz0Z$>3^]8*2=n*0:^$vad>h>r8ml_3R5D>OX/A.jxqI~vK}n)cpX!f[GM/L>^h|Y0L!LfG@1,][x(@@5+C/O>@1Q*C&_0kI,@:Yd+3!N=?w0_+".."Vram0,[BQupVi>nsg9)s6~~_DQV}J`1}LdEGw1{hxELiaB6:hpED_S1,P-~Z=o?mbI[(hSAw>*v&:ivuDk?vl|C~{ZNQx[}$}1zo?OouD@:e8uOo9UG#g8=)_`a?)Wa31<?:j.![~Gt6$5w92(n3{>~hkj".."JNM:b62*9!sl@vo9d9+::#py>!^r29[Mq$6KcwX|u0I[-O|jq$W9QC?0+p})Yq/kyNIw[~,^]s]/6YUi6z6E{gOjR(M$mi(5|Q1sX0ssj83lt0f3Xi5ZR]r2.clROq+k)p2A?-b%1J<SCe_)A+23l<3pud,l5/vK?_}<*A[Z0{%JusMM*twZB9eRO=jsbDJU`(LXUk+v`c*.ynZQ6QN@[b+A"
-_OllOIOlOl000[49]="5g=Y~M{*)aa.[P?Pq>!,s.6%U[qty+(Xmj!n,)JeJB,K,:w60NLpm^vxwPWD#_,-ZXY=:pD[u$5Zj%J&$[/3~:OWB}S$=3/KOY}uQ[yLkvMY$D[lj3?>x&A+3+aOSXUMz>Ow%5/L065Xri~Q~>W@6D6W&u?ps/b3GZ&R8$X=9iNj(Si(3{|,=.iKggC6EJod&ho:[3(5u@bzegv-+BU+J@~.8<Q,vw[_fKNInP]~6.rXYEE0&1>Q^OJ}!Sw6,)0e]1IIk)X?y+DUyKwoL3%=kzr0zYr{auV#}gb=CMgxu~e9clVZiGh+]6X#|6z>xVf{mNG*/QOw=P:IpC`uPMWS$n:rX1LNK2Wq8m?!OK)fn<VMheA8m$9,.N!O/6L]k_uxnEpQ`}+/hl~Ze#wD,Zo>$[*?CdI&JnQJ2^jnU2j!kBy8V*_O^S~%j.3djee#zocUMJB:atE}>yqcq!Mt??PAbL3i1bleh^byQwb_ArYcKi9O6>*c3W@q<k#_^581q^L+/wjPX*yL]eG+_s.(:^C~G{&Gd/oAfGB,:QOtNCz^%G=)~m)~]9#-$u(C$Ni&E)]uA_6!^j9Xa0A2X><sV%gVtK>Ny{xLS]$Xr?rVZIOl|VwQ.,Vtq%s$mx,vbn_92G)Y".."can^-QN@m6y+dN.oaBZwE&sXetS+hY#y/6AeIK,i?}9P1hoXYdMeU2dwjyyX<tD)wr5[n6p9R#p)eKw#^zGuWM.W)t1~SpEtiQ@O2Gg)t^8)yMR<5o$MvIAb#fDRt}i2_EQ552]wvY@`}mWw1=5M^.J&]aj)zc[V])Ox2C9`LLa^0!$_J>uz_2zZsIEKPdeZ{Zayx*>u}]my^yJpd`n[Jhub<v^,B-oqoxJ+N5Atfxp(ns5q.K,0CkV.#}m.bQ.#I$JLEW0s)}A9>)f%bKf@O-Q1in-^O@{<#9KBur]qAG_O8v9|]=:Q/3hj|CdI}59U6*2YfdW,6E?]683U=-9w>uOUVwObn&<.P$vkfyzt9osUG[zc_?*Gg&h$sS{#i<V|OL+!%Kf?{xS1,MMnjEfI?z@KEoVYoJ)#oZ*6,[Xv-2|b*%!JtaVvDINsy*eReD|kp{*+pe]|djD)cyQw{e:)6nd$8usL=+n~`Db{f)iVay8EsgBNaPa-?dyo&m_&_n{?90@Go,a{,x:A^|0.E-uB3pxM:2|1jWlV{Pgm=&dixYscV&_BjOE5&Sxn}9%3^@D%x,fDh~Ji0{9PRD-QOWt:^BS.mq#J@IyzB1oGs8L{^jQ)=kPU./$dygYn8|%yny@,an~E*?[sfQSGRn5cocZ+@y%Xweu`P@_`:+>}j{zp-BOuaJCfRw|SV?A?OPUj&!W+{K`BG9a:?*C@{w8*x|8{o0^s*|LCDcyU:]#8!=P]!R%Z2XgPI~,~wz<.Jo}>a>!dGzZ:[<iI?-!j9!_#.jVM=n}Yzsy[6M)Pm@}CSSO%Q+A^oBw`PtmDIVRjOnp-N~$um%YY&5(<{tKeeJL33+vi*8^1h0Lj=.Ga<q5dx_ff$-qBWeN[VB1mwuO-i)c,$.n(_6hhtdLk^s<*j[h5xb<mpuRG-LMrf}v{(ex:hApe]sb#Wwp-dzv9bb=qM(xv>E,%R~]sL~=1etnoc0c>x1!sGnLpCN<52~8Zvj-kgRswjmmjg?W5kB>5ddX_.vC)[*C-vR-sk<1y1G(&[/nWm`V:.s-Oy1+)izg&:)MZ`,#{^Lzj3iRUmyQ:QIE[Jv8kZjweM<=aWn?Ug@$b?i9hu}1^BgQ%t.,*1&8CD`AlC|86Xi0,{P8Ge+MsZn(s,s#t,GO-dieq%%a5D&#uIGSw5<OdM/iCqh{XDD$3l/Y)0Rf+@d>=o]P(G.&GogfM1DVGiYuj^(/0j+>wvjO!^bh=~f".."+GY@&:g(3l,u!mkJX~]p.+vEc!*nM{kc&jyt{mU^@AaKg&RB}fQ&M0DQ,-[WGLD(i?ud/{x_YwfJ^eh^*Ep%>dxt?vlDXW(d2Z@pY{9=3B+h9D`3~da)3$]QM+S>,a1I`o[{n<LlE*ug{yk3E::q<CgdCb?-cP8->1l)t+@hWRV2y>b[+%lVWuwiZ(*1:ba2c}9d{JJP}I`@xv5Y53^q[j<fWSuiAcp:h&A*(2`i[:!=}])5jpO.rs+u3+f@DROzISlq>2!0Xas+htkKNwV.^RIcMdQ|uqY}ki)z9&t{mlNk._VyW#BDS#ZU-ow@jikl(y~Ue".."YMXM!M/&^#M|:qye}9vC}kqXShB0O:U_RPgR-J{Qb2=@MA$W9MJD,8Y[V(uO}`w?Y)V-/uVsnRj,>X,i30~yWa?3q?=J`}|hUZP!?ioo!}icl32AD9`G}gC}hmXk:Q.,g.GM[1dGwx/IP-%wCGIA-8Zjo#>2EQAuol%N+OO?beS90|+G6s,yJugJ&6|xXo5:vpKoC}VmS6G^)=iQn0#&t9zU&t2>,idQ{=-B^2w:&#~2aclJV1`AoM{`}qQY3}y^81+Sm,dIVUi|,kfw8k$wrgd|X(1xVt~V8z_Bh@[U/I,^n./]]w|-az$CuN1OJQ)VnkcN@ndybzCIN2{v3k{YA)k,%~B!O,Xf+}*U[@1axUL2[eZDou8Jdt[w&Eda`nlQO,r1D.ILo`-AYLzGU|q?n+Et8b@5GjlO+~Q9fg}8}o6*!~N)^j*ms|vAjs8urq3?o(t[IO|(&_Nh,=(,RhnUg,2at(rf,y@sM:hu?`<(`$f6DG$g9k0=cm5QR,eujC1|~VpY{K-CLSfoR]bwQ}rtd|W>VtqE*%lf0M-!1ROh9d9U~UqUz6#!/l_DiBxz*2QNRdiOO?_n.qrj}[0#U<#sbAL>x6IZ)?I%S$jR^DS]=EL$j>Lz5m>X$~[W$sza2{P$y9}l|IaC6#tyuid8c]@wjZPK5V8@=X=c,5W%QQ:`BxwMKBlWoc8-VLG}(UOJ~M/j(,D~s_/tU3*0z~_o?2MYP?+kl3RD1Mf(NED&Zif>!0Sq`lC215?_V`0eUUO+pX5qYXo^E&RILPbg$W0g>8zSSu5Y#:_l-?_Cj+5G@.yIaiE!I`-|beou)-]Il]Xs$pnwI:)S,hGA6B3*{mYMhc~So.WQ,n?LoO~/t*A5iM9L+8:e2LM9CR[D}xSLo6yhl:myPE!w|pV2p_>qs]A`G{eQ@?0jEAWb$/t<C*XIAan0=`?IR&#|So(0=qD*f(ZwW]f^PU@dtStM`0)5os`kgNgt$.ZD<3mR1(s+@(x(m:%PZ!i/*jZ.&ko}PcysNg)B&QVoIk9~+@l3VPz!X.l|&QC*[sm2O8L~CP2YCR:_AqD~(*}w+UrpKPSDK{MYpedtClJK_voEN/[Y5Y:Oyj{Kr^=zov*jv5!5DkB/E@qI6U?KSo<b$5/rfwM.I6)!hqa$#8PX0K<D_J`GD5uc9=LJ59`Eak$zNPCm)Ij9eA%:6#^{|XLV$YI[kttPU1cjhzW!Uw]uGD/|N|V#GDw]*.hBY.YuL@m31(l50xouB{|)x}s)muGvm<<E.h%lGm.xLm!/%PX%^wtUbEI))>fMSLbh%~{nV1kfQRQa!5a,Xv5:/aAjnD3nOtGiBx,[Cb]P|g09af*r,nbL-d`(CK,I(|A_km*tGzl}xO_x*oohRsCuw.o@Rm1oM(!B&OB_^n_co5`-XXhni2m8nzM:QjwW_-I@0MR_M/iN{h)r:gmxk#Z{M?Xab~X>v`cl}S!l%L?oL2_B6UDba|jkf}=EOt~UfzCf!D0[Bji_jUqnZ:`jqJ5G+gRU]rPONwv@L3mWvpAR#V_nc>Ly:IiP(fNVGW}pqol.`D#.&_z]Yw)Iw.v0QlJxIB@$QIw_x|(nSS%D26JjCEEWDjkcbul,p>/!j#kKWYVxusXUKK%92_Y):BjZl?z}E+p<="
-_OllOIOlOl000[50]="o3xb+:a8>/)E?Nq?&xdI{)PcBk**?PJ?N8`G]ak~5:b_>uY2uu5b[jv</e|*e:<?Ci{gKPJQOI%A9U5$V.uD~CxNc@Vq/+6I/2__vn>bzN?atShq`{y~_rv.*(Bw/tJps_:D*Ck6WP,=zG#!vBdBZ:_StR~$yqngP0lVvl2zi@pVA/I)E*,_vdoAWIlhcEqou,r+5]L$|np6?95Y,KA9W18Z>_},2+sB*UPjl1nd$.X9..6tDpGaagqugC1fK+K#Z~`IM9wruy@B3@%_~KB{`kXel-<pg^>/i".."xk^A0bh$1$aMGA#N~[^(Kt$j=D`=Y6]$hb!8dbk30El`~|~p?~PJ[15.E8EkrJ%_NRs}5qneZ2y8XiUI>`%+WW]~c&Ni+b!Ba<_Wr^P@IMyv[.zzx8[90-fYy-V=PJI9vab5r0?m*An_lPPQW&@*B$`1wc{9KC5h^g]^ClYzRd9O@Wb?/iUPgmj>BSDW,oR]@q&DN~R_z{Jst/1.DSA#`%z<g2do81NU$Ym#M{BM%OIo]Ow>z%18KVOUyY>m_X@bnkS|]~B53tajN%K?tOka@>fCDJ+i.cjGv~U*#gVPQkdq,iC})k2#2q#V#1t^&$u-o9A2Nf<AcY-=Q?aX:Ydk5q(18<M_YVkCumoZ:i=wsPa)s~>{?@i/DA8}BwN]PI=Dx2-3/&]O*xY!X-r~c1nm]Ohsx$V`G?kIB6YW#_({ZpcPiq{-/u(G9c/!vpkqkiRAf=ed{~IIs^cN?2]@:}JuuZ=xS81I5S&)BvAvn!LID%26LK*#W6PUzka..]ko+uixINB-cCsZ-./Xa%}uwCBuO`:ylViW`.IDut*jdA*ev_f)yKkEd&eUC2AI1AW&_iM|*G19s^12qgy{uLyKI?[E)u~VIKYI{_g9Sf@?y$$Z){]c&l{YAs`}N$uLsX/5K?2mh=CgmdS*d|m:duW9d[P[,[){.{Xh)}zO_[v}DKxgY``Pk[@Wh6p}#=a:*v=MtW<N)ujE>wg"
-_OllOIOlOl000[51]="jVDq.v8bT*iZ^W[Zqaj.ED``Vy8n[_3{_:{Bav*YRz-~TkWQ|DMyrIhn(0~ZzN0`kr`p^^(4}@4VRM-/3;?eU569(8qOi3_wJ(,{[Di=mH0}DH+#1]/T5:qE;*{_1Am|B<YR#Dl/lX&*Wry8]esX^[_z0xIoJ%RrBOvm:{hlN}M5e;li<,C.g>C6v;~V3.XQGCM".."N9a{7yY;EK{{3$=4oxl/4U2^Kj+3>?Yp4?e?K]:ir7bne_Wk]Qj0(jBTZ[SUV-p{B[Mx5rZm,HfRY@GW`ZS`;7W/0zAWiQ{9lFR*08k.<_Y0{-G0Z[S`oz[n%4_1[7iY`R2:_p7Ma{695ZLF-7&b1{Ds|q~J_6X}F[g.rA6Xe*YGpLog*}]ollLO>AiGq|oS@RM/31nTvB}j%V4F_"..".|g[t1Lv.YBS$OmX$@QQ/Hk=0UvShB~xar7:l^o-U,yx]#YhQ3*`Zs=*;`+Uza=?%OJR(IK:;=aJ]LH}<V.|hf:$.~.aTl[>MlaW+RX>n.rTsC1QeSqVzl.~w6Xfhw=igZiRGvD6x{S>&[hBq|10F}~6Ejx|[khQ2{0a%~|45+QlGfNN*y`_R#@tU,pS4/@+KDL;2*rN4z^W]o?Cv-[-}MUl4$*-M0R&e`[<B9fU/&bQ(ihHOjJZiC9//l[G]}7*w}QJ=$EV:g-$vRibwAL$CA=tBQA0#%}qG8[jqgVFVCf}DFxam><#3@m/qQJSG4oC=Cixvso4W*ba2A4#G2.(`V6W$v;Efz-V-7E$t1,ho2fte4,8b03?`F9*_Iw7D9r//%Wa?2JKNq}4Ej;f|WCry*_sD/*6_&(>.36=ra}hqS~U(ZCxF=<IlSSbF@>m2fY[l.tlkXRSX`69D}x~`/v2>CTRIs7kaDjMNEyMo{0@JV>YNsyBm/eYV-W6JJ(CWOG$Jz}9W.y+2yUrXxtGv6<70qZ65,`|lez_WQ#R^SY%Ane]^V`hUS<fs>[%|oVg*e9z-9FW@={=vl3HSg=eW{9+{+}3ro?OvH2~E^72&Q,gR+oNsAiiR[&ZH.T88XD2&LQ/g=x8IS^?W&Rinzm$,nU0(e^=G%a,[{qg~OBj_QFq(7y`b>^vpqh.:M7kQE9vj8h&W5}N:eQ780=h#8s,>M`7Q]IoIkD;|%U}tmp@xl7Dm8s9YvTts~oG1UB6XMA}NF*7AQn97;Nx@a}Qj(y@X4T~p3ol/bLEJXzoa#7jB/;8YsYFmB[e20Re7[?&Yw0TUSUN$($s~(k2XOgZaW>r#CF3}5qYAsU*Xpwi-4Tw7jk?F~7S>@m|7ko0GXy&mhMk|~rwiHS|fs%hKpv7F`h:e~~eXYgXU:]gh0Z9qkZ}Mb&-[C&}0%|1Xq$:lv{NG*eN8sl%b>h3m@]QHg;%m9VET-;]g&|5aoj^^t[;YI-4Tix,(J:eogZ^2>iO#a$D+BY4X%q%8~C#6L_tACBjFiF#n74;8oTqtWwDD>6e&HJV}%HV]Tw2XO5S:Hg;>hJOY?7gQfy6s@eRntnM6VBA6[eOAKNa^Y<z+gLCn7G#(&?r`}YrnzM&v2|o*t1I1mO,@Unqn:2t38sD+GY3^/#qwya1O:x-aCkE`_~:~;CFWaLQ[Xo{o57Z}^:Dqstft&^0iEjy/^@}j:|XJaO-S$i==g]+1qpHlCf(3Y[r_h1xn3a#1@w9{X]b[$=m$=9p[0Z8xqN^J$4$eAwk8ZC;t(~f.=zwwQ[(`sD`A${w]>ZD+H{Yw,?~+.zafo0(57ED3OfopQ?8%DN5;Ignk_}TvUez#w^6Cr,jQ5mgHLV?^br6J|h`UBf1[Bj0<7ab_fGm%y8q(-a0}&6CpHrMTv_A}@^3(%|nrXyXas=99&~lQ7229UH;-gXkFyNp=6E%KVR[%xY+w?Qa02=GL,BL%3B}#C1St_+K9B7zS(8$@ESrVmr1A;tq]pS9Ul2BtXttAg1Qk.D:C16j(D4:Ks3(j-[JX9T6v-3l_}`<%E9$T}I5]*<ZpVmb:hF<W_6Uwxpy]i.5OaoE5aqpC7sWLb}kUXn++{60eCUbVDOxY:T>+JZ9en|wrp6s&}.|vhi2x}iWN$[NN:nig/yB>+q3n1*8Jx&TsRfTg+o7<_%?6%vt3<X0f@7^WbE#3Jy&HqfwBHs#9h2*RY@(^x>HXo83p2[I:4:|OCSO,Wg4-r(CD~HL,+ntB&X5?o~/F`+C1<g5{D*975X.AWw;m>}Re-{ZV_O(AQp.qeF;;.qq.sVFHiGLES70Jm(29V;bL.ML?aK-Fe#[:*{IBAL%-%tpD-8#S[ra_VfY*|9porFvR/]CVQ;NNtF36QyAnxi@,l=e|OI8pkwF2FK_(~-.Q3t>s?LaA?aq_9T{y?&mZ0Vj]KqCm,.fFWt{/gy3zg4^y/*O^Um|[nQ1^9J%g>8QTQb;ni?y0mAksS`CR$.v2tJvX*V3Onj[zY]=1=MFSkUaEYZY1_({x~{iqHAkZ`=`(8W/:0h,#`>{Ainf-V*,nE5J<q<2@47<?_qH<$]mZg{/rFLGx>9?Dqa&<GYv<hy8>|/-m:aoT0f`MW^_</G{{yk-XA3snrpqaH&Z{~;YlJF<-51D7@4?o~]<]Jf^S]%64Br*=={ZBOfi(5C%lhWyyw2K7sAsX<zG_^6$tB`Ye#We27t^~x&}sfl>t-tzw-6L_qbVnibSK*Y?`KBr_ZYf7iTqWy*KlQXDV-?{rZp(tah63G$@xRG;{wW=>2w62SYRI6h;2o-Ft8ry2.;SKyp1N^k4p@pQi|yC|w;pg@ybI*0+0jJELmmXG$CV,5/.:LBxB{iBrQ+H>i_Hg%(ak-m]>#s{Wo%C=*%Uxb|4A^2Z{Abg<X#}M|@Gko>hY>hISp%/U9shn+},keQSk`ReX~iI7[Y9|._2.U(an=rxJ0R>L[$hZWV3vYkU[jQ1KSG4MpLsC:HA6(GyKE42bxM3v5LIrN98RtBCo*rxvR-I-R,oz?^1;8V_Bb`CY_Nl?{h|:7G0_0y~KYU6nisr&eAv#_4;5]T<#fz^HZHkQ0iGtUg8]-nKC;}6..<njUj+A?$<OYO&>z^JXk-HA?kFrB.=iq9^pX_QV:shK+V4%UI?rWqG`qOIYin>WSW*Sof5yQ?8@l(88N,Qy&8[FN6SXFgq9Hs;{X0RQ6OyE4t|LROfbFeE+OF|rMM3a+#CT]{h<yOV+tSLSJ6[@ib97L1oSrfLXa4Nym&@6K(Y*?lUF%DY<j2@H?}ba,.AX8NC}=L0E*D7Y@?A=p[G1AtVq~bZr&=S7C]v`4n^/J8wT+#.]%]&yaetOe3AlUVOx}CterZ0DyU0]L<5JzfGI^J9FtNj8hDp$^Uv-9?0p&6A/B^YkiF2zqafq:MJ7QM,6S,e5UO[:|H@}apo_JHi/3;/@by^?,FZ=R1#o%ZQaB:aV>3@W<w{v1TY>|R(5x=o3mX%wrH>OO4p}x?5Zt&r3<@UWA~a$;*V-ry@L8fp1GC@=Hp}`]<?i$9~/G}H?r^@M&M[S9TYf0UX|<QbT`oW=UKxw`9|%5?<0:9vT9,M%-06:(?l0VG?%2zvp{L+&hQw]CG7ro?oD=,(jO3<JUG-h4Re%#JjTv_$=]ovA;?L-Q(TSbCT~.e2kai<4.GBI0Owg_OmY#T2tGb&z?..HM3+ls-8K4pU].4G#pieTSeqZ;RT:9pSE0s%`/J6/8p9]U[3#5`R+_DSw+]=?I?hZriL`r}t3nE.qp>7o]fZz=Hpg2s?4*G|>vylD5XHSLBQ_jGZRCjVDF|DVo_>;Y(41.M=O>Y0}DzrjEW,`hrH@jv[(6HbbSs,Mv&W}~}(^?<ItHKyop0|opzBf7H2*S7Cy%Fx>Sk([Mk1^^.R=B-xjU(t4-4V%`}s14[XKE:i7`D(r-eD(V,,"
-_OllOIOlOl000[52]="4R)<s+/r5}]KbuJSFWmpXvL>y|t{Sk3PIp+#5R)!lg]}+[:2=S6R+ASr^jQ*B8[J9WM))&S}F5{T>W|7eHllX,(QLduTZ<hKy*)re%P9f.b`%KJ?//XQwje?J+#Jl1eToU>YCF3/Rft>=51W[/t6Ev&J+&]E/Z0*eoq]9q>w-2b*nAnIQA:P9eV|]Q=3|pKio$TMpHkA*@dCZ>.I3Pg#X57NrNG`=w$dT/wP7Wp})E8~9oKC:i{pG$L1/REdr8*ftN:XkN/Ttr>q[HtyeT^j!t[x{Amzo5}?F>X|V^{t|7<=Gg{^5I]Z<2KP*vhUf/LX7%]e&${<C2MV&(j[USwq?T1^sP$I``5r){xF1#oJZR*1snqLT%/Ee{81jr0&1oxX@E-6K7qX`IQ51%qE4It1h@TxMf-!q5ENwdNrt:n1E$zbCT.j47r.lekHV`BA:YIh#m$,(|INW5m,N/9PKNt`>!nWwlp2}&/Tm{#f@7SEJhVi%NHgskF,4TJjZ?>u[J4!H^Nh[tbKZBuVqQ9oHd<H/zM*5eLjF*qCgoR#bK|GP*sE%>dW,9:KlZ[oA-3z~+8H>$jA?W,qr|HjM/[uN=^bpWTAF]K?qxg6Lj/q.bF/({x8~4R)|}//eYp*s}[o,b6WslkVBvw?PHf/>bM-,eSmB5k#z,Gf]:BipojGT7?PT>n)&el{mrQy[u1sfQ}Z#z0C?u2,S$QZvt2v{e6>-Am`o<u314-st<<bAdX)QfW<(7+jz2{zHelrk7`=$w/6x3KJ+{=ix0NL@x<*3rd9buHLQV#:Wg4l)=X0s/Ihtlo2GxbC[~fsABIz|4=6]pgNUm8!-p>=BxfAtm|e>F=u2h|r,sPVG2MqXR@8!/Q)Q~.2Q#,)UL]~gIrC3uqT22g:Y>1LYilAhk%HT.tiWs>72f|$E6ij#q7zT^]x-p8~VJf@K)sAIG5R{ZWM[j03:tbG~%Jfbl926FK5Wd6*Xj~88lAbM-tweFw4<mX{xm@S^>AlGg3TY)!#YqotC]K=NB?k=(x3]7l>H]Ly*VPC6rKR9(<?r{A!hEs(i><U)?2vJx~x92qN7|k4PI8%qfU@d6/Y}tAhzN$TiHBsRhWqtAuZ3xXMgJmNy`MpNA1k+->I-k=HoV/xl#I!j$)q<L<@I0Z4jCp.K/&%rZl8S{,!d{j.LINV5JM,F4g5x)IHIeJ1(^jlsd&hPrm:?jm2]G{@W1oz,[:-<!wR$}%+S$XiU#UHC]ASi79nKJov9,Tg|w*~,$HbsPsL.y.CA<G.o-jdrY)G0.m,46rgyKK2nf~SWm:tU9:f{1VJup1=1(stlf3:R1k:+9F!:TugXr}=KAthU`RyWZ9.H#irFGF+|f]>4o%mjr5BW.M22AjH}=TZ07L0>T^B1`R{B}@(]{G6>j.AHXjE`e*qIvn*(PM}BC(,hiGSUkK|!)-~E^GqjbeonH#9n)N(TpRi~<lo]NNG<3Gu~U9$<-4}{5ou+(l?#$dh*.B4W1L+{quJL{B[5i}85[{+N`re}nkdl8)`)KYqqQwL3yFY?%Q6bxjqu>/.!w1|5A*4T|)Z!Uut?jR>Y1qih`G-W3q!PWMe$l!vH[!?!5h+5JFq9GHz]L|Lv)YW#d+^<5/h%)IvR^nqf?*#KPn6.4r/H6g[f=iT#iionFP?<)6R@M!QQb|h^4UrZ~q`*PT+R?JS<#^*)f-ZKvsP$2NevS^g`%}WJ79N$9Tg)y$&(ill6ns>R<SXtKEm~:S5brqqLz+|$LSfhQ}[bv>nZ+E+RVMRzRPrd-48H(U~1NqC-#LTCKw*StwF+tJoSS,HH0xJI!YIVuTp{/.*5*09pjIoQ5^y:+YSg7q@2fMtsv".."iPtpAnG.uoKl(3Ul)X2ojjArp(0?=?,o!mG]r:+6zrJ7%8%oN!3?f,xJF0ns@/~RJ~eg6&]YCR9~Qh,m$YLVJ4I.[vid%wnj*B)d=EdIm<Aq):7Ve&2P!j{?!s!?0R=`](3CMPqSZ=+3eh^ubopA^pt4)H:-CSrUV:6t+f>3t,PXYIA78+FX+Lsb,l>92ZKzAP]?9:R,U.}#>6-{ezr#n`{IHxY-u8|.RrRnpSAJ?/7{3][Ies:PY*<vt]{u<wXNrCo~@CZ8!E78dP*6/NA6./L=`KeWSGuSquwsG/qgBS7M[$q`!=$C*1U34xbK[:2Ud9=Xw*lK4(Iw~=@/Fp1?qAeUbfM,+S[vlGhw.e?+h!^7N2e+1Z|Mh8XP<1k#*=IetLX^T#5(T&mSK(04XRu5s?1%nNP~zQ!Sly6nsI]1qXH|Woh70|T`X>zMq)mHlPi*tGNGkZ3R|NZ:0g@m[yqE3g`.@E7dZV71Kk!ZC7Ckkm<CSvA.&2oW04><En.V.5F66~0YJ5/9C@7<3Axn:X8e0>f>8.jXkQh6GWy9|ZI?5{b&XtZ7Ipv9j=20XF/^K`bFCr<*@W(+&*tG^:Iu(Z&$I6iIg~n{3CB94(EMPd:Qu@wux/^%nHC^duAAT#7joX@pl)+XH&$4?uWp-?JsB7d&^g/IItzQ^4UkR4PGnn+<sLmh.Hp#N".."qwgz$n~(7n.Y>rNJBf]mf0/5bhe]87+M^C}hTB-VQ]!+Y/&0i,ist<TkhmJl`Iq.7T+=v-`+hxUQW.fLM3=ZMz&Re2J08k}unHt)}%.rvPwKRi6[*Lj&#,H`(}**7LgG=Eu*j[xm!:+10u4Vu~woq}]9+W!h]CB=td@X*,KHv>2*3:1tgW]L^@zx$1-UXX,i(q(`qh>]`0*pjKiE5QtrCtQPG+3}U|x<9B~,N/%&$+Poyx+ri%hM=qH2//t7F+CSmY0ZG-ZMK8m4upkpTuHdYR?NQul+2ft$p?0j7AIb9v?d`RC)B2ZrW?2RdNN@RXvZ~T)AQ+lsreN2GrEb}r&xJ#ks>/G>RW!idwkf@gTr}bv02fA}Y7G3Nf=gjU%6Q9+u?Egh,zS4&sf@1l.$|".."+E`V/s.[<xF~.wRZ,8q89XPQzS7.,3I#@`Zlds)nCP>rNx^iJ[AB!|o1${Q1u7mXfqnk@n&jGt/y5i1YV4$TTNV/{lXWFPF[WQw7XlN.opLd8`Pz*g<x!(Wj$GKKRJ*t:A&ywxkShyt=]TvqqiH%8%0W7pjveF#@LIx|2qT[n9/}$pTVITMJK?rQ7<-vT@xWB,~NI&<Q+4uM`=VwVQ7YYj2%V5eX$KsRd?T^^#+jxvN2!RG[okdw:xe~Ii]S*0!GtjIqyNCil4:s{p&p2mW&gr3?HLthy<xi7Jn#39Ydw69FW*6lFn~Lxysz:|{,t/MvJzt!o!Wx@+54*Wx/.>dt*}2@K^g[roB6Z7ToT{:xbQBP7$n(we?zIVFjbWh6@r[VQCIb|3yS7knLNoB=R%X/4YP.2S=oolso%0u2$t7rA[4WX~o/n+lk*rT+F=^H4(FsPo>qkGrbI{f6gk-.l[YnP*de&g(H9I&V$wZ::uF`.ej0o(.B(p3Pe&JL6Tr(xBjX]qQgeH5e#*:bMRwpIEqz>6iF1E8?x?XXBC=i!4gvI):YI(oQjtMo^M^pNM7Q{6yuJ6{=gJBv4]*K@/%[Qg$TQ-nqzE?6r&`<L^%9ud1Eee!Wmg&G>qfqG~6M9f2-9xnPGr&R#WLH8v!Ij=8n.g88%L[fNLzM^K*UiY3geu1lv&RnQY(5V(F./RPdt7U?.v9rMnBPd?z1RkQ4pt9XF&=P27nJq~`[Rf:fW{{0-/eZmwfG^HrdFUmk#5C<0sl|%Ut[>&Y<x2GLE~:u^C~Hj.@IPub<)<3Ue6+q&$,TMveI9~fj*4r[TKeSQ$H-Hb63ShuvI1fMi-96wk@HYT5&d$C4&+0b)fpS^o+Ymo|Z+mzSh/%SU-mQQ|q+6Pl+=V|C3d}?d1,s+=(24``w"
-_OllOIOlOl000[53]="[}E_msJ2[N9h+(dp~5QKjUK:N~[DC8e|hwhOXi,3MujLJKbUJXhXZg#GEPNgSB11hv12_Ua`UB$J/3e10Ks13|Vhm8#^Iv#g^0:5ICrSGcrc5!Cte|gzNqt&oUYiG~8bY9iA:P.b5()pV-[Rq({e*uxfqix[aVBsdCQ|(*.z[RmrGcl5RzX1/+8a3=jz5BKQ$/.^tRn`C5WJ:>M){O5}mp|W<b+aX)w0dW[@O#M+cuKMm%o+0h]51`NeG#]eZV#Y/|5S)%0VDRwul|.X2:$ploGQodKpyBVtom5mh!5^+|eXlYjx{2}a6V)o#fPrXtX@(^z,m_f&+89u#u@q!pXWA0McIpwJ.-AX3|LL_K+".."OYc$_lW6OqcMhj_ibKP:J$QYwz|nX|w2kB2!Gv[Mti,~Kz|RI2?Ar8Amro#qN3:uuji3u)O1(eR!5^LXaIc/Jw8/W(e16r^0Q.3>zkG9BnIE1S9/P%%muRZj!wPZs<-u^eo(q|jsnwhxc:GC<A/|y-cfzCg<[`pCQ!j210&s$wq?S[(Je|e*XVGE&]1i{j8ZK}q{A+cj/po_ljIPldD~1$82BK$vJMA)[Y%eLjp?!1Z/O/=h+EB]??z_Y5$[BA|KME3D<ZrO`yE-}&KM]mQRGCEC*Uh8~>92vE^:dS8gj2O.m(rfuXn`#6Ys:&pz+jj%_DnK-nU1l9SZf%=uK8<OGZ#).O,YSmYw~?(Lp3{{zNIZzr.^s|(-vXa!=CWG[8&lSL$:<)1n?~@/VM,o.%MSw@zwRuV2c<1g#8?KEKQaMy".."LdJkg3N-v`?wLuYPgVn|0meRra)&p((vf3<?tila<ff%#vG1oo[.Ne)[.RqJ(<LkYoD1SnrzS[*@rbCD?honyE~DaehqIPY>8ykGS}|o]ozz=>3^Cn0YM({6hVo[EC6}Imu2_{rc@_.C|88X_[1,g.PMXcB}zW?tkhp-8*`9|dvhJJ=8qD_V_z)|>2!}t*R0A^VWE#fbZ.B0aLu?<$vd~~%t%o$rSkNB+V(i%>a-bS?Ncc~Itl*{9!JsXIA5eEzt^WtN}lY]vYW^S|&eYg9w)m,/Iys]MCSUaEG8bP}8KZp@:dq!^10*q~^z{z)*$i[+aW$`IaKxu0BSv8zX}6[WC:*KQwUPa{V<KQ[WY|:{qX!~%tVvnMLI}w/d:yCa*,*j**Cj*9m3,f9I=O^aK:=#EA6[A+d|)y($k-vnN/@0KSg3/O^>voRDi{(bbbP_odino$g2pK:5PG.neOi}Otm?+EW-NYDat6Z[,/SphoLuVWfiSEia`f-v[b6}81_fRvse^?e^_|oJi~GB^S.]+#)KPUZLcg)[y-R%]`_&$i|{,Q/x]tBLB@O,sceU#C0f8$Xw22(l9OE!=`<!1+t~/j#SG#GOZ![@,`$|$=6Ls<#i~B,P#J8qpWC1}<mcX|DdqrnoE)}iX?qQhv}v+/P=+<3%5!o,pb$~g:&@ly]3_,B,-VyK.bV9!LWJDl8&-o)O|OO!-c@sC+k_I+S6uYJ+|@&:$2/A?9L*vc95Nh(Y5=pu?PWX".."pPgxq`>BipkkKRIvc(KEI^MS=,gutm}hp?WwZhbq<i`1Xs]X?*%JYn*(%{:z5!Nzh<(=R%jq^KA!3vGjYD>@!`|BGVdCXoE2vj%q]qcP~OBW*29@(?>#rt#j,@Oe(z:=32m^/Roo?[E.8CA^Q2-LObhh[|6)K0p6:B)^6-cdzcJ<J:sPiI>s)j$5Cicx><qmPwL/0)?`96$xaPy`W=~-p^dyL}_~Lo#Wz(yGYc(>`,])~*6IDVm/gV1[@}-L%Ar}8<R_@P}KXR{%>Q^8#Dt<~[Mua8j_.u!85lk?86O>=QjfJaj5]cl_MItWO?R-^}!`-)&XN|_mibUsR$^f5nz-P)p,^62ABA,-J.hRQ)6..1n{DszvE&##{]l5k|K21nVSAaQxUUB-AD.!6h:|tRMg]p:c2w^)^^V:lR9UBe*:]M/),eiBN(E*s[cs0D3A@JkmP~e1@q[:)$=]~w(o1O?!++m!lz=n}]XMz)AZChS%_6tNy1YIG6ehREB(c$%pl@qZx2Kw!yg1(i&>s_eQV1$jlf?~.I/8ZB<Ed5lEODOS3.))`yz+%0v{vLi2-Q(ERd,&%=a{:![>$yI6/=O9B??m}~J>5MeUudlYIu(b)G|{!kd(M8-A+99cpuZI`^Z2D$)?^Y:~Xm?w(^#NA/5yd8*#Z<B$q:]Ng/".."?Wqe/PY/O[.)-u.2R.kLLJM_j],`($y=f-6t+qJD{/_b_8U|gM@IgxE|DR6jMw3ac(JaV|Na%&?l9I*DubLV{x09MI8Z)dk[1DNN_fN&&<q3>!=gS%XMw!J]~5QOJ!~mNm[U,uD?bKqs/+=yGo$*V-VPhqzcn5V0=|s{@p:Wh.gMKP2KvrtDPf+DJkW].6n)r|Ou-hzbGD(kQ?:B8^B~&xPKob6&RX,aN#wnEcNN`?(w&lr2}b]w(WG)k[-i}RG#.aw9Lbn)sZ=-SdWIY]oK,z^gOwWSgx.|d6zS`-QXpv|Zu!0?GY)]9W2h0sA0yrr)B)cOuhh-b~m}YSC.rB]U*Liop8-IXI{|<G=/L=qNj2f@P9}3r&9j#X)~6@k.PlRbhV(Qf+`Zc9$nAK9@k&aCDEWa|imnJdpM?k>t502Ru!.Wfi*3DqO(lwZSsS|1f&eKtDCLQcgwRGf$S%GchoJM}Zew/K~wMGfYvzOp@P9S|g6XIhD]*sJ25uP|6W8]ayw#/N+n5n~0_YfRY#}IMw:3hw{dbVl&A5_b/.,/=[P$-mnU1D%B@9.:Q)&f>hQm,-u?Jna_yVb3gY?,K96Kc-86~{0oO3JY(5Y@5g@Bf{bB1wVsJ36}>8zIj,PLw]%A5Kcz1g,QoQipaOe.[3StAtdMl2I_Jk8Ld:Qtvz5_0=!qA[/}c!zWywo3o&BJ`W#0hq6(`ER(O]LbKSj^biEA.>z2d([IXn2-@^zvgt~rp`OU/:vN%Y)ZgJS#_v,DndWDx|?{E}i<aX{@@_1nis<R1=^6+9J`8utp8gihx+*bgL1pyz?`v-w<!MOB)1}=j8M)`?(j}%9ta3z-&+c?DfOk]KXPx1)53M.EiI/%N+P{[iLj.Vy}iE`51uNy]GO:J@zkaVZZ&cIA,s3=9_5`g^8-Rwaa}NG^6WI-{NtM)G=-x<1R9)3}SkiOwXaM~hf/V@?`:hAa<!.GOkiKf`A~xi>5%?`Be=)5*[>|Yx,x+%EP0X+LEY_sVCQyda5IdQ[VOUh|MY3=a%gLQ*0gJ%EzDgRI-phZl`a=}I&*sLN)*O#|/wp>^9Ohyt%A0C^ic+w9`)axs{1Rws_QI8.+,f(YW2hPX/}5_53^owX{)VKL,%(&3*.qI$I~q!jc3,ij93_rP#3.np0*&5_C.}2bn}$<bZO2ce3$f&.D=!/!K1oD8_`oh_a!2tn.S%6].1=)A%0D%bI]+r=c[[ZZWyjdk,tOatV}lbr&{3Jp{^N`B#,qi.SI>i9BGZk}XRjjV~G1oDhJ[QQ:oCfY:]5N*x<tQK1ojVh:?iop2Kk2LfU2:9yt!#$o{~c)+/K$r/N,2Y950uWn!VIlRmuApo6eG!at*#05U@BG0z9!/WU9-5W@mhnlQ+%3?1q:p1<z~Mskv|+.{=o8_sewY00pjoumcZDiP?kbs,.>Ops8j5?wac)OEi8OzwaxuG]Uh<xVcD[Ig:x>pL>j:U|35[-Z?EN?23).xB@ND69WI+6v*@JwMzw$y|&oddlhc^mIW!<-tZ5_XVI=OSt63!uL_jsV/Os<{%P0wZ%MNvOf_8A&c^N@WLv|$eBynk)+^BBjg~PUMS:xMLACj{MpY]@Kp@0OqG-I3Jm9=UIOaa|am5^6)VbZYgs%d,^!XOh<:"
-_OllOIOlOl000[54]="n=8@4$_3O]6>L1BZTq2m.`4@0h|`.tj95x-h32m74Qq*W&_ClZosF?5+*?U5Ainzs=`(`O2s~IDleA/t}aQq5gUw#NerO(`Z+JEZJta=:Igy5H.m+S_m*,C}GTAnFYi{;@@W8?U:80DRIxS^GIE7Febz{T<}Mrl{2FUSTGeq;|xeZT]GS.MZU$1>H%|,qT=|v&>T%{r=~~z$Y/x#zvBi|92bN;}h2L?v<DA{nS57h%j><Ip*4A}zpbNJ5wHQMT@ZDX([Y/zn=zzap{-j(h9IBzg6>Y47fi".."Fb5x>1RZ}nFZfL2lU7H;{VXveg$:~xHHJe,5eS?(?lEs$|o7lQt`WAp|?C5/2:^x5I-mXZavp0k#AJ8,hn>U[wwKQBNj->@%n(.h.]A(@r>(UNS##nJH7qeay<e<^WCqrE_XFIk$3gq(7=<oa?JrlN{:4-,l?b(fe`tyh<LMFG_blJj$Z6N@C18iBUMy`X&f?*]6EwX|%g@Y;{NmL-,Hl+Rzk}C_?`SV9f0,0j#vIihS%,m+7gO4gJFx^|Dy/0s@sqzps]m#sAJCW]RRiQ{L?ze}xR/eqA[KlH.I*q[8j[GAJkI(g~g//{7<0x0^BKm/agEj[NN`?asIhyEl7>`Ah|GmDW(D{#.{L&s`LNwUWDlmt:8jD$O+@ro+++7MLfIz`;~3KLr+E`y(=ANGTUr0|%O5g|O$NZU=G}p~#/Fi[Ca(kmx1TWIqHZM4EGb4Bxa:%O+hzN5&0[2yL#+w,UIOAq$[LI&oWIb;qI$7Yb]618&xYM#oiB1r`H;$xYLb@K<t25zC7QGfz2f[VS0=qoJ>eI?fCM/7hve?>45%5(Op.([:qf`C0ag[m]$kJ&H$H-JG#mxS4eB9$^x1zJ,8rX~x@viV&-Xaj{i(9=#9L{&T_23hB>_4L4.g522z>yaxQ:xx,+wj+_Rz@LWp/elhJ]+|Q2Z2Wo#K>Nk3(^ggI3*$V6|/U<bvEF[$]YtUiNDF0(B7[U:;x-nw(Y1oBUrN5;Y[%&{I;b4L]7>~:xw}@R]xvV]M{<Ipy[|=V*mR4ZZQyfq[_RL[_>h`*NJ=8Y@ULGW0I/n^|jvH#R|h3js>g9M5zX_Zxa=B97_e]E6hm(6hU6RAvs6e0Zn;^X(hC(x9:p1}h7:rCmR1:_82aU_gkXW-m:$VpJ^Na0;$}7&=en29zR7}gC14h-4]E/y$3A}DKi-LNHN7=XWmF7jWAtwC74wC`r^#ka=@DWHWV&j+*Di=U>}n~BvvWO?a|r-00|ftUD*e%B##f39]$_Vz]]Y%b=VBLE%i`<3o|H_1m2K:C>(^={<7jWp|g4[,2|v@J](mnLyjF7=nx@H|%`KA##mbgovo6(,,Y%g-L`IH0%bbCnqy[0p[bjy~`]D]n[-kyF&Y{ho-[{pY8bC%#]MhGoeq(r^qB0@Y8[7h=U~/mgy/jv*-*;4%Ql0,vo~FX?>fks;V|zy8&KU?`oK5`9+Vmy`]Y7Hrjj;$&.Q5%{fOG(7fR9nw(r}AkU(2X_~{SCZ>[X>BYUG0`T3Gr|]^G_Fm|`@/o_ivsXy^/CiYWNlO:V?R#>:$,%s1qFm9pT{hO1=XrbilwV(_/FR#vO/I>L&6wi:C{V|,$60=4AlrAf}Xj>Js;XSrEC4YMQ7@93nyN(L3-<NU3&G_:(14~fbIbDahmCB*,MB%LN92,CxOOS1D,kYj$5n@K~2;yL],<{,7$ok@]|B#jeElr({U^GZ?rrmpBA31ytss<*.hMk]Q0Tt@C(fhQ,YaC_BV%4ZO*y?O5R=}_.bhJ]mBMH+2S8yVUo~my*%D/A;i4LX{H2AK=E8+nJ/W-/Z4NBA``.Sti;qs6^1^[L(MxU{>CXN:W93(:(64HEs{lW5H.:B?Sr(qaDqWpH]1UG-#kx4i@&V^IIq|D2{G:rel{#wNkpr@DZRvMv]1z4-F*wB=]??e=23tIe+}hxI.H]$S?a>szabFWbC#M>BNwKnJWyIC~yko]0U$t04eHqIFG9f_Nh~haLkb}EB8,H;AZW-H#/mnCk@Zxrb5`/@($xRKO9$U-61(e^E.,J@-Uo-UgVW]yz;,9^iXHLXts|=8bl{;>4=*6&T(Hh^.e/9No~4+b^T3(X1E}f1-nvZ}Q^||>IgMpXC}BgpQ-#CBtD1V~h?JhG3I720~Fj9G`4esi^,l7t*4?X`Gj0OpD-eVz^mCN1jNfNy~B6lTM6Ua{QaaEFy<ekVz_skgq2W}V|U*10*4?Z7~=}{0l7zy6QDvwe*Wx]b>Vk<1o-DMs6eU{E}[fB:`3M6w[=Wpw}v,G%%iv(m9Vmj8QRo~V4D8#8q_>j_$ao+Q97`KN%Af`#3L`,-JRW_b".."*b6Xix48M?@n|i0Yx18N4$R;E<,X5FN9ODl&YQyJ/fmIra~NU/tl97B2W+8k=?bI]R&{C105pOx(]2<Zs1qI?%V+nGj7bMf(HyqBW;*Eb66z&ifC{MU^A5jDC}rt.?@g(<3f@|G05%*BW0{".."VejNsSEN`jUhEi+9F]sp(]Ct/8Z(M9LE_(Mti}t#S&fYQNnpjLO3x=m`W=;~x,1aj.t-=j8^}Jaf&*7g+9l=3e0=sDNoA1-#2<#]?1W]/*gH2nEl{`w*2oG|&A{;mxVg-hzth]W/Y#Dsi]3@sF~gCQ4j0&7&n5q~[C%@wp~Zl$rIm=^]GT5Fs7k{vQio7UUbS~UBp-11Crse?wr6Atx0sT|F[6~XI.4z7-|jQLrW;8?w<g6@z}~iZ]%;agi6bmxH&0k6I`T?VqYQ[7VRpz^a4-oq1EO[fEGnF#E:ki|nfRw[8CQA|#$g@?qqE#9s(G>V:vCzmQ[`Cs]_KL+e]<l1lfa^Alj77fro.ihO+OQ30g?#]9s32fiV@v#bzzWtZ69RvLx}tR-yt9}zF=|9Q6+XaSqB_A1@;3>tI:75`7}`.aM(;?IpBX04<r7fm4>gf1MWo]>0:La~qz5]ysxqySl&/v`-z^5%x-TMR^}%mg$l/}~qg]R|am@|yOt4ME}O$f_}8B1T^8ZE{,h&-j:R>7lHBLEokqy>r$aE,we|{059&>.g305itS8rF?jLbJnr^zQ?vW2lj`=Ulf{%/yIiTf7R&G]fazFnL=e~$&l=Fy<_w0a2jle.s1~lC0AlUmNe&.E`b?;J$4F(xh~tZ92%VjA1%AJ^QYUMZV54WWELo`r=p~`$>U1OzE3v@CJ}[58q7.a|+Q$KG#RN{<sY2fIioOK7lb^0C01TnE>Bkp3+C0E=VQ&v/Ql>m~/wX:{3W[MR%7evItv5`z5J`>b#,I<sLJtEaN^e*FW,:Dr^TltES5OA3k{(.tBoM$jJ6?&NZ9Q:`a}}V@~DDtJn(97WH*/bqI{/OLEhev8Fl$%&kboxx>nY1]&=Tqbs_/5V{O_]UnF1#iLA/g3:rqMF`#6@57Q;?Hnn6[T{rYe^(eK{:9Q.1Q,wzj-[;1>+0R;2RUX0a;49n#>&6_BzGTLgA,lOEs?&Foxf((?:e`D$L]]zV`o;w_<SfCi{<:?b;JfpRk.T&^pxs=L{-p48p|YfGio_TamgiiLa@@s#|A&/qt4bUz.ZhSSF+XWCrM,qBf|>gvao*/p_Hhx+y=]A9DUTwO0.6VGHi5R$(53C02+q_%i&Tg}_3}%?zU~+ym&]]HBI1H-HC{y]K,C`$g~TeN-]KVoB{,q0z/pa3tee*gf$$nAKMakASYqUw}*S$z-XC-|%}@mvQMXaa*%3?mH$zR&_LL?h`vVv|zqVTVN3_2zn+%}2pLO8gkI|$yeM9[CzJ{Q2hg.NOC(0hwrMkrG=k9WinEbU0:xGvD1zERRixY[,aYj#%AU=8U7/^~KJ^l.|q2R0DYe&.pqw%O4Y%*{f>56_Uvb+3T^?>5,T-rg"
-_OllOIOlOl000[55]="7($SN.hLB)X1|t>OGA#QY&pU?jOiJpa)!Pp=Vs8pI*7SB$uMM|re.fx!&Vgc540Q2%J-`,s3_K,z%6$v~%X4YQ)jyec3H[J8maQ8vZ2YvaZG&B3rm<f|w3K/.SfBu<b?wp[e**>S)UgFa7a!_1YP8i*[xrcGhyjr}zx`etsBZ*q]OIg.hs#u!cY#]iJieIS~Q:Q?bh&OM1c/;QVewjeqfXYw.5#~u|0bN*:a<7b/B,bR1m`~nWR7nG68aNCsFn#d+rJ.DIV|m1w;1;:xMwIW`a*>!ghfN,}>RiHO&?}K-M*0KwI%!LP.Q?[/!*WR|sn.mqWUX;m|tt8VL,H.>c)Y#p3sZ/Y`*Cwq#I}Qt5z`D(2|!,Ax&THS:J!2Yxfh1Xn,6+gTYi+2-+mU}fwPL$;m3|%JZ4Cv-=>bw}i3#%=aGI6twMym;R)B(f6m0gVLEvsmSF:Kc]>(vi}Hz[h=M]7i|?K;/$sD77&&pP,[f|I>5#)Dasd3[yV,$[#On-tdj0pAVN=&E7jBE#8W}s1t0[/TnaF>!u=Wx7T2<w7aENaKdd:<=%nHsWh:RdeYUMQnpPhy$`uF[;.[`]qJ]M2Oj`mBXJtX{JHI|i3=`s:F;>(<tK``dKe~aI*vZOUc3[/nw04w.v_R_}fCT=p!z}}W".."risXEW,52[g(!`MWvNi$AAVU:,W*OgwNp}f;;07$MC-rr~;EBq1PyS4NiMRrdxVaS$[;M|}$ci;tJ;.s7YS1UAPGKtZQuUp/8ETjO4Y-)LH>DHGMGhNT,3<3[.0=%<~Fj}H4z~2(bh/$[ria-/D!>x_//Tgg[+/YcFMA/.[jnDejUETBcaH&W#LYbIMF[8QZO1cV%v=KOA|NS;FGZawS[eA+?>iZp,axt:.C6iO)n6#K~J<T._1g*&.WZ-a-%Qy&c/<GXh?]ZeaPxmnhac6tVN[5=S#7I.5Y<wx42m6Ny~SIDhsyOScU>!tqy#jy7r?DnaFmsN>xBEgp_YUrZ2Ru<.mn>|}/x{K7/Z~*P)$t$z?!RV0g.{-{N~KL5sXS8;d)yI/&1a-.-0:&Qpi!OQOEYR+tc)IPT&QO[Qum,iIHf,0LT1g&1#?S?B5]}&4}EZt1>XOm.nPi!nib[V)K5[d*8NjbQewe&3tUdR#.6LhO$J;niC7YYgB%.!UG3`VNNZ0OAS<<Pr#t2NxR6$!v1em2(&6I{,X[ve/5SnyB$:UEG0jnS(ERzR-0L:zwZPyuveaK1[Frte%7GKcdN/M-Z0:n0>Nz<q=ZLS>zKeby};u8eZUD!MOn_?yxB1cjC$n_1&|{0Gs7+A[2uU1Oaf1h[Cg=Y(34d(qw+`(PP]bD.hi-C]`EH,{Tz84V$S?(LO&)u+SC5OD]S+2EVm5rLaZuNwuC;CFE56)if*=7qdcBaKQJ|GaMH!sm?iZs24Ih|#~z+TKIi=#O`zu5tm=Gx$mh_AC|rD#3}-]Eas&r6yP|/?$]N%[/2APrdI,7j[4Mm$Yg*Rs!5cJ8%;JB]QCf7}ZY`;dCrP(BWw</%)X2IU%smsa*qu*uVXHJ[45p<$FgAU/cCJYCTQUh#{Oh`-%cB[qEA;?wiE8pzh+>b~GP_<Ez-3!jX8FiDd|W?bKZZQWTQYgSvVfZn;QjtxG&=>nK3<drgF&?!=u~+=&GUQGPs?J){iU6=VLzqZ_F,ytuKLHfMKRA.d!1.B8M|qI$h5Vxt(~C,/_VcygQe3}-EMds.}JRS,!0tpWs.`#}(p4!O}a<[CWgfRn.(fupg-wJz*m+{zeYE+,p4Jxi:Jy7z0y|g$#y_Wf>/=(]:176-bLa..#Ev;d8IS%0G#v#_T<|W?,T&-H&UynI{7fAK[jQ*,8DJ%qy$}dZ*&<zfeE!_?%2NZy1cAA_eU%Txc}Y%n}GppzYOeDQ&B*T!!?Kta;:V4+.Ptq$:_HNZ80MQx{jj=>be.ZPcjS0LK!)RQsH:EIau!0y{RR7[KRtXMs:AUmR><XUn7}%PHjVvuxNEs<7E7)+NY(L$pP50gdS`+?yVf+cf0?j,XY+jGm~g17H?5iNOKb;{LF_?O*QHLgxUzZ:=#+:-Ym{SuOLW-]fVvHPHh&6S$!R}ijvLsvszgN06|8txq],EOz--|0qpZ0dv<<06V/mjU:+ZjQJB#%[3eiw8e|{tY<T}HZ=apbI=UV_Uu)%!uO&;Ai6[[=f6_NNq:x;*4[M:gS5w|[E&(rA0ScVQJgb`h2KxO0F}H54xFXXfXmYHQ|>*XD{ZZQ7zf?da.24E(&s5R=w!U3AJqThUzUaRx0);eJI,W[RJ>`~W#b#HJXJ(!=&82Dx~qIV+)&nIs[~Y2cSI<BP-]Z1pWS!RF<Sj?NRRjS!saB]{7TU6W!w3,~%K>Py+2H,K!OA#SN_,h<2nHj2gtx84w8JhIm$/GBQb6Ge*1x+O)iyUEpU]P[c8v|h%(V*<V[CS=JEUQtbyi}v7v0*M2E6z=f&WtQ6PpFtEvU,VIL}=+0)nfdy5}>N(7DE3sM</wwVyDG>,PH%R_G/]%[(!rHUX11;&Qp;iR!EmMjfXLRfJ;R}#;UM]&[37zXK?#4CY>TD*8<|VAOehyeJ;rm]+w}MV)~iUm:wMd(n1vI)>?}zgqNP3b8RD}fW&FQ#KLYvbYNaS{CEU7nAHg;r)Wecx8az%1US(Tv=}|4UR7/gchbPbH.5{Tcx#O+1=Y{T.ghywmf_Fj_-&g;,a~,jifQ(A/0r3[.?h,;]YMZ#O&c7D*8{:a0ce6TZ3)M`3b;Nb38BVHC&)n--fP>e:,hyO51u8ZD<,S/fig<VST[eX]!}1&1tF(z18A]!swBKgOG+2~)ySsm_*BD=W3M506P4HHd0]X2zyYQC~uw(SID,v;Ht/8Pr1]O-bH`h$M}MT:FupYsRVn(.7]}D%C~{;7%E;+H)]b7rDKPW5D7iE%(Jre#sfY`p1D-0(v1&BZ_B3+_AT)!r3fPO`X8tA[3DdEJ1$u$1,MxN+a`B.|:_1K[$*IO3.)i4JShBzxjGq[jK]S?2_+$Iq[3x?mx6?_?fI$j$7mz_`2qx=q|2p&=;6dvM>qr/RP),paWP}MgGqNO(qHg3!F&v2p`W0~KpJh8`:,<xg,&H&NG|Sxt!h.D,ud:zZfNNSO+zhrs|.yXHZX?DGR==n:%Mw6s/_gHps(|-IG!/*I_SE.8MhJ*m]UMX`8}5f%adNJu!A.&;vv47P#|!]mA)71(qJYhbUKUvhEhi{<WrJKt0x=a0t,eTS64_ec40p13#83gNuw8iP~NaLASi<pWJ7zRR_pP~qfZ]qUO&,L<O/>ieK+#_C!}+/hRNU:[7`nGNgHGY|pzS}Nn?QHEyesC~F$F<2NTQ0/r.K{3IrXmW78v:?`}`Y>zmWAJ#*7iBu0_?;:/XV{D`p.zYA#Y8/h]O##K$V[ci)r:+gvxp2L=%.MtJVB>gM{j?yxL}Oy0gM|J.2th*[Kdf8C7{Z4iH,h=a:vSRvX6~y5(}pD/WR;Vp$fUQR6t`n]OxFS~TM}R+Op[KB:x(5Y]HCH]-cL>V$*$B.bTW!F1?tK+xp8r:EX*Xd8Qm8hVz;tTUE.u4D$p5_huztXV2)3pKn}?V?M_`j,*/Ks{_1ab#)/?!-}yxS#>M;AZx;nW,zB1n)Js,(<h8[6sxt=Lh:RWqDZq;ca5BG<M:0)G=U_aL8IpY`y1d=({6tfabJ%D.Y+5ex!5=SEX-R_63Vu/vwq[zw_~zEfQmys>3vGvQhm/HYDc3a/]!T#r`AG7}HS!Wr5!durJ)ugysAv=!VXGh6~s7<D])pbQpFGaxCN25A1I;7Iy[=hi0vJ;M1~]NNj!(u7v}G(~5n+I67~%Qd%uf,PgKU!<v(r(cEjRI$JaVy5#Kd>])]wOsPRGV"
-_OllOIOlOl000[56]=")pgnR<FLSxsdcbRVh(cObcBI}0Eaz(NXHsd?N*fBV>[Kq*i4J.<1ABu`VPX_D1.+:E?/tb:VxG!gYNav?y>}0<M(`_TxsC<_/<,~zbD=mTLM0R{%-~F}%s,[vHR+mSCdsu<6;f4hfZ-!<RVZ/f>sX%-;mch/>4(nQ??|!a;=&ybyU6{58RLP[n?a(5Ai7DpwZr3%2AFH66GJYxw2)]#8$M,D;YJW-(p}&~(_~D*vPy!M5CYm3{*BLKw,1L=G6IZItZi>g=zOMix|Iv`5q<|thvTu{QJTfr%Fabt}&j56[Jnizijt,KzX2$0$rFZWPy&{;L>7W.Si`.w_m1P?fumQsJB$yGU8yVG?3ig!.5)H?<+T.`nf},|=HNrhS>+2{>Cd*W;b_-8_f|ZE5JGI/,L8K>UCsM|_DE{1rBJ?%,Arue;&Qfvj$2eyS4A1PBPTS]pRUcx?bv.H_U5>I1{2KWu0D|$a56&b,vh|wZDT-De-8qx{_;hBQ)+;EAr0]igmpSs3&2hWf}_(:$[6pi!xDMv-8_qj$;$qbtV)g-#;]B|~Ya%)GR)bE$DFHe!z*uw6%~fUTyjX1Si8PRmN#DuuK).]B45qqV87T8(#RIFTjjPB5&Px:XV,!FHXj;B5bH1+yxYOYszU,|=O`ud8aIE2e1ZpZUvXJ;V!.;vT%7C+WL.0uPKx.R/&&r[]unK>+>JY?!NPuzwQXTq[8gF:AD.|Y|NI=FZ6]ePEmtY|tBe/[:4:LTIg1Sg6`x$ghMdH;u70&WhQ7+fZACy8P+4UAv/`IG5=0)H8A-yx?$FPN:[zGJ_)RWr%qG{[eSEVqvYv]y4|hj=4AwnLHbnNA)OTp*z5T%Z/=p$$&7[+nFa,J&P5F<.4dzZ3mcT~DQ8R#W1~eGr[h_!]>4FbaQjE.**>qB4CAxRX.dYe5zBt.nd.tM1,*:{0QzVqG#],x_%ULGx%yI)eiui(Nr(;HXmaa(NXMv=-qc?*X3_U8Y_U1`bp;vE$wu3BxsceD:,WFVD*;R$]dt<M124TrGqZyP3SF;{sG:3Uue&cJ+bB]+u6?!y(8pp#x3F:Z.#y.}n}Z>z-=!?&GX*VT=cP1dVYq~%OvbPd*?0(rsObD>UR,}niN&wHBT3$Tb+uh_G{|6N}dCiZM?(z[]CLX5zwAj&~>4*eN%Knf8X1CMRCuCwRbyx_M|7Zr]G0;2M*YWb/HLt(pS{Q.n-BvRU7rmS&#m04RMA]+0>.Aw4E+*`Jif.rGap*0wG3ddT:$F].HA`Hi+xT|zWWD|/Uc?wEm>tMg.L~[*<~D%rFia3N=MXV2<$vtA7*8YR_AA5t.eCADw[AFPEpAg[LwK{)VM}OG(,7+(xEigTp*?;vKmnacJtM)7N#$Dj/HmQAT,Ajf$Vta-0tDQzqct*aWZURDAOxYB$LPb_.,AnGx}:`>XBVNsP$-TQ]Z,4U(M]wJY4e#gR2=>{Yb[f/RI1*4ZgCS0SAW&hXO/dttup=!U7rI1cB?~Ke8p>3)p8y)MVMsnJ|&XL-x[GtV[DK,Ph=2RJt8=N6+gWD./R*e1LvM0T33JGn(CtT|;/nd$W4O2d=4ii6}IVtUI[PSaHihF[/Mj4s-]iht2g_[~yP%Mafg)F2#ITXBB48x%aKwO~iZ*$#X6J}qFU~|:NQ>|Qv:A?5si3j=3+f?),m~63f+F0Z6dd5ryCzVnZ~R78Iy&T[_Ua0-h+IpsHa<~$pOFvHR~=N)<s8PHaYEd-DA08zra*`S((2W#/*.0u6NF;V;x0yHrW<x2!GHJ[Ee}#`QbQaGt!wdd4|/np*U:y%4W3(0c=~w)HMOUcx}fvU>SWgq]$e!aF&6PtG}p{W%3VDCj6pNBttgi-dre5<ZjgYUOig`1`x0i(b>!i<!1W|%+SnI]JjJ~jb${_4H[JGbX`5c2SPJiWzd7ifMxT-q5BZp*yy=7JF5ScID4j+_jfPId:_#`unS:&W8XLirWv~YP[CJtPzH,CqnCHc5fu*y3Iy4.N0*(vBxcNG]+r_NUb-vcG7IBN?3|TG&dNV86ir]$f!V)GwgY5A_Lydq068VJWL$atnFNb3}4dAN!&,Qv&faIgRcae{G5T<P&_X=!ppnEVg=QJ3vh6yGi)?G~I+VS4-<7JXX/f8jatEj8/z?b*f|P5F)aR-KAXRs*jX0K_2DZ`=7XpB+vja*Udnw0*jq`;ib{jRVD1Og8C3M7F/=VU:.de60Tb#aFO3zrXSfIv$W4&tXCzr~iY{+r!Z>.;`YcJn?UPC.YiIR7)8}m=RXIRLL/[KS(Pw#R|y;v4Q(SQt*jFs0H).hAa/+t7!zf;B-T~<q`p3yN1vA><i[MP7ZiIW-%bj]UpSuuahzn<f]+vODEXIpCAWC4e5r2HCdVzDU%JR;idyfJ_0(|pG`i(_qH:EE(uOYu7tw<J;+rTR<j$[N>Bt]->mM:s[R.iBdaz.,BjbisSu|te)dTEhJ5~UK.hJWR&V-PhF|07#S!`RWvFRMrW5u8=JpB:Y70<]3{YC-tnB:SwhI,:2v!JTT]MPTqFLsZC}mDA#rn]=nY+S*w(}LmKnfS,7}aV=`rN,0p3Ign|+?xz1X+3-N1n*3KwNQf7;dFw?4pNPY><dxaGmM_Iz8|KdUcj#hn;=WEZ[{EaH0pa0$-W#6wAOvwWzna-ap:Djs;aO5&vqXHd[]K?S[n>3f[)C[Tp/7KE8xjH)}C;wTZ:$F;#rhTg3+F,5gSxPUuPE1v=,x;++_AAUuCV8+2a+=LPB$iEfK$0U3AKemzT)Ru&-A5OgrVXSy,(<D&w`;=-z)gG,%/]A6G7(m_uwW4-fN;Ku>LUsOdCvG1.CCJg!erK6P5X&BmfCO=C,)mjYT$,FCBK,Gdj*c3N[m6+r#f],fD1|N=cu/mCI/Uc,Yhbn]xeJMN{TQA83e:7s#RG]e".."{r61J$T>hR]*=GF7tF;MZgc$(cD+HOTUBCTItmRPL4fr]4)*(YA3In)<tP6+&Y!X]GU==7[aM<UM(C:WaWTn]s+TJX=Q|+ZYwf.m%1}x,1qL]gwbRY;sp#3&wDU7~mf7{H>:,;8x<;`i5jTjd+!x!SI~.js>fF,*4(PZsrss<ap:RK*PI3V?#qjxhj;>55njXyDB7`6yXBPKzUcwFz%v2(N*>HTUIe|*,djyu~7y+x-pGuAMbCW&A8U%s#tpyC!cyhw(:!w(a)>r+:]dq1R.d$,cyz~#(!:|`tqrEt[O>1h~x#/|D/?7B.1C(5On.210_#:vt/S*O|;W=<s;?>v*?D!};UOcjqM~:u`bYC(7F=)iit$K6#4j2A8)U]aQ7Zw]iEF$I`VzM0,d2#NYFab_4<`G<L~F_cG;JX4D{f0=(puwNCYN-fq]G0bHe_u/;d>wnN0=,MAdZJw_J*ZWAGCdVLb(_Bz,Z-WX`7>xSM-swcL,L=qfr/x+`Xh{h,JYtaMY-z>UcG07zn>#2!XK`eSyVcw=ENx,f5q%IyG_+j)!1#ftc!40v/r:%ZS!-05YY<&]&<vB&1,ZuRL(5rRjc4zB/RQV%UqOL2?%T)S#1f.4=KE8:=:NWvx_.XC?#(IVNOgQev*mL|5d,er>Sa~Wq[6HT/IE`-1y+[+:Pa4BNmsx<5yYHSA1(XbY+Sf}<#4$ML,7]MSInc#="..",:=J2n85{.12*,RXxip+4Bmv_OYsH*u7gU3uir1,tODn]4Pn*J.>da))payGU#`)EHC?|iLVm$I8Sf>W:_<E}Btbv|)Y+;(,{Ta$8X+MCEW-3)Q;;ct?7Z!M_`/:H:T]g1i>R7q-_*$-4j,hr+A/BDW~ZN7T[X=<rtK_|%~{hh2WecR!Rf0E!zzSZOtecj>%Vi[C[n{PBr%mu>xp]a)5KV(jm8mgRSR`+7P)Tng"
-_OllOIOlOl000[57]="`m;4O_#{GT`m%-U8::Vc,se=#Vt[3-~3/yq*B(}g`>Q:T1/UC|E,.ezZFaTp00BM:w!InMY.376#B1SJBHR54;ScqY&+7,ZcYs:|yfs+h5/!>40q;wV1d+IP]J7?<GWs$5.;Z4{d?}~%vr-3:a`uuWByJZpp-IuwxU`)R)6yI!7>KG83/#r>q2QP`c>50ArV00/$).)L$`nxX<;w:3~g<~)uFSq)mv%+un#VsWz[Eah](enz,wX6stS/Y,CcfV,4FO!4NY(Y`x#]{bUUS1O_g_v))hsX;7-vxhNF2Bas3`H!88.{Dt]`GiQdQ<%2:4IPNRxy70DV6xdABHxP[S3Zvu:`d_t]|&L&+-%D:0m>tyVuP/Fr,[P_Gh)X7.M(PG}*V0M`YK+gNSzBI$!*!1ni/W0RMA$jGN[$+Y-]%h>`}+fg;|3LQ6#.R,SLH~yC4{jVbO[bHB7RZ!pSHz`pQ(2&%X-Uii`~nuMNAP|INHYJwbun8F/<YF0i~5Jj)Be|AyAP]*AU-gs|XW?Cn(UI)Ng(D)$dF=g4;aiGz[|EDUgT1i/y}w[J#!)_hN[,L]-$&B3t&;8K,sH7&G$j4N4BtECx2VH]4jZWN6RbRSedztb=qm05S7V+c[B)nV[2[;8L)T+zj-ODshn[vv=Ag[qs`HRn{myM?Yj2!<qUeXWt_.S}*TL+/+jy-JJ$z8BEN#Vmgah|4e}is:1?GsB03pP$%jf>HAP)Oxn;5b:C0:dUY+ZUuz<+6mwJ..hpqsMN3L85h:hC/FD/E~2<N_*5:SNeg`Ba{#VtSRGr,u>_2}.P_/hzB2D#pPyu#S/.G~gvM}UPjg5UMY+y(J=xX(b#.bi0aEAdUV7RiBT4q+UdLX(d3LENuBC?VuUnGi7!sDAFt~t[T;r?|]fUSgS/S{0V[ny/Zts6~0Rb)[>7!8W,U>&Iz=>dG#RFxE+)D*7%zTfy_73uf(<e_zSUCb+0>j:qdY>e2.+G%-5LG7w1D%_1dL%F..51w)LDyb7}7W%}Gah4Id$e$Ar}7NmmjgRJi:P$SASw}0fd7z]rmXtHJ,{}_FYi_tt2QZe3vP-s,HUJcqNsnF2~H[evUzi!q..Ni_=vpsNz5z]XRO,LYJraTz*]*H,6:0[/FR_`|,#*UKA[Ni`iC!GU<`*7,MB1F(&X}-be"..",.C.Z.Uyw#fOg=JV{<U]]HtY/g/;)0J8Yt26pL<Tt!a?)4i#Zi{`G>:DIg;cbHjSHZqGJhV`d3f|m+`<(u[VJ~N~ZAcx:M[Tj5Xa0XmFDq0[Q8X2S1e3%mehOJfsJmCAPbT]7:$<e5BqKQ#.sGvs/f+j-]j5zvd>GOU8[#UW8+5aDHG7vvTG[2zLZ=}_r=bjp,aE2?U0h>U%W!>][yM#~JLQ</&2:%eL2mtw%5A%(%#H]`%/PxR#znc]!w(tR18B)*#)pi>P)(Xx7(zDVN`e`HG3ce<<td76dINjt`]hB82,V&LOwn/<i;+y)||PKE?%di>NqH_8W>f-;8n%>N_;|s~~y()+/-#OD:uJ#N1A<Nm,jWrZ!Mrm2+/:JI*,$e:Ijwv2K&|}!//_,s`!DYWG6d,]K{mAnLb+XNmSX6F<t~VHTYux71&0w$]rLK`7iX>nL.Gi:t,$2)~q4qnR2-X:4K6+rC%RA*{2DH_WT]tK4r,}w&+[s~1Vt8}P$n<eI{F3r.yHC/JIVJzZ+0mjw53+<T/_i1&On6V|8(jF],,C".."jew6$ngWC.ac7U#KfGL-mh30``>7I{$&{DrVe{B`7HvXDdA`Z_xU/sH21(;FX4gt:M}#Or_K}2t&VqARxv#>647L&RYIF.U,_p[nv<4j=mh-$rC&5`uXt~-4Q<3JrEZJ?mH6A1PiFY>&A".."Kqr:}|v!#Chqtaeb_$hvf5+pR;&O$y*!tr:}&`pabUhWY{%}+7O=<WIh00bzvQc#O3:)A[<8HUg/y~C!PZOAj1Ef3<ftVNt_`/r[Cur.[bRsRIwDpULrYJ,!eTR;UTx,hLbq-qG}P}X((8L4hF{6NnV,zpX?(a]Y|Q{=8g~1GK)/...?}YGZmIubQVSM_/(.XNCKEZMry]ZnTOrP=uxJ.fU8-`]$IMHh0E1qZd)~74N{71#3?Nd+C|Ys,WQ{D>Y<c8L6,ZW{DEGsufOV*eX+55f}+L7DBr0{&J{=mrI+PE7]&E5r/KJtK~e/3jJiw(]-?=4zW&_1U.5-]SDO?e_1B]>3KxOFdFv1M,j5Eh6jXmaqI,dGjXQ`7W:->?=6Hs2<X-mRGtm8G5!P+0%1N0;2FFqsL&GZ#`&+-vx2usw,TXQ_DMy1pPpB>E]g<F/QC1G!}=-Q.OD7US7NRggfRgO{s:uLZS3!r.!<K>aU;X7,ptNz{?30pcd)z}/LP1h`e~K4EYs*$pJS[#&/=D0Om4=sN4cA6_WpY(F{#SJeSD0-u51E1RAQJ.pFN%:Vg]nT}/ZAA(P0p+!b+mG1,E$8r/=/<.EBz1Uis/|K6_)5~nFSVi>IFuN+(YDZ|F0$Q,Oy?>>jI-xpD4CSZ=!pNO)5g;&rAWm;BFAAFN%%2vf<Ex_*bvaRE}qT2i##+i8e+:wc2L;:[qRCWdq&*,h_#1J+DB][>-X,yea34.g7&07*jA]p:.XjA5B!f-#nXx7+v6)?IU(3mA/gIGSpn16.HarX2;:Zj6T~)q83]fT`*`!i&<=(zZm,(ynGY]`D{sw0MvH].ga)FgXWj+FPGuAFSm}2d31%c(aMzsQ3aU%YC0cwOt;,PP/`SCC<&UXsD7mjV|)eH5xy~+Q:mU4v((x(U7JX`1X*%6jyt<g<=`f,2dt-3r#NRt]~-S8jM30H%L%%AV#KGddR-/%t+PE#rN<R=$S5VLR}3uQu#+5|KCDH*,CaE-v!..K8|Rv]EpK]av,<05e}sdbI)A>BJQ?OKTmY#3_?E:z=,t|>`sN2][J%QqZh1t1Z8~`?-6GZMpz-TiS/Wybs-=|:s:2q#iD%cS8s70tu5Kx65AYM6WPc%]D3Ew#iG,SMSrLJd=Y7TvX`racU&V`83;aCyr]`MunhA0/>vbdY{>0d]fC]7!u#-_%<fM41:#TnpUvY*z6c6j&ER>4[r<2Hf&u+RV2J8+CFK`a?pC*.Q=iFx:&e[c6-L)7d?JhIa%jAV3VeHWgI.bt,8DJ>WaznQ+MOFi8e(d=#bMef}%:W-bG4NirA<q&})(}dM%uA/iBD~4`1_%KZ;yM5FB(UYmuz|QQrp({rv<?U5GRt[,;yNu|tnq>SwY*6yZD$ZmC-rXmpE8}n*ZdL%t5AG:2uVOxB[ivE{=={HZr{ML+cEGzcGc](JIccdR7rWGXxt=jw+>L0;pyvLvdmv2TH(yxt(zhzg[+dDM,Nd_XG}AwfL)+7V(mpfAewLBw2Xa((hcaFw6LAUdXMO#2A,04F?n_rt1Q#hU:AS},Mm&~;_XZ`{j2tMATaq=|.$Ke5-mRD+*`C.G]&RN!zEN|fYUZ+5<my6sB=`|<APdIRh?awp#cM]vuY>xPZI%JgR/OY%XvEZXvDL?[ja86(C-AUvYd`CKDZTLU6<ucxacE`JS~+rDL$~;|]2#PnL}E,dB{U1c1]x`DJWWz,gd)JQc;jv2O(3HYv_RP(,/5PnM)pqW(=Oz=hEqSn:]B44(EjWXz*g0cbaUgLBtX7yrA{G=z;vnrf3~MsFx??_TEih!PZhaaiO7Djj3jpU#GpM,QmB>6M{4};3O.HOAz*TzME8{Fd;gXa5u>t<Dq}P{($W+!)fSAuQe0)tsqSqaL=~})Y;Wgw(>*5-.VePM$|&FT>zgE3EJ8d_-DE{8&<JwxOYAz6Nh3PZ!VvE&q$e[_y`tB%y]{B}]b{BDM$Z#YaOA46VmgR]Phr.O=5QnftDn`"
-_OllOIOlOl000[58]="Oc[IauKRkJd9Oqn5G~zSX3v%@lO*nhvI[z#%8OoZ(|UP!t-Z`!]_t`yd[sBrVRO=|b-DGAS[vO/mMN:b$~Bha)JxQ)2I3tP-0n}&{m*Ia(]s))Xm9$%3RQ!OoLLSI%ui0+,1(hd<%RWy~b<M8>DwXyafG%Dkn^_+~VESBrPsX,k&%/)Kn&}hpZ5$b_nfw{%$R1%p98}61u.RxJxd#&=sa/?)99uEV1}(0M2N~1.Zdqzr5OA*@sm:rj:)*=[pdJP(D,2CzZ|:etr/q(98s-xfMsllpQh?VN8W{g2Ab%{ck@6(q5uv*Gtp}-qkmemSOjoV_VBmt-8~P3fu08vCiBy>0@%ym%#&zI/sRk%j(m8N8S@+adl>f[1,O6acgZYh:]pKh*r#mS$?9CR:p@a#G>qMn6|DZ%!N[c[vjiS&vw{/d50VMBYN}[{2(`a5tydfC-M!IQd_D^9K+}p1O@pmGoi~ZUVZI)3UszcSy|t9-fb".."}z^|@QN|^nIL|QSjoOe_>^L}SOM,]US({/RV!~9,X8|pnO?v)yy5zWj/0hGmE2M`KXhLPZovd".."13QGhZRX]BGm5mJR3~x-*".."=sR1,xJ[DJ@>ynZyw+%IcDS5)t`593NuN#p8J`dEV)KftWb[AXDz1^I-bZKUzw*Lz?rn9uC,JEx>dK%pUy9:rb#C<S|k1RarIQKq5p=s2,u)>,O?M3rILQ->s6(1VWUkL]=ApV)DJVJ~`UYMYw/8*1vlhdmAphA*ZNK#s96(v+MjZWN+w/K*9O_U<gJtW^PdlL3l*2BL[9h]D%)*IM2__vm=gWyV=vvv#d!K*sWM}a=6X]9pY!RhZ`@#cyPu$|jq%t),d6P1i<uvf_8)B9Lv}|/-p-a!tDd`DpX(Rf|qh0dareoJKp>e9WycVmi%zI>aBw35X|JVmkIJmUSa9c{M?s(-zd-vRP0%d,mSdpwYo6j}L]CcGIO![*AMCn<*xDYJ8h80Ji`)6Kd?5J&sBKw%E,uS{m^KCM+#]ZU`mO5`9fn5/0{qKU_`V:JIisKz8Io9R@bGu$`vY8R8Iop1OqElIL*Y/#~=dfPX(#1xOt!K3lZV28XCsE,Icqw:QW6zP:X2{muja61N>$Pz}e{%R~k3.{aeS^^ZXbe9,oN^k)+c=6,ZJCp>^#AC8eohR!g,}f^oC`%a@r?|n+z2iz.:lo_0l5{e]mC$LrPqv9N2W}!X8XAPS=Un<@/!AZ`oWpy|U`Rbw%)f/[seDW:IL+(!aj*f=n,L5?D).9[YnJz|B}SRuY-G$c$/XSNk@qq1zX0%&fJ@}?=6}z!NJ{/Bf}|v{j+{jN.}r:h<35iaa%imjG,YW(Lm&52ljLIo-WIxLyhl?.SJzE8:p2]Gu5_uqik=,fMx:?De<Q-9c`<j$.pOB+`&A9E~]|1m`XNj8[kAG>&EujGy)sYO>zWA!JG$`kqu&Y^(L_ZK)k<Uuk(JPSG[i)xvZz/Z*%{_SEv(m6}V{a%YYf%N~D-]W&a-VCQM}WOnh!Z@Y2uozVt@rb[uZ{},QGjAZZie3Gc-_$5G0-^]ZVB?tCJXy~*DONLL1KW}Gh&cI=%9[|ll?t<-fXCj~#qvzS^G8X2Z`L,zqj[<1lavDXPj/vv$]}%5q%y|l:c`Y0zgW@#xM-Klvi!W:_c!El)y<<Q<^[`8VY<v6i&01Z[>}PX[<Dn{Iy@6Ua@NBO#^M.Z2-bX18ch]+Q%.ILw*GsuOprU*63[(`yu{DssR}+^B,wX(=k61qS!0RAWkh$BN23*Jm8&[q2A%ffINn!D@)nf-E,ovQp>G`o[J`3M&~n`E%xl#Zy*3WRj/6P},&+_*K~AWv:&NG~3zpyV.X0c[3w<U)0QE8%:B~C!m<nwV.|w?IVPm:`_,a#yv,P:iCq|K0tkKyZeZ1t]ZwRpX]EUs.{?>^#_<I]UV%$h#juZsm+%Dj<9j=eca_r->:Gv!Y{O&/mjv@v~Z/-@Wketni-.yw~/<L9y]{S/`(Jpwv5bsY~bY08}^q}[YQ?R&P9D]Vw[p5#jn|=9$ehzh$fs9y+:,G*/1f|2++(Oz_?&m~1aUda?]&9A!9D,&uL:n#8lm![fO1uN2U2a~~<fQqeY#.e(-Kwh6tv$k65Znr?tZ+R(aN+0q[2Y<,5J<t*ud55OJ$IhK=*@V=g}lD!z|,`JyuUwOgf3yp`3UMaDiok*hzcl}rb8gNmb0MKhp}r-$R~c}1xAlZEh:d?3oCw+u@2`1bnPVD=%=JIO=%KJ&xXl{{3MnRQ38upmjp_$XV8Cflp<#)$d`*x$#l+2_?XK0qDMQeg$-c%({CLfDknxXcGR@#s1(&!?/ltw2Wk6AgdQDj^rnLo&Ob!BZwB_3jq$t:Nu9$!wynu3])2:Vyb=U&xXO$-{{CnwaQS3VEdaV#lxi<^R2C]LxVQC9U5[=L|s95JA|Ot]tqG=tZV%Uza-6]o_U8LByDJ:mM`P6[l}-!#,RAW=]>Ra~MZB<1-~3A*f{iOGYuc#,n~ALE,q}/{@:YD280#V0ObM~R#&i=9Sg.n)Qm5B`#i=voJLkdU:Qlb8a,Rf~iV1C*#^A^ns%P$jf|d)YI12S$:2Vxsg#Si3nC|EGXQBue}oxPK}d_E:u6spX2UhwIA]Q1Q2l%`sQ_Z$PP[K)kXS2/{!ME6oO&#1o`fz0zp0_#tI|J/QYWJrGOzPlf|8(vX/akk#51M@A<&1-/8/0[a!J{B+sD%V5!1Xj9GeD)Q.hEU:GY#9~b8Sk^$pLI6G6@o5Xk2G91xvrKmvVjx[coY#EdLKLk.vZ$BoqKE2CnA`*O{8$QxIo{f[%`p8B:so`WiVnZDLgcJ%/iP3O=$+51LBe>#ZY8>ttkPR.g}gZD@5=}aqS]fh=c:WLv)81gp*A_}0GotDq!o1>N&W@?OZf#w09gD:a._A?!|&wgyc<U>}0!5df$$.&h#E.:G|JsWzc1~^Wmn-Ss!}]_6CvwVYE=9Y(uxRo8jU:l+zhhc%5Q-&Lr?)UQr&&ne-gc,gI_y+n=}EP5j1Cwnv$_*3^Bfq[v%+CP>L+089Zet1uE]/&sNYLd}3CuJID/BR@&eV!,dJ}N-$fNzJtMl}#yO08RfEQXBY@u5-lLfhW!BQEM^fR$!?Mg/Es=Cbk2n0^VE:J(!:r*1[E>b^os=f|Ky/f.N_JP8q!Q${BYG@{-I9<<EW?Mu?g9{-@C<rZG<l3`mvYCWtw/y}6Bjd^a+/siPIrREjZY]<39@W}#P>M/zeL+`NBGI126g]:@G,,xzA-^uXj]*gIdeC{&h:ybqPWZWyCOI`O-Y0N8^k3E=/O1_!Jkhgr#a~z+QEfA0$[Y]p,-@L8+fx<j<c@Ivqn>*}Z)`2ihOnm-frkKuL*%ZrL6&]D&+y@:/3W6f`.[CaY0O22}Er=3dJ3s0i:ji5Yn!#B{I]=eX%VIp-oZCO$3AxPYxAbZNU{OG?`zt@Xc/DvkOOZ0P=w8@-pA9eXI&<S^IyBxq$V:BibDjwv%`pdI!k9EAe+REyA[(X6d1dmP<-1u~VKd#x#8mBvW#!A1V3&]_/w*ClJma~-X-2>N$zsPwxX&aOc#[OC1CP%)~K_Q?[w5!QJOM>8MxG?Bso2&8hAoz,n<KU#Uh~RB*`KmI6QuDPU0{I.v*&buB@BtowM(,@>rX)&oI}w`@fAc21Rg5L*/eh<]~M}#!OwLvIKMl}26$&2zJDB+V2hu^KRp`P3w*KM^IWn9cCBD6bOmM|o=5{@MOL[XDMY=Cb_McY]gz{L}o~91GC9+5}J=/6Yb5[Z+x,pgZk"..":3I1iVx/Of{yG^C~~(r3u+5aAAc=n}-QNw35tt=eILG8qO<}-tM0j`z_X69/Iyhq|J0.+q{u1KrMKNLelajr0l9G=1D?qLO_<=#_UWNy"
-_OllOIOlOl000[59]="{cs}xI#6V~a5)rys|K-t.t/k}VADpoY.[:>.hNBx0mZdIm29Ek(MA${+fYu/[kc(beE%)^W8yi<k?`[u_m2GOiEphJ!^DdJ(S3So*6~]):E+dQR?+#_dZuXdAPfb.Z8~sKvSumDPO%3yeQxRd+zKWO~fOf6*1-%y=pUN.}e1lj}8xAU/i~Vi^IY!#m1-~9#0pO$kXAO9Q-0,vQ3W1N/aKgq=^y[&)Ar:N?^@kXz*ob,E@$h1|k%p(Sq9%k+R1s6}q[wxo>d,S.&u1a0{?wL-vx5y*.$bPgs/1[8$-~Z3K|uf?Ri<y6)l&iWewX!JC5q@(!(&+lyxXK/<oGY_._feEILfE=gaC.~1U)#k0M&P1N`eVR.w^(L$0-m]uyISL5#[&6g`3X|^_yO`kX>GIrMBZheM.xMu-?#i?qx$vb:,Nm?lxa=R)uf*8-!k#aAKI@BL5%&ke$+sG~+Rk#DWB=o1)h,U,jUzlD#0.9:~>arp0x])SWznsw*wVO)R0xNBVrV[Ogc8Oi|KflMfb:sdx~yszZt,kVWB+/wGA2Oyv.m|BpD]h8k8d/0EJ:Ut2W.pR~E()d`{f]G:YZebVAV!x&:j2p}r<Z9+hM`q{2U%&euC".."Iq%t1q|L)L&&b2QIriI~:d-#j5zLCOJVo_@qiyrAA)oLE%[=%fhYhM@DLtEPO@&bxQ{IIO^EM?imlr&&|U=CoG$y?sNc89Y@r[_jA-ws:?cKJowz>A-LNLDJu]K0K_>LrMW!tD3Q1{r/)Ai^|1wB[X{J``qBPuV<2=qmW^Sc,@n!b}EeDmj0eyI3&NtA0P9fu|t}]?l8VfN/g#v.S92LtN@&h9qIR9rSYGZYR9`e3/_*O(G:G<}Xx8$G&82s^rUMW3d.q[@S5%APb2MJV`0f^sY_[OC]vvatUfAp,J^q?)c#Y^@t_i{,e:ek=Mj([si<h2r*hr3[)_Dw%~lh<K)qCy-$+|<C_V&5L/Y16}_WJ&~tCRmQtv$*Ay#KV*xP66gh.ve0&Y^[<VKB&UfK<31G5I1<g}j`%k#`:X[{|--Cio=lZng],3EW^Nuo:jD-!G8mpz#VemJMvmKLp2(p|8U6.XEL>S,Jq6llb1R,Z8=`81kRQn=)gjuRaB{k5%%ImE#K?`I~Z)?.JS!,dN?YR#QV}0juBJY.WO!.?vEhd1<:`]~sXIf%m?tx2<BEEiNZm/5_nxQ+@YVn$y_Gnd0_-b,Zzh@!O|_pDEujZ3S3u5c03pS)#K=f%q-Z?y{vypNascYzhU>Afv.BR`@&*PCa2v_x<21X=#NG<I8Mx*{/-(NRamuVhhQm].C!l`CEV!C.AW(J8&OM+=/*an-#vxiG2CZy8)GGsGP)Ny{twCr!du~agJn#I?^RcU`+m*@#Ji~UJ]b}~/}~d1(ag^.:yoGWUG2#vLiOBsC.|K2Dgn{u0w<5ZdL#}h(NOSDx<qqP@lbw0<MJxGaV5gcNO~2:k8hVq$1ot],n){33lEKlvWrVj(C3kXJKR/E/b|Rj(<^]/9::d&600`//0)UoJ00.8(,(Mb+R)v_Msh2Z6yIDU}r=LQOigrXN63nu&>6N6w|~*12XE@N%gW0PQ/*&j}|kyeg^}2b!AShQt&%I0X$zZ+[Z{V5@k@2xyD?qd&$1Rqw>IVmg]k@inp[%W0qLCq/`D5j~ids88R`_Y~]j/Qw`wp}u@,J-k@mYucea=)}gwSPk02=O?^{Wz{/:U(un_-I+{$$:)q*k:<<J)JfU**L_(q[".."nZp~R(zgbvLeZjVm++Pe@NZ?X-%Zcm8~#8i%m2),:NoE-8ced>,&><Rp1R9~uAz%#NunS<(>/O&2MBO/PC$a3Y5ul8,W[Z8#*ng`L|Q^xSqb^[h}YAlXGt~#ud~|:$(2&>QNo(v._X0%ljfZ:mqlQ-eG/Q%PaimRk50e6<hdCzUJ&w1SB`yv)[*e+sy+@_]LpZ?uQ3mvn1gpSK?DsR:m?bVz{(:v~=G[a!?w`C^nL1LbN3_lstK06?tNVst+M~_!f%CPt:2?>+2w0tWp)mq|fO,&/xU]#nXVpjVo-d=]Et0Cq(tgBezLQ)1WfPeZl8:ZeWILJ5%?GGK,`[2XQKYzkKQQU{AA9*ouqxEMV?|@n*)%R?f,ipr%RXaMU5Mp_&-wk8|AL+R3.ERGkMR!QR{&(MSAIb-_X~v%(lW[0XpoP.%2x3UE{QAv,#=SG,(yO0RQ-os:+W_XlP*fB8iptN9&S?kVDNZ3ajf+!kJ#,qVqVI&6.le!?V5e5MxB*3!f,={|m/|e8g9XQQxO5:&|B_5qcfL&Sz5RM)g=gS)pS-<#yKy9Puk~$->X,6aKM5.50_r/:UR`rKt%)<alfn|StDGp(E/=8y==+:x6Jq5hJ-oE8ec}IN*tQ*^?NKd[ICn6<PCgNSkV`z6gvi/<:rir:p&+I)ZENKYE3M,S#<hJ-!L,]VQC~dC~:O#mYta|UdI/ZcR5=O:QzcR/y-watEdn5KurZpfeOp_[PP/Ka)0RsDIM[M`z~J.`ZZ>O&Sq[y5]B}ZseM=aKh@}W`eL^->n!ENm#bJ_xoDxg0@cEZ[KbW#z/8n8Pg=y.M<1cflB5po8idE,o&9e?)K`cJo/i`+hQEx0S]#2ycO!9^_,96MgzM0:<6Gy)]~.kP26wX.VVVOOlZztg9W_o/U_t5jOb@I{YLgMUV+OjxC%}N.:#b<2s-dxbNl?!L<QN3y~(9z[hD1[uObJfLa+kqDyXeja5~9cuzZ_BQVC1XI,(3l(1{`KGCWU8_CQM,J*j_X5i!+8^Q0:>AY{*Yb@)+|VQe$}wn~9mapO[=9k}nq5PaaL,$,-lmorUUc[_,2P>^Q0nQnVUb(La5KkPkiMqz:/)]6#>a?z!:Yj,3y@M[ittDOLJ.GOY68BXi#}@ibBXhaocoi$#wDck`ItynAwls-l0A^X,}jw%MVLg-ec|M)~Qg&32+]xID!}KaBG_V63A$R(nf(LZP-jgkB8|-_*YaOnG6,Wa^.1PA3|#!X-r{pCzqE>0Utr}#<&</=/pU~z35-&{My#gZhV3O^1.|X~g-eCdDa%_5b?(ca62W,w,CW3P{xt1El^Yh)2(y]p0$_^mOUl{".."D:(jo_*rJoel{Y&]3Ps5xL[Sd~8-`s..ov)vKyD0(3G>w-hyut(>D`0*@d.[aBo&aoSz!mIl9L1nP*Eqwtb!&=[n6Arv~pg^auL`1}^=}Cb31C!bP@w?r^mGL/jc,UwYkAKiV{JVzctc$X!Qx##LR<<3{JcSg.:-hqKc*r!O^wd{t-^/Ab9*Vximsk1f|5qpGo@e-.jo_)Y<ZAhO/BRk1Nd:D(`}vj8uRu/EttJ5t9iu~~^~he>P(Oi:vf$M9E)*^kS-l2~bw,zR~?`VKzfLes&Mg:&ba#+pn@0s}Ia)z2I3}h]${]6#Zk|$%(B0V!YyJw%fOn%%jDamQUh%<)*,i1~KoZ[zkws_XQv,hQlC3Y8{j~wM-u}yqVhkP8+t(NOD8,:?M0.*{AAU0M5W]aYh3G5NX0w+U3AzPs[Bu<#1+fz:0cm2PlXWZ-SY#(L3UJ2665E>NQ_Ni,MOI*1OEx".."boL*ysA6_9CP?`}6A>0X*x{n[3XM,je:p!=Aj58{5py0I3IiQ*``539:&(O91K,y=_p8~*w+YluYP`YL_nD_CMeD*2R@_=2%5:hpn8J=|:b.YS:6gQ<@Ef:Dma[.^GkOqn^u<K|8jvoMeJL6(EVlC!g?%9EQ&JloRN%>Di]_P%!enXI,u^Br/{ERGqS*o.`}>Ry2GR9Pw`=P#B8s6<qO,{hZrxJBM.2wGn&XLWf0?+|w-8{-/31.*{5fW3f!!kK>KkgG@#mymG8g%>#6`/`!Xjp2RW]:wU|a50:0^SpRNE_VnoS"
-_OllOIOlOl000[60]="E=N,*43yQ&b2<@@>j@Ss:%ZXG!Y.~Tb=<(P@9*P0Q:]#v<{s.RIiwZ5Fh-r.Yr2&B-$y?xzwfdjG?u!NRj{rI`o>-4-AkGBbr4iUWNn$qXuwkI#i.UR1~tXZA$>P!JlrfywCZ0hSX6^^ByF.$`Tb3vbF5s~,)bQ29?GPYvQ&0Y&HV5uxRG}vNoElxk~3i&RGlBM#}mH!.4,C]lQdQCF#+jQ.o-C:9~n`v<$+]^#Fb+oGfPTvRGIhu7~hj|*]#RF,bGhTdZpG.Qyo8RqAX0*FkFPxt+y8#Slk@vY?U&t4$zWvN8tL0%6lqT}~E^K9)tE|5so9+Hy)9P]:ojsv[v9?QNZw}&qdmN[!}~?mz<M?j,m[xVR}iQ0RC.GF<w0G`fbdiF(15p?-{]P,C/63!ol?4~1^[PHVRY5E$!r-wYVu4uL4xB0wn(zY?tIi$dw3>5W02C}o^b-(di+pbMCG.(LMij%%&V-`#hH12<0QkmtJ0*SEdje*95E(,M{Kt96!*1io*YI{@qmb`=@b5EdW9)U{R0x[G.tIkyk&l>S{}8XJl#?rS>(YVTk4&^u1SlyNq:0}QSZ(QJ$:^Khu$F=RkFG+q~Kw$gPkWV,tQk`N{`1H2.dJ/d*{bKm)@pmU:xp/r[Cx!Mx0GYQn,1]/0G)--XszbFfVW/[K$Q4G3upp,LmhwRwMk!%CiMW3$8I&h*:EM5oq,%YW]y>l[5YAf4so4<!E))UX*ztFhx|x)edC:yJ<-f%}!K60liNs1?f?C={$e[wPhns~FMR|+sTyKv{UIVlf~%S.sb>Yq.t.F]NjR&ph,%uUQs{885HYb=?SqX=JNE+)E[671zn7?[!xfE:t$}qEvs3SBTdHhsLF],`({|M^kJy*?EwYtd$PJuy+RCzB@S,Yw/H86IQ,pJZel-~%AYtxjuR#ltEpRmH:Wvv>6{~X]3g(]/=fL[1%u}QeT<p0T,nfnbbTij,6<ueIi@C:Fk{gnhn<Y!AQu1mrsLz.lC3,`7r5,~*|F<(go-$&fKlt~[,Q.S}L!!A*2/$/gE*!gQE+hZ1tg)Qi[IA&=0F]`Es:tUhN`24C/86m$?V/y>|ZU6ozs=@gL.9e:}t#7<l>@#ogJ^pe-d)8Py9(%|,+kZe}!~HhCK7Ro{.#p?bHjb#Vf9}K)?B%qdur%C9EATvonHTWqi$>7g{[znBjJ>CGPxW?m<R==/PYLL6[rLt!}>H".."Vgohb>0I8v)8/tH+$fm)LR/k#F>4FejFpq<r[%m[?.K||(J*AYXs5?Ej1%]nx|L7{WUf?/TQ/X8Z{2v.sPdZd<r$HJu?d`2}o)Vnn(6JgWb{>y!Uf}9gyptNb:lyvX?n>>&wG$dt~H*oAm6sQ:%t%p|p^H^FXws,?6hZEi?fg#v[u{vH1/*HFg|Bn>j$9z/kqkm1}!BE+tMrvf$?dq&|BFbo0&8iU!23E7XxIRPC<Av?Af>JW>GVz~Wps<q*3*m)4Fg]su`pnWgR3teB.Av0imC]q>,lI}yJm42Br.WL/6x]xh0u78o^W]2AJ=w,u6*i,r`I+JL]v235vg3H%hbdu[:d9MvM:6#K]3@bk9@F)SRZ&[/pUl4l}@wkP.?SHL&pQv~pv(L-[rCQC+Z(Uo>>{m~,WS+HwC/`)<A-#)g.-l+3+qwW:z,H2:7j9S)sN)j+lwtyBp5p<V@>-EP9dHwL]ogN^rF*MgX9|UrE.e,~,S&~#0y`f`1m0hR(^!^F1T@dNM!bNJX,yzZTw|uk3Sp05G6|=K/6$|0gLh91C!9r?K/[3r[<=PZPw.n}hS.+hIlsLi==evbqV,rxj7-}@n5.z|717![koEqKC>=fxI8S%Z1@hdmj{vi`VtekSAXs}q[Z*>1HUq$^US4PPIW#6vJoKpk3)b(pZX20SHw)Z?Y^oyw3MUQifCf65vhX`o>wfx$kJx5b)9,0wso2:w#(RbX)!0QXv$[dM$Um3Us^+6=v6<<R8mwfBrX}`n!{5}-8lGWsnisB,M/4s4uvEkLW#!eEk`3M])36LhSAAh&:UCy]-}/We[F-sPqP38e,r`&74J9Wu3F/NSm9ZQ8qB7Fgv#kj85z:x$Vu.e8xGY-W&1|$3:RTVJUk-h=gZ5[<AA8+Bn|Aq}F*)Z+E=.Fk{uioK/APUmZ2^Zg2M?9LI%!o|7/7k6&AK{|3bGAMg{Iv}7E3T#d[j$g*i1?Tk{$5>XywuC[@+A&YleI5d[~*Kuik^~G0NS~&+=+UgBeeh4beP8XMKN5q+rT@4W.K5S/bg2l<A:V,Y4x=m[vB68t^4^nf1):hw-lN4+}@@WtNsm{@rl{XX+EQXQ~K%pG[QsXXB55Ro|K$S@:R.#%*d]QwBZny-7!V}3o6d:XB,>i/QG%ERN@M{A+T{ixt?|FNv8oz~1)6$:6P#p}TTPX&`>lzKT:#iMvdFMZA~3TUIQTSnmXs!}hee1Q/R43gK)+tjYpC2!l]Fd>^yH+J-Gxs:/(Z8M.ZgdK^|Ky9/bSloMl)w6!I*?v7M!v%V@!~!$-o`CGB5~qn[o5)Z([|6YKL*/2oo0X8)Fh5Y6pQ>]+u%vZx*]:>x7HJ+CPz7j><%q4<6Md^$G82,r%vq/uj4%W&kN?~bWI&k>$E3?:Ei$A4+IGW1ZJl[h4P}gj{{/=HSp{){v|+)bE8>NRggE!j.++=u773((,iK#Q9)RVu7[qKjX{&Nj7q6=FVV.,Vw[:G*[Le@Bl(dAWC!V:wEd}Hs~SyrP)]@EX-M9uJ3:w`7GMp~!Tjrh<X?,=h<PhVF=[Bh`lALn&Yh*zEF8d`#J?7d:x9)vKe%AA9<ei*Nm4}9A&S0)>mEL5^w/8Gru%F:U{d0*m~LPpi:BJ|k@CK0theX^b+|EAp[{viMhYoT0%9SfEkujS17x1o=(q!b2b`P.tEbh<v9+>8AnYG%obwHRr+WPI~{~%m:$n+?K@s[:.</7<ML`A-X6Ym:>7x/<QFEjoq+HwX$^)W>P[b030d1uPHGMXi|[--rXo&?|yeP`Se?]bk?KEeE7wT-@}06rz[%hm3M-@+[-oz|]e)-<w%fMUyt4j*/Et8!9:Ge!wbqB$[i<Y%mPK.%!=2W$KoMvKbb}0eFusK7QSCHRhM8Urop@@Yo@|EMh=jE4B,z[K5:,)1.}`9G9{N`%yS]=*[4Z/1e:~?:>i:M1t+V99mH+z}nIv}Vpf*<rdTL8<1iov:-hiesPvorHI>qT>v`z<qq)=Ph[x*Gus`on0Xoej{yh2e~AK=ip3M.8tl&Y-V:BUU<j#~[GIo^1u+ypT:rL}k/HT7Y}@mn+p)^0s?693md}#Z@NIU.G#2q!}}wz!oIs+~~8ET<h$ZG1o3||B.l>A3nV]zWs>lFkS~`HE4(G-pZE[P`y^YWd3Q@4L)>8tNx..)Q`z%%(][[)&<yp#:4W#(%JIqM0fW&tIyoru.bq/EL^/<7-ReNX*`+>g51KsFt%=epJ6()h4TL!]W*F%)4e%ABRmNff3C|]|*~%8p$ZfCXJxyj%VT&spbPS%e4,U|?3hd?VL,qBuY:{fqF5(vQ>J?/h}(&%.XC8!1X25p,Ny-(Gfej$%k&mq&!ul{~Ig:UILu<`5TLTm*PQ<jVjvRb5r^$9r+V94Ij4hQ.?4z/y,pA4Sj/5~6?5y:QV@okKG@Iky:-:m?5-(m[2h9ml8N&$PV4GpImn/z(z/RuH*{wHVQRCE~+2w-lljxo)f*S-R!Z|47]h&iCX@WU4#@kb2]6Z(]^0Er>$SbRg$x8uS39b)KxBS89l)=o=2FPlb,CbisLl{)(C.k[~+xG>kuo?zzqKqXXXWF+F8kT!GQbdY-rv6<CS6]PdvQFm^F3W/N1L+6-gBp2H67yy7@+|v/dMS2%&8>HPE~x/*.%"
-_OllOIOlOl000[61]="Ug`Wu}!GIet?w5cc75u`B*q,HhO&#s1Z,1JQX3(~W?)7{O:W}ROiE_(xTE1Q77J3C~t%4(*WeC`0IWp|eF.C=b(/QB=rx&?cqOvyze=JcWz`(yh?j8~$3{7[IhGM*-r%BUG>M.0aU=d>jvmDvaKd=ma8uz?q)zuhtPvW1K)ODjurb#jr>}_XPUIQA|8M.>DtqO&eq,G=A2tKN`b#;jJS6[wy<EZJC:jWxQ2%zPD$-bD1idn{*7NPiSVd_0HaGf(2_X$+YmVczdxn%2bYK8E7.Yp7;Y/|6:R/pES=xgPq0&VUPuV=QTaSSp{X]F}EhYs0a[U:B)L=bQ5`.>CpAYVTc(Tc;)c))v~S)nChirXh*a.h$mUz.!7&&nd-Z6{m0H7#cJ6.Zjr2-}x+iIr!8-;=`_7g/%iCuW,dKtZ->-ybM:BVhR}".."]*$M,j4x6E,*Jj[=$`RvEzCU&<~cIn!aQ$s.t$*V~_1.7.jUgjIm#c.XtE8)vq7Ff_(Re3._pv*c2+qFH1|+G6bi{Tmq*WrPy.!nJ![~<i:K_]T~R~3gLCP<!.2dXe&Q_D!zV$ZR?xt%m[T!Dv=Y)ZTbDn5iB,GP*8xTwcDb*IC:vL:?SO_Dv{VMuU}D-<OwNrmz0g!3Sm$J!t#mzA|`afpPt)*D#K7Ia8K+3OAcB>L0~LU}g<[szf73|XN1.c*F7rQ4(z6+sF.fq*w{xanB[<XxB1v_8UAaD&WiWSIT]PrKh5bE-jSx%WUAG%=f&XfpOYEBmwigjBZ$#j`=zhNa;SWq_h4~jB-H&!-)wC6_[L!w7Z(3A*F;(P}?eW%f7_|g`d!Qh>|%GYDi03h2#-yEzU43zgDO<7H&}N8KSu>ZbQ#p/#[A(ySJL0Q1YZuzXQj;#(x[PO#Jf8KO[)N$PNieWi12n?-tC&fc3b5|ahuvq{u=]WAir-11pt3!U-V6QhisY?j)(G8+t=F_j,djgEI8*0.ftC7+O<-B#MIpjguixPc:WeG`usdcq+y2~-]j).|[duGpvcwJnU$a/Cwrc>]ZHn)qJqeGDq,$f2`21PV)SF(dRa%KUIM}O~>ih04[pPh*g<y-~gNjOsEt6vFMB{%>|!,fY6E6-7CB8PX:Kv&H*]RCB5SduFyIz]5wgvYjOA{>I?-MU/A![Vp6<6u-BPrKTSsp7Xs_h?fq-]K]!j8uPCz256E4Z!}gUO;RUu+shLOX4C7AsWhxpeKfCj23jG0+-#X~8wPf%nRn;N.$J202=nY_HS!,3r%H7?*vOfm)s]*X~f]!yAvwGU]EUtfw)5]YuDuDrTIm}UpC4s5]OL|!&za:.~p{({:PiDF<3fsRw/mN/(~ygh.;wA%+:1&I`!D5%hCmqX!A2LMzm.Xp;CN~(>iJ.!/|}`P]ivD#W<VJ`R-r40S*=UV&<p~?:g&?yaty-PAcw8T%X+x4-gF~Ni!snR:z{aA}7&;)f&?M?RI~fj]1K.K4Q5|ytH>g7VO]M;NN}T5ddr-gIZO<:Ae]nsCn}rJ:=rz8|3:s~5.p_d_(Z=mI1dhmu1Ge#J?1nu`Y)(Gm<$mXJ]?)}7&}zZ%+5;]R<RJS1pT2t>zv75HyDiTyE:LX4~]xVw(M2TazbwSvPiQ01Z#Pe{gfG~f1};B7L`XnP|P[x<0wBZqZORC|rO<XSIf}IE[En##:O?wD2v!wjVsTP4U2+z_5MnR_FC=]<c.5&cS+BCA{D*v0`d0G8*H(;c.+-sPQ5dj1T~..O6-wDR$e=%8;FBC#g`N}SWAw(s),50Vw$[pd3dcS3?8HvhK>L2,*c}rrCh?,!M7NHPKizycTN_u2rG&!w3T`i=1pXv|>bTy;t|*Mm=xFb=#Q~z[6RKqHa;7xPFVN0?MzpL2PMCuG{[5W%/{?ZaZ-IJsc$Nedh;DJw4qh{A|L!>R0)<UEQExr4f}mmaz-bGBy%!mEVyQ}#mAO+Xr+m,*Ae$4GcrWEZPE<*bgEw_gWe&".."pnP[gQ!EC`(ItW=Hq/PQRb)>$Sm<|d(q`_DiYYv5Ww1e]XrV&c/s{bO$>4GS/<vCDE<td_+L7cSxfZ_+)deie5_LT,S;w_t%cRmK4,Cd}XaAy81Cs;xmiR(*1j.},j)qDJu0DVa(FO*Zd3rj&51S/?guA3v17pfK1?s-q!gatAgu.=`0bx3f]ry?zvO-KRReU}P~}HFg8$|]>)Ngu}rEa$J=Z5.,8g$rWNP0(5FT$&fSggq/v4Qq.:Z6B=x[3n>F~B:iU<ceKrUs/)s77+-QiIvK)2phn5fD[;txeLa0Y<{x8te4n=;)HuEQ=<?g2ze-&|UDu<,b1$,;5uYb/_3/sfw/#/Z/i8X0>]KxDNj_~J50c8zqjpqORpr;(-vGBmpXNO6hrp|Gy%;i0txC&7.!FKU5a~i#8g:d:0!jB=bODPRZ3:/K+OH3Q~]S7C_C`QL/s|V>p$wP_H-Xji:&ycC;`$w&J<|P/8A`2tSxzPxtu}cgU4m=?(wXi6{TSA~XV>[=}(VVN2Pzm3fg6/&[z](YPJe5pLTuXmdWp_TfJ.6!&*}aQp{ehR1.ZX[aC2Y+b4d;.s05i{*8J`hmdHAWiCq$/ntsbsxF+]FUcF(/xh/nq*DP8MEr56`g&jWfEjD?h}S)}Wyv_<Sz1${mFEfW7B6mSFfpwO|ThJCEXKXQU-WNznM_$yh`Q[7y$D0Of:Q8-[,$d~|c>Jp}(qMGKy;2SKfU*hD`T/un{fiUv[s`eGy~.8(#XZ~>jeN,J07Dz]%g)d?I{VX.2.,[`&(*LafWnf7muR[gIe/V1cASvqw/|]`T=5[g|zO}F,gaa5]D#<w?HqKru,1u:wSEv[[yGhsI/VxO!PVyOg8)PnDEVvYmqnvYS{W%cw]?E[]{zNv%B!W=pPELFKX+4v<S|X0`ctg.Ic}<J0Qr=2VBw4)T(+?I38S?bItG0-`|T-:+0|/&8#sK`5GRXI!]Qd(}W$(>Rbv<I-z`+6dh.w+w,MYC/?qe5bAvH#6SRD8QU5HHV]PC120xUF_y!V1Tc1b;#wp/E[R*`WY04dTN~FW+zZ;8VhI<,Q+V&%[`j</AR5iRLi&N=FSMVrZ|xfFRP?g(4<N)wzTOvv2Vsv|?Bix+~dcZ&a.v**zHw6.(W`:<SQLO=Q6!Fe6,YIBF`LNa3&7zxSgbMtj|cjpi]G6)zx,MJ7#8s.<1Ce5*Q%[Ui*1P;dF-i?#qNF=:{$6inIGx1DdAX*MWA|FGHV.j.Gx|!;ZPD`7x1}Hx;Qz%h]~c&/iX#7D367F!h(]pn.?w,MZr`t1}OGIB=g)7hT{Wne8VE;t~Z_S$SLhKuy+>jDH))x!FKUg$#m_=~*=mHTa6}t+/nOTja2z;];Zv4yn[WH?dg.F/R5:dzOxigIH2R%[Y0?6QGt,_)vDd)c:}(JzMhsPvMOE!GYI<&je<OMu]rSB=|-3VR3)j1eF:Z>s;]xX8JHz0_aT4]Fsv`5za[`spE<:Z:K]&{LuF,KH+c$.,Yd~],]WE)p7e}>b%m&EH5dIm47%p[rD`K:I~Q?DX2Qw4iiXd_LcpE?e$32D0$LV!~VUJjez`TFHwd>8]4NN`NWpEb[,)B7_j+yH1V>ZQAjzD_:TnwKY=+-?~AFRFUVzr$RsH(La?a`i_X+Kpx*AmW_WervmDE6W[Jp!E?(DP6M81r`vG#YT=t:,$[es`ADA>RxAtXxN|h}`ePs8;x)h;EBgh4zb{=E-&xHHxYP]h;QE{yF7!12[`_/{=qu?#xP05iHg=ixHD.>[6qHC4Wbm-e3m}%{:I!vSwc!E~cRdyMpTf6L.>gT=xHT&fNYVR$(`gDL!$pzhQB`x/Hc;/%!XgQKC[}OO<#Yqb]<VBMpSv:sx+2fvUC&2tCxq&ihPsTnas!q;;5m2"
-_OllOIOlOl000[62]="~YNQ,]`}GA!|1$?<y2JghMcg&Y$(X6J`uvDGkD@Coj:Rz{K]v*CI9NetA*ua=1qucagr6M=_B^g?swQM0|-,L0n^CC^zbN6(zu`Xkkgocb/J6R[-xmubN?ym$+ak/5*0U)</sEMveyS,k*(+cBM9pJ}EaB,#@u+,G$XY/h8DaLlrMO[{L|]Z}}Zo3Sg*))v3{y^/OArW{)Z=2E-N)mS[Y~B01An:Cn<%hX#lGG5O,sBB/0^/I>Q#k#[hu+u&uGEP*%#p@#l?9R}NOv<dDgWXD~oaaG1raI-u)2-(Xpnuk~&K=aB%L2?.d0WRnrY_sA+lBNE/6#BjoL)kDw$Gux*kiL.Rhzdh/@2miBkUuq$,@Kxu8{kvA`2Dc/)]dX6R-kVS:AjIRhK%/qgG(BycgUyxc2}%&9/h^%3%L3):YeEU=5CM!KEN$okZvVZoC638NPY6q_U(mlnW6fX.*$nwUcyt<$BiC-Q(+aAPM^$vUwf?MuA#JrDa)Dki6)Z&C2+Z8,gu_n.Aq,Si`G.-KLsr=qc>[d*E{jjncpln&_>[fM)B#GINJ<ALf!iiLuYjkOi}f^1P-Dn0|ihcDBQYtJR22y2QdZ:f9f@D-R$]fSW.{1jLNQP]hw((>bZ<]-?^INh2,]*P`AmD@}w0{_<.di(/fJt0c-,b&)NC3=P}BOu-[,~UV}D_oUq%]Q1>8|[#Zik2{=R<wV//1Pn<Eu2!BIcG6,h-^QGqJ%1lO*yX6y&U<E0Z6?Y2l^DLb(1]+]W9:K*Ih>r%~%,2hM/}!-UgsBqGo!EnO]_Koa]hY^(eNbRwy1wlWs$Yir`Z@R/o_3_c9LC]xx99MR-#kd+Ldmv8&JuVS<:+f_[e|LO!<Jw.[]`>13D!#y1_+qGMM:3jQa0`63~@<&~$Z:`Yr,cSiyfg5qzn0mz!v8IIDbR<Ys%Kmmn0~&&:xm^c8ZY+^o)^>A-U+SU^N0rao12~*e8}ai)Gn^s_I~Q^59.?klZQjYSpM23m68p#]=>z3!]spG[We<:nG]S&w>D<CS1e96:}b|_.,boZY%.nU&+S5_giy&a^G[Wj!v{Aj0q,t08X3<8[2}JnUK]Vqm>e{jxD[I,qztPfXzd=muf5Z@1h@A_kWm/tPj?`596afjV!yL:!@Ja^im+8GGxyaBr/czfU~0&y@j}CQ%J.cv-|{<uCmI9)Lzp6XdV{6ta%}Q,$=]J#|s3U@Yb3wOQ=i`(Qq-9&S?g.NE95gC%]r+|`s.Bl~o5+&`GcyjoL{M~9ULd`$?{RfDpIWn!Jxw$cDjo+eYR{OJt,g0([yfm5O+zcz>hiIz0yE:8NVn8zL-WJd,q=pq&qvjrSW{[l9jp|L`>K~0!(,`hRl(1VL2<c5zV#{PB*?RU%Gs~Xmt,w0g!bi/Go&n0vo{0<@Bm-kf)C!Stpp:_oy]6}iA}%8s6p,GB?/ZY6((ge_U?KOY5gM#yYDKzGwOu881P{>cOyE1Y#K~]:2x*x,]0q>g29LV$*M5(oou:kCUn!(qpV>mR#JyOu8|Btd".."k(!=]$8mtZs+O&}/`ft8?13qIxYyQC|Q5q]v%Z&<c.e0$L,lwl]Z5E,q2~`_rPCyZ?lcnqomw/X16s2J~Kcok-S2Rz%]A*pYZJJKnem-1a/)A.-Exu:(R^!]nl!No>M[W/lq:Bd1-_ME/5i/I!,uZ:uL~9R),d!GrZ@8QlZ{c_mI=Xli,S/g.0ol2}slZfko|>g$&X#x}+&BP,2dJg^g1[5a9o%A*!,|rPh,L[fW/dX:#c5^ymp~W&ORlv&Ow[U>:0>OXjz``b,jZY`%912q&u+PR2?}l|yE~PkEi^5c9G8P[@vLUI=aw{/qgrS_2D>+DfAOsYuKIlM-G,ZjVvj<a#Gko==A:Nf5kR*?beNh:+jzzbV1n5Y-?:DG6MdVhULdQ%[Iza~/N|>*Bw@Wt|K-vt%nJA5R{{/N{KSwQs@odm]SR)2eu:1B$>tzE-M6%X0W|6c=?cAjOIOM30~cg?$g`^pp^2Cl(:=NYVo^Il[K8!o~L?^^{i_I.0Pbz:Z^CBe`QKz/!n@)WW){pcJh<A2e$kcyI&%RJ)0QLkS@<C]On.>Pz)uPozk8?K%oQUXN3Rdm[?&!Ns33mVL=j{Jns9)+wa{~x8KtnOmkXMI!P8O9ondk>:/Z)$8tJkM/wKusn%98U-kXWt%(!C!KR?y>g.>B,6}aI?1Gbq^r`rm}!*q/oOoah%66:bC*2C)Zo1BM`3$[6U}tswJQK1s|~Cc^!bDa3[QaiyB]`Ei=o@)/yZPju^fCD!G|)cvNue/O,Nq2ab<St@{%?^G&uRVaK:W1fs6wMzh8N5NPyRq5dLQtA^L#@~5y,b113vs(Id+A]py`MsPe]9}RQ`EJU~wOj+zO::52uB5=h[zjl3dBc96uk>W@P1/%8:ZsPxk`/?V!j&d@+@0:Q~id8R$S}U0A[@<z%SD5EGNP]@}}*(*2zgQ~]y{/Dq22ab:6=|x]Uowu]y[(6yZrN(izI<|Bhd+S<L<rqA.wotRLc(v{$)?~f5j8S1b)th@l#vqxRCIZ1XtkR<QB-JL#q`_Ey^ZVi1W?-|X[eDq=NBY=ShNdJ>.^Z(rqZv)s!+0eiZk~:sXLrt?0v8[Z%`<_nZ6zxo.lGZz8`g?Wdh!+P,Ifi&)&|1YkdBR=f[}^io~RjaJ,&)K?tNo&z>Iu|+&uj9%YPlw92l0iB]BD6r9-*@^~y0s(x[RkCjQfMQ_9.?%|%+J:fa01P#]PMjatehr/]f6Z>Mht)BhU{qgP+gzi[M6zRk`qxco]/A8U:R+jw.%U}$?aVC<t,<#cx`EA&,Ez(EV/0Gr=%e?bkqG5#,)tm&g}*JZq:c,.|mof:c<j03Zj6LmZr`<ql<jMr3*q$?XNd?:DWR!-0`U5VY1l-sPq2~+Bm`~^GgodrL#%Ov[*C9oYlvBGWGuAV+`p+d:~K3.21[JWxsiR0/[g(h8sV(KzYnn&M8YYpGeKA~Y6E`OgA~x|q<|eoh[y1M|-^*qV*VPGd~b2PVgEfUIu{~&aE]xIx|</zKZ${C*WzZXM{~<JP~(.A.@R^}Kse~bVlY5V|(NRyjcU3UN:l>De#tyqzPB2#{bW:j)vxezUBP[!Rw9^X#%A)inY[`+JuKr_y@C<QA~J&aj068QMm__5ZY0`Za09tre[Cz^`n^(sd+9u.}gCYNki}+W9k<{c]0WA@&=YzgtE8ea#K`9]+.cpSkWBhAJxaSW,R#ZogYYV<:|5*Q39Amcvt.l#~Ky3X5JD?Bc~p&P&#ku>qo3auj$Jl!N]-Xldxk5N1E_t{RiJN^Wq]!~?,3x][*,}OtQ28M=a~S)5[j}%#WEE@<*6SS9e/C$Ri&hXUm/J_Uy5s[y]pgYj+Ai>]]%t[%i{Ux`+bxg@UPIyi]J`/le%zqO?f+zQrp&*C#O+AkY~-{B5@>1Lo@iV{!@o3jBljf9Umkv2tdx6fj^Z=aIuJi-<$cVP&-l{tsc@6!KzgtunOy<{jqf<z5cGo]8WfLy(@bIDRi~I2_%NLVmQ_,,XR3:U#w:jKS_|,$bE]*sClNVSdlV-5DQ(bLUiWj<n,Yq!wj^0?*s]X~&.CcN>l8+P,DK6v~<i(JZcW@hcQa055auecOj]f6VfxKNVei-AspR_Lh:)-&QZ`S0@]AxJ8,oWIk_3f}v<-pf`q-!L@rngxXp1u}Av}?@2,|`01{EQA9USM/S=PE9b[*)k)SI,cC@BLz}QlndwU)l*[iXe[)paQL,.*R3q1|8uhb.bqu*gPZj.#9Pvep@:`Ahl1GC3jWB6LIho<!U[M]9uEv`w{*j*9[mG0o6N=$-9PlIQdL.%]s!MIfm".."=e[e%Xe1oxIsO5B[A]UU_o*g+Z0XKK=s`Ofg"
-_OllOIOlOl000[63]="GUK]i,zc5wva0&Z1_Nr&%muy#5+m,rf#Wmg}Em@BD>e2?[}1L$wvp6`|iqyKA5&aPZAmyORIj|D*2!6&fU+h:A]WdcE%PJiun9,S..i8_I=:ti+D2Vkq^OpIQ&@6hN{&`AYQ^S8QYd9*WI!yG[0W$NZC8:mRUSRJR)XCZ8iQ*h+XxR`G_E(5:C0O:f]&MpD`C=-?esfd#,Ck{9_Our}Mgpsq%01~CN`UB#C}.sU0-QrWlj`=BP}!{9^A<V|{`@EI=18L,hi2(di!UtcGd$Dq(.|sz?d$K<VB|a]DUU93-hG>er#&+6d=}JyjAG===t:bSd81I~zs/bNN2Z%@En@#*StVs.*ZCa}yi0nkZ}@j=.zm^vy*Q.SQql|^byb5ffArqf+3A9a8~S6j>>k^z1lB6$@suERkh,Ss}&-M$O#B+:[/E$!z_W$2_aQzx,*pB`Av+g#nx^&(Y]*3L>DZQ#ek9)Jg58UI&u`&:XDs~dw$_Bc[QG]SG%w`:x]~z5@LhZ:idfl!_m".."|dLM#KNn^v1X^|w(jIk!_*cmG*>z/}J1Z2J<R`j0go@-DUI6(~Rh(2O_j}6pzRCX(,*)/We,O8,lXW|pk_K1+}M/9>.zBd)uYxXu+-}[j-P+rfgLO3`XnqGXP2n@<|hV+#D?XM)R-VvPN{,6rv:P".."WBoc|os=pD^Ib`q~a{?YUPM0l@wt*+KiSIR<B<!+VC6>@260Bqf5YR8-*KI#w}@nxe-#)Z`U>K|L$J$P?!pJ(JSf:G!db=ei?w9C8PJj?fi+1_@=~?In^:)/|X80xBO6P9yUB<,g9:8cs.>-1GZ&*JVoS9^KtkRhp^thkY-6?&SLxPPg(dOs&K{,xniMQmktha<+@us&)C^pwwc}yQ5>*l]1aW}eExK-G(Kp:g:os&/!u<Vlfc3b{&Sj9m<zRr#Kfg$._2fPv5t6_qt822c{}f(MhA>amJ1LE/z(K|Uig%f#&0Y>SBSfKP@_wkuu`YSOoDyp|~}J1z2tS0t$.*UZX~RV$ia%@)VZ~o(cIjBeK#YBpX)zB2p&(5u~Q|3]_dbpkz>56RZlhD#!A<|%hm.3MkCz[eXPa,y2W_{~_($`+-<UgSSpi)=/iseAB):KkEUXz^99rkhAkZKZ`+a?O9%|MLL3-j!`h8n%NJU_K8/B(ALtXoB1aVg5`nx&0(R@xoW3e>/at[LB,Kx$ovuB}Sj~(aAXItv[O?bao*dd}1S8vW3uwa{5!gMG-D!nW,KZ++pciups~gj/&M<+g=]Iy~8CnwZi-y+Roz1VcP%x#M@C*nAo`G|/[kAQy^uB>8".."8PizpaQMx[.)RrBn_U=XWJr6_.C:(8(c(19!x^A*0?a$J/D(voXe(YnUsrnx]!rcINUJ8UvkK]Ntt!g+6MAE~<:k$ih)$,>Oe?Dx0}^veIMB}SvvnXxdow_A.sX>s_zSu<nNh)5P!hf&d#>W_ee[US[!X*w|[b$]B)BJgyqJy^?s3@x!kR.?,j-!`cgJwYdOCyPDRmv5=/JwV9@NeEf]xA[MgOW<liX_$*MO[}z(J,Xm%dEbBpuY}`V:d_!x_WGRDgzu>dcbo#|lc,$M86cMd5Wk,_8+.={hO}gx%(]vIgDV)#}Ebc0JR:zomS==:m>Sv)s51ch@3lJ%9Lm~?Std?B#d(#8N0O+9o8r}MWZ0|qlZ?:9bI|PlAdB`Y_tm&s{j1DizD<?i|YcgSGCo)u9.6596+0t.IMjkP*^JqwPu[5-qX_%wj2j8aSCueZ?>M~sx>#(M+{{oJ+%o}h$vq56NqO:^8`BZSw5wj5^hrX|jkuk0Q%ft1_GJc!BY$nh5C]QLi3:#tp.v:rmznA{wdo+12k&2I-W`B)^?5Ig/agz2P_>@mqRv+BQyp@I-_x8xI2Q),Y:o5wBkfAMgkle~IgK6w}rv2ZLP!RBjm)2uMNn-Uh9}|-QX%Qe%?IMi<.P=UCtYwdgcE2@|#SnzV{o^>X3jdQ{P5W)dLkO)P8R/h)EYuzM+{cIZ@[I<h(@CqAaR=t|Bq0.VL)*apa]0ylD6!xL1e#@6eo@BrrS6jC=?/_z21>rD[rD~gVf0B`QJ=AU,1Nt+=O@SvQWQ<(~xd!=Nmf2CU*&>15v.nY:/JR35w?oLh+ZEUL/f3N}$<pIG&sMPm&S1p&htqvUYP<1a#}_+t)3RGN<Y]hM!.`trie05tmQO9W,t{Q80^|JdEeW%=qN@NX|x*>p[_GZ3&^_>vx|Y2g?z9m)&]*_rD(-sIX/v=e?Gl+Q9Z=eO(!z`2GmLz-y09G52KcSEzI3oG#gaB}j&UdxQMfrZqdBk5B).29Dql{:QEsDkKV]a]J@p?^Y9kYjQ<xS[*Ssu!.{ox1gS?]vC)ZXsb3]9QEVzi`/3}IL$E()2Bx$!huh_!D9Mk8.e|QNR=RxGR?{q.tU?MmL]m}c+fP-U>(-D]#1U2.p|!6cI*!.}eut1jV?gPCb1)gn-x/Q]B(s=#Rx(O.Ib8<.f6ZXzBpL3jeN+Xc0WK)JD%Sw2zgd$d|.`LQWZ*)130lg{2%ZC3Bq?E*iy%,Im0?m3r}/JnWIB:3@6&#.K2}%L1EV$Zdj*3wn|VjK<R]ZKIpi9KCcqlYO%B&@6_g:Ys~qQh6It*@sbEyrXL/xnViBj<&l(pK1Y9k%f.e_aEwa[Oe!?1PG(8iw@&=JrDuhoyx_`~AO|D_n|Qp)mDgOv.tx3?cP/%@kC/}L6*UZ}zcJWu5KV:#g[Oj-y#1^vZB(JOX-Apdw1(xV6`nUwZ&0Xwc5v/]pVx8s#CNB:&LzwI{ez5>a_B$~8-fnDPL<+t]_@WyA6w{S+@e-f~Oa5(NNw$C6q`JNC{O~bIef*6C*tkQG^*ZZ0SC<jp%01E|{{Sr,y=j?Wa(hQ0gP^z.$rKqEC/!/N5mK=W_Y|nvU1/WoYe0W`gu1?[eCh:>/x89-t/k/m=v/3=B?BoVUq:XIo.&yRL+!.@M.6u9u6qrRDOn0e&r913>#@{SqNP/N,W!a~]t=piGqJoI5%xI@1aO+dr3R>_k0AVg|uqq-wS#g-3b^ODUIM.pK{tY+dd6Es8n_mbj~.!i3<L+[#[:R6&.ZJDe]PV[)I5E8".."hAx$Q/:qK&yqR<m*SRym2bS:Ij{61JX_n&OP##>`e[5r1J<c%N#!3l^NM{8OOOydL$z*vc[/1$+=IMKztI?V]mmKO6$/P-<PguzrV|6/.hM99S%]Q`Pz,Ba>qgc^+kWLGRn.0%1W.Y^9.r#8?bz(|(*d]E<N]uel%IW_,Z0[_^iVy%O6GS6_R`G!Zfn~Ra<`9XGO#J(6iI3r#Va}$kbUXx8:a!fMcm+YY^DW_WR*p]W#Ev<d=$cAIqp<Wq#$0*i.wD]mp(pJb9XY%hwamb{W=OoC}]|y@3&/[&djz%Y$^I5fIlB$(U=.6Zuz}gPupf`@26Q0wXDv6YU`JV*B>QG1E%SO-t)N}$j@]&|Oe*qcj[w,55uC/[]9,_h9bD%1>>s(anO(q>CVZI?JClk?{5{:@r!=h^>`!a^euS>DhcMW2]2km6jDg=+#jkz]$%w{9[,u~!6J,fGEj6hvJUPs_jfOmpdi_Mg*LP,`>X-}{u+|b<iLiEowyIA1Iv^hRZ3Ga^U@tl<yjtIu>bRWxqQS|O<8I)aR?IK+QhLxSVP{vp{K%52s,w<:^Nm=P2$D${:(VV%/umDlwlJ*$v/No{{x{MKlmc]UO8GoDdG.2-l3!MVCma==My,#`JZX`@l[o)>@(59wJ2yQjP2DGB)q=:(9yRGsW_(<GB$y>),]tv(Im62[{0[x5!~C>9kcigY,wU8zVGjQO<_?o!YS-QJ|JCJ9-+0.6~PcU23YPXB)Go=G+uuG3@P@gOQ@_XDf/g*U_G^(=hJ+@[wsQjoi<"
-_OllOIOlOl000[64]=":/PbL5ZKrk|l2?SSrVn10[~y7),7-CGnK<{F/WEP8emw][t$z$Stw,Fd]rwJ4R[noKvv<8<?XXCY,S`#6H>L{~~o`ht/..~k8rtNgtxHlh61{/jkr0X1%LWg&hWkN[qr]|doZoFY>*[U{n/v:yB{()bjr%Y3T1I:B~sy/q.-t^3CHVeJj&kfP4!+.vX?s3k|iBEQ^JK[l1T<X%.G}e,w-?u:X`1oudYZJXXi*~ijIpf7p[NN4PwW.2g|6Q6=q3~w#rCwoS=LBPV%QsH^,0qMJ%r{IQAn7w0y@qx(!YZkg=bj8uh%|U!nYK,r?[TX2-YF>/*Wh>GZz*9)Pi9BF(J*h6-tjRL8e*7^zj4,kQ/<(-#ZX?`f/l9*&l~W)mh[)N-{MVU={/Pv,r7jRsLL}w~}Bljdu7i4]v,s)uyAHeF^kESM~xj0gMmQ7g|{Uph+`.,zYgu!>wq>#!Z>9l%6)8<NMCP?2S4!ts=0xC*M!1%0,M4{ks~b%:n7hi=69Yi(Rdho6F~p?z`u*($,o%9zp%kI0}4udLTZ3n9g,Eot?$rB,FEdL^.^LJ8KMLbp3J2B@(9s5{CR}".."GmF4RsE^pBEFN?.G+Xt{<g(0*Ll0Ko%s!q[Pf4ih-T!~sZd?.B=AB`o2Y([<?N#vGP4t3*IL>]Y?fN&vIS0~]mPULR!bdtAUFHSdWJd(Z^^R2r.bFtPW^~$z)RoiTFj)wF2R1:{`K)<xu2R:Z}<qCu&R|S|)s>3JsK|GY^V}S$58oQku`EdlTFp@:1G/6gg|eVB7hx.e$Rrd]/=i[/=-,MJHIAEB`/NS>$-$SSs]X+}5!6!@qo&@zo9wzJ?)m@T,E9.K/=9{e`U#1/8z-HvE]NR#Kw6N6%1/A@xYtT$4xqwIX|Jp7Ebs^F>bb5`t&I:(~5G,SenpKIQ|snB0fuQ,R}[QosnfJK7f?{L<ht^1#-]u%#KY&@Smf{TE=][t8mFXT[k]FwZ03bl-Ns[(#88$@ljsfs&kt4P@bl(|e${*EV~LZ<KU#$!&vYMZdFWC77BrXk`lwE/xeuns7!A!kBwI-`#W6UF7PAf.7ky`lk3>n?3!L(LII7+WTBd]s5Xprktq!eXd|jl3*n-(&/Zq?e#QL#Gi#Q4+6CduH@%*<jn*R*BWFx`trJ}lfEL4GlB+~s]8xNSz4M&dVUxYC+H@Uf#^sQ%5#]en}rI.qB[5jzHRF{h93$bF^K^G~dSA{<[kNd.[qg.|&1!4:q)p^o/r^uN0KVQpT1^j[#HKXhR)pUC<6d&s#s1,iPPZ|i1$m:PK}{h,#HxUU<(w%m@g4NM.0pW0~F&m-A&nW?^7H-G1kQrkgvhRH?rC}9mM*^{E!-#=~n|#4fUQ!*fRzn]8R[z0zkM:ike3]tY|P>ElThgAM23Hs|k]jphsv/bpFBrgo5()W>$J^>>z(?WoIU@0fK`+|:gsbsq3.^i@Bw&pfLw2diJ4=y/WU$Cg@gIw30kW2f7W8@E+y)Hys+ybwE.qIFwf!$TX/{92:+L[GYky&TC@XGs=6sR?[,fEg1GTbpR0So3,v9F+*6UQpb&h5&s6JC`|3bKU^/wdmL9|>}],[le{8YFzH1Beb|iR|z?d.qZ|.,j~6pJYSw6zrB|J]E=,oGKIh.F`Bbe[!C!k!U!&Vh+fokrj5Nv&p:]m?pQ#*T.g]QLo0CM&1bq7sbGq+V8+6pl[4*(V@C]]8gX:R?ekE0V1R9/nE+B@AQyl&LNk%txP[]lmX4HTri8elZ2f0J{:<9`pwsiYj{#?-~g)2%JR`G.mReqv8SQCA0hz7n]7h2Mf=}{:,/5mHl9lhv5^7R5F=ih)o1X*CGd^m0&pZl3T4+frp7M2XBW2<B@m^@-2Tg*AFX+#5lSG6N.AB1{RX*T2NKEo1w:khfnMK:x2&wtk[yoZI6?QNuB/7?6}&Awl>3)~gFFLeC9$!d#Mz5R:.?^MfG6v`?*0|YLX?P*ywjS6)hLu4I.?9M&hP]Q,WCRfy,-zxMe/+R/i.>&?EZu+uvWMtY[n$1XCS]tp#}$sbWeei.CJ)8EKnYB5?7I&T*f(vRm7Xp2C47)PFvnlEbo,[2iY(%8`Sp]|%y]b=9fV%{>tL]w[4YiZ@fKT}i~:=S^MFGnUCsTw07nI8WAf/.Ed32,4[YI,fkCr!fhIly(l34e+lj^64j*usm@kb6H>2SQmu!BW)^Z]o,<PfI94mwJXBkfy`Fl3Y/od2&)>JFMV(UstB%4b.o0kUBj9-v(}ip`@r*qe,8f3hh*V8k{el^l0~LUT+-YZp6Mq=+]UwodZlZGm<iz+(CM~:+2HyQVzK[yE~^[j!(sptg}r2/XswM#[]7A0{wMV|:K?)5qC9QrX%L)TXu#>902wW:1tj0(L|}sy8H=g)qbYKYdu@1./dR$I/[0iJ9(>e[+t9b7[pX#2:]q&4Bo|%5BZjE6<qItW60[V%g0wgo.{%ZhNXsu87{rCVq4Z{#!90B.LqPoxUgB+dox?>+fhW-ZITn!tRJML.$s61X5<[Y&&NjlI-+BIh1ImXIE&+g3K:IyV)7|mqx1fQe=}!*!^Eop+hNQn.g?*P):pAvu>r|eIU`rE9o)+NppieN{]wM&v1.0s-P8<Xi=oud@g{#WR$AJiEZWo/TUkIVTw~>m*x|(oIL2J9P{rg<b|PBkFEd63USX6v<F!~!L0lx&:GoeyEv`)-P0IqxwN(VYJ+o4HH0*7*@5Y44|w*UF?3$:5dpBhYwuQLMo9P7yr1hQ5lRh+:@x0$A4#N1eCnEhg4L|,,.`$(<*os.sA8id[zEhy,}ie]|se<y(:m[K?p>(5PW0%j!H%Ivy@JiN{o|9L%$VG$(I1[|bUR&q}!.qVNoYdz5<`TWFu?q.jk+GLlS<#y^EPg@g3u7n=uS4TywU*$v^Bs%zxIBQ,BTj?bK9q19[#MkC{is}*b!b#ZxQy+P4oh9=oY8~qVqYiCAqQ{&(V?|H+2twKZut>4IG7m.jNi=^5^#=SH>lN,yv1Q:7hvMPvwS}t1PNEIY1(:]nS4GUmI`jAXf$XB=K0Llv[bjRIH0h)06=-^6g|G5mrUd=VS9`7pm9d=tvIzJ4G668n+*)nTLBM?^.#(F?*&?$-/gP%8r(9R1Vd0Z26LE9JM23Q4li*0?6W49]l.=dt>|2kJ*EH?6<=]jdd{]vqJbs-/P/9^(W}flw2IJrfn&9Hvfz?g:pq/P@e5pf:]-uGx[(8XeddF+`*Z%4WPkFM[=h]f1QQGmI0M,m+WPz4Yq@Q<|.4Xk|MR9BGKimzB`7yn#}fPT0p2^Z?TJ?$1>gYUH3.v/M`?ny>nk2g)l5>:0(#n9@Nz6n0k%4,}Jt34X1s*8w)Z,/*SIm2=QbCCH3xX}0x4m:CNsL)|m:A/6~3@VXoXp<kW<!Pin#y9:|{~2u&:ukC(Ew?9`~Tn}&mgg8v,Ks-k|--PlIQlf3,6rXh/Ifpv9TC%pj^#P&-.[SfuKSR&EfK~xQ,n.{6V#W$2#+3nF:(o=zo?4mxYPIL-*Up8tFvV*vw/PmLruvWh+q:HA@[ZU<8P3V1.n9*Jq+L]$AW{Wb=,g)gUx1{g~3?R{zWGn,T>+6zel*6rJ*-sGoeL2KGq/3M1Md*sfkh>kos.HU)=6J1{)m6jmUj,Gyt[93bubLIS<[pi{>E:-qX`|^eLo8~.gR&%FLv{+,&=1,v||kY>3dMKQ^>Xet}>sYFTt&0W>yx@E7()Xj?NR?@e=g:z.:LSFu~eE(Z}YWZ.3n6/NRlsu<%!k7ghb=e)|`nJxqGFb]///N:(!hv&prYk5)d<~<04(:LeHJk<g007WU6F/V~j.3]}<~@0=k]o[m3A>jChIbdJ!B*H~me>&%mL2,&uwvlMo`2=1T7@d]50V4"
-local function _00OIlOIO0l0lI0(_OlO0IlOII,_OOOI0O0l0O0,_0OlIl0IIlI0Ol0) local _lO00OIOOIlO={};local _OlOlO0Il0l0=_IO00I00IOIIOI0[_OOOI0O0l0O0];local _0lIlIOII00llIO;for _IlO0OIIOOII0=1,#_OlO0IlOII,5 do _0lIlIOII00llIO=0;for _OOO0lO0O0=0,4 do _0lIlIOII00llIO=_0lIlIOII00llIO*85+_OlOlO0Il0l0[string.byte(_OlO0IlOII,_IlO0OIIOOII0+_OOO0lO0O0)] end;_lO00OIOOIlO[#_lO00OIOOIlO+1]=math.floor(_0lIlIOII00llIO/16777216)%256;_lO00OIOOIlO[#_lO00OIOOIlO+1]=math.floor(_0lIlIOII00llIO/65536)%256;_lO00OIOOIlO[#_lO00OIOOIlO+1]=math.floor(_0lIlIOII00llIO/256)%256;_lO00OIOOIlO[#_lO00OIOOIlO+1]=_0lIlIOII00llIO%256 end;while #_lO00OIOOIlO>_0OlIl0IIlI0Ol0 do _lO00OIOOIlO[#_lO00OIOOIlO]=nil end;return _lO00OIOOIlO end
-local _OlO0IlOII="5?s|gYCj+wMXV#r*=d2$5:iN;SrQ8Lj=a`M*y~=D~.X.qP*31>Q&js3GZ;ntr,WEXGO{:q.C<I<+#*LTPqe?|g>j_F".."1xSJ|~8;iyj1;CIPE8qNH*AqI_6>[Iv42wXgcMCry#)7niS4dMSeunEUrUVC<L6mWJ!sZGnYQ])%zNqQNxSb%&e}VeMGGsuSF4A~XL<KvW:[a4?e+=+Xp%(,.Mv`ubMXbiKib}aUq-*8fJS{RuGW;cW:V(g10wB<.VF3dePZ1jLcPB1<w2]jePWbu(rs5y/rcaMpd7I?u2B/e/|u{Z!Hp&3#~asU}})[0%tw)YU&]SXwz&K>R?8Tvw(Qb/uxtS.J8%JYFE-83betWE[sxB#!1EA;I6KW$n;fcJRBJvPDt!+vAhSjajj.jCsPBd~sLyMCj`~j[XbAL}X-*;Wv;;STZ(_dVJ,ajMy-[W$xp)E=%Tden||BKQxx{r~6L<P_d;,p~*u6K<$3AwAs7e6$+A#nnCpyEjBh8)nNz$6c]V#h8Q5ytmJ[pdh$qB{`yeg!rGZzI8]K_8FOE78,LbUxGrN%zAiJGGmzIBh1N2CB&1`jLFs-(:V]=bHvN8=g,=.VqNHYipe#1:2%M!v~agTsm%Nmf(TmT%aQ)K>N*i>{GzA/HzN]NM}dHstwmeG`bF5y>_5O<4L7ziw%U2~#LJ$:TN{/Jv#V!hHY4mCBAA/yzS:SLLbNs?Fv0Fc/iB3w,E=tR8,c06:U?IG0|/AePi(.h2*YWOFrS1~c_2wu-D2;>71BT&_J~3*+XnWe.RtjLHxNYcJMj+*uT$(w7{n&hS2CuPSGZZ`.Ebp1[{{,_c2/-;0`7XR}cpN}:T=jwf.6BFT(bLs#,uM)Z!C1R0vUT[huU<KwawCLZH1NS|NZ/PzzDI6vt#Ffxj`Cw3asKfQ,8NWLNHRaD/}XOb;-*ty?m0DC&6~efqpX&5+Zb378RycjYAZI3rQ/e?ss(Qs~GR_$3c]m~00?`){GzG>*dusyAs|EW3INHwY2d`7|et}Ff-~2bG(Cx&:Zyw2m!DNZyf$a}x8Q0IB,v}aJp{DcmR3NMU&QT,;W]!:H-3$PH$RFGmdv$+r.7N=Fz2r=a60fAUgwB$2yh8M/,2)K8F>e*,WH}y0C_xzKszD"..",`B0Z}wTXJz2|J*p?h%J7:{u_1IZOuBG[~g{g7}jQ:TUXCsO+N6EqKegL{+~mD6,M?Bga7.AurAay=g,1>c/n:=W#u$Q.v0;Y]yJ-{]/~<Nyma{!>N,s+~!}irp0I?QBTV<K.24,<.Kdv%_!1cXP=y~s1SQW$ZXXYIEcN5:Q&e{2aCAN2~8s~MbiHE0nwFia4yW1vT2u<63m~b!I|Bf/`I(t[tK5Oxrzt8M+dF[~a7jG>Jg_B?R?+3/TygF[)4|Ae>FI70xTJ,iBC,Hm)~>n|dn|6Y{H+&r,<E2`NY!6n+fB?KW!7jN~j`hi8&:)u|L.]m-D-~xB{M}?vvm[ea)PN3HMuzX)Wh/=P8Av=qI4R`&RzdeEPm6UCZ15?-Fyz6$gs7ZVrL8mC#wqv_N`a=d$.PPD]+1$WrKB1P,-)7s+|BI5)I)F|-HmaVEz;ZW3-PaAp?$=}a(%7TtDH:7UDd5;;|hSBGt#P_s=Pe/-$nHO4?IZ70,P2)`=W>C3a*LvVrYhRGEjvg6A.Lbt_%V,I0_Y%y0<v5m/w2VVO4S[,auFt!n>-gu=sq%ELm~GWMWUxyKaO,7t$+a#ZW>(p8?&6:xJY2|j4d}:1:}!wtD>4KqzXpR7?7.NQcJD+-=-C.&vLP-YtYmh`O&|Xew-B`d{|CW1:zKs<+sW,Ny77Z,:[FB(ATEb[%*gy##ON|0up$MLG|~$pOt(|M/E!e=R(q]n$`+xx()DZ[yJD|Q>yBNAWDu$,}4&,PcGX<LH(mv3>Sm8}EAB%WG`7PGDVMPh+d4W)/1{)=U3C*WpU`b.QvDt-8E(jBpNh=11-:_DNj:a&]SBaP!3qh]&R5Rr~TfS-_BC};1(BSfx/wTM]!>,px:*;JwJ]ca!|yjObV%eXf)Q`Y8YJDT#_Zc`2PE7DIf&NdS)*LtiFVN<X~5bG/z6-F)h%54*Q<VYq:aqh%<>eFM2:GVf-00X-FT;S;Nf,*f[wIhI:Enh8FJ41gL&:`7*h#74||n66;ru(2B,V}&d,q>A+O6r|z-UpS7L-m26q{.f5-cSaBgb_J&r0=q&nB&HA*yUJd}[6Xz$7i6{i.u$-j<xO#.tgsZewh/p~ff[-z/GQ4Y[F(x0u=>NrH>QXx*+(M6VX7?!BQ$a.2Qdw=-6Q;)(B%S##$<D:R$[w7-W;4hSmG2{Iw]);NrRPzu!:}-%+,Km01+1Vwe)=tGcVi6UvLFZnWy+0c8:8dC*b#3n>4aKUyBG7ZS<gdT=Z)ggPAUN`rD2|".."dQ5)PjX[z[6VgwI-[ZF|iueFI*cW2_2NfKNsv!3Hg6V~<<C5JQYeVMap=4C`NO08qB_+;&V`{*/ZEO.Qi2)H8`,{Y=b1<B}PXZ>YBt>TX2GC-*ugKWHHabG<Cd3d_hXGn4*H$VTz,[vy,6]H|utZm<W;v}pesT{*V&AMFj4dAyz04x=6,+g=v15(*7fHKbO?u%HYCv4i;Z1BEd~wWtE}%XI(ZO7%g$[WLXwB?3r!ORc7`gN/qi!~c+zf-zu$=w2O2XI>%({/7f;>[eaR|b~*fiR1G;J`F5C.]p&K7w:u,JL%)]SuuYn?SVm6ar=y<i!8R>A5h`AfP~?b*BDPZp!I`eMWd=DU8ciT<RA4J[|e%y_npTh-UFQfbWgI1wdCg$FVH!Y2gd:7}{m<hmDMpV/w,yxnJZ%w<BECH)`]N+_&0/L1>n-27LQQ:q6p|CqqW7IOzTU>>,gmwIA$Z.sB0sZXc&cutw(Bej)cjKzvd%KZ-c*~(VX`?V&-nA|;j_P?q{!fx3vbHwmbpT4n&gAP1N%hA-4=qWyW[])Vpx5,0Is;;D{,_D_{1PYPdva:i)2-.u<$`A;)1B#Z{E!(Rj.7v<1OTzF~7=17fvM5pQ6<xnw[IX}MH]IquCH?VN}}1}|/S3WIE!pWw=/C?;n`5G%jXII$Z<GN`L=`%dex)a[#TTK6]i85n-rrt%UQ&D66gW_WQf1<haPw>jP]u6Q*$cGa![ZSGjbh-{d4Z*hYBF=ChVO2=Mh0#{D7naHj".."UZ*fKG1]%$thzSrE[8wx]-s=4ZFisDzIMP=}yW7*W|;O#iVOYUnzX_`zp|1<[(#-MTE`20~61uO5W6=<1QBih7#W?4XI8)$eg[>p_g}::m20UTL/iD=u;N`~axDN8>[musV>b*T0gm)8!Xzy*H[iWHiBO2".."%_1zQU*-R(qBzWqc<xm4gh+:OqnHn~_?t/[ccwEVgfeH{]Xf0f|~z>)g-?#<`fPQ=;_2AVHZD_Ies#A*>TZE1r<Xsa|j_gd52g[](,mnh~[I;K-xuLr$<X)fH2(7he*%>*>wU.UTJSK![.7HJ>1E5idG~WjSff=*JB3a!j>KijTzCZ3u0:c:b)LWN_LvOWQ#Q`.45wy6A]1PO5:)xD1m)YIFU=O.%.]+Bg->dZ#`pj?F0Y1+-2S)g).`+tDIg_Rc=#Iq;+:HA*fdyN/B&u$ZJ/EKV>*M77f7".."Z[&FL?sf8_<jiSfg4[vA}%[L{>rzVW=]";local _0OlIl0IIlI0Ol0=#_OlO0IlOII;local _00OII0lIl=((512921-506188)-5896);if ((128705-124841)-3863)==1 then _OlO0IlOII=string.reverse(_OlO0IlOII) end;if _00OII0lIl>0 then _OlO0IlOII=string.sub(_OlO0IlOII,_0OlIl0IIlI0Ol0-_00OII0lIl+1)..string.sub(_OlO0IlOII,1,_0OlIl0IIlI0Ol0-_00OII0lIl) end
-local _lO00OIOOIlO=_00OIlOIO0l0lI0(_OlO0IlOII,((680423-677078)-3343),((524729-519284)-2549));_OlO0IlOII=nil
-local _IOIlII0ll0II00O={};local _O00llOIIII=((364397575-828461)-7877);local _0II0OlIOO0OOIOO=math.floor(((364061902-494622)-6043)/113)%256;local _lI0OIIlOlO=((916439737-863138)-8212)
-for _IlO0OIIOOII0=1,#_lO00OIOOIlO do _O00llOIIII=(_O00llOIIII*((274701-195208)-5262)+((1242301-833541)-6807))%2147483647;local _II0I0O00IlI=2*(_O00llOIIII%128)+1;local _O0O0O0lIll=(math.floor(_O00llOIIII/128)+_0II0OlIOO0OOIOO*3+_IlO0OIIOOII0*11)%256;local _l00lIll00l0l0Il=((_lO00OIOOIlO[_IlO0OIIOOII0]-_O0O0O0lIll)*_llll0ll0OlOO[_II0I0O00IlI])%256;_IOIlII0ll0II00O[_IlO0OIIOOII0]=_l00lIll00l0l0Il;_0II0OlIOO0OOIOO=_lO00OIOOIlO[_IlO0OIIOOII0];_lI0OIIlOlO=(_lI0OIIlOlO*149+_l00lIll00l0l0Il)%2147483647 end;_lO00OIOOIlO=nil
-if _lI0OIIlOlO~=((1636019243-71186)-6428) then error("V0",0) end
-local _I00l0Il0lI00OO=1;local function _OI0llOOIIOll() local _0lIlIOII00llIO=_IOIlII0ll0II00O[_I00l0Il0lI00OO];_I00l0Il0lI00OO=_I00l0Il0lI00OO+1;return _0lIlIOII00llIO end;local function _O0lO0O00IlI0IOl() local _0lIlIOII00llIO=_IOIlII0ll0II00O[_I00l0Il0lI00OO]*256+_IOIlII0ll0II00O[_I00l0Il0lI00OO+1];_I00l0Il0lI00OO=_I00l0Il0lI00OO+2;return _0lIlIOII00llIO end;local function _IlIOIOOOI00OO() local _0lIlIOII00llIO=_IOIlII0ll0II00O[_I00l0Il0lI00OO]*16777216+_IOIlII0ll0II00O[_I00l0Il0lI00OO+1]*65536+_IOIlII0ll0II00O[_I00l0Il0lI00OO+2]*256+_IOIlII0ll0II00O[_I00l0Il0lI00OO+3];_I00l0Il0lI00OO=_I00l0Il0lI00OO+4;return _0lIlIOII00llIO end
-local _000lOOOl0lO={};local _0I0IOOOll={};local _0IOIIl0I00OI={};local _lIlIIOO0lOOlIOl=0;local _O0l000IlI0=((145917139-86517)-2320);local function _IO0IIO0OO00(_l00lIll00l0l0Il) _lIlIIOO0lOOlIOl=_lIlIIOO0lOOlIOl+1;_0IOIIl0I00OI[_lIlIIOO0lOOlIOl]=_l00lIll00l0l0Il;_O0l000IlI0=(_O0l000IlI0*131+_l00lIll00l0l0Il)%2147483647;if _lIlIIOO0lOOlIOl==192 then _0I0IOOOll[#_0I0IOOOll+1]=string.char((table.unpack or unpack)(_0IOIIl0I00OI,1,_lIlIIOO0lOOlIOl));_0IOIIl0I00OI={};_lIlIIOO0lOOlIOl=0 end end
-local _lOO00Ol0IO0IOO0=((615879-608032)-7751)
-local _O0I0OllIOl0Il=((787876-785580)-2163)
-local _I000IOlIl00lOOI=((271694-263452)-8200)
-local _llIOIOIIO0O0IO=((517253-515504)-1541)
-local _O00O0II00=((65791-58113)-7647)
-local _Il0OlOO0OOllIO=((652570-649007)-3381)
-local _OlOOOOI0lO=((530467-528712)-1525)
-local _IOOlOlOOIIl0OO=((856841-849693)-6974)
-local _l0IlllOl0=((185624-183360)-2223)
-local _III0OOOllIOO0=((391016-385752)-5111)
-local _OlIOl0IIl0O0l0=((779570-773368)-6158)
-while true do local _l00IlIIl0lOlO=_OI0llOOIIOll()
-if _l00IlIIl0lOlO==_lOO00Ol0IO0IOO0 then _000lOOOl0lO={slot=_O0lO0O00IlI0IOl(),idx=_O0lO0O00IlI0IOl(),mode=_OI0llOOIIOll(),seed=_IlIOIOOOI00OO(),mul=_IlIOIOOOI00OO(),inc=_IlIOIOOOI00OO(),c1=_OI0llOOIIOll(),c2=_OI0llOOIIOll(),n=_O0lO0O00IlI0IOl(),stride=_O0lO0O00IlI0IOl(),offset=_O0lO0O00IlI0IOl(),alpha=_OI0llOOIIOll(),hs=_IlIOIOOOI00OO(),hf=_IlIOIOOOI00OO(),key=_IlIOIOOOI00OO()}
-elseif _l00IlIIl0lOlO==_O0I0OllIOl0Il then local _OlO0IlOII=_OllOIOlOl000[_000lOOOl0lO.slot];local _0OlIl0IIlI0Ol0=#_OlO0IlOII;local _OIIOIIIlI0lO=(_000lOOOl0lO.key+_000lOOOl0lO.seed+_000lOOOl0lO.idx*31+_000lOOOl0lO.mode*7)%_0OlIl0IIlI0Ol0;if ((_000lOOOl0lO.key+_000lOOOl0lO.seed+_000lOOOl0lO.idx+_000lOOOl0lO.mode)%2)==1 then _OlO0IlOII=string.reverse(_OlO0IlOII) end;if _OIIOIIIlI0lO>0 then _OlO0IlOII=string.sub(_OlO0IlOII,_0OlIl0IIlI0Ol0-_OIIOIIIlI0lO+1)..string.sub(_OlO0IlOII,1,_0OlIl0IIlI0Ol0-_OIIOIIIlI0lO) end;_000lOOOl0lO.a=_00OIlOIO0l0lI0(_OlO0IlOII,_000lOOOl0lO.alpha,_000lOOOl0lO.n)
-elseif _l00IlIIl0lOlO==_I000IOlIl00lOOI then local _O0lllOlllO={};for _IlO0OIIOOII0=1,_000lOOOl0lO.n do _O0lllOlllO[_IlO0OIIOOII0]=_000lOOOl0lO.a[(((_IlO0OIIOOII0-1)*_000lOOOl0lO.stride+_000lOOOl0lO.offset)%_000lOOOl0lO.n)+1] end;_000lOOOl0lO.a=_O0lllOlllO
-elseif _l00IlIIl0lOlO==_llIOIOIIO0O0IO then local _O00llOIIII=_000lOOOl0lO.seed;local _0II0OlIOO0OOIOO=math.floor(_000lOOOl0lO.seed/257)%256;local _O0lllOlllO={};local _O0l000IlI0=_000lOOOl0lO.hs;for _IlO0OIIOOII0=1,_000lOOOl0lO.n do _O00llOIIII=(_O00llOIIII*_000lOOOl0lO.mul+_000lOOOl0lO.inc)%2147483647;local _II0I0O00IlI=2*(_O00llOIIII%128)+1;local _O0O0O0lIll=(math.floor(_O00llOIIII/256)+_IlO0OIIOOII0*_000lOOOl0lO.c1+_000lOOOl0lO.idx*_000lOOOl0lO.c2)%256;local _l00lIll00l0l0Il;local _0lIlIOII00llIO=_000lOOOl0lO.a[_IlO0OIIOOII0];if _000lOOOl0lO.mode==1 then _O0O0O0lIll=(_O0O0O0lIll+_0II0OlIOO0OOIOO)%256;_l00lIll00l0l0Il=((_0lIlIOII00llIO-_O0O0O0lIll)*_llll0ll0OlOO[_II0I0O00IlI])%256 elseif _000lOOOl0lO.mode==2 then _O0O0O0lIll=(_O0O0O0lIll+_0II0OlIOO0OOIOO*3+(_IlO0OIIOOII0%17))%256;_l00lIll00l0l0Il=((_0lIlIOII00llIO*_llll0ll0OlOO[_II0I0O00IlI])-_O0O0O0lIll)%256 else _O0O0O0lIll=(_O0O0O0lIll+_0II0OlIOO0OOIOO*5+((_000lOOOl0lO.idx+_IlO0OIIOOII0)%29))%256;_l00lIll00l0l0Il=((_0lIlIOII00llIO-_O0O0O0lIll-(_0II0OlIOO0OOIOO%13))*_llll0ll0OlOO[_II0I0O00IlI])%256 end;_O0lllOlllO[_IlO0OIIOOII0]=_l00lIll00l0l0Il;_0II0OlIOO0OOIOO=_0lIlIOII00llIO;_O0l000IlI0=(_O0l000IlI0*257+_l00lIll00l0l0Il)%2147483647 end;_000lOOOl0lO.a=_O0lllOlllO;_000lOOOl0lO.h=_O0l000IlI0
-elseif _l00IlIIl0lOlO==_O00O0II00 then if _000lOOOl0lO.h~=_000lOOOl0lO.hf then error("V1",0) end
-elseif _l00IlIIl0lOlO==_Il0OlOO0OOllIO then for _IlO0OIIOOII0=1,_000lOOOl0lO.n do _IO0IIO0OO00(_000lOOOl0lO.a[_IlO0OIIOOII0]) end
-elseif _l00IlIIl0lOlO==_OlOOOOI0lO then _OllOIOlOl000[_000lOOOl0lO.slot]=nil;_000lOOOl0lO={}
-elseif _l00IlIIl0lOlO==_IOOlOlOOIIl0OO then if _lIlIIOO0lOOlIOl>0 then _0I0IOOOll[#_0I0IOOOll+1]=string.char((table.unpack or unpack)(_0IOIIl0I00OI,1,_lIlIIOO0lOOlIOl)) end;if _O0l000IlI0~=((1023872869-721269)-6981) then error("V2",0) end;_l0IO000llO0II=table.concat(_0I0IOOOll);_0I0IOOOll={};_0IOIIl0I00OI={};_lIlIIOO0lOOlIOl=0;_II0IlOl0lO0lIl={};_0l0I0OO00lll0O=0;local _O000OIOI0I=1;local _0OlIl0IIlI0Ol0=#_l0IO000llO0II;local function _OlOI0IOI0Ol000l(_l00lIll00l0l0Il) _0l0I0OO00lll0O=_0l0I0OO00lll0O+1;_II0IlOl0lO0lIl[((_0l0I0OO00lll0O-1)%65536)+1]=_l00lIll00l0l0Il;_lIlIIOO0lOOlIOl=_lIlIIOO0lOOlIOl+1;_0IOIIl0I00OI[_lIlIIOO0lOOlIOl]=_l00lIll00l0l0Il;if _lIlIIOO0lOOlIOl==192 then _0I0IOOOll[#_0I0IOOOll+1]=string.char((table.unpack or unpack)(_0IOIIl0I00OI,1,_lIlIIOO0lOOlIOl));_0IOIIl0I00OI={};_lIlIIOO0lOOlIOl=0 end end;while _O000OIOI0I<=_0OlIl0IIlI0Ol0 do local _lO00OIOOIlO=string.byte(_l0IO000llO0II,_O000OIOI0I);_O000OIOI0I=_O000OIOI0I+1;if _lO00OIOOIlO<128 then local _OIIOIIIlI0lO=_lO00OIOOIlO+1;for _IlO0OIIOOII0=1,_OIIOIIIlI0lO do _OlOI0IOI0Ol000l(string.byte(_l0IO000llO0II,_O000OIOI0I));_O000OIOI0I=_O000OIOI0I+1 end else local _OIIOIIIlI0lO=_lO00OIOOIlO-125;local _O0lllOlllO=string.byte(_l0IO000llO0II,_O000OIOI0I)*256+string.byte(_l0IO000llO0II,_O000OIOI0I+1)+1;_O000OIOI0I=_O000OIOI0I+2;for _IlO0OIIOOII0=1,_OIIOIIIlI0lO do _OlOI0IOI0Ol000l(_II0IlOl0lO0lIl[((_0l0I0OO00lll0O-_O0lllOlllO)%65536)+1]) end end end;if _lIlIIOO0lOOlIOl>0 then _0I0IOOOll[#_0I0IOOOll+1]=string.char((table.unpack or unpack)(_0IOIIl0I00OI,1,_lIlIIOO0lOOlIOl)) end;_IOO0000OI=table.concat(_0I0IOOOll);_l0IO000llO0II=nil;_II0IlOl0lO0lIl=nil;_0I0IOOOll=nil;_0IOIIl0I00OI=nil
-elseif _l00IlIIl0lOlO==_l0IlllOl0 then local _IO0I0OOlI0IlIIO=_IlIOIOOOI00OO();local _0lOOI0O0III00=_IlIOIOOOI00OO();local _0lIlIOII00llIO=_IlIOIOOOI00OO();if #_IOO0000OI~=_IO0I0OOlI0IlIIO then error("V3",0) end;local _O0l000IlI0=_0lOOI0O0III00;for _IlO0OIIOOII0=1,#_IOO0000OI do _O0l000IlI0=(_O0l000IlI0*137+string.byte(_IOO0000OI,_IlO0OIIOOII0))%2147483647 end;if _O0l000IlI0~=_0lIlIOII00llIO then error("V4",0) end
-elseif _l00IlIIl0lOlO==_III0OOOllIOO0 then local _0O00IOI0llOOIl=loadstring or load;if type(_0O00IOI0llOOIl)~="function" then error("V5",0) end;local _II0IIIlIl,_OOlO0OOOOIO0O0=_0O00IOI0llOOIl(_IOO0000OI,"@X");_IOO0000OI=nil;if not _II0IIIlIl then error(_OOlO0OOOOIO0O0 or "V6",0) end;return _II0IIIlIl()
-elseif _l00IlIIl0lOlO==_OlIOl0IIl0O0l0 then break else error("V7",0) end end
+flow_init(function(currentKey)
+    local Players = game:GetService("Players")
+    local UserInputService = game:GetService("UserInputService")
+    local TweenService = game:GetService("TweenService")
+    local CoreGui = game:GetService("CoreGui")
+
+    local player = Players.LocalPlayer
+    if not player then
+        repeat task.wait() player = Players.LocalPlayer until player
+    end
+
+    local function resolveParent()
+        local ok, gui = pcall(function()
+            if type(gethui) == "function" then
+                return gethui()
+            end
+        end)
+        if ok and gui then return gui end
+
+        local playerGui = player:FindFirstChildOfClass("PlayerGui") or player:WaitForChild("PlayerGui", 8)
+        if playerGui then return playerGui end
+
+        return CoreGui
+    end
+
+    local parent = resolveParent()
+    local previous = parent and parent:FindFirstChild("XoseCityKeyEntry")
+    if previous then
+        pcall(function() previous:Destroy() end)
+    end
+
+    local done = Instance.new("BindableEvent")
+    local submitted = false
+    local submittedKey = nil
+
+    local screen = Instance.new("ScreenGui")
+    screen.Name = "XoseCityKeyEntry"
+    screen.IgnoreGuiInset = true
+    screen.ResetOnSpawn = false
+    screen.DisplayOrder = 2147483000
+    screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screen.Parent = parent
+
+    local shade = Instance.new("Frame")
+    shade.Size = UDim2.fromScale(1, 1)
+    shade.BackgroundColor3 = Color3.fromRGB(5, 6, 7)
+    shade.BackgroundTransparency = 0.12
+    shade.BorderSizePixel = 0
+    shade.Parent = screen
+
+    local card = Instance.new("Frame")
+    card.Name = "Card"
+    card.AnchorPoint = Vector2.new(0.5, 0.5)
+    card.Position = UDim2.fromScale(0.5, 0.5)
+    card.Size = UserInputService.TouchEnabled and UDim2.fromOffset(326, 252) or UDim2.fromOffset(370, 258)
+    card.BackgroundColor3 = Color3.fromRGB(15, 16, 17)
+    card.BorderSizePixel = 0
+    card.ClipsDescendants = true
+    card.Parent = shade
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 13)
+    corner.Parent = card
+
+    local stroke = Instance.new("UIStroke")
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Color = Color3.fromRGB(64, 68, 71)
+    stroke.Transparency = 0.48
+    stroke.Thickness = 1
+    stroke.Parent = card
+
+    local accent = Instance.new("Frame")
+    accent.Size = UDim2.new(1, 0, 0, 2)
+    accent.BackgroundColor3 = Color3.fromRGB(152, 204, 0)
+    accent.BorderSizePixel = 0
+    accent.Parent = card
+
+    local title = Instance.new("TextLabel")
+    title.BackgroundTransparency = 1
+    title.Position = UDim2.fromOffset(22, 20)
+    title.Size = UDim2.new(1, -44, 0, 27)
+    title.Font = Enum.Font.GothamBold
+    title.Text = "Xose City"
+    title.TextColor3 = Color3.fromRGB(241, 243, 244)
+    title.TextSize = 21
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = card
+
+    local subtitle = Instance.new("TextLabel")
+    subtitle.BackgroundTransparency = 1
+    subtitle.Position = UDim2.fromOffset(22, 48)
+    subtitle.Size = UDim2.new(1, -44, 0, 17)
+    subtitle.Font = Enum.Font.GothamMedium
+    subtitle.Text = "ACCESS"
+    subtitle.TextColor3 = Color3.fromRGB(116, 122, 125)
+    subtitle.TextSize = 10
+    subtitle.TextXAlignment = Enum.TextXAlignment.Left
+    subtitle.Parent = card
+
+    local inputHolder = Instance.new("Frame")
+    inputHolder.Position = UDim2.fromOffset(22, 82)
+    inputHolder.Size = UDim2.new(1, -44, 0, 44)
+    inputHolder.BackgroundColor3 = Color3.fromRGB(21, 23, 24)
+    inputHolder.BorderSizePixel = 0
+    inputHolder.Parent = card
+
+    local inputCorner = Instance.new("UICorner")
+    inputCorner.CornerRadius = UDim.new(0, 8)
+    inputCorner.Parent = inputHolder
+
+    local inputStroke = Instance.new("UIStroke")
+    inputStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    inputStroke.Color = Color3.fromRGB(72, 76, 79)
+    inputStroke.Transparency = 0.58
+    inputStroke.Thickness = 1
+    inputStroke.Parent = inputHolder
+
+    local keyBox = Instance.new("TextBox")
+    keyBox.Name = "KeyBox"
+    keyBox.BackgroundTransparency = 1
+    keyBox.Position = UDim2.fromOffset(13, 0)
+    keyBox.Size = UDim2.new(1, -26, 1, 0)
+    keyBox.ClearTextOnFocus = false
+    keyBox.Font = Enum.Font.GothamMedium
+    keyBox.PlaceholderText = "Введите ключ доступа"
+    keyBox.PlaceholderColor3 = Color3.fromRGB(103, 108, 111)
+    keyBox.Text = type(currentKey) == "string" and currentKey or ""
+    keyBox.TextColor3 = Color3.fromRGB(226, 229, 231)
+    keyBox.TextSize = 13
+    keyBox.TextXAlignment = Enum.TextXAlignment.Left
+    keyBox.Parent = inputHolder
+
+    local status = Instance.new("TextLabel")
+    status.BackgroundTransparency = 1
+    status.Position = UDim2.fromOffset(22, 134)
+    status.Size = UDim2.new(1, -44, 0, 20)
+    status.Font = Enum.Font.Gotham
+    status.Text = keyBox.Text ~= "" and "Ключ загружен — нажмите ВОЙТИ" or "Введите ключ, чтобы продолжить"
+    status.TextColor3 = Color3.fromRGB(128, 134, 137)
+    status.TextSize = 11
+    status.TextXAlignment = Enum.TextXAlignment.Left
+    status.TextTruncate = Enum.TextTruncate.AtEnd
+    status.Parent = card
+
+    local submit = Instance.new("TextButton")
+    submit.Name = "Submit"
+    submit.Position = UDim2.fromOffset(22, 166)
+    submit.Size = UDim2.new(1, -44, 0, 40)
+    submit.AutoButtonColor = false
+    submit.BackgroundColor3 = Color3.fromRGB(152, 204, 0)
+    submit.BorderSizePixel = 0
+    submit.Font = Enum.Font.GothamBold
+    submit.Text = "ВОЙТИ"
+    submit.TextColor3 = Color3.fromRGB(10, 12, 11)
+    submit.TextSize = 12
+    submit.Parent = card
+
+    local submitCorner = Instance.new("UICorner")
+    submitCorner.CornerRadius = UDim.new(0, 8)
+    submitCorner.Parent = submit
+
+    local hint = Instance.new("TextLabel")
+    hint.BackgroundTransparency = 1
+    hint.Position = UDim2.fromOffset(22, 217)
+    hint.Size = UDim2.new(1, -44, 0, 17)
+    hint.Font = Enum.Font.Gotham
+    hint.Text = "Ключ проверяется после подтверждения"
+    hint.TextColor3 = Color3.fromRGB(91, 96, 99)
+    hint.TextSize = 10
+    hint.TextXAlignment = Enum.TextXAlignment.Center
+    hint.Parent = card
+
+    local function trim(value)
+        return tostring(value or ""):match("^%s*(.-)%s*$") or ""
+    end
+
+    local function finish()
+        if submitted then return end
+        local value = trim(keyBox.Text)
+        if value == "" then
+            status.Text = "Введите ключ доступа"
+            status.TextColor3 = Color3.fromRGB(224, 92, 92)
+            inputStroke.Color = Color3.fromRGB(224, 92, 92)
+            inputStroke.Transparency = 0.34
+            return
+        end
+
+        submitted = true
+        submittedKey = value
+        status.Text = "Проверка доступа..."
+        status.TextColor3 = Color3.fromRGB(152, 204, 0)
+        submit.Text = "ПРОВЕРКА..."
+        submit.Active = false
+
+        pcall(function()
+            TweenService:Create(card, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                BackgroundTransparency = 0.08
+            }):Play()
+        end)
+
+        task.delay(0.08, function()
+            done:Fire(value)
+        end)
+    end
+
+    submit.MouseButton1Click:Connect(finish)
+    keyBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then finish() end
+    end)
+
+    keyBox:GetPropertyChangedSignal("Text"):Connect(function()
+        if not submitted then
+            inputStroke.Color = Color3.fromRGB(72, 76, 79)
+            inputStroke.Transparency = 0.58
+            status.TextColor3 = Color3.fromRGB(128, 134, 137)
+        end
+    end)
+
+    submit.MouseEnter:Connect(function()
+        if not submitted then submit.BackgroundColor3 = Color3.fromRGB(166, 219, 8) end
+    end)
+    submit.MouseLeave:Connect(function()
+        if not submitted then submit.BackgroundColor3 = Color3.fromRGB(152, 204, 0) end
+    end)
+
+    local dragging = false
+    local dragStart
+    local startPosition
+
+    card.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPosition = card.Position
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and dragStart and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            card.Position = UDim2.new(
+                startPosition.X.Scale,
+                startPosition.X.Offset + delta.X,
+                startPosition.Y.Scale,
+                startPosition.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    local value = done.Event:Wait()
+    submittedKey = trim(value or submittedKey)
+
+    pcall(function()
+        screen:Destroy()
+    end)
+    pcall(function()
+        done:Destroy()
+    end)
+
+    return submittedKey
+end)
+
+--// XC v67 compact Centurion-compatible build
+pcall(function()
+    if type(getgenv) == "function" then
+        local env = getgenv()
+        if env and type(env.XCRunning) == "function" then
+            env.XCRunning()
+        end
+    end
+end)
+--// XC UI layer
+local XCIcons = {
+    Combat = "⌁",
+    Visuals = "◉",
+    Players = "♙",
+    World = "◈",
+    Movement = "↯",
+    Misc = "⚙",
+    Config = "▣",
+    Scripts = "⌘",
+    Search = "⌕",
+    Settings = "⚙",
+    Info = "ⓘ",
+}
+
+function XCIcon(parent, glyph, size, color)
+    local label = Instance.new("TextLabel")
+    label.Name = "XCIcon"
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(0, size or 18, 0, size or 18)
+    label.Text = glyph or "•"
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = math.max(12, math.floor((size or 18) * 0.78))
+    label.TextColor3 = color or Color3.fromRGB(152, 204, 0)
+    label.TextXAlignment = Enum.TextXAlignment.Center
+    label.TextYAlignment = Enum.TextYAlignment.Center
+    label.Parent = parent
+    return label
+end
+--// CENTRAL CONFIGURATION SYSTEM
+local HttpService = game:GetService("HttpService")
+
+local XCConfig = {
+    -- Toggles
+    antiAfkEnabled = false,
+    noFallDamageEnabled = false,
+    spectatorListEnabled = false,
+    spectatorCounterEnabled = true,
+    spectatorHideEmpty = false,
+    spectatorNameMode = "Display name",
+    animationsEnabled = false,
+    animationLoop = true,
+    animationSpeed = 1.0,
+    animationId = "73593666217037",
+    customHandsEnabled = false,
+    customHandsX = 0,
+    customHandsY = 0,
+    customHandsZ = 0,
+    customHandsPitch = 0,
+    customHandsYaw = 0,
+    customHandsRoll = 0,
+    uiScale = 1.0,
+    menuThemePreset = "XC Lime",
+    menuTransparency = 0,
+    menuAccentR = 152, menuAccentG = 204, menuAccentB = 0,
+    menuBackgroundR = 17, menuBackgroundG = 17, menuBackgroundB = 17,
+    menuPanelR = 12, menuPanelG = 12, menuPanelB = 12,
+    menuTextR = 235, menuTextG = 235, menuTextB = 235,
+    linkMenuAndEspColor = false,
+    espVisibleR = 152, espVisibleG = 204, espVisibleB = 0,
+    espHiddenR = 112, espHiddenG = 116, espHiddenB = 122,
+    espHealthHighR = 152, espHealthHighG = 204, espHealthHighB = 0,
+    espHealthMidR = 205, espHealthMidG = 170, espHealthMidB = 42,
+    espHealthLowR = 205, espHealthLowG = 72, espHealthLowB = 72,
+    grenadeHER = 255, grenadeHEG = 45, grenadeHEB = 55,
+    grenadeSmokeR = 180, grenadeSmokeG = 185, grenadeSmokeB = 195,
+    grenadeMolotovR = 255, grenadeMolotovG = 95, grenadeMolotovB = 35,
+    advancedCategory = "Combat",
+    advancedSettingKey = "aimFov",
+    watermarkEnabled = true,
+    watermarkShowFPS = true,
+    watermarkShowPing = true,
+    watermarkShowName = false,
+    watermarkText = "XC",
+    aimbotEnabled = false,
+    predictionEnabled = true,
+    silentAimEnabled = false,
+    rcsEnabled = false,
+    chamsEnabled = false,
+    hitmarkerEnabled = false,
+    hitSoundEnabled = false,
+
+    -- Visual kill confirmation: local confirmed kills only.
+    killEffectEnabled = false,
+    killEffectStyle = "Fireflies",
+    killEffectRainbow = false,
+    killEffectTrails = true,
+
+    thirdPersonEnabled = false,
+    skinChangerEnabled = false,
+    triggerbotEnabled = false,
+    triggerbotMode = "Crosshair",
+    antiAimEnabled = false,
+    antiAimMode = "Vector Shift",
+    bunnyHopEnabled = false,
+    slideEnabled = false,
+    speedEnabled = false,
+    flightEnabled = false,
+    nametagsEnabled = false,
+    boxEspEnabled = false,
+    cornerBoxEnabled = false,
+    healthBarEnabled = false,
+    skeletonEspEnabled = false,
+    skeletonDistanceFade = true,
+    headDotEnabled = false,
+    tracersEnabled = false,
+    grenadeEspEnabled = false,
+    grenadeDangerZonesEnabled = false,
+    soundPositionEspEnabled = false,
+    weaponEspEnabled = false,
+    jumpCircleEnabled = false,
+    motionTrailEnabled = false,
+    motionGhostEnabled = true,
+    antiFlashEnabled = false,
+    noSmokeEnabled = false,
+    fullBrightEnabled = false,
+    removeFogEnabled = true,
+    nightModeEnabled = false,
+    rageBotEnabled = false,
+    rageAutoFire = true,
+
+    -- HvH pack v39: Multipoint + Minimum Damage.
+    multipointEnabled = false,
+    multipointScale = 0.62,
+    minimumDamageEnabled = false,
+    minimumDamage = 20,
+    minimumDamageWall = 12,
+
+    bulletTrailEnabled = true,
+    bulletFlashEnabled = true,
+    weaponChamsEnabled = false,
+    customScopeEnabled = false,
+    scopeRemoveOriginal = false,
+    scopeCrosshairEnabled = true,
+    scopeDynamicGap = false,
+    scopeCrosshairStyle = "Cross",
+    scopeCrosshairLeft = true,
+    scopeCrosshairRight = true,
+    scopeCrosshairTop = true,
+    scopeCrosshairBottom = true,
+    scopeCrosshairDot = true,
+    scopeCrosshairOpacity = 0,
+    scopeCrosshairOutline = false,
+    scopeCrosshairOutlineThickness = 1,
+    scopeCrosshairOutlineR = 0,
+    scopeCrosshairOutlineG = 0,
+    scopeCrosshairOutlineB = 0,
+    worldSkyboxEnabled = false,
+    worldPostFXEnabled = false,
+    mapStyleEnabled = false,
+    mapOptimizerEnabled = false,
+    mapOptimizerDisableShadows = true,
+    mapOptimizerDisableEffects = true,
+    mapOptimizerLowMesh = true,
+    mapStyleFlatMaterials = true,
+    mapStylePreserveSigns = false,
+    mapStyleAffectTransparent = true,
+    mapStyleTextureMode = "Full Minimal",
+    weatherEnabled = false,
+    weatherMode = "Rain",
+    weatherIntensity = 45,
+    weatherWind = 8,
+    freecamEnabled = false,
+    freecamSpeed = 55,
+    freecamSensitivity = 0.18,
+    freecamKey = "F4",
+    freelookEnabled = false,
+    freelookSensitivity = 0.16,
+    freelookKey = "LeftAlt",
+    streamerModeEnabled = false,
+    streamerKey = "F8",
+    settingsShowNotifications = true,
+    settingsCompactMode = false,
+    settingsAutoSave = false,
+    menuKey = "RightShift",
+    publicConfigSelection = "None",
+
+    -- Sliders & Values
+    rageFov = 360,
+    rageTargetMode = "Distance",
+    priorityPlayerName = "None",
+    aimFov = 160,
+    triggerbotFov = 160,
+    triggerbotDelay = 0.075,
+    triggerbotScopedOnly = false,
+    triggerbotHeadOnly = false,
+    aimbotSpeed = 35.0,
+    aimbotSmoothness = 0.15,
+    predictionFactor = 0.165,
+    bodyAimOnly = false,
+    snapAimMode = false,
+    showFovCircle = true,
+    visibleCheck = false,
+    
+    silentAimFov = 150,
+    silentAimHitChance = 100,
+    silentAimTeamCheck = true,
+    silentAimVisibleCheck = false,
+    silentAimAimHead = true,
+    pSilentEnabled = false,
+    silentAimAutoWallEnabled = false,
+    wallbangEnabled = false,
+    extremeWallbangEnabled = false,
+    showSilentFovCircle = true,
+
+    chamsFillTransparency = 0.45,
+    chamsOutlineTransparency = 0.10,
+    chamsTeamCheck = true,
+    chamsShowTeammates = false,
+    chamsOcclusion = true,
+
+    recoilStrength = 0.85,
+    noRecoilEnabled = false,
+    noSpreadEnabled = false,
+    fireRateEnabled = false,
+    fireRate = 0.01,
+    rcsStrength = 60,
+    rcsPitchFactor = 1.0,
+    rcsYawFactor = 1.0,
+
+    thirdPersonDistance = 12,
+    thirdPersonHeight = 1.5,
+    thirdPersonOffset = 2.5,
+
+    hitmarkerDuration = 0.28,
+    hitmarkerSize = 13,
+    hitmarkerThickness = 2,
+    hitmarkerGlow = true,
+    hitSoundPreset = "Skeet",
+    hitSoundVolume = 1,
+
+    -- Kill fireflies.
+    killEffectCount = 95,
+    killEffectSize = 0.16,
+    killEffectSpeed = 16,
+    killEffectDuration = 1.45,
+    killEffectGlow = 1.4,
+    killEffectColorR = 152,
+    killEffectColorG = 204,
+    killEffectColorB = 0,
+
+    -- Local movement trail / afterimages.
+    motionTrailLifetime = 1.15,
+    motionTrailWidth = 0.11,
+    motionTrailColorR = 245,
+    motionTrailColorG = 245,
+    motionTrailColorB = 255,
+    motionGhostInterval = 0.12,
+    motionGhostFade = 0.48,
+    motionGhostTransparency = 0.62,
+    motionGhostColorR = 120,
+    motionGhostColorG = 185,
+    motionGhostColorB = 255,
+
+    spinSpeed = 50,
+    antiAimYaw = 180,
+    antiAimJitter = 60,
+    antiAimInterval = 0.15,
+    skeletonThickness = 1.5,
+    bhopJumpPower = 52,
+    bhopSpeedBoost = 1.35,
+    bhopAutoJump = false,
+    bhopAirStrafe = true,
+    bhopStrongAutoStrafe = true,
+    bhopStrafeStrength = 3.0,
+    bhopMode = "Hold",
+    bhopMovingOnly = true,
+    bhopPauseWithMenu = true,
+    bhopGroundDelay = 0,
+    bhopAcceleration = 12,
+    walkMultiplier = 2.0,
+    flightSpeed = 50,
+
+    slideSpeedBoost = 1.8,
+    slideFriction = 0.94,
+    slideMinSpeed = 16,
+
+    jumpCircleRadius = 3.5,
+    jumpCircleSegmentCount = 48,
+    jumpCircleStyle = "GradientWave",
+
+    grenadeMaxDist = 1500,
+    showGrenadePath = true,
+    showMolotovRadius = true,
+    showSmokeRadius = true,
+    grenadeDangerOpacity = 0.82,
+    soundEspDuration = 1.15,
+    soundEspMaxDist = 1200,
+
+    espMaxDist = 3000,
+    espTextSize = 8.5,
+    tagTransparency = 0.25,
+    espShowDistance = true,
+    espShowHealth = true,
+    tagShowWeapon = true,
+    boxThickness = 1.0,
+    espBoxSmoothing = 0.42,
+    espFixedScale = true,
+    espFixedBoxHeight = 36,
+    espPerspectiveScale = 1.0,
+    espBoxAspect = 0.52,
+    espBoxOutline = true,
+
+    nightPreset = "Midnight",
+    nightBrightness = 0.2,
+    nightClockTime = 0.0,
+    worldSkyboxPreset = "Night",
+    worldSkyRotation = 0,
+    worldSkyStars = 0,
+    worldSkyCelestial = false,
+    worldFogStart = 0,
+    worldFogEnd = 100000,
+    worldExposure = 0,
+    worldSaturation = 0,
+    worldContrast = 0,
+    worldTonePreset = "Neutral",
+    mapStylePreset = "Black & White",
+    mapOptimizerMode = "Balanced",
+    mapStyleStrength = 0.92,
+    mapStyleTextureDetail = 0.18,
+    mapStyleDarkR = 20,
+    mapStyleDarkG = 22,
+    mapStyleDarkB = 25,
+    mapStyleLightR = 232,
+    mapStyleLightG = 234,
+    mapStyleLightB = 238,
+    worldAtmosphereEnabled = false,
+    worldAtmosphereDensity = 0.3,
+    worldAtmosphereHaze = 0,
+    worldAtmosphereGlare = 0,
+    worldBloomEnabled = false,
+    worldBloomIntensity = 0.35,
+    worldBloomSize = 24,
+    worldBloomThreshold = 1,
+    worldColorR = 255,
+    worldColorG = 255,
+    worldColorB = 255,
+    bulletTracerStyle = "Beam",
+    bulletTracerDuration = 0.65,
+    bulletTracerWidth = 0.08,
+    bulletTracerRainbow = false,
+    bulletImpactEnabled = false,
+    bulletImpactSize = 0.35,
+    cubeCheckerEnabled = false,
+    cubeCheckerRainbow = false,
+    cubeCheckerSize = 1.5,
+    cubeCheckerDistance = 20,
+    cubeCheckerLineThickness = 0.04,
+    cubeCheckerTransparency = 0.2,
+    bulletTracerColorR = 255,
+    bulletTracerColorG = 25,
+    bulletTracerColorB = 35,
+    weaponChamsMode = "Crystal",
+    weaponChamsTransparency = 0.22,
+    weaponChamsReflectance = 0.75,
+    weaponChamsColorR = 210,
+    weaponChamsColorG = 45,
+    weaponChamsColorB = 55,
+    scopeFovEnabled = false,
+    scopeFov = 70,
+    customFovEnabled = false,
+    customFov = 90,
+    scopeCrosshairLength = 85,
+    scopeCrosshairThickness = 2,
+    scopeCrosshairGap = 8,
+    scopeCrosshairColorR = 255,
+    scopeCrosshairColorG = 255,
+    scopeCrosshairColorB = 255,
+    selectedKnifeType = "Butterfly Knife",
+    selectedSkin = "Fade",
+    gloveChangerEnabled = false,
+    selectedGloveModel = "Sports Gloves",
+    selectedGloveSkin = "Default",
+    skinEditorWeapon = "AK-47",
+    skinEditorFinish = "Default",
+    skinGalleryMode = "Weapon",
+    skinWear = 0,
+    knifeWear = 0,
+    weaponSkinSelections = {},
+    weaponSkinWear = {}
+}
+
+-- Immutable startup snapshot used by Settings > Config Manager > RESET.
+function deepCopyConfigValue(v)
+    if type(v) ~= "table" then return v end
+    local out = {}
+    for k,val in pairs(v) do out[k] = deepCopyConfigValue(val) end
+    return out
+end
+local XCConfigDefaults = deepCopyConfigValue(XCConfig)
+
+-- Reuse one configuration table between reinjections. Persistent hooks from a
+-- previous run then continue to read the values controlled by the new menu.
+local sharedXCEnv = (type(getgenv) == "function") and getgenv() or nil
+if sharedXCEnv then
+    if type(sharedXCEnv.XCSharedConfig) == "table" then
+        local existing = sharedXCEnv.XCSharedConfig
+        for key, value in pairs(XCConfig) do
+            if existing[key] == nil then existing[key] = deepCopyConfigValue(value) end
+        end
+        XCConfig = existing
+    else
+        sharedXCEnv.XCSharedConfig = XCConfig
+    end
+end
+
+-- A reinjection must start from safe toggle defaults. Numeric/user settings
+-- remain shared, but an old session cannot silently reactivate expensive
+-- scanners or render modules before the user opens the new menu.
+for key, defaultValue in pairs(XCConfigDefaults) do
+    if type(defaultValue) == "boolean" then XCConfig[key] = defaultValue end
+end
+-- Keep legacy values valid while the v20 renderer uses perspective scale.
+if tonumber(XCConfig.espFixedBoxHeight) == 64 or tonumber(XCConfig.espFixedBoxHeight) == 42 then
+    XCConfig.espFixedBoxHeight = 36
+end
+XCConfig.espPerspectiveScale = math.clamp(tonumber(XCConfig.espPerspectiveScale) or 1, 0.65, 1.5)
+XCConfig.uiScale = math.clamp(tonumber(XCConfig.uiScale) or 1, 0.65, 1.25)
+XCConfig.menuTransparency = math.clamp(tonumber(XCConfig.menuTransparency) or 0, 0, 0.45)
+for _, colorKey in ipairs({
+    "menuAccentR", "menuAccentG", "menuAccentB", "menuBackgroundR", "menuBackgroundG", "menuBackgroundB",
+    "menuPanelR", "menuPanelG", "menuPanelB", "menuTextR", "menuTextG", "menuTextB",
+    "espVisibleR", "espVisibleG", "espVisibleB", "espHiddenR", "espHiddenG", "espHiddenB",
+    "espHealthHighR", "espHealthHighG", "espHealthHighB", "espHealthMidR", "espHealthMidG", "espHealthMidB",
+    "espHealthLowR", "espHealthLowG", "espHealthLowB",
+    "grenadeHER", "grenadeHEG", "grenadeHEB", "grenadeSmokeR", "grenadeSmokeG", "grenadeSmokeB",
+    "grenadeMolotovR", "grenadeMolotovG", "grenadeMolotovB",
+    "killEffectColorR", "killEffectColorG", "killEffectColorB",
+    "motionTrailColorR", "motionTrailColorG", "motionTrailColorB",
+    "mapStyleDarkR", "mapStyleDarkG", "mapStyleDarkB",
+    "mapStyleLightR", "mapStyleLightG", "mapStyleLightB",
+    "motionGhostColorR", "motionGhostColorG", "motionGhostColorB"
+}) do
+    XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
+end
+local XC_NEW_ANTIAIM_MODES = {
+    ["Vector Shift"] = true,
+    ["Pendulum Snap"] = true,
+    ["Crosswind"] = true,
+    ["Golden Flick"] = true,
+    ["Phase Lattice"] = true,
+    ["Velocity Brake"] = true,
+    ["Double Pulse"] = true,
+    ["Reverse Step"] = true,
+}
+if not XC_NEW_ANTIAIM_MODES[tostring(XCConfig.antiAimMode or "")] then
+    XCConfig.antiAimMode = "Vector Shift"
+end
+
+local UI_Bind_Registry = {}
+-- Expensive executor scans are opt-in for the current session. Persisted
+-- config values never trigger getgc work merely by injecting the script.
+local lazyFeatureRequests = {
+    fireRate = false,
+    recoilSpread = false,
+    silentFallback = false,
+}
+--// SYSTEM SERVICES IMPORT
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local GuiService = game:GetService("GuiService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local MaterialService = game:GetService("MaterialService")
+local Stats = game:GetService("Stats")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
+local Debris = game:GetService("Debris")
+local VirtualInputManager = nil
+-- A synthetic mouse event changes Roblox's preferred input to desktop and
+-- makes Blox Strike remove its mobile buttons. Never create that path on a
+-- touch device; mobile combat uses native weapon methods instead.
+if not UserInputService.TouchEnabled then
+    pcall(function()
+        VirtualInputManager = game:GetService("VirtualInputManager")
+    end)
+end
+--// CLIENT ENVIRONMENT VALIDATION XC
+local player = Players.LocalPlayer
+if not player then
+    local startWait = tick()
+    while not player and (tick() - startWait) < 5 do
+        player = Players.LocalPlayer
+        task.wait(0.1)
+    end
+    if not player then
+        player = Players:GetPlayers()[1]
+    end
+end
+
+local camera = Workspace.CurrentCamera or Workspace:FindFirstChildOfClass("Camera")
+
+function getSafeGui()
+    local success, result = pcall(function()
+        if gethui then
+            return gethui()
+        end
+    end)
+    if success and result then return result end
+    
+    success, result = pcall(function()
+        return CoreGui
+    end)
+    if success and result then return result end
+    
+    if player then
+        return player:WaitForChild("PlayerGui", 5) or player:FindFirstChildOfClass("PlayerGui")
+    end
+    return nil
+end
+
+local targetGui = getSafeGui()
+if not targetGui and player then
+    pcall(function() targetGui = player:WaitForChild("PlayerGui", 5) end)
+end
+if not targetGui then
+    warn("[XC] GUI initialization failed: no valid GUI parent")
+    return
+end
+
+local connections = {}
+local activeEspHolders = {}
+local screenEspCache = {}
+local activeTracersCache = {}
+local activeHeadDotsCache = {}
+local mobileSlideInputActive = false
+local mobileSlideInput = nil
+local mobileJumpHookedButton = nil
+local mobileJumpConnections = {}
+local skinScanAccumulator = 0
+local savedAutoRotate = nil
+local hitmarkerSerial = 0
+local antiAfkConnection = nil
+local activeJumpCircleData = nil
+
+local genv = (type(getgenv) == "function") and getgenv() or nil
+-- v55 migration: dispose of the output-capture state left behind by v52-v54.
+-- The console feature itself is no longer created or used anywhere below.
+if genv then
+    local legacyOutputState = rawget(genv, "XCConsoleShared")
+    if type(legacyOutputState) == "table" then
+        pcall(function()
+            local connection = rawget(legacyOutputState, "MessageConnection")
+            if connection then connection:Disconnect() end
+        end)
+    end
+    genv.XCConsoleShared = nil
+    genv.XCDeltaConsolePrint = nil
+end
+local xcSessionToken = {}
+if genv then genv.XCSessionToken = xcSessionToken end
+function xcSessionActive()
+    return not genv or genv.XCSessionToken == xcSessionToken
+end
+if genv and not genv.XCSavedPos then
+    genv.XCSavedPos = {
+        OpenBtn = UDim2.new(0.5, -45, 0, 15),
+        MainFrame = UDim2.new(0.5, 0, 0.5, 0)
+    }
+end
+local savedPos = (genv and genv.XCSavedPos) or {
+    OpenBtn = UDim2.new(0.5, -45, 0, 15),
+    MainFrame = UDim2.new(0.5, 0, 0.5, 0)
+}
+
+-- Clean only XC-owned audio left behind by an older reinjection. Never touch
+-- game sounds or other executor/application sounds.
+pcall(function()
+    for _, sound in ipairs(SoundService:GetChildren()) do
+        if sound:IsA("Sound") and sound.Name == "XCHitSound" then
+            pcall(function() sound:Stop() end)
+            sound:Destroy()
+        end
+    end
+end)
+--// EXTENDED THEME & PALETTE SYSTEM
+local themeLibrary = {
+    ["XC Lime"] = {
+        Name = "XC Lime",
+        Background = Color3.fromRGB(18, 18, 22),
+        Sidebar = Color3.fromRGB(22, 22, 27),
+        CardBg = Color3.fromRGB(28, 28, 34),
+        Accent = Color3.fromRGB(152, 204, 0),
+        AccentHover = Color3.fromRGB(180, 225, 25),
+        TextPrimary = Color3.fromRGB(240, 240, 245),
+        TextSecondary = Color3.fromRGB(150, 150, 160),
+        Border = Color3.fromRGB(45, 45, 55),
+        GridSquare = Color3.fromRGB(25, 25, 30),
+        -- Unified XC palette: lime means line-of-sight, neutral grey means
+        -- occluded. This mapping is shared by every player ESP component.
+        Enemy_Accent = Color3.fromRGB(152, 204, 0),
+        Enemy_Fill = Color3.fromRGB(112, 151, 0),
+        Enemy_Hidden = Color3.fromRGB(112, 116, 122),
+        NametagTextColor = Color3.fromRGB(152, 204, 0),
+        HealthHigh = Color3.fromRGB(152, 204, 0),
+        HealthMid = Color3.fromRGB(205, 170, 42),
+        HealthLow = Color3.fromRGB(205, 72, 72),
+        MolotovColor = Color3.fromRGB(255,95,35),
+        SmokeColor = Color3.fromRGB(180,185,195),
+        HEColor = Color3.fromRGB(255,45,55)
+    }
+}
+
+local currentTheme = themeLibrary["XC Lime"]
+
+local function xcConfigColor(prefix, fallback)
+    local r = tonumber(XCConfig[prefix .. "R"])
+    local g = tonumber(XCConfig[prefix .. "G"])
+    local b = tonumber(XCConfig[prefix .. "B"])
+    if not r or not g or not b then return fallback end
+    return Color3.fromRGB(math.clamp(r, 0, 255), math.clamp(g, 0, 255), math.clamp(b, 0, 255))
+end
+
+function syncXCUserTheme()
+    local menuAccent = xcConfigColor("menuAccent", currentTheme.Accent)
+    local menuBackground = xcConfigColor("menuBackground", currentTheme.Background)
+    local menuPanel = xcConfigColor("menuPanel", currentTheme.CardBg)
+    local menuText = xcConfigColor("menuText", currentTheme.TextPrimary)
+    local visible = XCConfig.linkMenuAndEspColor and menuAccent
+        or xcConfigColor("espVisible", currentTheme.Enemy_Accent)
+    currentTheme.Background = menuBackground
+    currentTheme.Sidebar = menuBackground:Lerp(Color3.new(0, 0, 0), 0.24)
+    currentTheme.CardBg = menuPanel
+    currentTheme.Border = menuPanel:Lerp(menuText, 0.17)
+    currentTheme.TextPrimary = menuText
+    currentTheme.TextSecondary = menuText:Lerp(menuBackground, 0.48)
+    currentTheme.Accent = menuAccent
+    currentTheme.AccentHover = menuAccent:Lerp(Color3.new(1, 1, 1), 0.18)
+    currentTheme.Enemy_Accent = visible
+    currentTheme.Enemy_Fill = visible:Lerp(Color3.new(0, 0, 0), 0.24)
+    currentTheme.Enemy_Hidden = xcConfigColor("espHidden", currentTheme.Enemy_Hidden)
+    currentTheme.NametagTextColor = visible
+    currentTheme.HealthHigh = xcConfigColor("espHealthHigh", visible)
+    currentTheme.HealthMid = xcConfigColor("espHealthMid", currentTheme.HealthMid)
+    currentTheme.HealthLow = xcConfigColor("espHealthLow", currentTheme.HealthLow)
+    currentTheme.HEColor = xcConfigColor("grenadeHE", currentTheme.HEColor)
+    currentTheme.SmokeColor = xcConfigColor("grenadeSmoke", currentTheme.SmokeColor)
+    currentTheme.MolotovColor = xcConfigColor("grenadeMolotov", currentTheme.MolotovColor)
+end
+syncXCUserTheme()
+--// XC NOTIFICATION CENTER
+local XCNotificationGui = nil
+local XCNotificationHolder = nil
+local XCNotificationSerial = 0
+
+function ensureXCNotifications()
+    if XCNotificationGui and XCNotificationGui.Parent and XCNotificationHolder and XCNotificationHolder.Parent then
+        return true
+    end
+
+    pcall(function()
+        local old = targetGui:FindFirstChild("XCNotificationsGui")
+        if old then old:Destroy() end
+    end)
+
+    XCNotificationGui = Instance.new("ScreenGui")
+    XCNotificationGui.Name = "XCNotificationsGui"
+    XCNotificationGui.ResetOnSpawn = false
+    XCNotificationGui.IgnoreGuiInset = true
+    XCNotificationGui.DisplayOrder = 250
+    XCNotificationGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    XCNotificationGui.Parent = targetGui
+
+    XCNotificationHolder = Instance.new("Frame")
+    XCNotificationHolder.Name = "NotificationHolder"
+    XCNotificationHolder.AnchorPoint = Vector2.new(1, 1)
+    XCNotificationHolder.Position = UDim2.new(1, -18, 1, -18)
+    XCNotificationHolder.Size = UDim2.new(0, 300, 1, -36)
+    XCNotificationHolder.BackgroundTransparency = 1
+    XCNotificationHolder.Parent = XCNotificationGui
+
+    local layout = Instance.new("UIListLayout")
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+    layout.Padding = UDim.new(0, 8)
+    layout.Parent = XCNotificationHolder
+
+    return true
+end
+
+function XCNotify(title, message, kind, duration)
+    if XCConfig.settingsShowNotifications == false then return end
+    if not ensureXCNotifications() then return end
+
+    XCNotificationSerial = XCNotificationSerial + 1
+    local serial = XCNotificationSerial
+    title = tostring(title or "XC")
+    message = tostring(message or "")
+    duration = tonumber(duration) or 2.5
+
+    local accent = currentTheme.Accent
+    if kind == "success" then
+        accent = Color3.fromRGB(75, 190, 105)
+    elseif kind == "warning" then
+        accent = Color3.fromRGB(225, 165, 55)
+    elseif kind == "error" then
+        accent = Color3.fromRGB(225, 65, 70)
+    end
+
+    local card = Instance.new("Frame")
+    card.Name = "Toast_" .. serial
+    card.Size = UDim2.new(1, 0, 0, 64)
+    card.BackgroundColor3 = currentTheme.Background
+    card.BackgroundTransparency = 0.04
+    card.BorderSizePixel = 0
+    card.ClipsDescendants = true
+    card.LayoutOrder = serial
+    card.Parent = XCNotificationHolder
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = card
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = currentTheme.Border
+    stroke.Thickness = 1
+    stroke.Transparency = 0.05
+    stroke.Parent = card
+
+    local accentBar = Instance.new("Frame")
+    accentBar.Size = UDim2.new(0, 3, 1, -14)
+    accentBar.Position = UDim2.new(0, 7, 0, 7)
+    accentBar.BackgroundColor3 = accent
+    accentBar.BorderSizePixel = 0
+    accentBar.Parent = card
+    Instance.new("UICorner", accentBar).CornerRadius = UDim.new(0, 2)
+
+    local icon = Instance.new("TextLabel")
+    icon.Size = UDim2.new(0, 28, 0, 28)
+    icon.Position = UDim2.new(0, 17, 0, 10)
+    icon.BackgroundColor3 = currentTheme.Sidebar
+    icon.BackgroundTransparency = 0.1
+    icon.Text = kind == "error" and "!" or kind == "warning" and "!" or "✓"
+    icon.TextColor3 = accent
+    icon.TextSize = 14
+    icon.Font = Enum.Font.GothamBold
+    icon.Parent = card
+    Instance.new("UICorner", icon).CornerRadius = UDim.new(1, 0)
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -62, 0, 19)
+    titleLabel.Position = UDim2.new(0, 53, 0, 8)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = title
+    titleLabel.TextColor3 = currentTheme.TextPrimary
+    titleLabel.TextSize = 9
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = card
+
+    local msgLabel = Instance.new("TextLabel")
+    msgLabel.Size = UDim2.new(1, -62, 0, 25)
+    msgLabel.Position = UDim2.new(0, 53, 0, 27)
+    msgLabel.BackgroundTransparency = 1
+    msgLabel.Text = message
+    msgLabel.TextColor3 = currentTheme.TextSecondary
+    msgLabel.TextSize = 8
+    msgLabel.Font = Enum.Font.Gotham
+    msgLabel.TextWrapped = true
+    msgLabel.TextXAlignment = Enum.TextXAlignment.Left
+    msgLabel.TextYAlignment = Enum.TextYAlignment.Top
+    msgLabel.Parent = card
+
+    local progress = Instance.new("Frame")
+    progress.Size = UDim2.new(1, -14, 0, 2)
+    progress.Position = UDim2.new(0, 7, 1, -5)
+    progress.BackgroundColor3 = currentTheme.Sidebar
+    progress.BorderSizePixel = 0
+    progress.Parent = card
+
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new(1, 0, 1, 0)
+    fill.BackgroundColor3 = accent
+    fill.BorderSizePixel = 0
+    fill.Parent = progress
+
+    card.Position = UDim2.new(1, 24, 0, 0)
+    card.BackgroundTransparency = 1
+    titleLabel.TextTransparency = 1
+    msgLabel.TextTransparency = 1
+    icon.TextTransparency = 1
+    accentBar.BackgroundTransparency = 1
+
+    TweenService:Create(card, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 0.04
+    }):Play()
+    TweenService:Create(titleLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+    TweenService:Create(msgLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+    TweenService:Create(icon, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+    TweenService:Create(accentBar, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(fill, TweenInfo.new(duration, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 1, 0)}):Play()
+
+    task.delay(duration, function()
+        if not card or not card.Parent then return end
+        local out = TweenService:Create(card, TweenInfo.new(0.24, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 24, 0, 0), BackgroundTransparency = 1
+        })
+        out:Play()
+        TweenService:Create(titleLabel, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
+        TweenService:Create(msgLabel, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
+        TweenService:Create(icon, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
+        TweenService:Create(accentBar, TweenInfo.new(0.18), {BackgroundTransparency = 1}):Play()
+        out.Completed:Wait()
+        if card then card:Destroy() end
+    end)
+end
+--// COMBAT ENGINE STATE VARIABLES
+local isAiming = false
+local currentAimTarget = nil
+local lastTargetSwitchTick = 0
+local TARGET_HYSTERESIS_TIME = 0.12
+local aimboneIndex = 1
+
+function rgb(r,g,b)
+    return Color3.fromRGB(
+        math.clamp(math.floor(tonumber(r) or 255), 0, 255),
+        math.clamp(math.floor(tonumber(g) or 255), 0, 255),
+        math.clamp(math.floor(tonumber(b) or 255), 0, 255)
+    )
+end
+
+local silentAimResolved = nil
+-- Forward declarations: the shoot hook is defined before the Silent Aim helpers.
+local getSilentAimTarget
+local canXCSilentAutoWallTarget
+local silentAimCamPosAim
+local registerXCLocalHitCandidate
+local hitmarkerPendingHits = {}
+local silentAimHooked = false
+local silentAimCamHooked = false
+local bloxStrikeShootHooked = false
+local xcNativeSilentHooked = false
+local xcBulletInterceptHooked = false
+local xcMobileCameraSilentHooked = false
+
+local function setXCSilentAimRequested(value)
+    if sharedXCEnv then sharedXCEnv.XCSilentAimRequestedV25 = value == true end
+end
+
+local function isXCSilentAimRequested()
+    if sharedXCEnv and sharedXCEnv.XCSilentAimRequestedV25 ~= nil then
+        return sharedXCEnv.XCSilentAimRequestedV25 == true
+    end
+    return XCConfig.silentAimEnabled == true
+end
+setXCSilentAimRequested(XCConfig.silentAimEnabled)
+
+-- The InventoryController hook can survive reinjection. Keep its callback in
+-- getgenv so a persistent wrapper always forwards shots to the current XC
+-- session instead of retaining a stale pending-hit table.
+local function recordXCLocalHitPayload(data)
+    if not registerXCLocalHitCandidate or type(data) ~= "table" or type(data.Bullets) ~= "table" then
+        return
+    end
+    for _, bullet in pairs(data.Bullets) do
+        if type(bullet) == "table" and type(bullet.Hits) == "table" then
+            for _, hitData in pairs(bullet.Hits) do
+                if type(hitData) == "table" then
+                    local hitInstance = hitData.Instance or hitData.instance
+                    if typeof(hitInstance) == "Instance" then
+                        registerXCLocalHitCandidate(hitInstance)
+                    end
+                end
+            end
+        end
+    end
+end
+
+if sharedXCEnv then
+    sharedXCEnv.XCRecordLocalHitPayload = recordXCLocalHitPayload
+end
+
+local function dispatchXCLocalHitPayload(data)
+    local recorder = sharedXCEnv and sharedXCEnv.XCRecordLocalHitPayload or recordXCLocalHitPayload
+    if type(recorder) == "function" then recorder(data) end
+end
+
+-- Build a per-shot payload for Silent Aim. InventoryController reuses parts of
+-- its shot table for automatic fire, so editing Bullets/Hits in place poisons
+-- the following rounds and can make the weapon stop after a short burst.
+-- XC therefore copies only the mutable path and leaves the game's source table
+-- completely untouched.
+local function prepareXCSilentShotPayload(data, forceSendStage)
+    -- When the native bullet ray hook is available, the shot has already been
+    -- redirected before Fire Rate / InventoryController serialize it. Do not
+    -- perform a second target roll or payload rewrite here.
+    if not forceSendStage and (xcNativeSilentHooked or UserInputService.TouchEnabled) then
+        return data, false
+    end
+    local silentEnabled = forceSendStage and isXCSilentAimRequested() or XCConfig.silentAimEnabled
+    if not silentEnabled
+        or type(data) ~= "table"
+        or type(data.Bullets) ~= "table" then
+        return data, false
+    end
+
+    local targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
+    if not targetPart or not targetPart.Parent then return data, false end
+
+    local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+    if chance < 100 and math.random(1, 100) > chance then return data, false end
+
+    local camPos, aimPos = nil, nil
+    if silentAimCamPosAim then
+        camPos, aimPos = silentAimCamPosAim(targetPart)
+    elseif forceSendStage then
+        local activeCamera = Workspace.CurrentCamera or camera
+        if activeCamera then
+            camPos = activeCamera.CFrame.Position
+            aimPos = targetPart.Position
+        end
+    end
+    if not camPos or not aimPos then return data, false end
+
+    local shotData = {}
+    for key, value in pairs(data) do shotData[key] = value end
+    local shotBullets = {}
+    shotData.Bullets = shotBullets
+
+    for key, bullet in pairs(data.Bullets) do
+        if type(bullet) ~= "table" then
+            shotBullets[key] = bullet
+        else
+            local shotBullet = {}
+            for bulletKey, value in pairs(bullet) do shotBullet[bulletKey] = value end
+            shotBullets[key] = shotBullet
+
+            local origin = bullet.Origin or bullet.StartingPoint or bullet.Position or camPos
+            if typeof(origin) == "CFrame" then origin = origin.Position end
+            if typeof(origin) ~= "Vector3" then origin = camPos end
+
+            local delta = aimPos - origin
+            if delta.Magnitude > 0.001 then
+                -- Preserve the direction magnitude expected by the weapon. Some
+                -- guns use a unit vector while others store ray distance here.
+                if typeof(bullet.Direction) == "Vector3" then
+                    local magnitude = bullet.Direction.Magnitude
+                    shotBullet.Direction = delta.Unit * (magnitude > 0.001 and magnitude or 1)
+                end
+                if typeof(bullet.Ray) == "Ray" then
+                    local magnitude = bullet.Ray.Direction.Magnitude
+                    shotBullet.Ray = Ray.new(bullet.Ray.Origin, delta.Unit * magnitude)
+                end
+            end
+
+            if type(bullet.Hits) == "table" then
+                local shotHits = {}
+                shotBullet.Hits = shotHits
+                for hitKey, hitData in pairs(bullet.Hits) do
+                    if type(hitData) == "table" then
+                        local shotHit = {}
+                        for field, value in pairs(hitData) do shotHit[field] = value end
+                        shotHit.Instance = targetPart
+                        shotHit.Position = targetPart.Position
+                        shotHits[hitKey] = shotHit
+                    else
+                        shotHits[hitKey] = hitData
+                    end
+                end
+            end
+
+            if XCConfig.wallbangEnabled or XCConfig.extremeWallbangEnabled then
+                shotBullet.Penetration = XCConfig.extremeWallbangEnabled and 1000000000 or 9999
+                shotBullet.Wallbang = true
+                shotBullet.IgnoreEnvironment = true
+            end
+        end
+    end
+
+    silentAimResolved = targetPart
+    if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
+    return shotData, true
+end
+
+if sharedXCEnv then
+    -- v35: persistent legacy wrappers may survive reinjection. Keep their
+    -- callbacks inert so Silent Aim is driven only by Bullet._performRaycast.
+    sharedXCEnv.XCPrepareSilentShotPayloadV23 = function(data) return data, false end
+    sharedXCEnv.XCPrepareSilentSendPayloadV28 = function(data)
+        return data, false
+    end
+end
+
+local function dispatchXCPrepareSilentShotPayload(data)
+    return data, false
+end
+
+-- Legacy XC hooks remain alive after reinjection. Disable their old in-place
+-- rewriter only for the synchronous original call, then restore the UI toggle.
+local function callXCShotWithoutLegacyRewrite(callback, self, data, ...)
+    local silentWasEnabled = XCConfig.silentAimEnabled
+    XCConfig.silentAimEnabled = false
+    local results = table.pack(pcall(callback, self, data, ...))
+    XCConfig.silentAimEnabled = silentWasEnabled
+    if not results[1] then error(results[2], 0) end
+    return table.unpack(results, 2, results.n)
+end
+
+-- Bullet visuals are driven by the game's completed local shot, not by mouse
+-- or touch input. This keeps automatic/burst weapons, mobile controls, Silent
+-- Aim and third person on the same authoritative origin and impact point.
+local bulletEffectFolder = nil
+local activeBulletEffectGroups = {}
+
+local function getXCBulletEffectFolder()
+    if bulletEffectFolder and bulletEffectFolder.Parent then return bulletEffectFolder end
+    local old = Workspace:FindFirstChild("XC_BulletEffects")
+    if old then pcall(function() old:Destroy() end) end
+    bulletEffectFolder = Instance.new("Folder")
+    bulletEffectFolder.Name = "XC_BulletEffects"
+    bulletEffectFolder.Parent = Workspace
+    return bulletEffectFolder
+end
+
+local function trackXCBulletEffect(group, lifetime)
+    for index = #activeBulletEffectGroups, 1, -1 do
+        if not activeBulletEffectGroups[index].Parent then
+            table.remove(activeBulletEffectGroups, index)
+        end
+    end
+    activeBulletEffectGroups[#activeBulletEffectGroups + 1] = group
+    while #activeBulletEffectGroups > 24 do
+        local oldest = table.remove(activeBulletEffectGroups, 1)
+        if oldest and oldest.Parent then pcall(function() oldest:Destroy() end) end
+    end
+    task.delay(lifetime + 0.12, function()
+        if group and group.Parent then pcall(function() group:Destroy() end) end
+    end)
+end
+
+local function newXCEffectPart(parent, color)
+    local part = Instance.new("Part")
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.CastShadow = false
+    part.Material = Enum.Material.Neon
+    part.Color = color
+    part.Parent = parent
+    return part
+end
+
+local function placeXCLinePart(part, from, to, width, cylinder)
+    local distance = (to - from).Magnitude
+    if distance <= 0.001 then return false end
+    if cylinder then
+        part.Shape = Enum.PartType.Cylinder
+        part.Size = Vector3.new(distance, width, width)
+        part.CFrame = CFrame.lookAt(from, to) * CFrame.Angles(0, math.rad(90), 0)
+            * CFrame.new(-distance * 0.5, 0, 0)
+    else
+        part.Size = Vector3.new(width, width, distance)
+        part.CFrame = CFrame.lookAt(from, to) * CFrame.new(0, 0, -distance * 0.5)
+    end
+    return true
+end
+
+local function resolveXCBulletVisualLine(shot, bullet)
+    if type(shot) ~= "table" or typeof(shot.Origin) ~= "Vector3" then return nil end
+    local direction = shot.Direction
+    if typeof(direction) ~= "Vector3" or direction.Magnitude <= 0.001 then return nil end
+    direction = direction.Unit
+    local properties = type(bullet) == "table" and bullet.Properties or nil
+    local distance = math.max(0.1, tonumber(shot.Distance)
+        or tonumber(properties and properties.Range) or 500)
+    local destination = shot.Origin + direction * distance
+
+    -- For a penetrated shot, keep the visual path through the last real entry
+    -- impact. Exit records are ignored so the trail never overshoots wildly.
+    if XCConfig.wallbangEnabled and type(shot.Hits) == "table" then
+        local farthest = distance
+        for _, impact in ipairs(shot.Hits) do
+            local position = type(impact) == "table" and (impact.Position or impact.position) or nil
+            if not impact.Exit and typeof(position) == "Vector3" then
+                local along = (position - shot.Origin):Dot(direction)
+                if along > farthest and along <= (tonumber(properties and properties.Range) or 500) + 0.1 then
+                    farthest = along
+                    destination = position
+                end
+            end
+        end
+    end
+    return shot.Origin, destination
+end
+
+local function renderXCBeam(group, origin, destination, width, color, duration)
+    local startNode = newXCEffectPart(group, color)
+    local endNode = newXCEffectPart(group, color)
+    startNode.Size = Vector3.new(0.05, 0.05, 0.05)
+    endNode.Size = startNode.Size
+    startNode.Transparency = 1
+    endNode.Transparency = 1
+    startNode.Position = origin
+    endNode.Position = destination
+
+    local startAttachment = Instance.new("Attachment")
+    startAttachment.Parent = startNode
+    local endAttachment = Instance.new("Attachment")
+    endAttachment.Parent = endNode
+    local beam = Instance.new("Beam")
+    beam.Attachment0 = startAttachment
+    beam.Attachment1 = endAttachment
+    beam.FaceCamera = true
+    beam.LightEmission = 1
+    beam.Width0 = width * 1.25
+    beam.Width1 = width * 0.35
+    beam.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, color),
+        ColorSequenceKeypoint.new(0.55, color:Lerp(Color3.new(1, 1, 1), 0.5)),
+        ColorSequenceKeypoint.new(1, color),
+    })
+    beam.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.05),
+        NumberSequenceKeypoint.new(0.8, 0.15),
+        NumberSequenceKeypoint.new(1, 0.75),
+    })
+    beam.Parent = startNode
+    TweenService:Create(beam, TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Width0 = 0,
+        Width1 = 0,
+    }):Play()
+end
+
+local function renderXCLightning(group, origin, destination, width, color, duration)
+    local delta = destination - origin
+    local distance = delta.Magnitude
+    if distance <= 0.001 then return end
+    local forward = delta.Unit
+    local reference = math.abs(forward:Dot(Vector3.yAxis)) > 0.9 and Vector3.xAxis or Vector3.yAxis
+    local right = forward:Cross(reference).Unit
+    local up = forward:Cross(right).Unit
+    local segments = math.clamp(math.floor(distance / 7), 7, 16)
+    local amplitude = math.clamp(distance * 0.018, width * 2.5, 1.6)
+    local randomizer = Random.new()
+    local previous = origin
+    for index = 1, segments do
+        local alpha = index / segments
+        local point = origin:Lerp(destination, alpha)
+        if index < segments then
+            point = point + (right * randomizer:NextNumber(-amplitude, amplitude))
+                + up * randomizer:NextNumber(-amplitude, amplitude)
+        end
+        local segment = newXCEffectPart(group, color)
+        if placeXCLinePart(segment, previous, point, width * randomizer:NextNumber(0.7, 1.25), false) then
+            segment.Transparency = randomizer:NextNumber(0, 0.18)
+            TweenService:Create(segment, TweenInfo.new(duration * randomizer:NextNumber(0.7, 1),
+                Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 1}):Play()
+        else
+            segment:Destroy()
+        end
+        previous = point
+    end
+end
+
+local function renderXCComet(group, origin, destination, width, color, duration)
+    local comet = newXCEffectPart(group, color)
+    comet.Shape = Enum.PartType.Ball
+    comet.Size = Vector3.new(width * 2.8, width * 2.8, width * 2.8)
+    comet.Position = origin
+    local upper = Instance.new("Attachment")
+    upper.Position = Vector3.new(0, width * 0.6, 0)
+    upper.Parent = comet
+    local lower = Instance.new("Attachment")
+    lower.Position = Vector3.new(0, -width * 0.6, 0)
+    lower.Parent = comet
+    local trail = Instance.new("Trail")
+    trail.Attachment0 = upper
+    trail.Attachment1 = lower
+    trail.FaceCamera = true
+    trail.LightEmission = 1
+    trail.Lifetime = math.max(0.08, duration * 0.65)
+    trail.MinLength = 0.03
+    trail.Color = ColorSequence.new(color, color:Lerp(Color3.new(1, 1, 1), 0.55))
+    trail.Transparency = NumberSequence.new(0.05, 1)
+    trail.WidthScale = NumberSequence.new(1, 0)
+    trail.Parent = comet
+    local travelTime = math.clamp(duration * 0.55, 0.08, 0.4)
+    local movement = TweenService:Create(comet, TweenInfo.new(travelTime, Enum.EasingStyle.Quad,
+        Enum.EasingDirection.Out), {Position = destination})
+    movement:Play()
+    task.delay(travelTime, function()
+        if comet.Parent then
+            TweenService:Create(comet, TweenInfo.new(math.max(0.05, duration - travelTime),
+                Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 1, Size = Vector3.zero}):Play()
+        end
+    end)
+end
+
+local function renderXCPartTrail(group, origin, destination, width, color, duration, style)
+    local trail = newXCEffectPart(group, color)
+    local cylinder = style == "Cylinder" or style == "Pulse"
+    if not placeXCLinePart(trail, origin, destination, width, cylinder) then trail:Destroy() return end
+    if style == "Pulse" then
+        local distance = (destination - origin).Magnitude
+        local targetSize = cylinder and Vector3.new(distance, width * 3.2, width * 3.2)
+            or Vector3.new(width * 3.2, width * 3.2, distance)
+        TweenService:Create(trail, TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = targetSize,
+            Transparency = 1,
+        }):Play()
+    else
+        TweenService:Create(trail, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Transparency = 1,
+        }):Play()
+    end
+end
+
+local function renderXCBulletEffects(shot, bullet)
+    if not (XCConfig.bulletTrailEnabled or XCConfig.bulletFlashEnabled or XCConfig.bulletImpactEnabled) then return end
+    local weapon = type(bullet) == "table" and bullet.Weapon or nil
+    if weapon and weapon.Player and weapon.Player ~= player then return end
+    local origin, destination = resolveXCBulletVisualLine(shot, bullet)
+    if not origin or not destination or (destination - origin).Magnitude <= 0.05 then return end
+
+    local duration = math.clamp(tonumber(XCConfig.bulletTracerDuration) or 0.65, 0.05, 3)
+    local width = math.clamp(tonumber(XCConfig.bulletTracerWidth) or 0.08, 0.02, 0.5)
+    local color = XCConfig.bulletTracerRainbow and Color3.fromHSV((os.clock() * 0.35) % 1, 0.9, 1)
+        or rgb(XCConfig.bulletTracerColorR, XCConfig.bulletTracerColorG, XCConfig.bulletTracerColorB)
+    local group = Instance.new("Folder")
+    group.Name = "Shot"
+    group.Parent = getXCBulletEffectFolder()
+
+    if XCConfig.bulletTrailEnabled then
+        local style = tostring(XCConfig.bulletTracerStyle or "Beam")
+        if style == "Lightning" then
+            renderXCLightning(group, origin, destination, width, color, duration)
+        elseif style == "Comet" then
+            renderXCComet(group, origin, destination, width, color, duration)
+        elseif style == "Beam" then
+            renderXCBeam(group, origin, destination, width, color, duration)
+        else
+            renderXCPartTrail(group, origin, destination, width, color, duration, style)
+        end
+    end
+
+    if XCConfig.bulletImpactEnabled then
+        local impact = newXCEffectPart(group, color)
+        impact.Shape = Enum.PartType.Ball
+        local size = math.clamp(tonumber(XCConfig.bulletImpactSize) or 0.35, 0.05, 2)
+        impact.Size = Vector3.new(size, size, size)
+        impact.Position = destination
+        TweenService:Create(impact, TweenInfo.new(math.min(duration, 0.4), Enum.EasingStyle.Back,
+            Enum.EasingDirection.Out), {Size = Vector3.zero, Transparency = 1}):Play()
+    end
+
+    if XCConfig.bulletFlashEnabled then
+        local flash = newXCEffectPart(group, color:Lerp(Color3.new(1, 1, 1), 0.35))
+        flash.Shape = Enum.PartType.Ball
+        flash.Size = Vector3.new(width * 5, width * 5, width * 5)
+        flash.Position = origin
+        TweenService:Create(flash, TweenInfo.new(0.12, Enum.EasingStyle.Quad,
+            Enum.EasingDirection.Out), {Size = Vector3.zero, Transparency = 1}):Play()
+    end
+
+    trackXCBulletEffect(group, duration + (XCConfig.bulletTracerStyle == "Comet" and duration * 0.65 or 0))
+end
+
+function setupBloxStrikeShootHook()
+    if bloxStrikeShootHooked then return end
+    
+    pcall(function()
+        local visualInputConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                local char = player.Character
+                local tool = char and char:FindFirstChildOfClass("Tool")
+                
+                -- Compatibility fallback only. Blox Strike visuals are emitted
+                -- from Bullet._performRaycast so touch/mouse input cannot create
+                -- fake or duplicate trails.
+                if not xcNativeSilentHooked
+                    and (XCConfig.bulletTrailEnabled or XCConfig.bulletFlashEnabled) and tool then
+                    local cam = Workspace.CurrentCamera or camera
+                    if not cam then return end
+                    
+                    local origin = cam.CFrame.Position
+                    local muzzle = tool:FindFirstChild("Muzzle") or tool:FindFirstChild("Handle")
+                    if muzzle and muzzle:IsA("BasePart") then
+                        origin = muzzle.Position
+                    end
+
+                    local rayParams = RaycastParams.new()
+                    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+                    rayParams.FilterDescendantsInstances = {player.Character, camera}
+                    rayParams.IgnoreWater = true
+                    
+                    local direction = cam.CFrame.LookVector
+                    local hit = Workspace:Raycast(origin, direction * 500, rayParams)
+                    local distance = hit and (hit.Position - origin).Magnitude or 500
+                    renderXCBulletEffects({
+                        Origin = origin,
+                        Direction = direction,
+                        Distance = distance,
+                        Hits = hit and {{Position = hit.Position, Instance = hit.Instance, Exit = false}} or {},
+                    }, nil)
+                end
+            end
+        end)
+        table.insert(connections, visualInputConnection)
+    end)
+
+    pcall(function()
+        local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+        local moduleScript = controllers and controllers:FindFirstChild("InventoryController")
+        if not moduleScript then return end
+
+        local inventoryController = require(moduleScript)
+        if type(inventoryController) ~= "table" then return end
+        if type(inventoryController.ShootWeapon) ~= "function" then return end
+        if rawget(inventoryController, "__XCSilentAimSafeHookV25") then
+            bloxStrikeShootHooked = true
+            return
+        end
+
+        -- This also upgrades a persistent pre-v23 wrapper. The old wrapper is
+        -- called with Silent Aim temporarily disabled, so it cannot mutate the
+        -- fresh payload a second time.
+        local originalShootWeapon = inventoryController.ShootWeapon
+        inventoryController.ShootWeapon = function(self, data, ...)
+            -- Capture the user's real toggle before a persistent inner wrapper
+            -- masks XCConfig to suppress its obsolete payload mutation.
+            setXCSilentAimRequested(XCConfig.silentAimEnabled)
+            local shotData = dispatchXCPrepareSilentShotPayload(data)
+
+            -- The payload belongs to the local InventoryController. Record only
+            -- enemy parts predicted by this exact shot; health changes from other
+            -- players are ignored by the hit feedback system below.
+            dispatchXCLocalHitPayload(shotData)
+
+            return callXCShotWithoutLegacyRewrite(originalShootWeapon, self, shotData, ...)
+        end
+
+        rawset(inventoryController, "__XCShootHooked", true)
+        rawset(inventoryController, "__XCHitConfirmHookV18", true)
+        rawset(inventoryController, "__XCSilentAimSafeHookV23", true)
+        rawset(inventoryController, "__XCSilentAimSafeHookV25", true)
+        bloxStrikeShootHooked = true
+    end)
+end
+--// STABLE RCS & RECOIL
+local noRecoil = {
+    isShooting = false
+}
+
+local fireStartConn = UserInputService.InputBegan:Connect(function(input)
+    -- Every mobile control is a Touch. Do not flag movement/menu touches as fire.
+    if not UserInputService.TouchEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        noRecoil.isShooting = true
+    end
+end)
+table.insert(connections, fireStartConn)
+
+local fireEndConn = UserInputService.InputEnded:Connect(function(input)
+    if not UserInputService.TouchEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        noRecoil.isShooting = false
+    end
+end)
+table.insert(connections, fireEndConn)
+--// FACTION CHECK & HEALTH CHECK LOGIC -+WORK
+function isAlly(plr)
+    if not plr or plr == player then return true end
+
+    -- Team identity must never depend on a visual-module toggle. Individual
+    -- modules decide for themselves whether they want to filter teammates.
+    if plr.Team and player.Team then
+        return plr.Team == player.Team
+    end
+    if plr:GetAttribute("Team") and player:GetAttribute("Team") then
+        return plr:GetAttribute("Team") == player:GetAttribute("Team")
+    end
+    if plr.TeamColor and player.TeamColor and plr.TeamColor ~= BrickColor.new("White") then
+        return plr.TeamColor == player.TeamColor
+    end
+    return false
+end
+
+function isTargetEnemy(plr, char)
+    if not plr or plr == player then return false end
+    if char and char == player.Character then return false end
+    return not isAlly(plr)
+end
+
+function getXCHealth(char, plr, hum)
+    local health, maximum
+    if char then
+        health = char:GetAttribute("Health")
+        maximum = char:GetAttribute("MaxHealth")
+    end
+    if type(health) ~= "number" and plr then health = plr:GetAttribute("Health") end
+    if type(maximum) ~= "number" and plr then maximum = plr:GetAttribute("MaxHealth") end
+    if type(health) ~= "number" then health = tonumber(health) end
+    if type(maximum) ~= "number" then maximum = tonumber(maximum) end
+    if type(health) ~= "number" and hum then health = hum.Health end
+    if type(maximum) ~= "number" and hum then maximum = hum.MaxHealth end
+    if type(health) ~= "number" or health ~= health then return nil, nil end
+    if type(maximum) ~= "number" or maximum ~= maximum or maximum <= 0 then maximum = 100 end
+    return math.clamp(health, 0, maximum), maximum
+end
+
+function XCClearPendingLocalHit(healthKey, pending)
+    if pending and type(pending.Connections) == "table" then
+        for _, connection in ipairs(pending.Connections) do
+            pcall(function()
+                connection:Disconnect()
+            end)
+        end
+        pending.Connections = {}
+    end
+
+    if hitmarkerPendingHits[healthKey] == pending then
+        hitmarkerPendingHits[healthKey] = nil
+    end
+end
+
+function XCConfirmPendingLocalKill(healthKey, pending, source)
+    if type(pending) ~= "table"
+        or pending.KillConfirmed then
+        return false
+    end
+    if hitmarkerPendingHits[healthKey] ~= pending then
+        return false
+    end
+
+    local now = os.clock()
+    if now - (tonumber(pending.LastHitAt) or 0) > 1.85 then
+        XCClearPendingLocalHit(healthKey, pending)
+        return false
+    end
+
+    pending.KillConfirmed = true
+
+    local position = XCResolveKillEffectPosition(
+        source or pending.Character,
+        pending.LastPosition
+    )
+
+    XCClearPendingLocalHit(healthKey, pending)
+
+    if XCConfig.killEffectEnabled
+        and typeof(position) == "Vector3"
+        and type(XCSpawnKillEffect) == "function" then
+        pcall(XCSpawnKillEffect, position)
+    end
+
+    return true
+end
+
+registerXCLocalHitCandidate = function(hitInstance)
+    local cursor = hitInstance
+    local targetPlayer, targetCharacter
+
+    while cursor and cursor ~= Workspace do
+        if cursor:IsA("Model") then
+            local candidate = Players:GetPlayerFromCharacter(cursor)
+            if candidate then
+                targetPlayer = candidate
+                targetCharacter = cursor
+                break
+            end
+        end
+        cursor = cursor.Parent
+    end
+
+    if not targetPlayer
+        or not isTargetEnemy(
+            targetPlayer,
+            targetCharacter
+        ) then
+        return
+    end
+
+    local hum = targetCharacter:FindFirstChildOfClass(
+        "Humanoid"
+    )
+    local health = getXCHealth(
+        targetCharacter,
+        targetPlayer,
+        hum
+    )
+    if health == nil then return end
+
+    local healthKey = hum or targetCharacter
+    local now = os.clock()
+    local lastPosition = XCResolveKillEffectPosition(
+        hitInstance,
+        XCResolveKillEffectPosition(targetCharacter)
+    )
+    local pending = hitmarkerPendingHits[healthKey]
+
+    if pending
+        and pending.Expires > now
+        and not pending.KillConfirmed then
+        pending.Expires = now + 1.75
+        pending.LastHitAt = now
+        pending.HitCount = (pending.HitCount or 0) + 1
+        if typeof(lastPosition) == "Vector3" then
+            pending.LastPosition = lastPosition
+        end
+        return
+    end
+
+    if pending then
+        XCClearPendingLocalHit(
+            healthKey,
+            pending
+        )
+    end
+
+    pending = {
+        Character = targetCharacter,
+        Player = targetPlayer,
+        Health = health,
+        LastObservedHealth = health,
+        LastPosition = lastPosition,
+        LastHitAt = now,
+        Expires = now + 1.75,
+        HitCount = 1,
+        SawDamage = false,
+        KillConfirmed = false,
+        Connections = {},
+    }
+    hitmarkerPendingHits[healthKey] = pending
+
+    local function rememberPosition()
+        local position = XCResolveKillEffectPosition(
+            targetCharacter,
+            pending.LastPosition
+        )
+        if typeof(position) == "Vector3" then
+            pending.LastPosition = position
+        end
+    end
+
+    if hum then
+        pending.Connections[
+            #pending.Connections + 1
+        ] = hum.Died:Connect(function()
+            rememberPosition()
+            XCConfirmPendingLocalKill(
+                healthKey,
+                pending,
+                pending.LastPosition
+            )
+        end)
+
+        pending.Connections[
+            #pending.Connections + 1
+        ] = hum.HealthChanged:Connect(function(value)
+            rememberPosition()
+            value = tonumber(value)
+
+            if value then
+                if value
+                    < (
+                        tonumber(
+                            pending.LastObservedHealth
+                        )
+                        or value
+                    ) then
+                    pending.SawDamage = true
+                end
+
+                pending.LastObservedHealth = value
+
+                if value <= 0 then
+                    XCConfirmPendingLocalKill(
+                        healthKey,
+                        pending,
+                        pending.LastPosition
+                    )
+                end
+            end
+        end)
+    end
+
+    pending.Connections[
+        #pending.Connections + 1
+    ] = targetCharacter:GetAttributeChangedSignal(
+        "Health"
+    ):Connect(function()
+        rememberPosition()
+
+        local value = tonumber(
+            targetCharacter:GetAttribute("Health")
+        )
+        if value then
+            if value
+                < (
+                    tonumber(
+                        pending.LastObservedHealth
+                    )
+                    or value
+                ) then
+                pending.SawDamage = true
+            end
+
+            pending.LastObservedHealth = value
+
+            if value <= 0 then
+                XCConfirmPendingLocalKill(
+                    healthKey,
+                    pending,
+                    pending.LastPosition
+                )
+            end
+        end
+    end)
+
+    pending.Connections[
+        #pending.Connections + 1
+    ] = targetCharacter:GetAttributeChangedSignal(
+        "Dead"
+    ):Connect(function()
+        rememberPosition()
+
+        if targetCharacter:GetAttribute("Dead") == true then
+            XCConfirmPendingLocalKill(
+                healthKey,
+                pending,
+                pending.LastPosition
+            )
+        end
+    end)
+
+    pending.Connections[
+        #pending.Connections + 1
+    ] = targetPlayer:GetAttributeChangedSignal(
+        "Health"
+    ):Connect(function()
+        local value = tonumber(
+            targetPlayer:GetAttribute("Health")
+        )
+        if value then
+            if value
+                < (
+                    tonumber(
+                        pending.LastObservedHealth
+                    )
+                    or value
+                ) then
+                pending.SawDamage = true
+            end
+
+            pending.LastObservedHealth = value
+
+            if value <= 0 then
+                XCConfirmPendingLocalKill(
+                    healthKey,
+                    pending,
+                    pending.LastPosition
+                )
+            end
+        end
+    end)
+
+    pending.Connections[
+        #pending.Connections + 1
+    ] = targetPlayer:GetAttributeChangedSignal(
+        "Dead"
+    ):Connect(function()
+        if targetPlayer:GetAttribute("Dead") == true then
+            rememberPosition()
+            XCConfirmPendingLocalKill(
+                healthKey,
+                pending,
+                pending.LastPosition
+            )
+        end
+    end)
+
+    -- Fallback for games that destroy the character before their last
+    -- Health/Dead replication reaches this client.
+    pending.Connections[
+        #pending.Connections + 1
+    ] = targetCharacter.AncestryChanged:Connect(
+        function(_, parent)
+            if parent ~= nil
+                or pending.KillConfirmed then
+                return
+            end
+
+            local removedAt = os.clock()
+
+            task.defer(function()
+                if hitmarkerPendingHits[healthKey]
+                    ~= pending
+                    or pending.KillConfirmed then
+                    return
+                end
+
+                if removedAt
+                    - (
+                        tonumber(
+                            pending.LastHitAt
+                        )
+                        or 0
+                    )
+                    <= 0.85 then
+                    local lastHealth = tonumber(
+                        pending.LastObservedHealth
+                    )
+                    local deadFlag =
+                        targetCharacter:GetAttribute(
+                            "Dead"
+                        ) == true
+                        or targetPlayer:GetAttribute(
+                            "Dead"
+                        ) == true
+
+                    if deadFlag
+                        or lastHealth == nil
+                        or lastHealth <= 0
+                        or pending.SawDamage then
+                        XCConfirmPendingLocalKill(
+                            healthKey,
+                            pending,
+                            pending.LastPosition
+                        )
+                    end
+                end
+            end)
+        end
+    )
+end
+
+function getTargetHitbox(char)
+    if not char then return nil end
+    if XCConfig.bodyAimOnly then
+        return char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+    end
+    if aimboneIndex == 1 then
+        return char:FindFirstChild("Head") or char:FindFirstChild("UpperTorso")
+    elseif aimboneIndex == 2 then
+        return char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso") or char:FindFirstChild("Head")
+    else
+        return char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("UpperTorso") or char:FindFirstChild("Head")
+    end
+end
+
+function isEntityAlive(char, hum)
+    if not char or not char.Parent or not char:IsDescendantOf(Workspace) then 
+        return false 
+    end
+    
+    local health = getXCHealth(char, Players:GetPlayerFromCharacter(char), hum)
+    if health ~= nil and health <= 0 then return false end
+    if hum and hum.Parent then
+        local health = 100
+        pcall(function() health = hum.Health end)
+        if health <= 0 then 
+            return false 
+        end
+        
+        local state = nil
+        pcall(function() state = hum:GetState() end)
+        if state == Enum.HumanoidStateType.Dead then 
+            return false 
+        end
+    end
+
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+    local head = char:FindFirstChild("Head")
+    if not root and not head then
+        return false
+    end
+
+    return true
+end
+--// VISIBILITY CHECK SYSTEM WORK
+local wallRayParams = RaycastParams.new()
+wallRayParams.FilterType = Enum.RaycastFilterType.Exclude
+wallRayParams.IgnoreWater = true
+
+function isVisibleThroughWalls(targetPart, targetChar)
+    if not camera or not targetPart or not targetChar then return false end
+    local myChar = player.Character
+    wallRayParams.FilterDescendantsInstances = {myChar, camera}
+    local origin = camera.CFrame.Position
+    local dir = targetPart.Position - origin
+    
+    local hit = Workspace:Raycast(origin, dir, wallRayParams)
+    if not hit then return true end
+    return hit.Instance == targetPart or hit.Instance:IsDescendantOf(targetChar)
+end
+--// ZERO-LAG SILENT AIM -+WORK
+getSilentAimTarget = function()
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil end
+    local screenCenter = cam.ViewportSize * 0.5
+    local maxRadius = math.max(1, tonumber(XCConfig.silentAimFov) or 150)
+    local best, bestRadius = nil, maxRadius
+    for _, plr in ipairs(Players:GetPlayers()) do
+        repeat
+        if plr == player then break end
+        if XCConfig.silentAimTeamCheck and isAlly(plr) then break end
+        local char = plr.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if not isEntityAlive(char, hum) then break end
+        local part = char:FindFirstChild(XCConfig.silentAimAimHead and "Head" or "HumanoidRootPart")
+            or char:FindFirstChild("Torso")
+        if not part or not part:IsA("BasePart") then break end
+        -- Visible Check is now a true independent gate:
+        -- ON  = reject obstructed targets.
+        -- OFF = target selection may see through geometry. Auto Wall, when
+        --       enabled, additionally rejects walls the equipped weapon cannot
+        --       actually penetrate with its native penetration budget.
+        local visible = isVisibleThroughWalls(part, char)
+        if XCConfig.silentAimVisibleCheck and not visible then
+            break
+        end
+        if not visible and not XCConfig.silentAimVisibleCheck
+            and XCConfig.silentAimAutoWallEnabled
+            and not XCConfig.wallbangEnabled and not XCConfig.extremeWallbangEnabled then
+            local origin = cam.CFrame.Position
+            if type(canXCSilentAutoWallTarget) ~= "function"
+                or not canXCSilentAutoWallTarget(origin, part, char) then
+                break
+            end
+        end
+        local hitscanPos = part.Position
+        local point, onScreen = cam:WorldToViewportPoint(hitscanPos)
+        if not onScreen or point.Z <= 0 then break end
+        local radius = (Vector2.new(point.X, point.Y) - screenCenter).Magnitude
+        if radius < bestRadius then
+            bestRadius = radius
+            best = part
+        end
+        until true
+    end
+    return best
+end
+
+local function getXCSilentShotOrigin(activeCamera)
+    activeCamera = activeCamera or Workspace.CurrentCamera or camera
+    if XCConfig.thirdPersonEnabled then
+        local character = player.Character
+        local originPart = character and (character:FindFirstChild("CameraPart")
+            or character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart"))
+        if originPart and originPart:IsA("BasePart") then return originPart.Position end
+    end
+    return activeCamera and activeCamera.CFrame.Position or nil
+end
+
+silentAimCamPosAim = function(targetPart)
+    targetPart = targetPart or silentAimResolved
+    if not (XCConfig.silentAimEnabled and targetPart) then return nil end
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil end
+    local camPos = getXCSilentShotOrigin(cam)
+    local aimPos = targetPart.Position
+    if not camPos then return nil end
+
+    -- Native hitscan uses the current client hitbox. Prediction remains
+    -- available to the visible aimbot, but is intentionally not used here.
+    return camPos, aimPos
+end
+
+-- v31: a mobile touch is not necessarily a shot (movement, jump, reload and
+-- menu buttons are touches too). Gate Silent Aim with the equipped weapon's
+-- real shoot() call instead of the global Touch input state.
+local xcSilentShotContextV31 = nil
+local xcSilentShootWrappedV31 = sharedXCEnv and sharedXCEnv.XCSilentShootWrappedV31
+if type(xcSilentShootWrappedV31) ~= "table" then
+    xcSilentShootWrappedV31 = setmetatable({}, {__mode = "k"})
+    if sharedXCEnv then sharedXCEnv.XCSilentShootWrappedV31 = xcSilentShootWrappedV31 end
+end
+
+local function enterXCSilentShotV31(weapon)
+    local thread = coroutine.running()
+    local context = sharedXCEnv and sharedXCEnv.XCSilentShotContextV31 or xcSilentShotContextV31
+    if context and context.Thread == thread then
+        context.Depth = (context.Depth or 1) + 1
+        return context
+    end
+
+    local targetPart = nil
+    local allowed = false
+    if isXCSilentAimRequested() then
+        targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
+        local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+        allowed = targetPart ~= nil and targetPart.Parent ~= nil
+            and (chance >= 100 or math.random(1, 100) <= chance)
+    end
+
+    context = {
+        Thread = thread,
+        Weapon = weapon,
+        Target = targetPart,
+        Allowed = allowed,
+        CameraUsed = false,
+        PayloadUsed = false,
+        Depth = 1,
+    }
+    xcSilentShotContextV31 = context
+    if sharedXCEnv then sharedXCEnv.XCSilentShotContextV31 = context end
+    return context
+end
+
+local function leaveXCSilentShotV31()
+    local context = sharedXCEnv and sharedXCEnv.XCSilentShotContextV31 or xcSilentShotContextV31
+    if not context or context.Thread ~= coroutine.running() then return end
+    context.Depth = (context.Depth or 1) - 1
+    if context.Depth > 0 then return end
+    xcSilentShotContextV31 = nil
+    if sharedXCEnv then sharedXCEnv.XCSilentShotContextV31 = nil end
+end
+
+if sharedXCEnv then
+    sharedXCEnv.XCEnterSilentShotV31 = enterXCSilentShotV31
+    sharedXCEnv.XCLeaveSilentShotV31 = leaveXCSilentShotV31
+end
+
+local function getXCSilentShotContextV31(requireAllowed)
+    local context = sharedXCEnv and sharedXCEnv.XCSilentShotContextV31 or xcSilentShotContextV31
+    if not context or context.Thread ~= coroutine.running() then return nil end
+    if requireAllowed and (not context.Allowed or not context.Target or not context.Target.Parent) then
+        return nil
+    end
+    return context
+end
+
+local function wrapXCEquippedShootV31()
+    if not UserInputService.TouchEnabled then return false end
+    local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+    local moduleScript = controllers and controllers:FindFirstChild("InventoryController")
+    local inventory = moduleScript and require(moduleScript)
+    local getter = inventory and inventory.peekCurrentEquippedForMovement
+    local weapon = type(getter) == "function" and getter() or nil
+    if type(weapon) ~= "table" or type(weapon.shoot) ~= "function" or weapon.IsDestroyed then
+        return false
+    end
+
+    local record = xcSilentShootWrappedV31[weapon]
+    if record and weapon.shoot == record.Wrapper then return true end
+
+    local originalShoot = weapon.shoot
+    local wrapper
+    wrapper = function(self, ...)
+        local enter = sharedXCEnv and sharedXCEnv.XCEnterSilentShotV31 or enterXCSilentShotV31
+        local leave = sharedXCEnv and sharedXCEnv.XCLeaveSilentShotV31 or leaveXCSilentShotV31
+        if type(enter) == "function" then enter(self) end
+        local results = table.pack(pcall(originalShoot, self, ...))
+        if type(leave) == "function" then leave() end
+        if not results[1] then error(results[2], 0) end
+        return table.unpack(results, 2, results.n)
+    end
+
+    local ok = pcall(function() weapon.shoot = wrapper end)
+    if ok and weapon.shoot == wrapper then
+        xcSilentShootWrappedV31[weapon] = {Wrapper = wrapper, Original = originalShoot}
+        return true
+    end
+    return false
+end
+
+function setupSilentAimHooks()
+    if silentAimHooked and silentAimCamHooked then return end
+
+    if not silentAimHooked and UserInputService.TouchEnabled then
+        -- Native bullet redirection is used on mobile. Do not create/access a
+        -- Mouse object because some mobile executors report it as desktop input.
+        silentAimHooked = true
+    elseif not silentAimHooked and hookmetamethod then
+        pcall(function()
+            local mouse = player:GetMouse()
+            local oldIndex
+            oldIndex = hookmetamethod(mouse, "__index", function(self, key)
+                if XCConfig.silentAimEnabled and silentAimResolved and (key == "Hit" or key == "UnitRay") then
+                    local camPos, aimPos = silentAimCamPosAim()
+                    if camPos then
+                        if key == "Hit" then
+                            return CFrame.new(camPos, aimPos)
+                        else
+                            return Ray.new(camPos, (aimPos - camPos).Unit)
+                        end
+                    end
+                end
+                return oldIndex(self, key)
+            end)
+        end)
+        silentAimHooked = true
+    end
+
+    if UserInputService.TouchEnabled and xcNativeSilentHooked then
+        silentAimCamHooked = true
+    end
+
+    if not silentAimCamHooked and hookmetamethod and getnamecallmethod then
+        local cameraHookInstalled = pcall(function()
+            local oldNamecall
+            oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+                local method = getnamecallmethod()
+                local args = {...}
+
+                local activeCamera = Workspace.CurrentCamera or camera
+                if self == activeCamera
+                    and (method == "ViewportPointToRay" or method == "ScreenPointToRay") then
+                    if UserInputService.TouchEnabled then
+                        local context = getXCSilentShotContextV31(true)
+
+                        -- A v30 namecall hook can survive reinjection. Mask the
+                        -- request while obtaining the untouched game ray so the
+                        -- obsolete broad touch gate cannot run underneath v31.
+                        local requested = sharedXCEnv and sharedXCEnv.XCSilentAimRequestedV25
+                        if sharedXCEnv then sharedXCEnv.XCSilentAimRequestedV25 = false end
+                        local originalRay = oldNamecall(self, ...)
+                        if sharedXCEnv then sharedXCEnv.XCSilentAimRequestedV25 = requested end
+
+                        if context and typeof(originalRay) == "Ray" then
+                            context.CameraUsed = true
+                            local aimPos = context.Target.Position
+                            local rayOrigin = getXCSilentShotOrigin(activeCamera) or originalRay.Origin
+                            local delta = aimPos - rayOrigin
+                            if delta.Magnitude > 0.001 then
+                                local magnitude = originalRay.Direction.Magnitude
+                                return Ray.new(rayOrigin, delta.Unit * (magnitude > 0.001 and magnitude or 1))
+                            end
+                        end
+                        return originalRay
+                    elseif isXCSilentAimRequested() and noRecoil.isShooting then
+                        local targetPart = silentAimResolved
+                        if targetPart and targetPart.Parent then
+                            local originalRay = oldNamecall(self, ...)
+                            if typeof(originalRay) == "Ray" then
+                                local aimPos = targetPart.Position
+                                local rayOrigin = getXCSilentShotOrigin(activeCamera) or originalRay.Origin
+                                local delta = aimPos - rayOrigin
+                                if delta.Magnitude > 0.001 then
+                                    local magnitude = originalRay.Direction.Magnitude
+                                    return Ray.new(rayOrigin, delta.Unit * (magnitude > 0.001 and magnitude or 1))
+                                end
+                            end
+                        end
+                    end
+                end
+
+                if XCConfig.pSilentEnabled and silentAimResolved and self == Workspace then
+                    local camPos, aimPos = silentAimCamPosAim()
+                    if aimPos then
+                        if method == "Raycast" then
+                            local origin = args[1]
+                            local originalDirection = args[2]
+                            if typeof(origin) == "Vector3" and typeof(originalDirection) == "Vector3" then
+                                local magnitude = originalDirection.Magnitude
+                                local delta = aimPos - origin
+                                if magnitude > 0 and delta.Magnitude > 0.001 then
+                                    args[2] = delta.Unit * magnitude
+                                    if XCConfig.wallbangEnabled then
+                                        local wbParams = RaycastParams.new()
+                                        wbParams.FilterType = Enum.RaycastFilterType.Include
+                                        local charList = {}
+                                        for _, plr in ipairs(Players:GetPlayers()) do
+                                            if plr.Character then
+                                                table.insert(charList, plr.Character)
+                                            end
+                                        end
+                                        wbParams.FilterDescendantsInstances = charList
+                                        wbParams.IgnoreWater = true
+                                        args[3] = wbParams
+                                    end
+                                    return oldNamecall(self, unpack(args))
+                                end
+                            end
+                        elseif method == "FindPartOnRay"
+                            or method == "FindPartOnRayWithIgnoreList"
+                            or method == "FindPartOnRayWithWhitelist" then
+                            local oldRay = args[1]
+                            if typeof(oldRay) == "Ray" then
+                                local delta = aimPos - oldRay.Origin
+                                if delta.Magnitude > 0.001 then
+                                    args[1] = Ray.new(oldRay.Origin, delta.Unit * oldRay.Direction.Magnitude)
+                                    return oldNamecall(self, unpack(args))
+                                end
+                            end
+                        end
+                    end
+                end
+
+                return oldNamecall(self, ...)
+            end)
+        end)
+        silentAimCamHooked = cameraHookInstalled
+        if UserInputService.TouchEnabled and cameraHookInstalled then
+            xcMobileCameraSilentHooked = true
+        end
+    end
+end
+
+-- Native Blox Strike Silent Aim path. Redirecting Bullet._performRaycast keeps
+-- Silent Aim independent from character LookYaw (Spin/Jitter anti-aim) and
+-- from the weapon's FireRate. Normal Silent Aim does not need a Send rewrite;
+-- Extreme Wallbang adds one final Send-stage redirect to match Memesense behavior.
+local xcNativeRaycast = nil
+local xcNativeGetRayIgnore = nil
+
+-- Silent Aim Auto Wall uses the equipped weapon's real penetration value.
+-- Unlike forced Wallbang, this never inflates penetration: an obstructed target
+-- is accepted only when the native Blox Strike ray module can reach the target
+-- with the weapon's own Bullet.Properties.Penetration.
+local xcAutoWallGetWeapon = nil
+local xcAutoWallResolveAfter = 0
+
+local function resolveXCAutoWallProperties()
+    if type(xcAutoWallGetWeapon) == "function" then
+        local ok, weapon = pcall(xcAutoWallGetWeapon)
+        if ok and type(weapon) == "table" then
+            local bullet = rawget(weapon, "Bullet")
+            local properties = type(bullet) == "table" and rawget(bullet, "Properties") or nil
+            if type(properties) == "table" then return properties end
+        end
+    end
+
+    if os.clock() < xcAutoWallResolveAfter then return nil end
+    xcAutoWallResolveAfter = os.clock() + 0.75
+    pcall(function()
+        local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+        local inventoryScript = controllers and controllers:FindFirstChild("InventoryController")
+        local inventory = inventoryScript and require(inventoryScript)
+        if type(inventory) == "table" and type(inventory.peekCurrentEquippedForMovement) == "function" then
+            xcAutoWallGetWeapon = inventory.peekCurrentEquippedForMovement
+        end
+    end)
+
+    if type(xcAutoWallGetWeapon) == "function" then
+        local ok, weapon = pcall(xcAutoWallGetWeapon)
+        if ok and type(weapon) == "table" then
+            local bullet = rawget(weapon, "Bullet")
+            local properties = type(bullet) == "table" and rawget(bullet, "Properties") or nil
+            if type(properties) == "table" then return properties end
+        end
+    end
+    return nil
+end
+
+local function ensureXCAutoWallRaycast()
+    if xcNativeRaycast and type(xcNativeRaycast.cast) == "function"
+        and type(xcNativeRaycast.castThrough) == "function" and type(xcNativeGetRayIgnore) == "function" then
+        return true
+    end
+    pcall(function()
+        local sharedFolder = ReplicatedStorage:FindFirstChild("Shared")
+        local components = ReplicatedStorage:FindFirstChild("Components")
+        local common = components and components:FindFirstChild("Common")
+        local raycastScript = sharedFolder and sharedFolder:FindFirstChild("Raycast")
+        local ignoreScript = common and common:FindFirstChild("GetRayIgnore")
+        if raycastScript and ignoreScript then
+            xcNativeRaycast = require(raycastScript)
+            xcNativeGetRayIgnore = require(ignoreScript)
+        end
+    end)
+    return xcNativeRaycast and type(xcNativeRaycast.cast) == "function"
+        and type(xcNativeRaycast.castThrough) == "function" and type(xcNativeGetRayIgnore) == "function"
+end
+
+local function canXCAutoWallReach(origin, targetPart, targetCharacter, properties, targetPosition)
+    if typeof(origin) ~= "Vector3" or not targetPart or not targetPart.Parent or not ensureXCAutoWallRaycast() then
+        return false
+    end
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties()
+    local penetration = math.max(0, tonumber(properties and properties.Penetration) or 0)
+    if penetration <= 0 then return false end
+
+    local resolvedTargetPosition = typeof(targetPosition) == "Vector3" and targetPosition or targetPart.Position
+    local offset = resolvedTargetPosition - origin
+    local distance = offset.Magnitude
+    if distance <= 0.05 then return true end
+    local direction = offset.Unit
+    local ignore = xcNativeGetRayIgnore()
+    local first = xcNativeRaycast.cast(origin, direction * (distance + 0.05), nil, ignore)
+    local firstInstance = type(first) == "table" and (first.instance or first.Instance) or nil
+    if not firstInstance then return true end
+    if typeof(firstInstance) == "Instance" and (firstInstance == targetPart
+        or (targetCharacter and firstInstance:IsDescendantOf(targetCharacter))) then
+        return true
+    end
+    if typeof(first.position) ~= "Vector3" then return false end
+
+    -- castThrough gets the full target distance, but the native penetration
+    -- budget stays untouched. This makes Auto Wall a real damage/penetration
+    -- check rather than another forced wallbang mode.
+    local hits = xcNativeRaycast.castThrough(
+        first.position - direction * 0.001,
+        direction * (distance + 0.05),
+        penetration,
+        ignore
+    )
+    if type(hits) ~= "table" then return false end
+
+    for index, hit in ipairs(hits) do
+        if type(hit) == "table" then
+            local instance = hit.instance or hit.Instance
+            local isExit = hit.Exit
+            if isExit == nil then isExit = index % 2 == 0 end
+            if typeof(instance) == "Instance" and not isExit
+                and (instance == targetPart or (targetCharacter and instance:IsDescendantOf(targetCharacter))) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+canXCSilentAutoWallTarget = function(origin, targetPart, targetCharacter, properties, targetPosition)
+    return canXCAutoWallReach(origin, targetPart, targetCharacter, properties, targetPosition)
+end
+--// HvH v40: MULTIPOINT + MINIMUM DAMAGE | Global helpers are intentional: they do not consume another top-level Luau local slot, avoiding the 200-local compile failure fixed in v38.
+function XCBuildMultipoints(part)
+    if not part or not part:IsA("BasePart") then return {} end
+
+    local points = {
+        {Name = "Center", Position = part.Position, Rank = 0}
+    }
+    if not XCConfig.multipointEnabled then
+        return points
+    end
+
+    local scale = math.clamp(tonumber(XCConfig.multipointScale) or 0.62, 0.10, 0.95)
+    local halfX = math.max(0.03, part.Size.X * 0.5 * scale)
+    local halfY = math.max(0.03, part.Size.Y * 0.5 * scale)
+    local cf = part.CFrame
+
+    points[#points + 1] = {Name = "Left",   Position = part.Position - cf.RightVector * halfX, Rank = 1}
+    points[#points + 1] = {Name = "Right",  Position = part.Position + cf.RightVector * halfX, Rank = 2}
+    points[#points + 1] = {Name = "Top",    Position = part.Position + cf.UpVector * halfY,    Rank = 3}
+
+    -- Head bottom points tend to sit on the neck/torso seam and are less stable.
+    if part.Name ~= "Head" then
+        points[#points + 1] = {Name = "Bottom", Position = part.Position - cf.UpVector * halfY, Rank = 4}
+    end
+    return points
+end
+
+function XCPredictMultipointPosition(part, pointPosition)
+    -- Hitscan registration must use the position that exists on this client at
+    -- the instant the ray is built. Network RTT prediction here over-leads
+    -- strafing targets and disagrees with the ray/path that the game validates.
+    if typeof(pointPosition) == "Vector3" then return pointPosition end
+    if part and part:IsA("BasePart") then return part.Position end
+    return pointPosition
+end
+
+function XCReadWeaponNumber(properties, names)
+    if type(properties) ~= "table" then return nil end
+    for _, key in ipairs(names) do
+        local value = tonumber(rawget(properties, key))
+        if value and value == value then return value end
+    end
+    return nil
+end
+
+function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPosition)
+    local info = {
+        Visible = false,
+        Reachable = false,
+        Thickness = 0,
+        Surfaces = 0,
+    }
+    if typeof(origin) ~= "Vector3" or not targetPart or not targetPart.Parent then
+        return info
+    end
+
+    local position = typeof(targetPosition) == "Vector3" and targetPosition or targetPart.Position
+    local offset = position - origin
+    if offset.Magnitude <= 0.05 then
+        info.Visible = true
+        info.Reachable = true
+        return info
+    end
+
+    if not ensureXCAutoWallRaycast() then
+        info.Visible = isVisibleThroughWalls(targetPart, targetCharacter)
+        info.Reachable = info.Visible
+        return info
+    end
+
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties() or {}
+    local direction = offset.Unit
+    local distance = offset.Magnitude
+    local ignore = xcNativeGetRayIgnore()
+    local first = xcNativeRaycast.cast(origin, direction * (distance + 0.05), nil, ignore)
+    local firstInstance = type(first) == "table" and (first.instance or first.Instance) or nil
+
+    if not firstInstance then
+        info.Visible = true
+        info.Reachable = true
+        return info
+    end
+    if typeof(firstInstance) == "Instance"
+        and (firstInstance == targetPart or (targetCharacter and firstInstance:IsDescendantOf(targetCharacter))) then
+        info.Visible = true
+        info.Reachable = true
+        return info
+    end
+
+    local penetration = math.max(0, tonumber(properties.Penetration) or 0)
+    if penetration <= 0 or typeof(first.position) ~= "Vector3" then
+        return info
+    end
+
+    local hits = xcNativeRaycast.castThrough(
+        first.position - direction * 0.001,
+        direction * (distance + 0.05),
+        penetration,
+        ignore
+    )
+    if type(hits) ~= "table" then return info end
+
+    local entryPosition = nil
+    for index, hit in ipairs(hits) do
+        if type(hit) == "table" then
+            local instance = hit.instance or hit.Instance
+            local positionHit = hit.position or hit.Position
+            local isExit = hit.Exit
+            if isExit == nil then isExit = index % 2 == 0 end
+
+            if typeof(instance) == "Instance" and not isExit
+                and (instance == targetPart or (targetCharacter and instance:IsDescendantOf(targetCharacter))) then
+                info.Reachable = true
+                return info
+            end
+
+            if typeof(positionHit) == "Vector3" then
+                if not isExit then
+                    entryPosition = positionHit
+                    info.Surfaces = info.Surfaces + (1)
+                elseif entryPosition then
+                    info.Thickness = info.Thickness + ((positionHit - entryPosition).Magnitude)
+                    entryPosition = nil
+                end
+            end
+        end
+    end
+    return info
+end
+
+function XCEstimateShotDamage(properties, targetPart, distance, pathInfo)
+    properties = type(properties) == "table" and properties or {}
+    local base = XCReadWeaponNumber(properties, {
+        "Damage", "BaseDamage", "BulletDamage", "DamageMax", "MaxDamage", "DamagePerHit"
+    })
+
+    -- Unknown weapon schema: do not invent a number and accidentally suppress
+    -- a valid shot. Minimum Damage becomes an open gate for that weapon.
+    if not base then
+        for key, value in pairs(properties) do
+            local lower = tostring(key):lower()
+            local number = tonumber(value)
+            if number and number > 0 and number <= 500
+                and lower:find("damage", 1, true)
+                and not lower:find("falloff", 1, true)
+                and not lower:find("mult", 1, true)
+                and not lower:find("minimum", 1, true)
+                and not lower:find("min", 1, true) then
+                base = number
+                break
+            end
+        end
+    end
+    if not base then return nil end
+
+    local damage = base
+    if targetPart and targetPart.Name == "Head" then
+        local headMultiplier = XCReadWeaponNumber(properties, {
+            "HeadshotMultiplier", "HeadMultiplier", "HeadDamageMultiplier", "HeadshotScale"
+        })
+        if headMultiplier and headMultiplier > 0 then damage = damage * (headMultiplier) end
+    end
+
+    distance = math.max(0, tonumber(distance) or 0)
+    local rangeModifier = XCReadWeaponNumber(properties, {"RangeModifier", "DamageRangeModifier"})
+    if rangeModifier and rangeModifier > 0 and rangeModifier < 1 then
+        damage = damage * (rangeModifier ^ (distance / 500))
+    else
+        local falloffStart = XCReadWeaponNumber(properties, {"DamageFalloffStart", "FalloffStart"})
+        local falloffEnd = XCReadWeaponNumber(properties, {"DamageFalloffEnd", "FalloffEnd"})
+        local floorDamage = XCReadWeaponNumber(properties, {"MinimumDamage", "MinDamage", "DamageMin"})
+        if falloffStart and falloffEnd and falloffEnd > falloffStart and distance > falloffStart then
+            local alpha = math.clamp((distance - falloffStart) / (falloffEnd - falloffStart), 0, 1)
+            damage = damage + ((floorDamage or damage * 0.45) - damage) * alpha
+        end
+    end
+
+    if type(pathInfo) == "table" and not pathInfo.Visible then
+        if XCConfig.extremeWallbangEnabled then
+            -- Extreme mode builds a direct target hit payload.
+        else
+            local penetration = math.max(0.001, tonumber(properties.Penetration) or 0.001)
+            local thickness = math.max(0, tonumber(pathInfo.Thickness) or 0)
+            local surfaces = math.max(0, tonumber(pathInfo.Surfaces) or 0)
+            local thicknessLoss = math.clamp((thickness / penetration) * 0.55, 0, 0.72)
+            local surfaceLoss = math.clamp(surfaces * 0.055, 0, 0.22)
+            damage = damage * (math.clamp(1 - thicknessLoss - surfaceLoss, 0.08, 1))
+        end
+    end
+
+    return math.max(0, damage)
+end
+
+function XCPassesMinimumDamage(origin, targetPart, targetCharacter, properties, targetPosition, pathInfo)
+    if not XCConfig.minimumDamageEnabled then return true, nil end
+
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties()
+    if type(properties) ~= "table" then
+        return true, nil
+    end
+
+    pathInfo = type(pathInfo) == "table"
+        and pathInfo
+        or XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPosition)
+
+    local forced = XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled
+    if not pathInfo.Visible and not pathInfo.Reachable and not forced then
+        return false, 0
+    end
+
+    local position = typeof(targetPosition) == "Vector3" and targetPosition or targetPart.Position
+    local damage = XCEstimateShotDamage(properties, targetPart, (position - origin).Magnitude, pathInfo)
+    if damage == nil then
+        return true, nil
+    end
+
+    local required = pathInfo.Visible
+        and math.max(1, tonumber(XCConfig.minimumDamage) or 20)
+        or math.max(1, tonumber(XCConfig.minimumDamageWall) or 12)
+
+    return damage + 1e-4 >= required, damage
+end
+
+local function castXCNativeSilentShot(origin, direction, properties)
+    if not xcNativeRaycast or type(xcNativeRaycast.cast) ~= "function"
+        or type(xcNativeRaycast.castThrough) ~= "function"
+        or type(xcNativeGetRayIgnore) ~= "function" then
+        return nil
+    end
+
+    local range = math.max(1, tonumber(properties and properties.Range) or 500)
+    local penetration = math.max(0, tonumber(properties and properties.Penetration) or 0)
+    local maxSurfaces = 24
+    if XCConfig.wallbangEnabled then
+        penetration = math.max(penetration, range)
+        maxSurfaces = 100
+    end
+
+    local ignore = xcNativeGetRayIgnore()
+    local result = {Origin = origin, Direction = direction, Distance = range, Hits = {}}
+    local first = xcNativeRaycast.cast(origin, direction * range, nil, ignore)
+    if type(first) ~= "table" or not first.instance then return result end
+    if typeof(first.position) == "Vector3" then
+        result.Distance = (first.position - origin).Magnitude
+    end
+
+    -- Penetration is a MATERIAL BUDGET, not the ray length. The old code
+    -- used `penetration` as travel distance, so the validation pass could say
+    -- a wall was penetrable while the real redirected bullet stopped after
+    -- only a few studs. Keep native penetration untouched, but cast through
+    -- the full remaining weapon range.
+    local traveled = typeof(first.position) == "Vector3" and (first.position - origin).Magnitude or 0
+    local throughDistance = math.max(range - traveled + 0.05, 0.001)
+    local hits = xcNativeRaycast.castThrough(
+        first.position - direction * 0.001,
+        direction * throughDistance,
+        penetration,
+        ignore
+    )
+    if type(hits) ~= "table" then return result end
+    for index, hit in ipairs(hits) do
+        if index > maxSurfaces * 2 then break end
+        if type(hit) == "table" and hit.instance and hit.material and typeof(hit.position) == "Vector3" then
+            if (hit.position - origin).Magnitude > range + 0.01 then break end
+            table.insert(result.Hits, {
+                Position = hit.position,
+                Instance = hit.instance,
+                Material = hit.material.Name,
+                Normal = hit.normal or Vector3.zero,
+                Exit = index % 2 == 0,
+            })
+        end
+    end
+    return result
+end
+
+-- ScriptAdap target pass, executed only from the real Bullet raycast. The
+-- native ray module is also used for visibility so target selection and the
+-- weapon's collision rules cannot disagree.
+local function selectXCNativeSilentTarget(origin, properties)
+    local cam = Workspace.CurrentCamera or camera
+    if not cam or typeof(origin) ~= "Vector3" or not xcNativeRaycast
+        or type(xcNativeRaycast.cast) ~= "function" or type(xcNativeGetRayIgnore) ~= "function" then
+        return nil
+    end
+
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties() or {}
+    local center = cam.ViewportSize * 0.5
+    local radiusLimit = math.max(1, tonumber(XCConfig.silentAimFov) or 150)
+    local range = math.max(1, tonumber(properties.Range) or 500)
+    local candidates = {}
+
+    for _, targetPlayer in ipairs(Players:GetPlayers()) do
+        repeat
+        if targetPlayer == player then break end
+        if XCConfig.silentAimTeamCheck and isAlly(targetPlayer) then break end
+
+        local character = targetPlayer.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        if not isEntityAlive(character, humanoid) then break end
+
+        local part = character:FindFirstChild(XCConfig.silentAimAimHead and "Head" or "HumanoidRootPart")
+            or character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
+        if not part or not part:IsA("BasePart") then break end
+
+        for _, multipoint in ipairs(XCBuildMultipoints(part)) do
+            local position = multipoint.Position
+            local point, onScreen = cam:WorldToViewportPoint(position)
+            local distance = (position - origin).Magnitude
+            if onScreen and point.Z > 0 and distance > 0.05 and distance <= range then
+                local radius = (Vector2.new(point.X, point.Y) - center).Magnitude
+                if radius <= radiusLimit then
+                    candidates[#candidates + 1] = {
+                        Player = targetPlayer,
+                        Character = character,
+                        Part = part,
+                        Position = position,
+                        PointName = multipoint.Name,
+                        PointRank = multipoint.Rank or 0,
+                        Radius = radius,
+                    }
+                end
+            end
+        end
+        until true
+    end
+
+    table.sort(candidates, function(a, b)
+        if math.abs(a.Radius - b.Radius) > 0.01 then return a.Radius < b.Radius end
+        if a.PointRank ~= b.PointRank then return a.PointRank < b.PointRank end
+        return a.Player.UserId < b.Player.UserId
+    end)
+
+    for _, candidate in ipairs(candidates) do
+        repeat
+        local path = XCInspectShotPath(
+            origin, candidate.Part, candidate.Character, properties, candidate.Position
+        )
+        local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
+            origin, candidate.Part, candidate.Character, properties, candidate.Position, path
+        )
+        candidate.Visible = path.Visible
+        candidate.EstimatedDamage = estimatedDamage
+
+        if path.Visible then
+            if minDamageOk then return candidate end
+            break
+        end
+
+        -- Visible Check ON is a hard gate.
+        if XCConfig.silentAimVisibleCheck then
+            break
+        end
+
+        if XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled then
+            if minDamageOk then return candidate end
+            break
+        end
+
+        if XCConfig.silentAimAutoWallEnabled then
+            if path.Reachable and minDamageOk then
+                return candidate
+            end
+            break
+        end
+
+        -- Without a wall mode, Silent Aim may still select through geometry
+        -- when Visible Check is OFF. Minimum Damage, if enabled, correctly
+        -- blocks that shot because the unmodified bullet cannot reach target.
+        if not XCConfig.minimumDamageEnabled then
+            return candidate
+        end
+        until true
+    end
+    return nil
+end
+
+local function redirectXCNativeSilentShot(bullet, shot)
+    if not isXCSilentAimRequested() or type(shot) ~= "table"
+        or typeof(shot.Origin) ~= "Vector3" then return shot end
+    if type(bullet) ~= "table" or bullet.IsDestroyed or not bullet.IsActive then return shot end
+    local weapon = bullet.Weapon
+    if not weapon or weapon.Player ~= player then return shot end
+
+    local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+    if chance < 100 and math.random(1, 100) > chance then return shot end
+
+    -- In native third person the camera sits behind the avatar, while bullets
+    -- must originate at the character/weapon side. Using the camera-built
+    -- origin makes visibility and the redirected ray disagree near cover.
+    local shotOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+    local target = selectXCNativeSilentTarget(shotOrigin, bullet.Properties or {})
+    local targetPart = target and target.Part
+    if not targetPart or not targetPart.Parent then return shot end
+
+    local aimPosition = target.Position
+    local offset = aimPosition - shotOrigin
+    if offset.Magnitude < 0.05 then return shot end
+
+    local redirected
+    if XCConfig.extremeWallbangEnabled then
+        -- Direct hit payload: map geometry is omitted entirely for this redirected shot.
+        redirected = {
+            Origin = shotOrigin,
+            Direction = offset.Unit,
+            Distance = offset.Magnitude,
+            Hits = {{
+                Position = aimPosition,
+                Instance = targetPart,
+                Material = targetPart.Material.Name,
+                Normal = -offset.Unit,
+                Exit = false,
+            }},
+        }
+    else
+        redirected = castXCNativeSilentShot(shotOrigin, offset.Unit, bullet.Properties or {})
+    end
+    if not redirected then return shot end
+    silentAimResolved = targetPart
+    if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
+    return redirected
+end
+
+local function processXCNativeLocalShot(bullet, shot)
+    local weapon = type(bullet) == "table" and bullet.Weapon or nil
+    local finalShot = shot
+
+    if weapon and weapon.Player == player then
+        local redirectStore = sharedXCEnv or _G
+        local queued = redirectStore and redirectStore.XCTriggerRedirectV38 or nil
+
+        if type(queued) == "table" then
+            if tonumber(queued.Expires) and os.clock() > queued.Expires then
+                redirectStore.XCTriggerRedirectV38 = nil
+                queued = nil
+            else
+                redirectStore.XCTriggerRedirectV38 = nil
+            end
+        end
+
+        -- Ragebot resolves its target again at the actual Bullet._performRaycast
+        -- call. A render/trigger ticket can be hundreds of milliseconds old on
+        -- high ping and must never dictate the final hitscan position.
+        if XCConfig.rageBotEnabled
+            and type(shot) == "table"
+            and typeof(shot.Origin) == "Vector3"
+            and type(getRageTarget) == "function" then
+
+            local rageOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+            local rageTarget = getRageTarget(
+                rageOrigin,
+                type(bullet.Properties) == "table" and bullet.Properties or {}
+            )
+            if rageTarget and rageTarget.Part and rageTarget.Part.Parent then
+                queued = {
+                    Part = rageTarget.Part,
+                    Character = rageTarget.Char,
+                    Position = rageTarget.ShotPosition or rageTarget.Part.Position,
+                    Mode = "Rage",
+                }
+            elseif type(queued) == "table" and queued.Mode == "Rage" then
+                queued = nil
+            end
+        end
+
+        if type(queued) == "table" and queued.Mode == "Rage" then
+            local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+            if chance < 100 and math.random(1, 100) > chance then
+                queued = nil
+            end
+        end
+
+        if type(queued) == "table"
+            and type(shot) == "table"
+            and typeof(shot.Origin) == "Vector3" then
+
+            local targetPart = queued.Part
+            local targetCharacter = queued.Character
+            if typeof(targetPart) == "Instance"
+                and targetPart:IsA("BasePart")
+                and targetPart.Parent
+                and (not targetCharacter or targetPart:IsDescendantOf(targetCharacter)) then
+
+                local shotOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+                local targetPosition = typeof(queued.Position) == "Vector3"
+                    and queued.Position
+                    or targetPart.Position
+                local offset = targetPosition - shotOrigin
+
+                if offset.Magnitude > 0.05 then
+                    local properties = type(bullet.Properties) == "table" and bullet.Properties or {}
+                    local path = XCInspectShotPath(
+                        shotOrigin, targetPart, targetCharacter, properties, targetPosition
+                    )
+                    local allowed = path.Visible
+                        or XCConfig.extremeWallbangEnabled
+                        or XCConfig.wallbangEnabled
+                        or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+
+                    local minDamageOk = XCPassesMinimumDamage(
+                        shotOrigin, targetPart, targetCharacter, properties, targetPosition, path
+                    )
+
+                    if allowed and minDamageOk then
+                        if XCConfig.extremeWallbangEnabled then
+                            finalShot = {
+                                Origin = shotOrigin,
+                                Direction = offset.Unit,
+                                Distance = offset.Magnitude,
+                                Hits = {{
+                                    Position = targetPosition,
+                                    Instance = targetPart,
+                                    Material = targetPart.Material.Name,
+                                    Normal = -offset.Unit,
+                                    Exit = false,
+                                }},
+                            }
+                        else
+                            finalShot = castXCNativeSilentShot(
+                                shotOrigin, offset.Unit, properties
+                            ) or shot
+                        end
+
+                        if finalShot ~= shot then
+                            silentAimResolved = targetPart
+                            if registerXCLocalHitCandidate then
+                                registerXCLocalHitCandidate(targetPart)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        -- Ragebot owns bullet redirection while enabled. With Ragebot OFF,
+        -- standalone Silent Aim works exactly through its own toggle.
+        if finalShot == shot and not XCConfig.rageBotEnabled then
+            finalShot = redirectXCNativeSilentShot(bullet, shot)
+        end
+
+        pcall(renderXCBulletEffects, finalShot, bullet)
+        return finalShot
+    end
+
+    return redirectXCNativeSilentShot(bullet, shot)
+end
+
+if sharedXCEnv then
+    -- Disable persistent pre-v36 redirectors; the new wrapper below owns the
+    -- only per-bullet redirect and performs Hit Chance exactly once.
+    sharedXCEnv.XCNativeSilentRedirectV24 = function(_, shot) return shot end
+    -- Existing v36 wrappers survive reinjection and fetch this callback on
+    -- every shot, so upgrading it also fixes trails without stacking hooks.
+    sharedXCEnv.XCNativeSilentRedirectV36 = processXCNativeLocalShot
+end
+
+function setupXCNativeSilentHook()
+    if xcNativeSilentHooked then return true end
+    -- ScriptAdap-compatible path: hook the weapon's real raycast on every
+    -- platform. It runs once per actual local shot and cannot consume mobile
+    -- UI touches or block automatic/burst fire.
+    local installed = false
+    pcall(function()
+        local components = ReplicatedStorage:FindFirstChild("Components")
+        local weaponFolder = components and components:FindFirstChild("Weapon")
+        local classes = weaponFolder and weaponFolder:FindFirstChild("Classes")
+        local bulletScript = classes and classes:FindFirstChild("Bullet")
+        local common = components and components:FindFirstChild("Common")
+        local ignoreScript = common and common:FindFirstChild("GetRayIgnore")
+        local sharedFolder = ReplicatedStorage:FindFirstChild("Shared")
+        local raycastScript = sharedFolder and sharedFolder:FindFirstChild("Raycast")
+        if not bulletScript or not ignoreScript or not raycastScript then return end
+
+        local bulletModule = require(bulletScript)
+        local raycastModule = require(raycastScript)
+        local getRayIgnore = require(ignoreScript)
+        if type(bulletModule) ~= "table" or type(bulletModule._performRaycast) ~= "function"
+            or type(raycastModule) ~= "table" or type(raycastModule.cast) ~= "function"
+            or type(raycastModule.castThrough) ~= "function" or type(getRayIgnore) ~= "function" then return end
+
+        xcNativeRaycast = raycastModule
+        xcNativeGetRayIgnore = getRayIgnore
+        if rawget(bulletModule, "__XCSilentRayHookV36") then
+            installed = true
+            return
+        end
+
+        local originalRaycast = bulletModule._performRaycast
+        bulletModule._performRaycast = function(self, spread, ...)
+            local shot = originalRaycast(self, spread, ...)
+            local redirect = sharedXCEnv and sharedXCEnv.XCNativeSilentRedirectV36 or processXCNativeLocalShot
+            if type(redirect) ~= "function" then return shot end
+            local ok, redirected = pcall(redirect, self, shot)
+            return ok and redirected or shot
+        end
+        rawset(bulletModule, "__XCSilentRayHookV36", true)
+        installed = bulletModule._performRaycast ~= originalRaycast
+    end)
+    xcNativeSilentHooked = installed
+    return installed
+end
+
+-- Mobile bullet interception v29. The game still executes its original
+-- Bullet._performRaycast and builds the canonical shot/Hits payload. XC only
+-- redirects the ray arguments while that exact local bullet is being cast.
+local function beginXCBulletInterceptV29(bullet)
+    if xcMobileCameraSilentHooked then return nil end
+    if type(bullet) ~= "table" or bullet.IsDestroyed or bullet.IsActive == false then return nil end
+
+    local weapon = bullet.Weapon
+    if not weapon or (weapon.Player and weapon.Player ~= player) then return nil end
+
+    local targetPart = nil
+    local aimPosition = nil
+
+    if XCConfig.rageBotEnabled and type(getRageTarget) == "function" then
+        local rageOrigin = getXCSilentShotOrigin()
+        local rageTarget = getRageTarget(
+            rageOrigin,
+            type(bullet.Properties) == "table" and bullet.Properties or {}
+        )
+        if rageTarget and rageTarget.Part and rageTarget.Part.Parent then
+            targetPart = rageTarget.Part
+            aimPosition = rageTarget.ShotPosition or rageTarget.Part.Position
+        end
+    elseif isXCSilentAimRequested() then
+        targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
+        if targetPart and targetPart.Parent then
+            aimPosition = targetPart.Position
+        end
+    end
+
+    if not targetPart or not targetPart.Parent or typeof(aimPosition) ~= "Vector3" then
+        return nil
+    end
+
+    local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+    if chance < 100 and math.random(1, 100) > chance then return nil end
+
+    return {
+        Thread = coroutine.running(),
+        Target = targetPart,
+        AimPosition = aimPosition,
+        Direction = nil,
+        Used = false,
+    }
+end
+
+if sharedXCEnv then sharedXCEnv.XCBeginBulletInterceptV29 = beginXCBulletInterceptV29 end
+
+local xcBulletInterceptContextV29 = nil
+local function getXCActiveBulletInterceptV29()
+    local context = sharedXCEnv and sharedXCEnv.XCBulletInterceptContextV29 or xcBulletInterceptContextV29
+    if not context then return nil end
+    local thread = coroutine.running()
+    if context.Thread and context.Thread ~= thread then return nil end
+    return context
+end
+
+local function redirectXCRaycastArgumentsV29(origin, direction, firstCast)
+    local context = getXCActiveBulletInterceptV29()
+    if not context or typeof(origin) ~= "Vector3" or typeof(direction) ~= "Vector3"
+        or direction.Magnitude <= 0.001 then return direction end
+    if firstCast and context.Used then return direction end
+
+    local delta = context.AimPosition - origin
+    if delta.Magnitude <= 0.05 then return direction end
+    local redirectedUnit = delta.Unit
+    if firstCast then
+        context.Used = true
+        context.Direction = redirectedUnit
+    elseif context.Direction then
+        redirectedUnit = context.Direction
+    end
+    return redirectedUnit * direction.Magnitude
+end
+
+function setupXCBulletInterceptHookV29()
+    if xcBulletInterceptHooked then return true end
+    if xcNativeSilentHooked then return false end
+    if xcMobileCameraSilentHooked then return false end
+    if not UserInputService.TouchEnabled or type(hookfunction) ~= "function" then return false end
+    local installed = false
+    pcall(function()
+        local components = ReplicatedStorage:FindFirstChild("Components")
+        local weaponFolder = components and components:FindFirstChild("Weapon")
+        local classes = weaponFolder and weaponFolder:FindFirstChild("Classes")
+        local bulletScript = classes and classes:FindFirstChild("Bullet")
+        local sharedFolder = ReplicatedStorage:FindFirstChild("Shared")
+        local raycastScript = sharedFolder and sharedFolder:FindFirstChild("Raycast")
+        if not bulletScript or not raycastScript then return end
+
+        local bulletModule = require(bulletScript)
+        local raycastModule = require(raycastScript)
+        if type(bulletModule) ~= "table" or type(bulletModule._performRaycast) ~= "function"
+            or type(raycastModule) ~= "table" or type(raycastModule.cast) ~= "function"
+            or type(raycastModule.castThrough) ~= "function" then return end
+
+        if not (sharedXCEnv and sharedXCEnv.XCRaycastArgumentHooksV29) then
+            local oldCast
+            oldCast = hookfunction(raycastModule.cast, function(origin, direction, ...)
+                direction = redirectXCRaycastArgumentsV29(origin, direction, true)
+                return oldCast(origin, direction, ...)
+            end)
+
+            local oldCastThrough
+            oldCastThrough = hookfunction(raycastModule.castThrough, function(origin, direction, ...)
+                direction = redirectXCRaycastArgumentsV29(origin, direction, false)
+                return oldCastThrough(origin, direction, ...)
+            end)
+            if sharedXCEnv then sharedXCEnv.XCRaycastArgumentHooksV29 = true end
+        end
+
+        if rawget(bulletModule, "__XCBulletInterceptV29") then
+            installed = true
+            return
+        end
+
+        local originalPerformRaycast = bulletModule._performRaycast
+        bulletModule._performRaycast = function(self, spread, ...)
+            local begin = sharedXCEnv and sharedXCEnv.XCBeginBulletInterceptV29 or beginXCBulletInterceptV29
+            local okContext, context = pcall(begin, self)
+            if not okContext then context = nil end
+            local previous = sharedXCEnv and sharedXCEnv.XCBulletInterceptContextV29 or xcBulletInterceptContextV29
+            xcBulletInterceptContextV29 = context
+            if sharedXCEnv then sharedXCEnv.XCBulletInterceptContextV29 = context end
+
+            local results = table.pack(pcall(originalPerformRaycast, self, spread, ...))
+            xcBulletInterceptContextV29 = previous
+            if sharedXCEnv then sharedXCEnv.XCBulletInterceptContextV29 = previous end
+            if not results[1] then error(results[2], 0) end
+
+            local shot = results[2]
+            if context and context.Used and context.Direction and type(shot) == "table" then
+                local redirectedShot = table.clone(shot)
+                redirectedShot.Direction = context.Direction
+                results[2] = redirectedShot
+                silentAimResolved = context.Target
+                if registerXCLocalHitCandidate then registerXCLocalHitCandidate(context.Target) end
+            end
+            return table.unpack(results, 2, results.n)
+        end
+        rawset(bulletModule, "__XCBulletInterceptV29", true)
+        installed = true
+    end)
+    xcBulletInterceptHooked = installed
+    return installed
+end
+--// XC SKINCHANGER
+local skinData = {
+    SkinsRoot = nil,
+    WeaponAssets = nil,
+    SkinLibrary = nil,
+    GetWeapon = nil,
+    KnifeSet = {},
+    KnifeChoices = {},
+    SkinSelections = {},
+    GloveSelections = {},
+    GloveFolders = {},
+    ModifiedKnife = nil,
+    AppliedWeapons = setmetatable({}, {__mode = "k"}),
+    Ready = false,
+    LastRefresh = 0,
+    LastError = nil,
+    GloveCache = {
+        Camera = nil,
+        Arms = nil,
+        Left = nil,
+        Right = nil,
+        Signature = nil
+    }
+}
+
+function refreshXCSkinData()
+    if skinData.Ready and skinData.SkinsRoot and skinData.SkinsRoot.Parent and skinData.GetWeapon then return true end
+    if skinData.LastRefresh > 0 and os.clock() - skinData.LastRefresh < 1 then return skinData.Ready end
+    skinData.LastRefresh = os.clock()
+
+    local assets = ReplicatedStorage:FindFirstChild("Assets")
+    skinData.SkinsRoot = assets and assets:FindFirstChild("Skins")
+    skinData.WeaponAssets = assets and assets:FindFirstChild("Weapons")
+    if not skinData.SkinsRoot then return false end
+
+    pcall(function()
+        local database = ReplicatedStorage:FindFirstChild("Database")
+        local components = database and database:FindFirstChild("Components")
+        local libraries = components and components:FindFirstChild("Libraries")
+        local module = libraries and libraries:FindFirstChild("Skins")
+        if module then skinData.SkinLibrary = require(module) end
+    end)
+    pcall(function()
+        local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+        local module = controllers and controllers:FindFirstChild("InventoryController")
+        local inventory = module and require(module)
+        if inventory and type(inventory.peekCurrentEquippedForMovement) == "function" then
+            skinData.GetWeapon = inventory.peekCurrentEquippedForMovement
+        end
+    end)
+
+    skinData.SkinSelections = {}
+    skinData.GloveSelections = {}
+    skinData.GloveFolders = {}
+    skinData.KnifeSet = {
+        ["CT Knife"] = true,
+        ["T Knife"] = true,
+        ["Knife"] = true
+    }
+
+    for _, weaponFolder in ipairs(skinData.SkinsRoot:GetChildren()) do
+        local skins = {}
+        for _, skin in ipairs(weaponFolder:GetChildren()) do
+            skins[#skins + 1] = skin.Name
+        end
+        table.sort(skins)
+        skinData.SkinSelections[weaponFolder.Name] = skins
+
+        local lowerName = weaponFolder.Name:lower()
+        if lowerName:find("knife", 1, true) or lowerName:find("karambit", 1, true)
+            or lowerName:find("bayonet", 1, true) or lowerName:find("butterfly", 1, true) then
+            skinData.KnifeSet[weaponFolder.Name] = true
+        end
+
+        if skinData.SkinLibrary and type(skinData.SkinLibrary.GetAllSkinsForWeapon) == "function" then
+            pcall(function()
+                local entries = skinData.SkinLibrary.GetAllSkinsForWeapon(weaponFolder.Name)
+                local sample = type(entries) == "table" and entries[1]
+                if type(sample) == "table" and sample.type == "Melee" then
+                    skinData.KnifeSet[weaponFolder.Name] = true
+                end
+            end)
+        end
+
+        if weaponFolder.Name:match("Glove") or weaponFolder.Name:match("Gloves") or weaponFolder.Name == "Hand Wraps" then
+            skinData.GloveFolders[#skinData.GloveFolders + 1] = weaponFolder
+            local gloveSkins = {"Default"}
+            for _, skin in ipairs(weaponFolder:GetChildren()) do
+                gloveSkins[#gloveSkins + 1] = skin.Name
+            end
+            skinData.GloveSelections[weaponFolder.Name] = gloveSkins
+        end
+    end
+
+    for weaponName, skins in pairs(skinData.SkinSelections) do
+        if XCConfig.weaponSkinSelections[weaponName] == nil then
+            XCConfig.weaponSkinSelections[weaponName] = "Default"
+        end
+    end
+
+    skinData.KnifeChoices = {}
+    for knifeName in pairs(skinData.KnifeSet) do
+        local baseKnife = knifeName == "CT Knife" or knifeName == "T Knife" or knifeName == "Knife"
+        if not baseKnife then
+            if not skinData.WeaponAssets or skinData.WeaponAssets:FindFirstChild(knifeName) then
+                skinData.KnifeChoices[#skinData.KnifeChoices + 1] = knifeName
+            end
+        end
+    end
+    table.sort(skinData.KnifeChoices)
+    if XCConfig.selectedKnifeType ~= "Default" and skinData.WeaponAssets
+        and not skinData.WeaponAssets:FindFirstChild(XCConfig.selectedKnifeType)
+        and skinData.KnifeChoices[1] then
+        XCConfig.selectedKnifeType = skinData.KnifeChoices[1]
+    end
+
+    skinData.Ready = skinData.GetWeapon ~= nil
+    return skinData.Ready
+end
+
+refreshXCSkinData()
+
+function isBaseKnife(name)
+    return name == "CT Knife" or name == "T Knife" or name == "Knife"
+end
+
+function getXCKnifeChoices()
+    refreshXCSkinData()
+    local choices = {}
+    for _, name in ipairs(skinData.KnifeChoices or {}) do choices[#choices + 1] = name end
+    if #choices == 0 then
+        choices = {"Butterfly Knife", "Karambit", "Bayonet"}
+    end
+    choices[#choices + 1] = "Default"
+    return choices
+end
+
+function getXCWeaponSkinChoices()
+    refreshXCSkinData()
+    local choices = {}
+    for weaponName, skins in pairs(skinData.SkinSelections or {}) do
+        if not skinData.KnifeSet[weaponName] and not skinData.GloveSelections[weaponName] and #skins > 0 then
+            choices[#choices + 1] = weaponName
+        end
+    end
+    table.sort(choices)
+    if #choices == 0 then choices = {"AK-47", "M4A1", "AWP", "Desert Eagle"} end
+    if not table.find(choices, XCConfig.skinEditorWeapon) then XCConfig.skinEditorWeapon = choices[1] end
+    return choices
+end
+
+function getXCAllFinishChoices()
+    refreshXCSkinData()
+    local set, choices = {Default = true}, {"Default"}
+    for _, skins in pairs(skinData.SkinSelections or {}) do
+        for _, skinName in ipairs(skins) do
+            if not set[skinName] then
+                set[skinName] = true
+                choices[#choices + 1] = skinName
+            end
+        end
+    end
+    table.sort(choices, function(a, b)
+        if a == "Default" then return true end
+        if b == "Default" then return false end
+        return a:lower() < b:lower()
+    end)
+    return choices
+end
+
+function getXCSkinChoicesForWeapon(weaponName)
+    refreshXCSkinData()
+    local choices = {"Default"}
+    for _, skinName in ipairs(skinData.SkinSelections[weaponName] or {}) do choices[#choices + 1] = skinName end
+    return choices
+end
+
+function getXCGloveSkinChoices(modelName)
+    refreshXCSkinData()
+    local choices = {"Default"}
+    for _, skinName in ipairs(skinData.GloveSelections[modelName] or {}) do
+        if skinName ~= "Default" then choices[#choices + 1] = skinName end
+    end
+    return choices
+end
+
+function getXCGloveModelChoices()
+    refreshXCSkinData()
+    local choices = {"Default"}
+    for _, folder in ipairs(skinData.GloveFolders or {}) do choices[#choices + 1] = folder.Name end
+    if #choices == 1 then choices = {"Default", "Sports Gloves", "Driver Gloves"} end
+    return choices
+end
+
+function getXCAllGloveSkinChoices()
+    refreshXCSkinData()
+    local set, choices = {Default = true}, {"Default"}
+    for _, skins in pairs(skinData.GloveSelections or {}) do
+        for _, skinName in ipairs(skins) do
+            if not set[skinName] then
+                set[skinName] = true
+                choices[#choices + 1] = skinName
+            end
+        end
+    end
+    table.sort(choices, function(a, b)
+        if a == "Default" then return true end
+        if b == "Default" then return false end
+        return a:lower() < b:lower()
+    end)
+    return choices
+end
+
+function constructXCKnifeView(view, character, weapon)
+    if not view or type(view.construct) ~= "function" or not character or not character.Parent then return false end
+    local readIdentity = getthreadidentity or getidentity
+    local writeIdentity = setthreadidentity or setidentity
+    local identity = readIdentity and writeIdentity and readIdentity()
+    local success, failure = pcall(function()
+        if identity then writeIdentity(2) end
+        local components = ReplicatedStorage:FindFirstChild("Components")
+        local common = components and components:FindFirstChild("Common")
+        local module = common and common:FindFirstChild("GetWeaponProperties")
+        if module then
+            local getProperties = require(module)
+            assert(getProperties(view.CameraModelWeapon or view.Weapon or weapon.Name), "knife properties unavailable")
+        end
+        view:construct(character, weapon)
+    end)
+    if identity then pcall(writeIdentity, identity) end
+    if success then skinData.LastError = nil else skinData.LastError = tostring(failure) end
+    return success
+end
+
+function restoreXCKnifeModel()
+    local record = skinData.ModifiedKnife
+    skinData.ModifiedKnife = nil
+    if not record then return end
+    local view, weapon = record.View, record.Weapon
+    if not view or not weapon or view.IsDestroyed or weapon.IsDestroyed then return end
+    -- A knife view may survive briefly after switching to a firearm. Never
+    -- reconstruct that stale view: doing so can replace the newly equipped
+    -- gun's model/controller. The game already disposes an unequipped knife.
+    if type(skinData.GetWeapon) == "function" then
+        local ok, equipped = pcall(skinData.GetWeapon)
+        if not ok or not equipped or equipped.Viewmodel ~= view then return end
+    end
+    view.CameraModelWeapon = record.CameraModelWeapon
+    view.Skin = record.Skin
+    view.Float = record.Float
+    constructXCKnifeView(view, weapon.Character or player.Character, weapon)
+end
+
+function applyXCKnifeChanger()
+    if not XCConfig.skinChangerEnabled then
+        restoreXCKnifeModel()
+        return false
+    end
+    if not refreshXCSkinData() or type(skinData.GetWeapon) ~= "function" then return false end
+
+    local ok, weapon = pcall(skinData.GetWeapon)
+    if not ok or not weapon or weapon.IsDestroyed then return false end
+    local view = weapon.Viewmodel
+    local properties = weapon.Properties
+    local melee = skinData.KnifeSet[weapon.Name]
+        or (type(properties) == "table" and properties.Class == "Melee")
+    if not view or not melee then
+        restoreXCKnifeModel()
+        return false
+    end
+
+    local selectedKnife = XCConfig.selectedKnifeType
+    if not selectedKnife or selectedKnife == "Default" then
+        restoreXCKnifeModel()
+        return true
+    end
+    if skinData.WeaponAssets and not skinData.WeaponAssets:FindFirstChild(selectedKnife) then
+        skinData.LastError = "knife asset unavailable: " .. tostring(selectedKnife)
+        return false
+    end
+    if skinData.ModifiedKnife and skinData.ModifiedKnife.View ~= view then restoreXCKnifeModel() end
+    if not skinData.ModifiedKnife then
+        skinData.ModifiedKnife = {
+            View = view,
+            Weapon = weapon,
+            CameraModelWeapon = view.CameraModelWeapon,
+            Skin = view.Skin,
+            Float = view.Float
+        }
+    end
+
+    local selectedSkin = XCConfig.selectedSkin or "Default"
+    local availableSkins = skinData.SkinSelections[selectedKnife]
+    if selectedSkin ~= "Default" and type(availableSkins) == "table"
+        and not table.find(availableSkins, selectedSkin) then
+        selectedSkin = "Default"
+    end
+    local modelChanged = view.CameraModelWeapon ~= selectedKnife
+    view.CameraModelWeapon = selectedKnife
+    view.Skin = selectedSkin ~= "Default" and selectedSkin or nil
+    view.Float = math.clamp(tonumber(XCConfig.knifeWear) or 0, 0, 1)
+    if modelChanged or not view.Model or not view.Model.Parent then
+        if not constructXCKnifeView(view, weapon.Character or player.Character, weapon) then return false end
+    end
+    if view.Model and view.Model.Parent then
+        applySurfaceAppearanceSkin(view.Model, selectedKnife, selectedSkin, XCConfig.knifeWear)
+    end
+    skinData.LastError = nil
+    return true
+end
+
+function getCurrentWeaponModel()
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil end
+    for _, child in ipairs(cam:GetChildren()) do
+        if child:IsA("Model") and child.Name ~= "Viewmodel" and not child.Name:lower():find("light") then
+            return child
+        end
+    end
+    return nil
+end
+
+function applySurfaceAppearanceSkin(model, weaponName, skinName, wear)
+    if not model or not skinData.SkinsRoot then return end
+    if not weaponName or not skinName or skinName == "Default" then return end
+
+    local weaponFolder = skinData.SkinsRoot:FindFirstChild(weaponName)
+    local skinFolder = weaponFolder and weaponFolder:FindFirstChild(skinName)
+    local cameraFolder = skinFolder and skinFolder:FindFirstChild("Camera")
+    if not cameraFolder then return end
+    local textureFolder = nil
+    if skinData.SkinLibrary and type(skinData.SkinLibrary.GetAllSkinsForWeapon) == "function"
+        and type(skinData.SkinLibrary.GetWearNameForFloat) == "function" then
+        pcall(function()
+            for _, info in ipairs(skinData.SkinLibrary.GetAllSkinsForWeapon(weaponName) or {}) do
+                if type(info) == "table" and info.skin == skinName then
+                    local wearName = skinData.SkinLibrary.GetWearNameForFloat(info, math.clamp(tonumber(wear) or 0, 0, 1))
+                    textureFolder = cameraFolder:FindFirstChild(wearName)
+                    break
+                end
+            end
+        end)
+    end
+    textureFolder = textureFolder or cameraFolder:FindFirstChild("Factory New") or cameraFolder:GetChildren()[1]
+    if not textureFolder then return end
+
+    for _, appearance in ipairs(textureFolder:GetChildren()) do
+        if appearance:IsA("SurfaceAppearance") then
+            local targetPart = model:FindFirstChild(appearance.Name, true)
+            if targetPart and targetPart:IsA("BasePart") then
+                for _, old in ipairs(targetPart:GetChildren()) do
+                    if old:IsA("SurfaceAppearance") then old:Destroy() end
+                end
+                appearance:Clone().Parent = targetPart
+            end
+        end
+    end
+end
+
+function captureXCWeaponSkinState(view, model, weaponName)
+    local existing = skinData.AppliedWeapons[view]
+    if existing and existing.Model == model and existing.WeaponName == weaponName then return existing end
+    local record = {
+        WeaponName = weaponName,
+        Model = model,
+        Skin = view.Skin,
+        Float = view.Float,
+        Surfaces = setmetatable({}, {__mode = "k"})
+    }
+    for _, part in ipairs(model:GetDescendants()) do
+        if part:IsA("BasePart") then
+            local appearances = {}
+            for _, child in ipairs(part:GetChildren()) do
+                if child:IsA("SurfaceAppearance") then
+                    local ok, clone = pcall(function() return child:Clone() end)
+                    if ok and clone then appearances[#appearances + 1] = clone end
+                end
+            end
+            record.Surfaces[part] = appearances
+        end
+    end
+    skinData.AppliedWeapons[view] = record
+    return record
+end
+
+function applyXCSelectedWeaponSkin()
+    if not XCConfig.skinChangerEnabled or not refreshXCSkinData() or type(skinData.GetWeapon) ~= "function" then return false end
+    local ok, weapon = pcall(skinData.GetWeapon)
+    if not ok or type(weapon) ~= "table" or weapon.IsDestroyed
+        or (weapon.Player ~= nil and weapon.Player ~= player) then return false end
+    local view = weapon.Viewmodel
+    local model = view and view.Model
+    if not view or not model or not model.Parent then return false end
+    local melee = skinData.KnifeSet[weapon.Name] or (type(weapon.Properties) == "table" and weapon.Properties.Class == "Melee")
+    if melee then return applyXCKnifeChanger() end
+
+    local weaponName = view.CameraModelWeapon or view.Weapon or weapon.Name
+    local skinName = XCConfig.weaponSkinSelections[weaponName]
+    if skinName == nil then return restoreXCSelectedWeaponSkin(weaponName) end
+    if type(skinName) ~= "string" or skinName == "" or skinName == "Default" then
+        return restoreXCSelectedWeaponSkin(weaponName)
+    end
+    local wear = math.clamp(tonumber(XCConfig.weaponSkinWear[weaponName]) or 0, 0, 1)
+    local record = captureXCWeaponSkinState(view, model, weaponName)
+    if record.AppliedSkin == skinName and record.AppliedWear == wear then return true end
+    view.Skin = skinName
+    view.Float = wear
+    applySurfaceAppearanceSkin(model, weaponName, skinName, wear)
+    record.AppliedSkin = skinName
+    record.AppliedWear = wear
+    return true
+end
+
+function restoreXCSelectedWeaponSkin(weaponName)
+    if type(skinData.GetWeapon) ~= "function" then return false end
+    local ok, weapon = pcall(skinData.GetWeapon)
+    if not ok or type(weapon) ~= "table" or weapon.IsDestroyed then return false end
+    local view = weapon.Viewmodel
+    local currentName = view and (view.CameraModelWeapon or view.Weapon or weapon.Name)
+    if not view or (weaponName and currentName ~= weaponName) then return false end
+    local record = skinData.AppliedWeapons[view]
+    -- Default/unconfigured firearms must remain completely untouched. The old
+    -- implementation reconstructed every viewmodel here with the knife path,
+    -- which could remove the gun model and invalidate its firing controller.
+    if not record then return true end
+    skinData.AppliedWeapons[view] = nil
+    if record.WeaponName ~= currentName then return true end
+    view.Skin = record.Skin
+    view.Float = record.Float
+    if record.Model and record.Model.Parent then
+        for part, appearances in pairs(record.Surfaces) do
+            if part and part.Parent then
+                for _, child in ipairs(part:GetChildren()) do
+                    if child:IsA("SurfaceAppearance") then child:Destroy() end
+                end
+                for _, appearance in ipairs(appearances) do
+                    local ok, clone = pcall(function() return appearance:Clone() end)
+                    if ok and clone then clone.Parent = part end
+                end
+            end
+        end
+    end
+    return true
+end
+
+local lastBloxModuleScan = 0
+function hookBloxStrikeModules(forceScan)
+    local now = os.clock()
+    if not forceScan and lastBloxModuleScan > 0 and (now - lastBloxModuleScan) < 5 then return end
+    lastBloxModuleScan = now
+    refreshXCSkinData()
+    pcall(function()
+        if type(getgc) ~= "function" then return end
+        for _, obj in ipairs(getgc(true)) do
+            if type(obj) == "table" then
+                if rawget(obj, "EquippedMelee") ~= nil and XCConfig.skinChangerEnabled
+                    and XCConfig.selectedKnifeType ~= "Default" then
+                    obj.EquippedMelee = XCConfig.selectedKnifeType
+                end
+                if rawget(obj, "MeleeSkin") ~= nil and XCConfig.skinChangerEnabled
+                    and XCConfig.selectedKnifeType ~= "Default" then
+                    obj.MeleeSkin = XCConfig.selectedSkin
+                end
+                if rawget(obj, "Knife") ~= nil and type(obj.Knife) == "table" and XCConfig.skinChangerEnabled
+                    and XCConfig.selectedKnifeType ~= "Default" then
+                    obj.Knife.Name = XCConfig.selectedKnifeType
+                    obj.Knife.Skin = XCConfig.selectedSkin
+                end
+            end
+        end
+    end)
+end
+
+function scanAndMorphKnives(root)
+    if not XCConfig.skinChangerEnabled or not root then return end
+    if applyXCKnifeChanger() then return end
+    refreshXCSkinData()
+    if not skinData.SkinsRoot then return end
+
+    local weaponModel = getCurrentWeaponModel()
+    if weaponModel then
+        local selectedWeapon = weaponModel.Name
+        if isBaseKnife(selectedWeapon) then
+            selectedWeapon = XCConfig.selectedKnifeType
+        end
+        local selectedSkin = XCConfig.weaponSkinSelections[selectedWeapon]
+            or (selectedWeapon == XCConfig.selectedKnifeType and XCConfig.selectedSkin)
+            or "Default"
+        applySurfaceAppearanceSkin(
+            weaponModel,
+            selectedWeapon,
+            selectedSkin,
+            XCConfig.weaponSkinWear[selectedWeapon] or (selectedWeapon == XCConfig.selectedKnifeType and XCConfig.knifeWear) or 0
+        )
+    end
+end
+
+function restoreXCGloves()
+    local cache = skinData.GloveCache
+    local originals = skinData.GloveOriginals
+    if type(originals) == "table" then
+        for glove, savedList in pairs(originals) do
+            if glove and glove.Parent and type(savedList) == "table" then
+                pcall(function()
+                    for _, child in ipairs(glove:GetChildren()) do
+                        if child:IsA("SurfaceAppearance") then child:Destroy() end
+                    end
+                    for _, saved in ipairs(savedList) do
+                        if saved and saved:IsA("SurfaceAppearance") then saved:Clone().Parent = glove end
+                    end
+                end)
+            end
+            originals[glove] = nil
+        end
+    end
+    if cache then cache.Signature = nil end
+end
+
+function applyXCGloves()
+    if not XCConfig.skinChangerEnabled or XCConfig.selectedGloveModel == "Default" then
+        restoreXCGloves()
+        return
+    end
+    refreshXCSkinData()
+    if not skinData.SkinsRoot then return end
+
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return end
+
+    local cache = skinData.GloveCache
+    if not skinData.GloveOriginals then
+        skinData.GloveOriginals = setmetatable({}, {__mode = "k"})
+    end
+    if not cache then
+        cache = {Camera = nil, Arms = nil, Left = nil, Right = nil, Signature = nil}
+        skinData.GloveCache = cache
+    end
+
+    local leftGlove = cache.Left
+    local rightGlove = cache.Right
+    local cacheValid = cache.Camera == cam
+        and cache.Arms and cache.Arms.Parent == cam
+        and leftGlove and leftGlove.Parent
+        and rightGlove and rightGlove.Parent
+
+    if not cacheValid then
+        local arms
+        for _, child in ipairs(cam:GetChildren()) do
+            if child:IsA("Model") and (child.Name:match("Arms") or child:FindFirstChild("Right Arm")) then
+                arms = child
+                break
+            end
+        end
+        if not arms then
+            cache.Camera, cache.Arms, cache.Left, cache.Right, cache.Signature = cam, nil, nil, nil, nil
+            return
+        end
+
+        local leftArm = arms:FindFirstChild("Left Arm")
+        local rightArm = arms:FindFirstChild("Right Arm")
+        leftGlove = leftArm and leftArm:FindFirstChild("Glove")
+        rightGlove = rightArm and rightArm:FindFirstChild("Glove")
+        if not leftGlove or not rightGlove then
+            cache.Camera, cache.Arms, cache.Left, cache.Right, cache.Signature = cam, arms, nil, nil, nil
+            return
+        end
+
+        cache.Camera = cam
+        cache.Arms = arms
+        cache.Left = leftGlove
+        cache.Right = rightGlove
+        cache.Signature = nil
+    end
+
+    local gloveFolder = skinData.SkinsRoot:FindFirstChild(XCConfig.selectedGloveModel)
+    local skinFolder = gloveFolder and gloveFolder:FindFirstChild(XCConfig.selectedGloveSkin)
+    local cameraFolder = skinFolder and skinFolder:FindFirstChild("Camera")
+    local factoryNew = cameraFolder and cameraFolder:FindFirstChild("Factory New")
+    if not factoryNew then return end
+
+    local expectedAppearances = {}
+    for _, appearance in ipairs(factoryNew:GetChildren()) do
+        if appearance:IsA("SurfaceAppearance") then
+            expectedAppearances[#expectedAppearances + 1] = appearance
+        end
+    end
+
+    local signature = tostring(XCConfig.selectedGloveModel) .. "\0" .. tostring(XCConfig.selectedGloveSkin)
+    if cache.Signature == signature then
+        local function appearancesMatch(glove)
+            local actual = {}
+            for _, child in ipairs(glove:GetChildren()) do
+                if child:IsA("SurfaceAppearance") then actual[#actual + 1] = child end
+            end
+            if #actual ~= #expectedAppearances then return false end
+            for _, expected in ipairs(expectedAppearances) do
+                local matched = false
+                for _, current in ipairs(actual) do
+                    if current.Name == expected.Name
+                        and current.ColorMap == expected.ColorMap
+                        and current.MetalnessMap == expected.MetalnessMap
+                        and current.NormalMap == expected.NormalMap
+                        and current.RoughnessMap == expected.RoughnessMap then
+                        matched = true
+                        break
+                    end
+                end
+                if not matched then return false end
+            end
+            return true
+        end
+        if appearancesMatch(leftGlove) and appearancesMatch(rightGlove) then return end
+    end
+
+    for _, glove in ipairs({leftGlove, rightGlove}) do
+        if not skinData.GloveOriginals[glove] then
+            local saved = {}
+            for _, child in ipairs(glove:GetChildren()) do
+                if child:IsA("SurfaceAppearance") then saved[#saved + 1] = child:Clone() end
+            end
+            skinData.GloveOriginals[glove] = saved
+        end
+        for _, old in ipairs(glove:GetChildren()) do
+            if old:IsA("SurfaceAppearance") then old:Destroy() end
+        end
+        for _, appearance in ipairs(factoryNew:GetChildren()) do
+            if appearance:IsA("SurfaceAppearance") then
+                appearance:Clone().Parent = glove
+            end
+        end
+    end
+    cache.Signature = signature
+end
+
+-- Compatibility with the existing XC render scanner.
+task.spawn(function()
+    while xcSessionActive() do
+        task.wait(0.25)
+        pcall(function()
+            if XCConfig.skinChangerEnabled then
+                applyXCKnifeChanger()
+                applyXCSelectedWeaponSkin()
+            end
+            if XCConfig.skinChangerEnabled and XCConfig.selectedGloveModel ~= "Default" then
+                applyXCGloves()
+            elseif skinData.GloveOriginals and next(skinData.GloveOriginals) ~= nil then
+                restoreXCGloves()
+            end
+        end)
+    end
+end)
+--// XC stage-1 wrapper | Split here so each Luau function stays well below the 200-local limit.
+function XCInitStage1()
+--// EXTRA XC MODULES | Skin/knife/gloves are already handled above. These modules are intentionally self-contained so they do not interfere with the existing aim/ESP/render engines.
+
+local noFallLastCharacter = nil
+local noFallSavedStates = setmetatable({}, {__mode = "k"})
+local animationTrack = nil
+local animationObject = nil
+local spectatorGui = nil
+local spectatorFrame = nil
+local spectatorListLabel = nil
+local spectatorCounterLabel = nil
+local handsLastModel = nil
+local handsLastPivot = nil
+local handsNativeHooked = false
+
+function setNoFallDamage(enabled)
+    local char = player and player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+
+    if enabled then
+        if not noFallSavedStates[hum] then
+            noFallSavedStates[hum] = {
+                FallingDown = hum:GetStateEnabled(Enum.HumanoidStateType.FallingDown),
+                Ragdoll = hum:GetStateEnabled(Enum.HumanoidStateType.Ragdoll),
+            }
+        end
+        pcall(function()
+            hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+            hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+        end)
+    else
+        local saved = noFallSavedStates[hum]
+        if saved then
+            pcall(function()
+                hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, saved.FallingDown ~= false)
+                hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, saved.Ragdoll ~= false)
+            end)
+            noFallSavedStates[hum] = nil
+        end
+        noFallLastCharacter = nil
+    end
+end
+
+function stopXCAnimation()
+    if animationTrack then
+        pcall(function() animationTrack:Stop(0.12) end)
+        animationTrack = nil
+    end
+    if animationObject then
+        pcall(function() animationObject:Destroy() end)
+        animationObject = nil
+    end
+end
+
+function playXCAnimation()
+    stopXCAnimation()
+    if not XCConfig.animationsEnabled then return end
+    local char = player and player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local controller = char and char:FindFirstChildWhichIsA("AnimationController", true)
+    local animationHost = controller or hum
+    if not char or not animationHost then return end
+    local animator = animationHost:FindFirstChildOfClass("Animator")
+        or char:FindFirstChildWhichIsA("Animator", true)
+    if not animator and hum then
+        animator = Instance.new("Animator")
+        animator.Parent = hum
+    end
+    if not animator then return end
+    local id = tostring(XCConfig.animationId or ""):match("%d+")
+    if not id then return end
+    animationObject = Instance.new("Animation")
+    animationObject.Name = "XCAnimation"
+    animationObject.AnimationId = "rbxassetid://" .. id
+    local ok, track = pcall(function() return animator:LoadAnimation(animationObject) end)
+    if (not ok or not track) and hum then
+        ok, track = pcall(function() return hum:LoadAnimation(animationObject) end)
+    end
+    if not ok or not track then
+        stopXCAnimation()
+        return
+    end
+    animationTrack = track
+    animationTrack.Priority = Enum.AnimationPriority.Action4
+    animationTrack.Looped = XCConfig.animationLoop
+    animationTrack:Play(0.15, 1, math.clamp(XCConfig.animationSpeed, 0.1, 3))
+end
+
+function getSpectatorNames()
+    local names = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and plr:GetAttribute("IsSpectating") == true then
+            names[#names + 1] = plr
+        end
+    end
+    table.sort(names, function(a,b) return a.Name:lower() < b.Name:lower() end)
+    return names
+end
+
+function buildSpectatorGui()
+    if spectatorGui and spectatorGui.Parent then return end
+    spectatorGui = Instance.new("ScreenGui")
+    spectatorGui.Name = "XCSpectatorGui"
+    spectatorGui.ResetOnSpawn = false
+    spectatorGui.IgnoreGuiInset = true
+    spectatorGui.DisplayOrder = 21
+    spectatorGui.Parent = targetGui
+
+    spectatorFrame = Instance.new("Frame", spectatorGui)
+    spectatorFrame.Size = UDim2.new(0, 210, 0, 120)
+    spectatorFrame.Position = UDim2.new(1, -224, 0, 92)
+    spectatorFrame.BackgroundColor3 = currentTheme.Background
+    spectatorFrame.BorderSizePixel = 0
+    spectatorFrame.Visible = false
+    Instance.new("UICorner", spectatorFrame).CornerRadius = UDim.new(0, 6)
+    local stroke = Instance.new("UIStroke", spectatorFrame)
+    stroke.Color = currentTheme.Border
+    stroke.Thickness = 1
+
+    local title = Instance.new("TextLabel", spectatorFrame)
+    title.Size = UDim2.new(1, -12, 0, 22)
+    title.Position = UDim2.new(0, 6, 0, 4)
+    title.BackgroundTransparency = 1
+    title.Text = "SPECTATORS"
+    title.TextColor3 = currentTheme.Accent
+    title.TextSize = 9
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Left
+
+    spectatorCounterLabel = Instance.new("TextLabel", spectatorFrame)
+    spectatorCounterLabel.Size = UDim2.new(1, -12, 0, 18)
+    spectatorCounterLabel.Position = UDim2.new(0, 6, 0, 24)
+    spectatorCounterLabel.BackgroundTransparency = 1
+    spectatorCounterLabel.TextColor3 = currentTheme.TextSecondary
+    spectatorCounterLabel.TextSize = 8
+    spectatorCounterLabel.Font = Enum.Font.GothamBold
+    spectatorCounterLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    spectatorListLabel = Instance.new("TextLabel", spectatorFrame)
+    spectatorListLabel.Size = UDim2.new(1, -12, 1, -48)
+    spectatorListLabel.Position = UDim2.new(0, 6, 0, 44)
+    spectatorListLabel.BackgroundTransparency = 1
+    spectatorListLabel.TextColor3 = currentTheme.TextPrimary
+    spectatorListLabel.TextSize = 8
+    spectatorListLabel.Font = Enum.Font.Gotham
+    spectatorListLabel.TextWrapped = true
+    spectatorListLabel.TextXAlignment = Enum.TextXAlignment.Left
+    spectatorListLabel.TextYAlignment = Enum.TextYAlignment.Top
+end
+
+function updateSpectatorGui()
+    buildSpectatorGui()
+    local names = getSpectatorNames()
+    local watching = player and player:GetAttribute("Spectators")
+    if type(watching) ~= "number" then watching = nil end
+    spectatorFrame.Visible = XCConfig.spectatorListEnabled and not (XCConfig.spectatorHideEmpty and #names == 0 and not watching)
+    spectatorCounterLabel.Visible = XCConfig.spectatorCounterEnabled
+    spectatorCounterLabel.Text = "Watching you: " .. (watching and tostring(math.floor(watching)) or "?")
+    local lines = {}
+    for _, plr in ipairs(names) do
+        if XCConfig.spectatorNameMode == "Username" then
+            lines[#lines+1] = plr.Name
+        elseif XCConfig.spectatorNameMode == "Both" and plr.DisplayName ~= plr.Name then
+            lines[#lines+1] = plr.DisplayName .. "  @" .. plr.Name
+        else
+            lines[#lines+1] = plr.DisplayName
+        end
+    end
+    spectatorListLabel.Text = #lines > 0 and table.concat(lines, "\n") or "No active spectators"
+    spectatorFrame.Size = UDim2.new(0, 210, 0, math.max(88, 64 + math.min(#lines, 8) * 14))
+end
+
+function applyXCHandsOffset(view)
+    if not XCConfig.customHandsEnabled then
+        handsLastModel = nil
+        handsLastPivot = nil
+        return
+    end
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return end
+    local model = type(view) == "table" and view.Model or getCurrentWeaponModel()
+    if not model or not model:IsA("Model") then return end
+    if handsLastModel ~= model then
+        handsLastModel = model
+        handsLastPivot = model:GetPivot()
+    end
+    local original = model:GetPivot()
+    local offset = CFrame.new(XCConfig.customHandsX, XCConfig.customHandsY, XCConfig.customHandsZ)
+        * CFrame.Angles(math.rad(XCConfig.customHandsPitch), math.rad(XCConfig.customHandsYaw), math.rad(XCConfig.customHandsRoll))
+    pcall(function()
+        model:PivotTo(cam.CFrame * offset * cam.CFrame:ToObjectSpace(original))
+        if type(view) == "table" and view.LargeWeaponModel and view.SmallWeaponModel then
+            view.LargeWeaponModel:PivotTo(view.SmallWeaponModel:GetPivot())
+        end
+    end)
+end
+
+-- Apply the offset immediately after the native viewmodel render. This keeps
+-- the native pose as the baseline and prevents a RenderStepped offset from
+-- accumulating/drifting each frame.
+function setupXCCustomHandsHook()
+    pcall(function()
+        local classes = ReplicatedStorage:FindFirstChild("Classes")
+        local weaponComponent = classes and classes:FindFirstChild("WeaponComponent")
+        local viewClasses = weaponComponent and weaponComponent:FindFirstChild("Classes")
+        local viewScript = viewClasses and viewClasses:FindFirstChild("Viewmodel")
+        local viewmodel = viewScript and require(viewScript)
+        if type(viewmodel) ~= "table" or type(viewmodel.render) ~= "function" then return end
+        if sharedXCEnv then sharedXCEnv.XCApplyHandsV33 = applyXCHandsOffset end
+        if rawget(viewmodel, "__XCCustomHandsHookV33") then
+            handsNativeHooked = true
+            return
+        end
+        local originalRender = viewmodel.render
+        viewmodel.render = function(view, ...)
+            local results = table.pack(originalRender(view, ...))
+            local callback = sharedXCEnv and sharedXCEnv.XCApplyHandsV33 or applyXCHandsOffset
+            if type(callback) == "function" then pcall(callback, view) end
+            return table.unpack(results, 1, results.n)
+        end
+        rawset(viewmodel, "__XCCustomHandsHookV33", true)
+        handsNativeHooked = true
+    end)
+    return handsNativeHooked
+end
+
+-- Lightweight background update for the extra modules.
+local spectatorUpdateAccumulator = 0
+local animationUpdateAccumulator = 0
+local animationRetryAccumulator = 0
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    if not XCConfig.noFallDamageEnabled and noFallLastCharacter ~= nil then
+        setNoFallDamage(false)
+    end
+    if not XCConfig.noFallDamageEnabled
+        and not XCConfig.spectatorListEnabled
+        and not XCConfig.customHandsEnabled
+        and not XCConfig.animationsEnabled
+        and not animationTrack then
+        if spectatorFrame then spectatorFrame.Visible = false end
+        return
+    end
+    if XCConfig.noFallDamageEnabled then
+        local char = player and player.Character
+        if char ~= noFallLastCharacter then
+            noFallLastCharacter = char
+            setNoFallDamage(true)
+        end
+    end
+    if XCConfig.spectatorListEnabled then
+        spectatorUpdateAccumulator = spectatorUpdateAccumulator + (dt)
+        if spectatorUpdateAccumulator >= 0.5 then
+            spectatorUpdateAccumulator = 0
+            updateSpectatorGui()
+        end
+    elseif spectatorFrame then
+        spectatorFrame.Visible = false
+    end
+    if XCConfig.customHandsEnabled and not handsNativeHooked then
+        applyXCHandsOffset()
+    end
+    if animationTrack and animationTrack.IsPlaying then
+        animationUpdateAccumulator = animationUpdateAccumulator + (dt)
+        if animationUpdateAccumulator >= 0.25 then
+            animationUpdateAccumulator = 0
+            animationTrack.Looped = XCConfig.animationLoop
+            pcall(function() animationTrack:AdjustSpeed(math.clamp(XCConfig.animationSpeed, 0.1, 3)) end)
+        end
+    elseif XCConfig.animationsEnabled and (not animationTrack or XCConfig.animationLoop) then
+        animationRetryAccumulator = animationRetryAccumulator + (dt)
+        if animationRetryAccumulator >= 1 then
+            animationRetryAccumulator = 0
+            playXCAnimation()
+        end
+    else
+        animationRetryAccumulator = 0
+    end
+end))
+--// TRIGGERBOT NO WORK & MOVEMENT STATE NO WORK
+local triggerbotMobileAutoFire = true
+local lastTriggerTick = 0
+
+local currentSpinAngle = 0
+local isMobileJumpHeld = false
+local lastMoveDirection = Vector3.zero
+local xcCharacterInputHook = {
+    Ready = false,
+    Module = nil,
+    Original = nil,
+    Wrapper = nil,
+    Buttons = nil,
+    Character = nil,
+    GroundSince = nil,
+    LastJumpDown = false,
+    AntiCharacter = nil,
+    AntiStarted = nil,
+    AntiLastStep = nil,
+    RandomYaw = nil,
+    AntiFireUntil = 0,
+    Calls = 0,
+    LastCall = 0,
+    LastError = nil,
+}
+
+local isSliding = false
+local currentSlideVel = Vector3.zero
+local defaultHipHeight = 2.0
+local defaultHipHeightCaptured = false
+--// ENVIRONMENT PRESETS & FOG LIBRARY FULL WORK
+local nightPresets = {
+    ["Midnight"] = {
+        ClockTime = 0.0,
+        Brightness = 0.2,
+        OutdoorAmbient = Color3.fromRGB(25, 25, 40),
+        Ambient = Color3.fromRGB(15, 15, 25),
+        FogColor = Color3.fromRGB(10, 10, 20)
+    },
+    ["Nebula"] = {
+        ClockTime = 23.8,
+        Brightness = 0.3,
+        OutdoorAmbient = Color3.fromRGB(70, 25, 85),
+        Ambient = Color3.fromRGB(45, 15, 60),
+        FogColor = Color3.fromRGB(90, 30, 110)
+    },
+    ["DeepBlood"] = {
+        ClockTime = 0.0,
+        Brightness = 0.35,
+        OutdoorAmbient = Color3.fromRGB(75, 10, 15),
+        Ambient = Color3.fromRGB(45, 5, 10),
+        FogColor = Color3.fromRGB(35, 5, 8)
+    },
+    ["CyberPurple"] = {
+        ClockTime = 23.5,
+        Brightness = 0.3,
+        OutdoorAmbient = Color3.fromRGB(65, 15, 95),
+        Ambient = Color3.fromRGB(40, 10, 60),
+        FogColor = Color3.fromRGB(30, 8, 45)
+    },
+    ["EmeraldNight"] = {
+        ClockTime = 1.0,
+        Brightness = 0.25,
+        OutdoorAmbient = Color3.fromRGB(10, 55, 30),
+        Ambient = Color3.fromRGB(5, 35, 20),
+        FogColor = Color3.fromRGB(5, 25, 15)
+    },
+    ["PitchBlack"] = {
+        ClockTime = 0.0,
+        Brightness = 0.0,
+        OutdoorAmbient = Color3.fromRGB(0, 0, 0),
+        Ambient = Color3.fromRGB(0, 0, 0),
+        FogColor = Color3.fromRGB(0, 0, 0)
+    }
+}
+
+local fogLibrary = {
+    ["Nebula"] = Color3.fromRGB(90, 30, 110),
+    ["nebula"] = Color3.fromRGB(90, 30, 110),
+    ["Midnight"] = Color3.fromRGB(10, 10, 20),
+    ["DeepBlood"] = Color3.fromRGB(35, 5, 8),
+    ["CyberPurple"] = Color3.fromRGB(30, 8, 45),
+    ["EmeraldNight"] = Color3.fromRGB(5, 25, 15),
+    ["PitchBlack"] = Color3.fromRGB(0, 0, 0)
+}
+
+local defaultLighting = {
+    Brightness = Lighting.Brightness,
+    ClockTime = Lighting.ClockTime,
+    GlobalShadows = Lighting.GlobalShadows,
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    ExposureCompensation = Lighting.ExposureCompensation,
+    FogStart = Lighting.FogStart,
+    FogEnd = Lighting.FogEnd,
+    FogColor = Lighting.FogColor
+}
+--// DISPLAY CONTAINERS SETUP
+local mainContainer = Instance.new("ScreenGui")
+mainContainer.Name = "XCMainContainer"
+mainContainer.ResetOnSpawn = false
+mainContainer.DisplayOrder = 10
+mainContainer.IgnoreGuiInset = true
+mainContainer.Parent = targetGui
+
+local overlayContainer = Instance.new("Folder", mainContainer)
+overlayContainer.Name = "XC_2DOverlay"
+
+local grenadeContainer = Instance.new("Folder", mainContainer)
+grenadeContainer.Name = "XC_GrenadeOverlay"
+
+local jumpCircleFolder = Instance.new("Folder", Workspace)
+jumpCircleFolder.Name = "XC_JumpCircleWorld"
+
+local grenadePool = {}
+local grenadeDangerPool = setmetatable({}, {__mode = "k"})
+local grenadeDangerScanStarted = false
+local soundEspTracked = setmetatable({}, {__mode = "k"})
+local soundEspPulses = {}
+local soundEspConnections = {}
+local soundEspHooked = false
+local mobileSlideBtn = nil
+--// HITMARKER & DAMAGE FEEDBACK
+local hitmarkerGui = Instance.new("ScreenGui")
+hitmarkerGui.Name = "XCHitmarkerGui"
+hitmarkerGui.ResetOnSpawn = false
+hitmarkerGui.IgnoreGuiInset = true
+hitmarkerGui.DisplayOrder = 60
+hitmarkerGui.Parent = mainContainer
+
+local hitmarkerCenter = Instance.new("Frame")
+hitmarkerCenter.Name = "Center"
+hitmarkerCenter.AnchorPoint = Vector2.new(0.5, 0.5)
+hitmarkerCenter.Position = UDim2.new(0.5, 0, 0.5, 0)
+hitmarkerCenter.Size = UDim2.new(0, 0, 0, 0)
+hitmarkerCenter.BackgroundTransparency = 1
+hitmarkerCenter.Visible = false
+hitmarkerCenter.Parent = hitmarkerGui
+
+local hitmarkerLines = {}
+for i, rotation in ipairs({45, -45, 135, -135}) do
+    local line = Instance.new("Frame")
+    line.Name = "Line" .. i
+    line.AnchorPoint = Vector2.new(0.5, 0.5)
+    line.Size = UDim2.new(0, XCConfig.hitmarkerThickness, 0, XCConfig.hitmarkerSize)
+    line.BackgroundColor3 = currentTheme.Accent
+    line.BorderSizePixel = 0
+    line.BackgroundTransparency = 1
+    line.Rotation = rotation
+    line.Parent = hitmarkerCenter
+
+    local glow = Instance.new("UIStroke")
+    glow.Name = "NeonGlow"
+    glow.Color = currentTheme.Accent
+    glow.Thickness = XCConfig.hitmarkerGlow and 2.5 or 0
+    glow.Transparency = 1
+    glow.Parent = line
+
+    hitmarkerLines[i] = line
+end
+
+local hitmarkerDamage = Instance.new("TextLabel")
+hitmarkerDamage.Name = "Damage"
+hitmarkerDamage.AnchorPoint = Vector2.new(0.5, 0)
+hitmarkerDamage.Position = UDim2.fromOffset(0, XCConfig.hitmarkerSize + 7)
+hitmarkerDamage.Size = UDim2.fromOffset(92, 18)
+hitmarkerDamage.BackgroundTransparency = 1
+hitmarkerDamage.Text = ""
+hitmarkerDamage.TextColor3 = currentTheme.Enemy_Accent
+hitmarkerDamage.TextStrokeColor3 = Color3.fromRGB(8, 8, 8)
+hitmarkerDamage.TextStrokeTransparency = 0.15
+hitmarkerDamage.TextTransparency = 1
+hitmarkerDamage.Font = Enum.Font.Code
+hitmarkerDamage.TextSize = 13
+hitmarkerDamage.TextXAlignment = Enum.TextXAlignment.Center
+hitmarkerDamage.Visible = false
+hitmarkerDamage.Parent = hitmarkerCenter
+
+function refreshHitmarkerTheme()
+    for _, line in ipairs(hitmarkerLines) do
+        line.BackgroundColor3 = currentTheme.Accent
+        local glow = line:FindFirstChild("NeonGlow")
+        if glow then
+            glow.Color = currentTheme.Accent
+            glow.Thickness = XCConfig.hitmarkerGlow and 2.5 or 0
+        end
+    end
+end
+
+function showHitmarker(damage)
+    if type(playXCHitSound) == "function" then playXCHitSound() end
+    if not XCConfig.hitmarkerEnabled then return end
+
+    hitmarkerSerial = hitmarkerSerial + (1)
+    local serial = hitmarkerSerial
+    hitmarkerCenter.Visible = true
+
+    local size = math.clamp(tonumber(XCConfig.hitmarkerSize) or 13, 5, 30)
+    local thickness = math.clamp(tonumber(XCConfig.hitmarkerThickness) or 2, 1, 6)
+
+    for _, line in ipairs(hitmarkerLines) do
+        line.Size = UDim2.fromOffset(thickness, size)
+        line.BackgroundTransparency = 0
+        local glow = line:FindFirstChild("NeonGlow")
+        if glow then glow.Transparency = 0.05 end
+    end
+
+    local shownDamage = tonumber(damage)
+    if shownDamage and shownDamage > 0 then
+        hitmarkerDamage.Position = UDim2.fromOffset(0, size + 7)
+        hitmarkerDamage.Text = string.format("-%d HP", math.max(1, math.floor(shownDamage + 0.5)))
+        hitmarkerDamage.TextColor3 = currentTheme.Enemy_Accent
+        hitmarkerDamage.TextTransparency = 0
+        hitmarkerDamage.TextStrokeTransparency = 0.15
+        hitmarkerDamage.Visible = true
+    else
+        hitmarkerDamage.Visible = false
+    end
+
+    local fadeInfo = TweenInfo.new(
+        math.max(0.05, XCConfig.hitmarkerDuration),
+        Enum.EasingStyle.Quad,
+        Enum.EasingDirection.Out
+    )
+
+    for _, line in ipairs(hitmarkerLines) do
+        TweenService:Create(line, fadeInfo, {
+            BackgroundTransparency = 1
+        }):Play()
+
+        local glow = line:FindFirstChild("NeonGlow")
+        if glow then
+            TweenService:Create(glow, fadeInfo, {Transparency = 1}):Play()
+        end
+    end
+    if hitmarkerDamage.Visible then
+        TweenService:Create(hitmarkerDamage, fadeInfo, {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+    end
+
+    task.delay(math.max(0.05, XCConfig.hitmarkerDuration), function()
+        if serial == hitmarkerSerial then
+            hitmarkerCenter.Visible = false
+            hitmarkerDamage.Visible = false
+        end
+    end)
+end
+
+if genv then
+    genv.XCShowHitmarker = showHitmarker
+end
+--// KILL FIREFLIES
+-- v42 uses actual small Neon parts rather than the stock sparkles texture.
+-- Keep shared state global to avoid adding another local to the large Stage1 scope.
+XCKillFireflyState = {
+    Bursts = {},
+    MaxBursts = 4,
+}
+
+function XCResolveKillEffectPosition(source, fallback)
+    if typeof(source) == "Vector3" then return source end
+    if typeof(source) ~= "Instance" then return fallback end
+
+    if source:IsA("BasePart") then
+        return source.Position
+    end
+
+    if source:IsA("Model") then
+        local root = source:FindFirstChild("HumanoidRootPart")
+            or source:FindFirstChild("UpperTorso")
+            or source:FindFirstChild("Torso")
+            or source:FindFirstChild("Head")
+        if root and root:IsA("BasePart") then
+            return root.Position
+        end
+
+        local ok, pivot = pcall(function() return source:GetPivot() end)
+        if ok and typeof(pivot) == "CFrame" then
+            return pivot.Position
+        end
+    end
+
+    return fallback
+end
+
+function XCDestroyKillBurst(burst)
+    if type(burst) ~= "table" then return end
+    if burst.Folder and burst.Folder.Parent then
+        pcall(function() burst.Folder:Destroy() end)
+    end
+    burst.Particles = {}
+end
+
+function XCUpdateKillFireflies(dt)
+    if type(XCKillFireflyState) ~= "table"
+        or type(XCKillFireflyState.Bursts) ~= "table" then
+        return
+    end
+
+    dt = math.clamp(tonumber(dt) or 0, 0, 0.05)
+    local now = os.clock()
+
+    for burstIndex = #XCKillFireflyState.Bursts, 1, -1 do
+        local burst = XCKillFireflyState.Bursts[burstIndex]
+        local age = now - burst.Started
+        local alpha = burst.Duration > 0
+            and math.clamp(age / burst.Duration, 0, 1)
+            or 1
+
+        if alpha >= 1 or not burst.Folder or not burst.Folder.Parent then
+            XCDestroyKillBurst(burst)
+            table.remove(XCKillFireflyState.Bursts, burstIndex)
+        else
+            for _, mote in ipairs(burst.Particles) do
+                local part = mote.Part
+                if part and part.Parent then
+                    local drag = math.exp(-mote.Drag * dt)
+                    mote.Velocity = mote.Velocity * (drag)
+                    mote.Velocity = mote.Velocity + (Vector3.new(0, mote.Lift * dt, 0))
+
+                    local sway = mote.SwayAxis
+                        * math.sin(age * mote.Frequency + mote.Phase)
+                        * mote.SwayStrength
+                    mote.Position = mote.Position + ((mote.Velocity + sway) * dt)
+                    part.Position = mote.Position
+
+                    local pulse = 0.72
+                        + 0.28 * (
+                            0.5
+                            + 0.5 * math.sin(age * mote.PulseSpeed + mote.Phase)
+                        )
+                    local fade = math.clamp(
+                        (alpha - mote.FadeStart)
+                            / math.max(0.05, 1 - mote.FadeStart),
+                        0,
+                        1
+                    )
+                    local currentSize = math.max(
+                        0.015,
+                        mote.BaseSize * pulse * (1 - fade * 0.72)
+                    )
+                    part.Size = Vector3.new(
+                        currentSize,
+                        currentSize,
+                        currentSize
+                    )
+                    part.Transparency = math.clamp(
+                        0.04 + fade * 0.96,
+                        0,
+                        1
+                    )
+
+                    local color
+                    if burst.Rainbow then
+                        color = Color3.fromHSV(
+                            (mote.Hue + age * 0.22) % 1,
+                            0.82,
+                            1
+                        )
+                    else
+                        local shimmer = 0.08
+                            + 0.22 * (
+                                0.5
+                                + 0.5 * math.sin(
+                                    age * mote.PulseSpeed + mote.Phase
+                                )
+                            )
+                        color = burst.Color:Lerp(
+                            Color3.new(1, 1, 1),
+                            shimmer
+                        )
+                    end
+                    part.Color = color
+
+                    if mote.Trail and mote.Trail.Parent then
+                        mote.Trail.Enabled = alpha < 0.86
+                        mote.Trail.Color = ColorSequence.new(color)
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- One connection updates every active firefly burst.
+table.insert(connections, RunService.Heartbeat:Connect(XCUpdateKillFireflies))
+
+function XCSpawnKillFireflies(source, forcePreview)
+    if not forcePreview and not XCConfig.killEffectEnabled then return end
+
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+
+    local count = math.clamp(
+        math.floor((tonumber(XCConfig.killEffectCount) or 95) + 0.5),
+        10,
+        260
+    )
+    local size = math.clamp(
+        tonumber(XCConfig.killEffectSize) or 0.16,
+        0.04,
+        0.65
+    )
+    local speed = math.clamp(
+        tonumber(XCConfig.killEffectSpeed) or 16,
+        2,
+        45
+    )
+    local duration = math.clamp(
+        tonumber(XCConfig.killEffectDuration) or 1.45,
+        0.35,
+        3.5
+    )
+    local glow = math.clamp(
+        tonumber(XCConfig.killEffectGlow) or 1.4,
+        0,
+        3
+    )
+    local baseColor = rgb(
+        XCConfig.killEffectColorR,
+        XCConfig.killEffectColorG,
+        XCConfig.killEffectColorB
+    )
+    local rainbow = XCConfig.killEffectRainbow == true
+    local random = Random.new()
+
+    while #XCKillFireflyState.Bursts
+        >= (XCKillFireflyState.MaxBursts or 4) do
+        local oldest = table.remove(XCKillFireflyState.Bursts, 1)
+        XCDestroyKillBurst(oldest)
+    end
+
+    local folder = Instance.new("Folder")
+    folder.Name = "XC_KillFirefliesV42"
+    folder.Parent = Workspace
+
+    -- Immediate central flash.
+    local core = Instance.new("Part")
+    core.Name = "CoreFlash"
+    core.Shape = Enum.PartType.Ball
+    core.Material = Enum.Material.Neon
+    core.Anchored = true
+    core.CanCollide = false
+    core.CanTouch = false
+    core.CanQuery = false
+    core.CastShadow = false
+    core.Color = rainbow and Color3.new(1, 1, 1) or baseColor
+    core.Transparency = 0.12
+    core.Size = Vector3.new(
+        size * 1.8,
+        size * 1.8,
+        size * 1.8
+    )
+    core.Position = position + Vector3.new(0, 0.45, 0)
+    core.Parent = folder
+
+    local flashTarget = math.clamp(size * 18, 1.8, 5.2)
+    TweenService:Create(
+        core,
+        TweenInfo.new(
+            math.min(0.34, duration * 0.25),
+            Enum.EasingStyle.Quart,
+            Enum.EasingDirection.Out
+        ),
+        {
+            Size = Vector3.new(
+                flashTarget,
+                flashTarget,
+                flashTarget
+            ),
+            Transparency = 1,
+        }
+    ):Play()
+
+    if glow > 0 then
+        local light = Instance.new("PointLight")
+        light.Name = "KillGlow"
+        light.Color = rainbow
+            and Color3.new(1, 1, 1)
+            or baseColor
+        light.Brightness = 2.1 * glow
+        light.Range = math.clamp(7 + speed * 0.65, 8, 28)
+        light.Shadows = false
+        light.Parent = core
+
+        TweenService:Create(
+            light,
+            TweenInfo.new(
+                math.min(0.42, duration * 0.32),
+                Enum.EasingStyle.Quad,
+                Enum.EasingDirection.Out
+            ),
+            {
+                Brightness = 0,
+                Range = 0,
+            }
+        ):Play()
+    end
+
+    local burst = {
+        Folder = folder,
+        Started = os.clock(),
+        Duration = duration,
+        Color = baseColor,
+        Rainbow = rainbow,
+        Particles = {},
+    }
+
+    local trailStep = math.max(4, math.floor(count / 20))
+    local center = position + Vector3.new(0, 0.45, 0)
+
+    for index = 1, count do
+        local direction = Vector3.new(
+            random:NextNumber(-1, 1),
+            random:NextNumber(-0.18, 1.15),
+            random:NextNumber(-1, 1)
+        )
+        if direction.Magnitude < 0.08 then
+            direction = Vector3.new(0, 1, 0)
+        else
+            direction = direction.Unit
+        end
+
+        local moteSize = size * random:NextNumber(0.56, 1.22)
+        local initialSpeed = speed
+            * random:NextNumber(0.48, 1.28)
+        local initialPosition = center
+            + direction * random:NextNumber(0.05, 0.8)
+
+        local part = Instance.new("Part")
+        part.Name = "Firefly"
+        part.Shape = Enum.PartType.Ball
+        part.Material = Enum.Material.Neon
+        part.Anchored = true
+        part.CanCollide = false
+        part.CanTouch = false
+        part.CanQuery = false
+        part.CastShadow = false
+        part.Massless = true
+        part.Size = Vector3.new(
+            moteSize,
+            moteSize,
+            moteSize
+        )
+        part.Position = initialPosition
+        part.Transparency = random:NextNumber(0.02, 0.12)
+        part.Color = rainbow
+            and Color3.fromHSV(
+                index / math.max(1, count),
+                0.82,
+                1
+            )
+            or baseColor
+        part.Parent = folder
+
+        local trail = nil
+        if XCConfig.killEffectTrails
+            and index % trailStep == 0 then
+            local a0 = Instance.new("Attachment")
+            local a1 = Instance.new("Attachment")
+            a0.Position = Vector3.new(
+                -moteSize * 0.34,
+                0,
+                0
+            )
+            a1.Position = Vector3.new(
+                moteSize * 0.34,
+                0,
+                0
+            )
+            a0.Parent = part
+            a1.Parent = part
+
+            trail = Instance.new("Trail")
+            trail.Name = "GlowTrail"
+            trail.Attachment0 = a0
+            trail.Attachment1 = a1
+            trail.FaceCamera = true
+            trail.LightEmission = 1
+            trail.LightInfluence = 0
+            trail.Lifetime = math.clamp(
+                duration * 0.12,
+                0.08,
+                0.26
+            )
+            trail.MinLength = 0.025
+            trail.Color = ColorSequence.new(part.Color)
+            trail.Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 0.10),
+                NumberSequenceKeypoint.new(0.55, 0.42),
+                NumberSequenceKeypoint.new(1, 1),
+            })
+            trail.WidthScale = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 0.82),
+                NumberSequenceKeypoint.new(1, 0),
+            })
+            trail.Parent = part
+        end
+
+        local swayAxis = Vector3.new(
+            random:NextNumber(-1, 1),
+            random:NextNumber(-0.25, 0.65),
+            random:NextNumber(-1, 1)
+        )
+        if swayAxis.Magnitude < 0.05 then
+            swayAxis = Vector3.new(1, 0, 0)
+        else
+            swayAxis = swayAxis.Unit
+        end
+
+        burst.Particles[#burst.Particles + 1] = {
+            Part = part,
+            Trail = trail,
+            Position = initialPosition,
+            Velocity = direction * initialSpeed
+                + Vector3.new(
+                    0,
+                    random:NextNumber(0.5, 3.2),
+                    0
+                ),
+            BaseSize = moteSize,
+            Drag = random:NextNumber(1.45, 2.45),
+            Lift = random:NextNumber(0.8, 2.7),
+            SwayAxis = swayAxis,
+            SwayStrength = random:NextNumber(0.45, 1.65),
+            Frequency = random:NextNumber(4.2, 8.6),
+            PulseSpeed = random:NextNumber(7.5, 13.5),
+            Phase = random:NextNumber(0, math.pi * 2),
+            FadeStart = random:NextNumber(0.52, 0.72),
+            Hue = random:NextNumber(),
+        }
+    end
+
+    XCKillFireflyState.Bursts[
+        #XCKillFireflyState.Bursts + 1
+    ] = burst
+
+    -- Failsafe if a reinjection disconnects the updater.
+    game:GetService("Debris"):AddItem(
+        folder,
+        duration + 1.0
+    )
+end
+
+-- Lightweight kill-effect styles. These use TweenService + Debris only,
+-- so unlike Fireflies they do not add another permanent per-frame updater.
+function XCGetKillEffectBaseColor(index, total)
+    if XCConfig.killEffectRainbow == true then
+        return Color3.fromHSV(
+            ((tonumber(index) or 1) / math.max(1, tonumber(total) or 1)) % 1,
+            0.82,
+            1
+        )
+    end
+    return rgb(
+        XCConfig.killEffectColorR,
+        XCConfig.killEffectColorG,
+        XCConfig.killEffectColorB
+    )
+end
+
+function XCGetKillEffectParams()
+    return {
+        Duration = math.clamp(tonumber(XCConfig.killEffectDuration) or 1.45, 0.35, 3.5),
+        Size = math.clamp(tonumber(XCConfig.killEffectSize) or 0.16, 0.04, 0.65),
+        Speed = math.clamp(tonumber(XCConfig.killEffectSpeed) or 16, 2, 45),
+        Count = math.clamp(math.floor((tonumber(XCConfig.killEffectCount) or 95) + 0.5), 10, 260),
+        Glow = math.clamp(tonumber(XCConfig.killEffectGlow) or 1.4, 0, 3),
+    }
+end
+
+function XCNewKillEffectPart(folder, name, color, material)
+    local part = Instance.new("Part")
+    part.Name = name or "KillFX"
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.CastShadow = false
+    part.Massless = true
+    part.Material = material or Enum.Material.Neon
+    part.Color = color or Color3.new(1, 1, 1)
+    part.Parent = folder
+    return part
+end
+
+function XCCreateKillEffectFolder(name, lifetime)
+    local folder = Instance.new("Folder")
+    folder.Name = name or "XC_KillEffect"
+    folder.Parent = Workspace
+    game:GetService("Debris"):AddItem(folder, math.max(0.25, tonumber(lifetime) or 2))
+    return folder
+end
+
+function XCAddKillEffectLight(parent, color, brightness, range, duration)
+    local light = Instance.new("PointLight")
+    light.Color = color
+    light.Brightness = math.max(0, tonumber(brightness) or 2)
+    light.Range = math.max(0, tonumber(range) or 12)
+    light.Shadows = false
+    light.Parent = parent
+    TweenService:Create(
+        light,
+        TweenInfo.new(math.max(0.08, tonumber(duration) or 0.35), Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Brightness = 0, Range = 0}
+    ):Play()
+    return light
+end
+
+function XCMakeKillEffectSegment(folder, name, fromPos, toPos, thickness, color, transparency)
+    local delta = toPos - fromPos
+    local length = delta.Magnitude
+    if length < 0.01 then return nil end
+    local part = XCNewKillEffectPart(folder, name, color)
+    part.Size = Vector3.new(thickness, thickness, length)
+    part.Transparency = transparency or 0
+    part.CFrame = CFrame.lookAt((fromPos + toPos) * 0.5, toPos)
+    return part
+end
+
+function XCFadeKillEffectPart(part, duration, targetSize)
+    if not part or not part.Parent then return end
+    local goal = {Transparency = 1}
+    if targetSize then goal.Size = targetSize end
+    TweenService:Create(
+        part,
+        TweenInfo.new(math.max(0.05, duration), Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        goal
+    ):Play()
+end
+
+function XCSpawnKillLightning(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillLightning", p.Duration + 0.8)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.8, 0)
+    local height = math.clamp(10 + p.Speed * 0.22, 11, 20)
+    local segments = math.clamp(math.floor(p.Count / 16), 6, 12)
+    local points = {base + Vector3.new(random:NextNumber(-0.4, 0.4), height, random:NextNumber(-0.4, 0.4))}
+    for i = 1, segments - 1 do
+        local t = i / segments
+        points[#points + 1] = base + Vector3.new(
+            random:NextNumber(-1.2, 1.2) * (1 - t * 0.5),
+            height * (1 - t),
+            random:NextNumber(-1.2, 1.2) * (1 - t * 0.5)
+        )
+    end
+    points[#points + 1] = base
+    for i = 1, #points - 1 do
+        local seg = XCMakeKillEffectSegment(
+            folder, "Lightning", points[i], points[i + 1],
+            math.max(0.055, p.Size * 0.52), XCGetKillEffectBaseColor(i, #points - 1), 0.02
+        )
+        if seg then XCFadeKillEffectPart(seg, math.min(p.Duration * 0.34, 0.48)) end
+        if i > 2 and i < #points - 1 and i % 2 == 0 then
+            local branchEnd = points[i] + Vector3.new(
+                random:NextNumber(-2.2, 2.2),
+                random:NextNumber(-1.8, 0.6),
+                random:NextNumber(-2.2, 2.2)
+            )
+            local branch = XCMakeKillEffectSegment(
+                folder, "LightningBranch", points[i], branchEnd,
+                math.max(0.035, p.Size * 0.28), XCGetKillEffectBaseColor(i + 2, #points), 0.08
+            )
+            if branch then XCFadeKillEffectPart(branch, math.min(p.Duration * 0.28, 0.38)) end
+        end
+    end
+    local flash = XCNewKillEffectPart(folder, "LightningFlash", XCGetKillEffectBaseColor(1, 1))
+    flash.Shape = Enum.PartType.Ball
+    flash.Position = base
+    flash.Size = Vector3.new(p.Size * 2.5, p.Size * 2.5, p.Size * 2.5)
+    flash.Transparency = 0.03
+    XCAddKillEffectLight(flash, flash.Color, 4.5 * p.Glow, 12 + p.Speed * 0.3, 0.35)
+    TweenService:Create(flash, TweenInfo.new(math.min(p.Duration * 0.35, 0.5), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 22, p.Size * 22, p.Size * 22), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillDissolve(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillDissolve", p.Duration + 0.8)
+    local random = Random.new()
+    local count = math.clamp(math.floor(p.Count / 2.4), 24, 80)
+    local base = position + Vector3.new(0, 1.4, 0)
+    for i = 1, count do
+        local bit = XCNewKillEffectPart(folder, "DissolveBit", XCGetKillEffectBaseColor(i, count))
+        local s = p.Size * random:NextNumber(0.45, 1.05)
+        bit.Size = Vector3.new(s, s, s)
+        bit.CFrame = CFrame.new(base + Vector3.new(
+            random:NextNumber(-1.4, 1.4), random:NextNumber(-1.8, 1.8), random:NextNumber(-1.0, 1.0)
+        )) * CFrame.Angles(random:NextNumber(-2, 2), random:NextNumber(-2, 2), random:NextNumber(-2, 2))
+        bit.Transparency = random:NextNumber(0.05, 0.22)
+        local target = bit.Position + Vector3.new(
+            random:NextNumber(-1.5, 1.5), random:NextNumber(2.2, 5.8), random:NextNumber(-1.5, 1.5)
+        )
+        TweenService:Create(bit, TweenInfo.new(p.Duration * random:NextNumber(0.55, 0.95), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            CFrame = CFrame.new(target) * CFrame.Angles(random:NextNumber(-4, 4), random:NextNumber(-4, 4), random:NextNumber(-4, 4)),
+            Size = Vector3.new(s * 0.12, s * 0.12, s * 0.12), Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillSoul(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillSoul", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.8, 0)
+    local soul = XCNewKillEffectPart(folder, "SoulCore", XCGetKillEffectBaseColor(1, 1))
+    soul.Shape = Enum.PartType.Ball
+    soul.Size = Vector3.new(p.Size * 3.8, p.Size * 3.8, p.Size * 3.8)
+    soul.Position = base
+    soul.Transparency = 0.08
+    XCAddKillEffectLight(soul, soul.Color, 2.5 * p.Glow, 8 + p.Speed * 0.25, p.Duration * 0.7)
+    local rise = math.clamp(5 + p.Speed * 0.18, 5.5, 12)
+    TweenService:Create(soul, TweenInfo.new(p.Duration * 0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        Position = base + Vector3.new(random:NextNumber(-0.7, 0.7), rise, random:NextNumber(-0.7, 0.7)),
+        Size = Vector3.new(p.Size * 1.1, p.Size * 1.1, p.Size * 1.1), Transparency = 1,
+    }):Play()
+    local motes = math.clamp(math.floor(p.Count / 7), 10, 30)
+    for i = 1, motes do
+        local mote = XCNewKillEffectPart(folder, "SoulWisp", XCGetKillEffectBaseColor(i, motes))
+        mote.Shape = Enum.PartType.Ball
+        local ms = p.Size * random:NextNumber(0.3, 0.7)
+        mote.Size = Vector3.new(ms, ms, ms)
+        local angle = (i / motes) * math.pi * 2
+        mote.Position = base + Vector3.new(math.cos(angle) * 0.7, random:NextNumber(-0.2, 0.8), math.sin(angle) * 0.7)
+        mote.Transparency = 0.12
+        TweenService:Create(mote, TweenInfo.new(p.Duration * random:NextNumber(0.55, 0.9), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = base + Vector3.new(math.cos(angle + 1.8) * 2.1, rise * random:NextNumber(0.45, 0.9), math.sin(angle + 1.8) * 2.1),
+            Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillBlackHole(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillBlackHole", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 1, 0)
+    local core = XCNewKillEffectPart(folder, "BlackHole", Color3.fromRGB(3, 3, 8), Enum.Material.SmoothPlastic)
+    core.Shape = Enum.PartType.Ball
+    core.Size = Vector3.new(p.Size * 4, p.Size * 4, p.Size * 4)
+    core.Position = base
+    core.Transparency = 0.02
+    local rim = XCNewKillEffectPart(folder, "BlackHoleRim", XCGetKillEffectBaseColor(1, 1))
+    rim.Shape = Enum.PartType.Ball
+    rim.Size = Vector3.new(p.Size * 5.4, p.Size * 5.4, p.Size * 5.4)
+    rim.Position = base
+    rim.Transparency = 0.58
+    XCAddKillEffectLight(rim, rim.Color, 1.4 * p.Glow, 8 + p.Speed * 0.2, p.Duration * 0.65)
+    local count = math.clamp(math.floor(p.Count / 4), 18, 55)
+    for i = 1, count do
+        local shard = XCNewKillEffectPart(folder, "Infall", XCGetKillEffectBaseColor(i, count))
+        local s = p.Size * random:NextNumber(0.3, 0.8)
+        shard.Size = Vector3.new(s * 0.55, s * 0.55, s * 2.2)
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.4, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(1, 0, 0) else dir = dir.Unit end
+        local startPos = base + dir * random:NextNumber(4, 8)
+        shard.CFrame = CFrame.lookAt(startPos, base)
+        shard.Transparency = 0.12
+        TweenService:Create(shard, TweenInfo.new(p.Duration * random:NextNumber(0.42, 0.7), Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            CFrame = CFrame.lookAt(base + dir * 0.2, base), Size = Vector3.new(s * 0.12, s * 0.12, s * 0.35), Transparency = 1,
+        }):Play()
+    end
+    task.delay(p.Duration * 0.5, function()
+        if not core.Parent then return end
+        TweenService:Create(core, TweenInfo.new(p.Duration * 0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 13, p.Size * 13, p.Size * 13), Transparency = 1,
+        }):Play()
+        TweenService:Create(rim, TweenInfo.new(p.Duration * 0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 18, p.Size * 18, p.Size * 18), Transparency = 1,
+        }):Play()
+    end)
+end
+
+function XCSpawnKillElectricBurst(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillElectricBurst", p.Duration + 0.6)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.9, 0)
+    local bolts = math.clamp(math.floor(p.Count / 9), 8, 22)
+    for i = 1, bolts do
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.35, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
+        local prev = base
+        local steps = random:NextInteger(2, 4)
+        for step = 1, steps do
+            local target = base + dir * ((step / steps) * random:NextNumber(3.5, 7.5)) + Vector3.new(
+                random:NextNumber(-0.55, 0.55), random:NextNumber(-0.55, 0.55), random:NextNumber(-0.55, 0.55)
+            )
+            local seg = XCMakeKillEffectSegment(folder, "ElectricArc", prev, target, math.max(0.035, p.Size * 0.28), XCGetKillEffectBaseColor(i, bolts), 0.04)
+            if seg then XCFadeKillEffectPart(seg, p.Duration * random:NextNumber(0.22, 0.45)) end
+            prev = target
+        end
+    end
+    local core = XCNewKillEffectPart(folder, "ElectricCore", XCGetKillEffectBaseColor(1, 1))
+    core.Shape = Enum.PartType.Ball
+    core.Position = base
+    core.Size = Vector3.new(p.Size * 2, p.Size * 2, p.Size * 2)
+    core.Transparency = 0.05
+    XCAddKillEffectLight(core, core.Color, 3 * p.Glow, 10 + p.Speed * 0.25, p.Duration * 0.3)
+    TweenService:Create(core, TweenInfo.new(p.Duration * 0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 10, p.Size * 10, p.Size * 10), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillBloodMoon(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillBloodMoon", p.Duration + 0.9)
+    local base = position + Vector3.new(0, 2.8, 0)
+    local moonColor = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(1, 1) or Color3.fromRGB(190, 18, 42)
+    local moon = XCNewKillEffectPart(folder, "BloodMoon", moonColor)
+    moon.Shape = Enum.PartType.Ball
+    moon.Position = base
+    moon.Size = Vector3.new(p.Size * 4, p.Size * 4, p.Size * 4)
+    moon.Transparency = 0.1
+    XCAddKillEffectLight(moon, moonColor, 2.2 * p.Glow, 10 + p.Speed * 0.2, p.Duration * 0.7)
+    TweenService:Create(moon, TweenInfo.new(p.Duration * 0.48, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 14, p.Size * 14, p.Size * 14), Transparency = 0.28,
+    }):Play()
+    task.delay(p.Duration * 0.5, function()
+        if moon.Parent then XCFadeKillEffectPart(moon, p.Duration * 0.35, Vector3.new(p.Size * 17, p.Size * 17, p.Size * 17)) end
+    end)
+    local random = Random.new()
+    for i = 1, math.clamp(math.floor(p.Count / 8), 10, 28) do
+        local drop = XCNewKillEffectPart(folder, "BloodMote", moonColor)
+        drop.Shape = Enum.PartType.Ball
+        local ds = p.Size * random:NextNumber(0.25, 0.55)
+        drop.Size = Vector3.new(ds, ds, ds)
+        drop.Position = base + Vector3.new(random:NextNumber(-2.5, 2.5), random:NextNumber(-1, 1), random:NextNumber(-2.5, 2.5))
+        drop.Transparency = 0.15
+        TweenService:Create(drop, TweenInfo.new(p.Duration * random:NextNumber(0.45, 0.8), Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+            Position = drop.Position + Vector3.new(random:NextNumber(-0.5, 0.5), -random:NextNumber(2, 5), random:NextNumber(-0.5, 0.5)), Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillConfetti(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillConfetti", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 1, 0)
+    local count = math.clamp(math.floor(p.Count / 1.8), 30, 110)
+    for i = 1, count do
+        local color = XCConfig.killEffectRainbow == true
+            and Color3.fromHSV((i / count + random:NextNumber(-0.08, 0.08)) % 1, 0.9, 1)
+            or Color3.fromHSV(random:NextNumber(), 0.78, 1)
+        local bit = XCNewKillEffectPart(folder, "Confetti", color)
+        local sx = p.Size * random:NextNumber(0.25, 0.55)
+        bit.Size = Vector3.new(sx, sx * random:NextNumber(1.4, 2.8), math.max(0.025, sx * 0.18))
+        bit.CFrame = CFrame.new(base) * CFrame.Angles(random:NextNumber(-3, 3), random:NextNumber(-3, 3), random:NextNumber(-3, 3))
+        local angle = random:NextNumber(0, math.pi * 2)
+        local dist = random:NextNumber(2.5, 6.5) + p.Speed * 0.04
+        local target = base + Vector3.new(math.cos(angle) * dist, random:NextNumber(2.5, 6), math.sin(angle) * dist)
+        TweenService:Create(bit, TweenInfo.new(p.Duration * random:NextNumber(0.5, 0.85), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            CFrame = CFrame.new(target) * CFrame.Angles(random:NextNumber(-8, 8), random:NextNumber(-8, 8), random:NextNumber(-8, 8)),
+        }):Play()
+        task.delay(p.Duration * 0.5, function()
+            if bit.Parent then
+                TweenService:Create(bit, TweenInfo.new(p.Duration * 0.42, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+                    Position = target - Vector3.new(0, random:NextNumber(3, 7), 0), Transparency = 1,
+                }):Play()
+            end
+        end)
+    end
+end
+
+function XCSpawnKillGhost(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillGhost", p.Duration + 1)
+    local color = XCGetKillEffectBaseColor(1, 1):Lerp(Color3.new(1, 1, 1), 0.42)
+    local base = position + Vector3.new(0, 1.4, 0)
+    local pieces = {}
+    local head = XCNewKillEffectPart(folder, "GhostHead", color)
+    head.Shape = Enum.PartType.Ball
+    head.Size = Vector3.new(p.Size * 3, p.Size * 3, p.Size * 3)
+    head.Position = base + Vector3.new(0, p.Size * 4.5, 0)
+    pieces[#pieces + 1] = head
+    local torso = XCNewKillEffectPart(folder, "GhostTorso", color)
+    torso.Size = Vector3.new(p.Size * 4, p.Size * 5.5, p.Size * 1.6)
+    torso.Position = base
+    pieces[#pieces + 1] = torso
+    for side = -1, 1, 2 do
+        local arm = XCNewKillEffectPart(folder, "GhostArm", color)
+        arm.Size = Vector3.new(p.Size * 1.3, p.Size * 5, p.Size * 1.3)
+        arm.CFrame = CFrame.new(base + Vector3.new(side * p.Size * 2.8, 0.1, 0)) * CFrame.Angles(0, 0, math.rad(side * 18))
+        pieces[#pieces + 1] = arm
+    end
+    for _, part in ipairs(pieces) do
+        part.Transparency = 0.42
+        TweenService:Create(part, TweenInfo.new(p.Duration * 0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = part.Position + Vector3.new(0, math.clamp(4 + p.Speed * 0.12, 4, 9), 0), Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillPortal(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillPortal", p.Duration + 0.9)
+    local base = position + Vector3.new(0, 0.15, 0)
+    local segments = math.clamp(math.floor(p.Count / 6), 14, 28)
+    local radius = math.clamp(2.2 + p.Size * 3.5, 2.2, 4.8)
+    for i = 1, segments do
+        local a1 = ((i - 1) / segments) * math.pi * 2
+        local a2 = (i / segments) * math.pi * 2
+        local p1 = base + Vector3.new(math.cos(a1) * radius, 0, math.sin(a1) * radius)
+        local p2 = base + Vector3.new(math.cos(a2) * radius, 0, math.sin(a2) * radius)
+        local seg = XCMakeKillEffectSegment(folder, "PortalRing", p1, p2, math.max(0.055, p.Size * 0.45), XCGetKillEffectBaseColor(i, segments), 0.04)
+        if seg then XCFadeKillEffectPart(seg, p.Duration * 0.85) end
+    end
+    local core = XCNewKillEffectPart(folder, "PortalCore", Color3.fromRGB(4, 4, 12), Enum.Material.SmoothPlastic)
+    core.Shape = Enum.PartType.Cylinder
+    core.Size = Vector3.new(0.06, radius * 1.55, radius * 1.55)
+    core.CFrame = CFrame.new(base) * CFrame.Angles(0, 0, math.rad(90))
+    core.Transparency = 0.18
+    TweenService:Create(core, TweenInfo.new(p.Duration * 0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = Vector3.new(0.02, 0.2, 0.2), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillCrystalShatter(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillCrystalShatter", p.Duration + 0.8)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.9, 0)
+    local count = math.clamp(math.floor(p.Count / 3.2), 20, 64)
+    for i = 1, count do
+        local shard = XCNewKillEffectPart(folder, "CrystalShard", XCGetKillEffectBaseColor(i, count), Enum.Material.Glass)
+        local s = p.Size * random:NextNumber(0.45, 1.1)
+        shard.Size = Vector3.new(s * 0.35, s * random:NextNumber(1.6, 3.4), s * 0.55)
+        shard.CFrame = CFrame.new(base + Vector3.new(random:NextNumber(-0.5, 0.5), random:NextNumber(-0.4, 0.8), random:NextNumber(-0.5, 0.5))) * CFrame.Angles(random:NextNumber(-3, 3), random:NextNumber(-3, 3), random:NextNumber(-3, 3))
+        shard.Transparency = 0.08
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.15, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(0, 1, 0) else dir = dir.Unit end
+        local target = base + dir * (random:NextNumber(3, 7) + p.Speed * 0.05)
+        TweenService:Create(shard, TweenInfo.new(p.Duration * random:NextNumber(0.5, 0.88), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            CFrame = CFrame.new(target) * CFrame.Angles(random:NextNumber(-7, 7), random:NextNumber(-7, 7), random:NextNumber(-7, 7)),
+            Size = shard.Size * 0.2, Transparency = 1,
+        }):Play()
+    end
+end
+
+function XCSpawnKillCrown(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillCrown", p.Duration + 0.8)
+    local base = position + Vector3.new(0, 4.1, 0)
+    local color = XCGetKillEffectBaseColor(1, 1)
+    local radius = math.clamp(0.9 + p.Size * 2.3, 1, 2)
+    local points = {}
+    local n = 5
+    for i = 1, n do
+        local a = ((i - 1) / n) * math.pi * 2
+        local low = base + Vector3.new(math.cos(a) * radius, 0, math.sin(a) * radius)
+        local high = base + Vector3.new(math.cos(a) * radius * 0.78, 1.25 + (i % 2) * 0.35, math.sin(a) * radius * 0.78)
+        points[#points + 1] = {low = low, high = high}
+    end
+    for i = 1, n do
+        local nextI = (i % n) + 1
+        local s1 = XCMakeKillEffectSegment(folder, "CrownBase", points[i].low, points[nextI].low, math.max(0.055, p.Size * 0.38), color, 0.04)
+        local s2 = XCMakeKillEffectSegment(folder, "CrownPeak", points[i].low, points[i].high, math.max(0.055, p.Size * 0.38), color, 0.04)
+        local s3 = XCMakeKillEffectSegment(folder, "CrownPeak", points[i].high, points[nextI].low, math.max(0.055, p.Size * 0.38), color, 0.04)
+        for _, seg in ipairs({s1, s2, s3}) do
+            if seg then XCFadeKillEffectPart(seg, p.Duration * 0.82) end
+        end
+    end
+    local gem = XCNewKillEffectPart(folder, "CrownGem", color)
+    gem.Shape = Enum.PartType.Ball
+    gem.Size = Vector3.new(p.Size * 1.2, p.Size * 1.2, p.Size * 1.2)
+    gem.Position = base + Vector3.new(0, 1.7, 0)
+    XCAddKillEffectLight(gem, color, 1.8 * p.Glow, 7, p.Duration * 0.6)
+    TweenService:Create(gem, TweenInfo.new(p.Duration * 0.75, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        Position = gem.Position + Vector3.new(0, 1.4, 0), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillBeam(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillBeam", p.Duration + 0.7)
+    local base = position + Vector3.new(0, 0.7, 0)
+    local height = math.clamp(13 + p.Speed * 0.25, 14, 25)
+    local beam = XCNewKillEffectPart(folder, "KillBeam", XCGetKillEffectBaseColor(1, 1))
+    beam.Size = Vector3.new(p.Size * 2.2, height, p.Size * 2.2)
+    beam.Position = base + Vector3.new(0, height * 0.5, 0)
+    beam.Transparency = 0.18
+    XCAddKillEffectLight(beam, beam.Color, 2.2 * p.Glow, 10 + p.Speed * 0.2, p.Duration * 0.45)
+    TweenService:Create(beam, TweenInfo.new(p.Duration * 0.58, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 0.3, height, p.Size * 0.3), Transparency = 1,
+    }):Play()
+    local flash = XCNewKillEffectPart(folder, "BeamImpact", beam.Color)
+    flash.Shape = Enum.PartType.Ball
+    flash.Size = Vector3.new(p.Size * 2, p.Size * 2, p.Size * 2)
+    flash.Position = base
+    TweenService:Create(flash, TweenInfo.new(p.Duration * 0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = Vector3.new(p.Size * 13, p.Size * 13, p.Size * 13), Transparency = 1,
+    }):Play()
+end
+
+function XCSpawnKillEMP(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillEMP", p.Duration + 0.8)
+    local base = position + Vector3.new(0, 0.6, 0)
+    local color = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(1, 1) or Color3.fromRGB(80, 180, 255)
+    for wave = 1, 3 do
+        local orb = XCNewKillEffectPart(folder, "EMPWave", color)
+        orb.Shape = Enum.PartType.Ball
+        orb.Position = base
+        orb.Size = Vector3.new(p.Size, p.Size, p.Size)
+        orb.Transparency = 0.66
+        task.delay((wave - 1) * 0.08, function()
+            if not orb.Parent then return end
+            local target = math.clamp(7 + p.Speed * 0.3 + wave * 1.8, 8, 23)
+            TweenService:Create(orb, TweenInfo.new(p.Duration * 0.62, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = Vector3.new(target, target, target), Transparency = 1,
+            }):Play()
+        end)
+    end
+    local random = Random.new()
+    for i = 1, 10 do
+        local a = (i / 10) * math.pi * 2
+        local from = base + Vector3.new(math.cos(a) * 0.5, random:NextNumber(-0.4, 0.8), math.sin(a) * 0.5)
+        local to = base + Vector3.new(math.cos(a) * random:NextNumber(3, 6), random:NextNumber(-0.4, 1.5), math.sin(a) * random:NextNumber(3, 6))
+        local seg = XCMakeKillEffectSegment(folder, "EMPArc", from, to, math.max(0.035, p.Size * 0.24), color, 0.08)
+        if seg then XCFadeKillEffectPart(seg, p.Duration * 0.34) end
+    end
+end
+
+function XCSpawnKillInferno(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillInferno", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 0.4, 0)
+    local count = math.clamp(math.floor(p.Count / 3), 22, 70)
+    local colors = {Color3.fromRGB(255, 55, 8), Color3.fromRGB(255, 132, 10), Color3.fromRGB(255, 220, 70)}
+    for i = 1, count do
+        local color = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(i, count) or colors[((i - 1) % #colors) + 1]
+        local flame = XCNewKillEffectPart(folder, "Inferno", color)
+        flame.Shape = Enum.PartType.Ball
+        local fs = p.Size * random:NextNumber(0.55, 1.35)
+        flame.Size = Vector3.new(fs, fs * random:NextNumber(1.3, 2.4), fs)
+        flame.Position = base + Vector3.new(random:NextNumber(-1.5, 1.5), random:NextNumber(0, 0.8), random:NextNumber(-1.5, 1.5))
+        flame.Transparency = random:NextNumber(0.05, 0.2)
+        TweenService:Create(flame, TweenInfo.new(p.Duration * random:NextNumber(0.45, 0.88), Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = flame.Position + Vector3.new(random:NextNumber(-1, 1), random:NextNumber(3, 8) + p.Speed * 0.05, random:NextNumber(-1, 1)),
+            Size = Vector3.new(fs * 0.18, fs * 0.35, fs * 0.18), Transparency = 1,
+        }):Play()
+    end
+    local glowPart = XCNewKillEffectPart(folder, "InfernoGlow", Color3.fromRGB(255, 95, 18))
+    glowPart.Shape = Enum.PartType.Ball
+    glowPart.Size = Vector3.new(p.Size * 2, p.Size * 2, p.Size * 2)
+    glowPart.Position = base
+    glowPart.Transparency = 0.65
+    XCAddKillEffectLight(glowPart, glowPart.Color, 3 * p.Glow, 11 + p.Speed * 0.2, p.Duration * 0.55)
+    XCFadeKillEffectPart(glowPart, p.Duration * 0.65, Vector3.new(p.Size * 12, p.Size * 12, p.Size * 12))
+end
+
+function XCSpawnKillVoid(source)
+    local position = XCResolveKillEffectPosition(source)
+    if typeof(position) ~= "Vector3" then return end
+    local p = XCGetKillEffectParams()
+    local folder = XCCreateKillEffectFolder("XC_KillVoid", p.Duration + 1)
+    local random = Random.new()
+    local base = position + Vector3.new(0, 1, 0)
+    local voidColor = XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(1, 1) or Color3.fromRGB(130, 55, 255)
+    local core = XCNewKillEffectPart(folder, "VoidCore", Color3.fromRGB(2, 1, 7), Enum.Material.SmoothPlastic)
+    core.Shape = Enum.PartType.Ball
+    core.Size = Vector3.new(p.Size * 2.5, p.Size * 2.5, p.Size * 2.5)
+    core.Position = base
+    local aura = XCNewKillEffectPart(folder, "VoidAura", voidColor)
+    aura.Shape = Enum.PartType.Ball
+    aura.Size = Vector3.new(p.Size * 4, p.Size * 4, p.Size * 4)
+    aura.Position = base
+    aura.Transparency = 0.58
+    XCAddKillEffectLight(aura, voidColor, 1.8 * p.Glow, 9 + p.Speed * 0.18, p.Duration * 0.65)
+    local count = math.clamp(math.floor(p.Count / 4.5), 16, 48)
+    for i = 1, count do
+        local mote = XCNewKillEffectPart(folder, "VoidMote", XCConfig.killEffectRainbow == true and XCGetKillEffectBaseColor(i, count) or voidColor)
+        mote.Shape = Enum.PartType.Ball
+        local ms = p.Size * random:NextNumber(0.25, 0.6)
+        mote.Size = Vector3.new(ms, ms, ms)
+        local dir = Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-0.7, 1), random:NextNumber(-1, 1))
+        if dir.Magnitude < 0.05 then dir = Vector3.new(1, 0, 0) else dir = dir.Unit end
+        mote.Position = base + dir * random:NextNumber(4, 8)
+        mote.Transparency = 0.12
+        TweenService:Create(mote, TweenInfo.new(p.Duration * random:NextNumber(0.4, 0.72), Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            Position = base + dir * 0.2, Size = Vector3.new(ms * 0.12, ms * 0.12, ms * 0.12), Transparency = 1,
+        }):Play()
+    end
+    task.delay(p.Duration * 0.48, function()
+        if not aura.Parent then return end
+        TweenService:Create(aura, TweenInfo.new(p.Duration * 0.36, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 20, p.Size * 20, p.Size * 20), Transparency = 1,
+        }):Play()
+        TweenService:Create(core, TweenInfo.new(p.Duration * 0.34, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = Vector3.new(p.Size * 8, p.Size * 8, p.Size * 8), Transparency = 1,
+        }):Play()
+    end)
+end
+
+function XCSpawnKillEffect(source, forcePreview)
+    if not forcePreview and not XCConfig.killEffectEnabled then return end
+
+    local style = tostring(XCConfig.killEffectStyle or "Fireflies")
+    local styles = {
+        "Fireflies", "Lightning Strike", "Dissolve", "Soul", "Black Hole",
+        "Electric Burst", "Blood Moon", "Confetti", "Ghost", "Portal",
+        "Crystal Shatter", "Headshot Crown", "Kill Beam", "EMP", "Inferno", "Void",
+    }
+    if style == "Random" then
+        style = styles[Random.new():NextInteger(1, #styles)]
+    end
+
+    if style == "Lightning Strike" then
+        XCSpawnKillLightning(source)
+    elseif style == "Dissolve" then
+        XCSpawnKillDissolve(source)
+    elseif style == "Soul" then
+        XCSpawnKillSoul(source)
+    elseif style == "Black Hole" then
+        XCSpawnKillBlackHole(source)
+    elseif style == "Electric Burst" then
+        XCSpawnKillElectricBurst(source)
+    elseif style == "Blood Moon" then
+        XCSpawnKillBloodMoon(source)
+    elseif style == "Confetti" then
+        XCSpawnKillConfetti(source)
+    elseif style == "Ghost" then
+        XCSpawnKillGhost(source)
+    elseif style == "Portal" then
+        XCSpawnKillPortal(source)
+    elseif style == "Crystal Shatter" then
+        XCSpawnKillCrystalShatter(source)
+    elseif style == "Headshot Crown" then
+        XCSpawnKillCrown(source)
+    elseif style == "Kill Beam" then
+        XCSpawnKillBeam(source)
+    elseif style == "EMP" then
+        XCSpawnKillEMP(source)
+    elseif style == "Inferno" then
+        XCSpawnKillInferno(source)
+    elseif style == "Void" then
+        XCSpawnKillVoid(source)
+    else
+        XCSpawnKillFireflies(source, forcePreview)
+    end
+end
+
+function XCPreviewKillFireflies()
+    local char = player and player.Character
+    local root = char and (
+        char:FindFirstChild("HumanoidRootPart")
+        or char:FindFirstChild("UpperTorso")
+        or char:FindFirstChild("Torso")
+    )
+    if not root or not root:IsA("BasePart") then
+        XCNotify(
+            "Kill effect",
+            "Character position unavailable",
+            "warning",
+            2
+        )
+        return
+    end
+
+    local cam = Workspace.CurrentCamera or camera
+    local forward = cam
+        and cam.CFrame.LookVector
+        or root.CFrame.LookVector
+    local flatForward = Vector3.new(
+        forward.X,
+        0,
+        forward.Z
+    )
+    if flatForward.Magnitude < 0.05 then
+        local rootForward = root.CFrame.LookVector
+        flatForward = Vector3.new(
+            rootForward.X,
+            0,
+            rootForward.Z
+        )
+    end
+    if flatForward.Magnitude < 0.05 then
+        flatForward = Vector3.new(0, 0, -1)
+    else
+        flatForward = flatForward.Unit
+    end
+
+    local previewPosition = root.Position
+        + flatForward * 7
+        + Vector3.new(0, 1.5, 0)
+
+    XCSpawnKillEffect(previewPosition, true)
+end
+
+if genv then
+    genv.XCSpawnKillFireflies = XCSpawnKillFireflies
+    genv.XCSpawnKillEffect = XCSpawnKillEffect
+    genv.XCPreviewKillFireflies = XCPreviewKillFireflies
+    genv.XCPreviewKillEffect = XCPreviewKillFireflies
+end
+--// THIRD PERSON WORK
+local isThirdPersonActive = false
+local thirdPersonSaved = nil
+
+function getThirdPersonTarget()
+    local char = player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not char or not hum or hum.Health <= 0 then return nil, nil end
+    return char, hum
+end
+
+function restoreThirdPerson()
+    isThirdPersonActive = false
+
+    local char = player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+    if camera and thirdPersonSaved then
+        camera.CameraMinZoomDistance = thirdPersonSaved.minZoom
+        camera.CameraMaxZoomDistance = thirdPersonSaved.maxZoom
+    end
+
+    if player and thirdPersonSaved then
+        pcall(function()
+            player.CameraMode = thirdPersonSaved.cameraMode
+        end)
+    end
+
+    if camera then
+        camera.CameraType = Enum.CameraType.Custom
+        if hum then
+            camera.CameraSubject = hum
+            if thirdPersonSaved and typeof(thirdPersonSaved.cameraOffset) == "Vector3" then
+                hum.CameraOffset = thirdPersonSaved.cameraOffset
+            end
+        end
+    end
+
+    thirdPersonSaved = nil
+end
+
+function applyThirdPerson()
+    if not XCConfig.thirdPersonEnabled then
+        if isThirdPersonActive then
+            restoreThirdPerson()
+        end
+        return
+    end
+
+    camera = Workspace.CurrentCamera or camera
+    if not camera then return end
+
+    local char, hum = getThirdPersonTarget()
+    if not char then
+        if isThirdPersonActive then
+            restoreThirdPerson()
+        end
+        return
+    end
+
+    if not isThirdPersonActive then
+        thirdPersonSaved = {
+            cameraMode = player.CameraMode,
+            minZoom = camera.CameraMinZoomDistance,
+            maxZoom = camera.CameraMaxZoomDistance,
+            cameraOffset = hum.CameraOffset,
+        }
+        isThirdPersonActive = true
+    end
+
+    -- XC behavior:
+    -- use Roblox's native third-person camera instead of forcing
+    -- a Scriptable camera. This preserves touch-look, joystick and
+    -- the game's normal camera pipeline on both mobile and PC.
+    pcall(function()
+        player.CameraMode = Enum.CameraMode.Classic
+    end)
+
+    local distance = math.clamp(
+        tonumber(XCConfig.thirdPersonDistance) or 12,
+        5,
+        50
+    )
+
+    camera.CameraMinZoomDistance = distance
+    camera.CameraMaxZoomDistance = distance
+    camera.CameraType = Enum.CameraType.Custom
+    camera.CameraSubject = hum
+    hum.CameraOffset = Vector3.new(0, math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6), 0)
+end
+
+function setThirdPersonEnabled(enabled)
+    XCConfig.thirdPersonEnabled = enabled and true or false
+
+    if not enabled then
+        restoreThirdPerson()
+    else
+        isThirdPersonActive = false
+        thirdPersonSaved = nil
+        applyThirdPerson()
+    end
+end
+
+function refreshThirdPerson()
+    if XCConfig.thirdPersonEnabled then
+        applyThirdPerson()
+    end
+end
+--// LIGHTING & ATMOSPHERE FUNCTIONS WORK
+function applyNightPreset(presetName)
+    local cfg = nightPresets[presetName]
+    if not cfg then return end
+    XCConfig.nightPreset = presetName
+    XCConfig.nightClockTime = cfg.ClockTime
+    XCConfig.nightBrightness = cfg.Brightness
+    
+    if XCConfig.nightModeEnabled then
+        Lighting.ClockTime = cfg.ClockTime
+        Lighting.Brightness = cfg.Brightness
+        Lighting.OutdoorAmbient = cfg.OutdoorAmbient
+        Lighting.Ambient = cfg.Ambient
+        Lighting.GlobalShadows = true
+        if not XCConfig.removeFogEnabled then
+            Lighting.FogColor = fogLibrary[presetName] or cfg.FogColor
+        end
+        updateWorldChanger()
+    end
+end
+
+function restoreLightingState()
+    pcall(function()
+        Lighting.Brightness = defaultLighting.Brightness
+        Lighting.ClockTime = defaultLighting.ClockTime
+        Lighting.GlobalShadows = defaultLighting.GlobalShadows
+        Lighting.Ambient = defaultLighting.Ambient
+        Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
+        Lighting.FogEnd = defaultLighting.FogEnd
+        Lighting.FogStart = defaultLighting.FogStart or 0
+        Lighting.FogColor = defaultLighting.FogColor
+        Lighting.ExposureCompensation = defaultLighting.ExposureCompensation or 0
+        restoreWorldSkybox()
+        local fx = Lighting:FindFirstChild("XCWorldColorFX")
+        if fx then fx:Destroy() end
+        if XCFeatureState and XCFeatureState.worldAtmosphere then
+            XCFeatureState.worldAtmosphere:Destroy()
+            XCFeatureState.worldAtmosphere = nil
+        end
+        if XCFeatureState and XCFeatureState.worldOriginalAtmosphere then
+            XCFeatureState.worldOriginalAtmosphere.Parent = Lighting
+            XCFeatureState.worldOriginalAtmosphere = nil
+        end
+        if XCFeatureState and XCFeatureState.worldBloom then
+            XCFeatureState.worldBloom:Destroy()
+            XCFeatureState.worldBloom = nil
+        end
+    end)
+end
+--// WORLD VISUALS
+local worldSkyboxData = {
+    ["Night"] = {"rbxassetid://1514717643","rbxassetid://1514716936","rbxassetid://1514715910","rbxassetid://1514714945","rbxassetid://1514714011","rbxassetid://1514713374"},
+    ["Ocean Sunset"] = {"rbxassetid://17525686840","rbxassetid://17525678473","rbxassetid://17525684686","rbxassetid://17525680663","rbxassetid://17525682665","rbxassetid://17525674545"},
+    ["My Summer Car"] = {"rbxassetid://16648590964","rbxassetid://16648617436","rbxassetid://16648595424","rbxassetid://16648566370","rbxassetid://16648577071","rbxassetid://16648598180"},
+    ["Standard"] = {"rbxassetid://91458024","rbxassetid://91457980","rbxassetid://91458024","rbxassetid://91458024","rbxassetid://91458024","rbxassetid://91458002"},
+    ["Minecraft"] = {"http://www.roblox.com/asset/?id=8735166756","http://www.roblox.com/asset/?id=8735166707","http://www.roblox.com/asset/?id=8735231668","http://www.roblox.com/asset/?id=8735166755","http://www.roblox.com/asset/?id=8735166751","http://www.roblox.com/asset/?id=8735166729"},
+    ["Spongebob"] = {"rbxassetid://277099484","rbxassetid://277099500","rbxassetid://277099554","rbxassetid://277099531","rbxassetid://277099589","rbxassetid://277101591"},
+    ["Deep Space"] = {"http://www.roblox.com/asset/?id=159248188","http://www.roblox.com/asset/?id=159248183","http://www.roblox.com/asset/?id=159248187","http://www.roblox.com/asset/?id=159248173","http://www.roblox.com/asset/?id=159248192","http://www.roblox.com/asset/?id=159248176"},
+    ["Clouded Sky"] = {"http://www.roblox.com/asset/?id=252760981","http://www.roblox.com/asset/?id=252763035","http://www.roblox.com/asset/?id=252761439","http://www.roblox.com/asset/?id=252760980","http://www.roblox.com/asset/?id=252760986","http://www.roblox.com/asset/?id=252762652"},
+    ["Retro"] = {"rbxasset://sky/null_plainsky512_bk.jpg","rbxasset://sky/null_plainsky512_dn.jpg","rbxasset://sky/null_plainsky512_ft.jpg","rbxasset://sky/null_plainsky512_lf.jpg","rbxasset://sky/null_plainsky512_rt.jpg","rbxasset://sky/null_plainsky512_up.jpg"},
+    ["City"] = {"http://www.roblox.com/asset/?id=9134792889","http://www.roblox.com/asset/?id=9134791975","http://www.roblox.com/asset/?id=9134793457","http://www.roblox.com/asset/?id=9134791234","http://www.roblox.com/asset/?id=9134790419","http://www.roblox.com/asset/?id=9134791633"},
+    ["Purple Nebula"] = {"rbxassetid://15983968922","rbxassetid://15983966825","rbxassetid://15983965025","rbxassetid://15983967420","rbxassetid://15983966246","rbxassetid://15983964246"},
+    ["Pink Sky"] = {"rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060"}
+}
+
+local originalSkybox = nil
+local originalPostFX = nil
+local weaponVisualState = setmetatable({}, {__mode = "k"})
+local weaponGlowObjects = setmetatable({}, {__mode = "k"})
+
+-- Weapon visual engine.
+-- Supports the five visual variants used by the reference implementation,
+-- while keeping XC's own configuration/state system and restoring every
+-- property that was changed when the module is disabled or the weapon changes.
+if XCConfig.weaponChamsMode == "Crystal" then XCConfig.weaponChamsMode = "Glass" end
+if XCConfig.weaponChamsMode == "Field" then XCConfig.weaponChamsMode = "ForceField" end
+if XCConfig.weaponChamsMode == "Chrome" then XCConfig.weaponChamsMode = "Metal" end
+if XCConfig.weaponChamsMode == "Glow" then XCConfig.weaponChamsMode = "Highlight" end
+
+function resolveWeaponModel()
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil end
+
+    local directCandidates = {}
+    for _, child in ipairs(cam:GetChildren()) do
+        if child:IsA("Model") then
+            local lower = child.Name:lower()
+            if not lower:find("light") and lower ~= "arms" and lower ~= "arms1" and lower ~= "arms2" then
+                local weapon = child:FindFirstChild("Weapon")
+                if weapon and weapon:IsA("Model") then
+                    return weapon
+                end
+                table.insert(directCandidates, child)
+            end
+        end
+    end
+
+    -- Some Blox Strike builds put the weapon one level deeper in the
+    -- viewmodel. Prefer an explicit Weapon model before falling back.
+    for _, root in ipairs(directCandidates) do
+        for _, node in ipairs(root:GetDescendants()) do
+            if node:IsA("Model") and node.Name == "Weapon" then
+                return node
+            end
+        end
+    end
+
+    -- Fallback: use a camera child that actually contains renderable parts,
+    -- but do not mistake the arms/light containers for the weapon.
+    for _, root in ipairs(directCandidates) do
+        local lower = root.Name:lower()
+        if lower ~= "viewmodel" and not lower:find("viewmodel") then
+            if root:FindFirstChildWhichIsA("BasePart", true) then
+                return root
+            end
+        end
+    end
+
+    return nil
+end
+
+function saveWeaponPartState(part)
+    if weaponVisualState[part] then return end
+    local state = {
+        material = part.Material,
+        color = part.Color,
+        transparency = part.Transparency,
+        reflectance = part.Reflectance,
+        children = {}
+    }
+
+    -- The reference removes SurfaceAppearance/Texture/Decal for most modes.
+    -- XC keeps backups so switching the module off never permanently
+    -- destroys the weapon's original appearance.
+    for _, child in ipairs(part:GetChildren()) do
+        if child:IsA("SurfaceAppearance") or child:IsA("Texture") or child:IsA("Decal") then
+            local ok, clone = pcall(function() return child:Clone() end)
+            if ok and clone then
+                table.insert(state.children, clone)
+            end
+        end
+    end
+    weaponVisualState[part] = state
+end
+
+function restoreWeaponPart(part, state)
+    if not part or not state then return end
+    pcall(function()
+        part.Material = state.material
+        part.Color = state.color
+        part.Transparency = state.transparency
+        part.Reflectance = state.reflectance
+    end)
+
+    pcall(function()
+        for _, child in ipairs(part:GetChildren()) do
+            if child:IsA("SurfaceAppearance") or child:IsA("Texture") or child:IsA("Decal") then
+                child:Destroy()
+            end
+        end
+        for _, clone in ipairs(state.children or {}) do
+            if clone then clone:Clone().Parent = part end
+        end
+    end)
+end
+
+function clearWeaponVisuals()
+    for part, state in pairs(weaponVisualState) do
+        if part and part.Parent then
+            restoreWeaponPart(part, state)
+        end
+        weaponVisualState[part] = nil
+    end
+    for part, obj in pairs(weaponGlowObjects) do
+        if obj and obj.Parent then pcall(function() obj:Destroy() end) end
+        weaponGlowObjects[part] = nil
+    end
+end
+
+function clearWeaponGlow(part)
+    local glow = weaponGlowObjects[part]
+    if glow then
+        pcall(function() glow:Destroy() end)
+        weaponGlowObjects[part] = nil
+    end
+end
+
+function setWeaponVisuals()
+    if not XCConfig.weaponChamsEnabled then
+        clearWeaponVisuals()
+        return
+    end
+
+    local model = resolveWeaponModel()
+    if not model then
+        clearWeaponVisuals()
+        return
+    end
+
+    local style = XCConfig.weaponChamsMode or "Glass"
+    local validStyles = {
+        Glass = true,
+        ForceField = true,
+        Metal = true,
+        Highlight = true,
+        Neon = true,
+    }
+    if not validStyles[style] then style = "Glass" end
+
+    local tint = rgb(
+        XCConfig.weaponChamsColorR,
+        XCConfig.weaponChamsColorG,
+        XCConfig.weaponChamsColorB
+    )
+    local activeParts = {}
+
+    for _, part in ipairs(model:GetDescendants()) do
+        if part:IsA("BasePart")
+            and part.Name ~= "Hitbox"
+            and part.Name ~= "HumanoidRootPart"
+            and part.Name ~= "ViewmodelLight"
+            and not part:FindFirstAncestor("ViewmodelLight")
+        then
+            activeParts[part] = true
+            saveWeaponPartState(part)
+
+            pcall(function()
+                if style == "Highlight" then
+                    local h = weaponGlowObjects[part]
+                    if not h or not h.Parent then
+                        h = Instance.new("Highlight")
+                        h.Name = "XCWeaponChams"
+                        h.Adornee = part
+                        h.FillTransparency = 0
+                        h.OutlineTransparency = 1
+                        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        h.Parent = part
+                        weaponGlowObjects[part] = h
+                    end
+                    h.FillColor = tint
+                else
+                    clearWeaponGlow(part)
+
+                    -- Match the reference behavior: remove surface overlays for
+                    -- material-based variants so the selected material is visible.
+                    for _, child in ipairs(part:GetChildren()) do
+                        if child:IsA("SurfaceAppearance") or child:IsA("Texture") or child:IsA("Decal") then
+                            child:Destroy()
+                        end
+                    end
+
+                    if style == "Glass" then
+                        part.Material = Enum.Material.Glass
+                        part.Color = tint
+                        part.Transparency = math.clamp(
+                            tonumber(XCConfig.weaponChamsTransparency) or 0.4, 0, 1
+                        )
+                        part.Reflectance = 0
+                    elseif style == "ForceField" then
+                        part.Material = Enum.Material.ForceField
+                        part.Color = tint
+                        part.Transparency = 0
+                        part.Reflectance = 0
+                    elseif style == "Metal" then
+                        part.Material = Enum.Material.Metal
+                        part.Color = tint
+                        part.Reflectance = math.clamp(
+                            tonumber(XCConfig.weaponChamsReflectance) or 1.0, 0, 1
+                        )
+                        part.Transparency = 0
+                    elseif style == "Neon" then
+                        part.Material = Enum.Material.Neon
+                        part.Color = tint
+                        part.Transparency = 0
+                        part.Reflectance = 0
+                    end
+                end
+            end)
+        end
+    end
+
+    -- Restore parts belonging to the previous weapon/model and remove stale
+    -- Highlight instances when the weapon is switched or rebuilt.
+    for part, state in pairs(weaponVisualState) do
+        if not activeParts[part] then
+            if part and part.Parent then restoreWeaponPart(part, state) end
+            weaponVisualState[part] = nil
+            clearWeaponGlow(part)
+        end
+    end
+end
+
+function applyWorldSkybox()
+    local data = worldSkyboxData[XCConfig.worldSkyboxPreset]
+    if not data or not XCConfig.worldSkyboxEnabled then return end
+    pcall(function()
+        -- Blox Strike can recreate its native Sky during a round change. Keep
+        -- exactly one active Sky, as in the reference implementation.
+        for _, existing in ipairs(Lighting:GetChildren()) do
+            if existing:IsA("Sky") and existing.Name ~= "XCWorldSky" then
+                if not originalSkybox then originalSkybox = existing:Clone() end
+                existing:Destroy()
+            end
+        end
+        local sky = Lighting:FindFirstChild("XCWorldSky")
+        if not sky then
+            sky = Instance.new("Sky")
+            sky.Name = "XCWorldSky"
+            sky.Parent = Lighting
+        end
+        sky.SkyboxBk, sky.SkyboxDn, sky.SkyboxFt = data[1], data[2], data[3]
+        sky.SkyboxLf, sky.SkyboxRt, sky.SkyboxUp = data[4], data[5], data[6]
+        pcall(function()
+            sky.SkyboxOrientation = Vector3.new(0, tonumber(XCConfig.worldSkyRotation) or 0, 0)
+            sky.StarCount = math.clamp(tonumber(XCConfig.worldSkyStars) or 0, 0, 5000)
+            sky.CelestialBodiesShown = XCConfig.worldSkyCelestial == true
+        end)
+    end)
+end
+
+function restoreWorldSkybox()
+    pcall(function()
+        local sky = Lighting:FindFirstChild("XCWorldSky")
+        if sky then sky:Destroy() end
+        if originalSkybox then
+            originalSkybox.Parent = Lighting
+            originalSkybox = nil
+        end
+    end)
+end
+
+function updateWorldPostFX()
+    if not XCConfig.worldPostFXEnabled then
+        local fx = Lighting:FindFirstChild("XCWorldColorFX")
+        if fx then fx:Destroy() end
+        Lighting.ExposureCompensation = defaultLighting.ExposureCompensation or 0
+        return
+    end
+    local fx = Lighting:FindFirstChild("XCWorldColorFX")
+    if not fx then
+        fx = Instance.new("ColorCorrectionEffect")
+        fx.Name = "XCWorldColorFX"
+        fx.Parent = Lighting
+    end
+    fx.Enabled = true
+    fx.Saturation = math.clamp(XCConfig.worldSaturation or 0, -1, 1)
+    fx.Contrast = math.clamp(XCConfig.worldContrast or 0, -1, 1)
+    fx.TintColor = XCFeatureState.worldTonePresets[XCConfig.worldTonePreset]
+        or rgb(XCConfig.worldColorR, XCConfig.worldColorG, XCConfig.worldColorB)
+    Lighting.ExposureCompensation = math.clamp(XCConfig.worldExposure or 0, -5, 5)
+end
+
+function updateXCWorldAtmosphere()
+    local weatherOwnsFog = XCConfig.weatherEnabled and XCConfig.weatherMode == "Fog"
+    if not XCConfig.worldAtmosphereEnabled or weatherOwnsFog then
+        if XCFeatureState.worldAtmosphere then XCFeatureState.worldAtmosphere:Destroy() end
+        XCFeatureState.worldAtmosphere = nil
+        if XCFeatureState.worldOriginalAtmosphere and not weatherOwnsFog then
+            XCFeatureState.worldOriginalAtmosphere.Parent = Lighting
+            XCFeatureState.worldOriginalAtmosphere = nil
+        end
+        return
+    end
+    if not XCFeatureState.worldAtmosphere or not XCFeatureState.worldAtmosphere.Parent then
+        if not XCFeatureState.worldOriginalAtmosphere then
+            for _, object in ipairs(Lighting:GetChildren()) do
+                if object:IsA("Atmosphere") and object.Name ~= "XCWeatherAtmosphere" then
+                    XCFeatureState.worldOriginalAtmosphere = object:Clone()
+                    object:Destroy()
+                    break
+                end
+            end
+        end
+        XCFeatureState.worldAtmosphere = Instance.new("Atmosphere")
+        XCFeatureState.worldAtmosphere.Name = "XCWorldAtmosphere"
+        XCFeatureState.worldAtmosphere.Parent = Lighting
+    end
+    local atmosphere = XCFeatureState.worldAtmosphere
+    atmosphere.Density = math.clamp(tonumber(XCConfig.worldAtmosphereDensity) or 0.3, 0, 1)
+    atmosphere.Haze = math.clamp(tonumber(XCConfig.worldAtmosphereHaze) or 0, 0, 10)
+    atmosphere.Glare = math.clamp(tonumber(XCConfig.worldAtmosphereGlare) or 0, 0, 10)
+    atmosphere.Color = XCFeatureState.worldTonePresets[XCConfig.worldTonePreset] or Color3.fromRGB(220, 230, 210)
+    atmosphere.Decay = Color3.fromRGB(92, 102, 82)
+end
+
+function updateXCWorldBloom()
+    if not XCConfig.worldBloomEnabled then
+        if XCFeatureState.worldBloom then XCFeatureState.worldBloom:Destroy() end
+        XCFeatureState.worldBloom = nil
+        return
+    end
+    if not XCFeatureState.worldBloom or not XCFeatureState.worldBloom.Parent then
+        XCFeatureState.worldBloom = Instance.new("BloomEffect")
+        XCFeatureState.worldBloom.Name = "XCWorldBloom"
+        XCFeatureState.worldBloom.Parent = Lighting
+    end
+    XCFeatureState.worldBloom.Intensity = math.clamp(tonumber(XCConfig.worldBloomIntensity) or 0.35, 0, 3)
+    XCFeatureState.worldBloom.Size = math.clamp(tonumber(XCConfig.worldBloomSize) or 24, 0, 56)
+    XCFeatureState.worldBloom.Threshold = math.clamp(tonumber(XCConfig.worldBloomThreshold) or 1, 0, 5)
+end
+
+function updateWorldChanger()
+    if XCConfig.worldSkyboxEnabled then applyWorldSkybox() else restoreWorldSkybox() end
+    updateWorldPostFX()
+    updateXCWorldAtmosphere()
+    updateXCWorldBloom()
+    if XCConfig.worldFogEnd and XCConfig.worldFogEnd > 0 then
+        Lighting.FogStart = math.max(0, XCConfig.worldFogStart or 0)
+        Lighting.FogEnd = math.max(Lighting.FogStart + 1, XCConfig.worldFogEnd)
+    end
+end
+--// MINIMAL MAP STYLE + FPS MAP OPTIMIZER | v62: rendering-path-aware map styling. FPS optimization intentionally avoids texture/PBR churn; full texture removal is isolated to the visual style path.
+local XCMapStylePresets = {
+    ["Black & White"] = {Dark=Color3.fromRGB(20,22,25), Light=Color3.fromRGB(232,234,238), Steps=5, Gamma=0.92},
+    ["Soft Gray"] = {Dark=Color3.fromRGB(48,51,56), Light=Color3.fromRGB(202,205,210), Steps=0, Gamma=1.0},
+    ["Cold Minimal"] = {Dark=Color3.fromRGB(31,37,45), Light=Color3.fromRGB(201,216,228), Steps=0, Gamma=0.96},
+    ["Warm Minimal"] = {Dark=Color3.fromRGB(47,42,37), Light=Color3.fromRGB(226,218,201), Steps=0, Gamma=0.98},
+    ["Obsidian"] = {Dark=Color3.fromRGB(11,13,16), Light=Color3.fromRGB(137,145,155), Steps=4, Gamma=0.82},
+    ["Paper Invert"] = {Dark=Color3.fromRGB(239,239,235), Light=Color3.fromRGB(30,31,34), Steps=4, Gamma=1.0},
+}
+
+local XCMapPartState = setmetatable({}, {__mode="k"})
+local XCMapTextureState = setmetatable({}, {__mode="k"})
+local XCMapMeshState = setmetatable({}, {__mode="k"})
+local XCMapEffectState = setmetatable({}, {__mode="k"})
+local XCMapSurfaceState = setmetatable({}, {__mode="k"})
+local XCMapTerrainDetailState = setmetatable({}, {__mode="k"})
+local XCMapGuiImageState = setmetatable({}, {__mode="k"})
+local XCMapStyleScanSerial = 0
+local XCMapGlobalState = nil
+local XCMapLastScanStats = {Parts=0, Textures=0, Effects=0}
+local XCMapSurfaceParking = nil
+local XCMapNeutralVariant = nil
+local XCContentNone = nil
+pcall(function() XCContentNone = Content.none end)
+
+local function XCMapVisualActive()
+    return XCConfig.mapStyleEnabled == true or XCConfig.mapOptimizerEnabled == true
+end
+
+local function XCMapLuminance(color)
+    return math.clamp(color.R * 0.2126 + color.G * 0.7152 + color.B * 0.0722, 0, 1)
+end
+
+local function XCMapStylePalette()
+    if XCConfig.mapStylePreset == "Custom" then
+        return {
+            Dark = rgb(XCConfig.mapStyleDarkR, XCConfig.mapStyleDarkG, XCConfig.mapStyleDarkB),
+            Light = rgb(XCConfig.mapStyleLightR, XCConfig.mapStyleLightG, XCConfig.mapStyleLightB),
+            Steps = 0, Gamma = 1.0,
+        }
+    end
+    return XCMapStylePresets[XCConfig.mapStylePreset] or XCMapStylePresets["Black & White"]
+end
+
+local function XCMapToneFromColor(original)
+    local palette = XCMapStylePalette()
+    local t = XCMapLuminance(original)
+    t = math.clamp(t ^ (tonumber(palette.Gamma) or 1), 0, 1)
+    t = t * t * (3 - 2 * t)
+    local steps = tonumber(palette.Steps) or 0
+    if steps >= 2 then t = math.floor(t * (steps - 1) + 0.5) / (steps - 1) end
+    return palette.Dark:Lerp(palette.Light, t)
+end
+
+local XCMapExcludedWords = {
+    "weapon", "viewmodel", "arms", "ragdoll", "corpse", "grenade", "projectile",
+    "bullet", "tracer", "shell", "muzzle", "character", "player", "npc", "dropped",
+    "molotov", "flashbang", "hegrenade", "smokegrenade", "firezone", "smokezone",
+}
+local XCMapSignWords = {"sign", "poster", "screen", "monitor", "billboard", "logo", "text", "ad_", "advert"}
+
+local function XCMapHasWord(instance, words)
+    local cursor = instance
+    for _ = 1, 8 do
+        if not cursor or cursor == Workspace or cursor == Lighting then break end
+        local lower = cursor.Name:lower()
+        for _, word in ipairs(words) do
+            if lower:find(word, 1, true) then return true end
+        end
+        cursor = cursor.Parent
+    end
+    return false
+end
+
+local function XCMapWorldGuiPart(instance)
+    local cursor = instance
+    for _ = 1, 8 do
+        if not cursor then break end
+        if cursor:IsA("ScreenGui") then return nil end
+        if cursor:IsA("SurfaceGui") then
+            local part = nil
+            pcall(function()
+                if cursor.Adornee and cursor.Adornee:IsA("BasePart") then part = cursor.Adornee end
+            end)
+            if not part and cursor.Parent and cursor.Parent:IsA("BasePart") then part = cursor.Parent end
+            if part and part:IsDescendantOf(Workspace) then return part, cursor end
+            return nil
+        end
+        cursor = cursor.Parent
+    end
+    return nil
+end
+
+local function XCMapFindPart(instance)
+    if instance:IsA("BasePart") then return instance end
+    local guiPart = XCMapWorldGuiPart(instance)
+    if guiPart then return guiPart end
+    local cursor = instance.Parent
+    while cursor and cursor ~= Workspace and cursor ~= Lighting do
+        if cursor:IsA("BasePart") then return cursor end
+        cursor = cursor.Parent
+    end
+    return nil
+end
+
+local function XCMapIsProtectedObject(instance)
+    if not instance then return true end
+    if camera and instance:IsDescendantOf(camera) then return true end
+    if instance:FindFirstAncestorOfClass("Tool") then return true end
+    if XCMapHasWord(instance, XCMapExcludedWords) then return true end
+    local cursor = instance
+    for _ = 1, 9 do
+        if not cursor or cursor == Workspace or cursor == Lighting then break end
+        if cursor:IsA("Model") and cursor:FindFirstChildOfClass("Humanoid") then return true end
+        cursor = cursor.Parent
+    end
+    return false
+end
+
+local function XCMapStyleEligible(instance)
+    if not instance or not instance.Parent then return false end
+    local inWorkspace = instance:IsDescendantOf(Workspace)
+    local guiPart = not inWorkspace and XCMapWorldGuiPart(instance) or nil
+    if not inWorkspace and not guiPart then return false end
+    if XCMapIsProtectedObject(instance) then return false end
+    local part = guiPart or XCMapFindPart(instance)
+    if not part then return false end
+    if XCMapIsProtectedObject(part) then return false end
+    if not XCConfig.mapStyleAffectTransparent and part.Transparency > 0.55 then return false end
+    if XCConfig.mapStylePreserveSigns then
+        if XCMapHasWord(part, XCMapSignWords) or XCMapHasWord(instance, XCMapSignWords)
+            or part:FindFirstChildWhichIsA("SurfaceGui") then
+            return false
+        end
+    end
+    return true
+end
+
+local function XCMapOptimizerProfile()
+    local mode = tostring(XCConfig.mapOptimizerMode or "Balanced")
+    if mode == "Safe" then
+        return {Effects=false, Lights=false, Terrain=false}
+    elseif mode == "Aggressive" then
+        return {Effects=true, Lights=true, Terrain=true}
+    end
+    return {Effects=true, Lights=false, Terrain=true}
+end
+
+local function XCMapStyleMode()
+    local mode = tostring(XCConfig.mapStyleTextureMode or "Full Minimal")
+    if mode ~= "Soft Tint" and mode ~= "Minimal" and mode ~= "Full Minimal" then
+        mode = "Full Minimal"
+    end
+    return mode
+end
+
+local function XCEffectiveMapDetail()
+    return XCConfig.mapStyleEnabled and math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1) or 1
+end
+
+local function XCMapTexturePolicy()
+    local detail = XCEffectiveMapDetail()
+    local mode = XCMapStyleMode()
+    local style = XCConfig.mapStyleEnabled == true
+    local full = style and mode == "Full Minimal"
+    local minimal = style and (mode == "Minimal" or full)
+    local stripColor = full or (minimal and detail <= 0.35)
+    local stripPBR = full or (minimal and detail < 0.90)
+    return detail, stripColor, stripPBR, full
+end
+
+local function XCMapShouldFlatMaterial()
+    local _, _, _, full = XCMapTexturePolicy()
+    return XCConfig.mapStyleEnabled and (XCConfig.mapStyleFlatMaterials == true or full)
+end
+
+local function XCEnsureSurfaceParking()
+    if XCMapSurfaceParking and XCMapSurfaceParking.Parent then return XCMapSurfaceParking end
+    pcall(function()
+        local old = targetGui:FindFirstChild("XCMapSurfaceParking")
+        if old then old:Destroy() end
+    end)
+    local folder = Instance.new("Folder")
+    folder.Name = "XCMapSurfaceParking"
+    folder.Parent = targetGui
+    XCMapSurfaceParking = folder
+    return folder
+end
+
+local function XCEnsureNeutralMaterialVariant()
+    if XCMapNeutralVariant and XCMapNeutralVariant.Parent == MaterialService then return XCMapNeutralVariant end
+    local ownedName = "XC_MinimalMaterial_" .. tostring(player and player.UserId or 0)
+    local existing = MaterialService:FindFirstChild(ownedName)
+    if existing and existing:IsA("MaterialVariant") and existing:GetAttribute("XCMapStyleOwned") == true then
+        XCMapNeutralVariant = existing
+        return existing
+    end
+    local variant = Instance.new("MaterialVariant")
+    variant.Name = ownedName
+    variant:SetAttribute("XCMapStyleOwned", true)
+    pcall(function() variant.BaseMaterial = Enum.Material.SmoothPlastic end)
+    pcall(function() variant.ColorMap = "" end)
+    pcall(function() variant.NormalMap = "" end)
+    pcall(function() variant.RoughnessMap = "" end)
+    pcall(function() variant.MetalnessMap = "" end)
+    variant.Parent = MaterialService
+    XCMapNeutralVariant = variant
+    return variant
+end
+
+local function XCCleanupMapOwnedHelpers()
+    if XCMapNeutralVariant and XCMapNeutralVariant.Parent then
+        pcall(function() XCMapNeutralVariant:Destroy() end)
+    end
+    XCMapNeutralVariant = nil
+    if XCMapSurfaceParking and XCMapSurfaceParking.Parent then
+        pcall(function() XCMapSurfaceParking:Destroy() end)
+    end
+    XCMapSurfaceParking = nil
+end
+
+local function XCCaptureMapGlobalState()
+    if XCMapGlobalState then return end
+    XCMapGlobalState = {GlobalShadows=Lighting.GlobalShadows, TerrainColors={}}
+    local terrain = Workspace:FindFirstChildOfClass("Terrain")
+    if terrain then
+        XCMapGlobalState.Terrain = terrain
+        pcall(function() XCMapGlobalState.Decoration = terrain.Decoration end)
+        pcall(function() XCMapGlobalState.WaterWaveSize = terrain.WaterWaveSize end)
+        pcall(function() XCMapGlobalState.WaterWaveSpeed = terrain.WaterWaveSpeed end)
+        pcall(function() XCMapGlobalState.WaterReflectance = terrain.WaterReflectance end)
+        for _, material in ipairs(Enum.Material:GetEnumItems()) do
+            pcall(function() XCMapGlobalState.TerrainColors[material] = terrain:GetMaterialColor(material) end)
+        end
+    end
+end
+
+local function XCRestoreMapGlobalState()
+    if not XCMapGlobalState then return end
+    pcall(function() Lighting.GlobalShadows = XCMapGlobalState.GlobalShadows end)
+    local terrain = XCMapGlobalState.Terrain
+    if terrain and terrain.Parent then
+        pcall(function() if XCMapGlobalState.Decoration ~= nil then terrain.Decoration = XCMapGlobalState.Decoration end end)
+        pcall(function() if XCMapGlobalState.WaterWaveSize ~= nil then terrain.WaterWaveSize = XCMapGlobalState.WaterWaveSize end end)
+        pcall(function() if XCMapGlobalState.WaterWaveSpeed ~= nil then terrain.WaterWaveSpeed = XCMapGlobalState.WaterWaveSpeed end end)
+        pcall(function() if XCMapGlobalState.WaterReflectance ~= nil then terrain.WaterReflectance = XCMapGlobalState.WaterReflectance end end)
+        for material, color in pairs(XCMapGlobalState.TerrainColors or {}) do
+            pcall(function() terrain:SetMaterialColor(material, color) end)
+        end
+    end
+    XCMapGlobalState = nil
+end
+
+local function XCApplyMapGlobalOptimizer()
+    if not XCMapVisualActive() then XCRestoreMapGlobalState(); return end
+    XCCaptureMapGlobalState()
+    local state = XCMapGlobalState
+    local terrain = state and state.Terrain
+    if terrain and terrain.Parent then
+        local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+        for material, original in pairs(state.TerrainColors or {}) do
+            pcall(function()
+                terrain:SetMaterialColor(material, XCConfig.mapStyleEnabled
+                    and original:Lerp(XCMapToneFromColor(original), strength) or original)
+            end)
+        end
+    end
+    if not XCConfig.mapOptimizerEnabled then
+        pcall(function() Lighting.GlobalShadows = state.GlobalShadows end)
+        if terrain and terrain.Parent then
+            pcall(function() if state.Decoration ~= nil then terrain.Decoration = state.Decoration end end)
+            pcall(function() if state.WaterWaveSize ~= nil then terrain.WaterWaveSize = state.WaterWaveSize end end)
+            pcall(function() if state.WaterWaveSpeed ~= nil then terrain.WaterWaveSpeed = state.WaterWaveSpeed end end)
+            pcall(function() if state.WaterReflectance ~= nil then terrain.WaterReflectance = state.WaterReflectance end end)
+        end
+        return
+    end
+    local profile = XCMapOptimizerProfile()
+    pcall(function() Lighting.GlobalShadows = XCConfig.mapOptimizerDisableShadows and false or state.GlobalShadows end)
+    if terrain and terrain.Parent then
+        if profile.Terrain then
+            pcall(function() terrain.Decoration = false end)
+            pcall(function() terrain.WaterWaveSize = 0 end)
+            pcall(function() terrain.WaterWaveSpeed = 0 end)
+            pcall(function() terrain.WaterReflectance = 0 end)
+        else
+            pcall(function() if state.Decoration ~= nil then terrain.Decoration = state.Decoration end end)
+            pcall(function() if state.WaterWaveSize ~= nil then terrain.WaterWaveSize = state.WaterWaveSize end end)
+            pcall(function() if state.WaterWaveSpeed ~= nil then terrain.WaterWaveSpeed = state.WaterWaveSpeed end end)
+            pcall(function() if state.WaterReflectance ~= nil then terrain.WaterReflectance = state.WaterReflectance end end)
+        end
+    end
+end
+
+local function XCApplyMapPart(part)
+    local state = XCMapPartState[part]
+    if not XCMapStyleEligible(part) then
+        if state and part and part.Parent then
+            pcall(function()
+                if state.Color ~= nil then part.Color = state.Color end
+                if state.Material ~= nil then part.Material = state.Material end
+                if state.Reflectance ~= nil then part.Reflectance = state.Reflectance end
+                if state.CastShadow ~= nil then part.CastShadow = state.CastShadow end
+                if state.MaterialVariant ~= nil then part.MaterialVariant = state.MaterialVariant end
+                if part:IsA("UnionOperation") and state.UsePartColor ~= nil then part.UsePartColor = state.UsePartColor end
+                if part:IsA("MeshPart") then
+                    if state.TextureContentCaptured then pcall(function() part.TextureContent = state.TextureContent end)
+                    elseif state.TextureID ~= nil then part.TextureID = state.TextureID end
+                    if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity = state.RenderFidelity end) end
+                end
+            end)
+        end
+        return false
+    end
+    if not state then state = {}; XCMapPartState[part] = state end
+    if state.CastShadow == nil then state.CastShadow = part.CastShadow end
+    if XCConfig.mapStyleEnabled or state.Color ~= nil then
+        if state.Color == nil then
+            state.Color = part.Color
+            state.Material = part.Material
+            state.Reflectance = part.Reflectance
+            pcall(function() state.MaterialVariant = part.MaterialVariant end)
+            if part:IsA("UnionOperation") then pcall(function() state.UsePartColor = part.UsePartColor end) end
+        end
+    end
+    if part:IsA("MeshPart") and (XCConfig.mapOptimizerLowMesh or XCConfig.mapStyleEnabled or state.TextureID ~= nil) then
+        if state.TextureID == nil then pcall(function() state.TextureID = part.TextureID end) end
+        if state.TextureContentCaptured == nil then
+            state.TextureContentCaptured = false
+            pcall(function() state.TextureContent = part.TextureContent; state.TextureContentCaptured = true end)
+        end
+        if state.RenderFidelity == nil then pcall(function() state.RenderFidelity = part.RenderFidelity end) end
+    end
+
+    local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+    local _, stripColor, _, full = XCMapTexturePolicy()
+    pcall(function()
+        if state.Color ~= nil then
+            local desiredColor = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), strength) or state.Color
+            if part.Color ~= desiredColor then part.Color = desiredColor end
+            if part:IsA("UnionOperation") and state.UsePartColor ~= nil then
+                local desiredUsePartColor = XCConfig.mapStyleEnabled and true or state.UsePartColor
+                if part.UsePartColor ~= desiredUsePartColor then part.UsePartColor = desiredUsePartColor end
+            end
+            if XCMapShouldFlatMaterial() then
+                local neutral = XCEnsureNeutralMaterialVariant()
+                if part.Material ~= Enum.Material.SmoothPlastic then part.Material = Enum.Material.SmoothPlastic end
+                local desiredVariant = neutral and neutral.Name or ""
+                if part.MaterialVariant ~= desiredVariant then part.MaterialVariant = desiredVariant end
+                if part.Reflectance ~= 0 then part.Reflectance = 0 end
+            else
+                if part.Material ~= state.Material then part.Material = state.Material end
+                if state.MaterialVariant ~= nil and part.MaterialVariant ~= state.MaterialVariant then part.MaterialVariant = state.MaterialVariant end
+                if part.Reflectance ~= state.Reflectance then part.Reflectance = state.Reflectance end
+            end
+        end
+
+        local desiredShadow = XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerDisableShadows and false or state.CastShadow
+        if part.CastShadow ~= desiredShadow then part.CastShadow = desiredShadow end
+
+        if part:IsA("MeshPart") then
+            if full and stripColor then
+                if state.TextureContentCaptured and XCContentNone ~= nil then
+                    pcall(function() part.TextureContent = XCContentNone end)
+                end
+                if part.TextureID ~= "" then part.TextureID = "" end
+            elseif state.TextureContentCaptured then
+                pcall(function() part.TextureContent = state.TextureContent end)
+            elseif state.TextureID ~= nil and part.TextureID ~= state.TextureID then
+                part.TextureID = state.TextureID
+            end
+            if XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerLowMesh then
+                if part.RenderFidelity ~= Enum.RenderFidelity.Performance then
+                    pcall(function() part.RenderFidelity = Enum.RenderFidelity.Performance end)
+                end
+            elseif state.RenderFidelity ~= nil and part.RenderFidelity ~= state.RenderFidelity then
+                pcall(function() part.RenderFidelity = state.RenderFidelity end)
+            end
+        end
+    end)
+    return true
+end
+
+local XCMapDecalContentProps = {"ColorMapContent", "NormalMapContent", "RoughnessMapContent", "MetalnessMapContent"}
+
+local function XCCaptureMapDecalContent(object, state)
+    if state.ContentCaptured then return end
+    state.ContentCaptured = true
+    state.ContentValues = {}
+    state.ContentPresent = {}
+    for _, prop in ipairs(XCMapDecalContentProps) do
+        local ok, value = pcall(function() return object[prop] end)
+        if ok then
+            state.ContentPresent[prop] = true
+            state.ContentValues[prop] = value
+        end
+    end
+end
+
+local function XCSetMapDecalContents(object, state, clear)
+    if not state or not state.ContentCaptured then return end
+    for _, prop in ipairs(XCMapDecalContentProps) do
+        if state.ContentPresent[prop] then
+            pcall(function()
+                object[prop] = clear and XCContentNone or state.ContentValues[prop]
+            end)
+        end
+    end
+end
+
+local function XCMapSurfaceStateFor(object)
+    local state = XCMapSurfaceState[object]
+    if state then return state end
+    state = {OriginalParent=object.Parent, Parked=false}
+    pcall(function() state.Color = object.Color end)
+    pcall(function() state.AlphaMode = object.AlphaMode end)
+    pcall(function() state.EmissiveStrength = object.EmissiveStrength end)
+    pcall(function() state.EmissiveTint = object.EmissiveTint end)
+    XCMapSurfaceState[object] = state
+    return state
+end
+
+local function XCMapRestoreSurfaceParent(object, state)
+    if not object or not state or not state.Parked then return end
+    local parent = state.OriginalParent
+    if parent and parent.Parent then
+        pcall(function() object.Parent = parent end)
+    else
+        pcall(function() object:Destroy() end)
+    end
+    state.Parked = false
+end
+
+local function XCMapApplySurfaceAppearance(object)
+    if not object or not object.Parent then return false end
+    local state = XCMapSurfaceStateFor(object)
+    local _, _, stripPBR, full = XCMapTexturePolicy()
+    if full then
+        if not state.Parked then
+            state.OriginalParent = object.Parent
+            pcall(function()
+                if state.EmissiveStrength ~= nil then object.EmissiveStrength = 0 end
+                object.Parent = XCEnsureSurfaceParking()
+                state.Parked = true
+            end)
+        end
+        return state.Parked
+    end
+    if state.Parked then XCMapRestoreSurfaceParent(object, state) end
+    if not object.Parent or not XCMapStyleEligible(object) then return false end
+    local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
+    pcall(function()
+        if state.Color ~= nil then
+            object.Color = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), strength) or state.Color
+        end
+        if state.EmissiveStrength ~= nil then object.EmissiveStrength = stripPBR and 0 or state.EmissiveStrength end
+        if state.EmissiveTint ~= nil and not XCConfig.mapStyleEnabled then object.EmissiveTint = state.EmissiveTint end
+        if state.AlphaMode ~= nil and not XCConfig.mapStyleEnabled then object.AlphaMode = state.AlphaMode end
+    end)
+    return XCConfig.mapStyleEnabled
+end
+
+local function XCMapGuiVisualEligible(object)
+    local part, surfaceGui = XCMapWorldGuiPart(object)
+    if not part or not surfaceGui then return false end
+    if XCMapIsProtectedObject(part) then return false end
+    if XCConfig.mapStylePreserveSigns and (XCMapHasWord(part, XCMapSignWords) or XCMapHasWord(surfaceGui, XCMapSignWords)) then return false end
+    return XCMapStyleEligible(object)
+end
+
+local function XCApplyMapTexture(object)
+    if not object or not object.Parent then return false end
+    local detail, stripColor, stripPBR, full = XCMapTexturePolicy()
+
+    if object:IsA("TerrainDetail") then
+        if not object:IsDescendantOf(Workspace) then return false end
+        local state = XCMapTerrainDetailState[object]
+        if not state then
+            state = {}; XCMapTerrainDetailState[object] = state
+            pcall(function() state.ColorMap = object.ColorMap end)
+            pcall(function() state.NormalMap = object.NormalMap end)
+            pcall(function() state.RoughnessMap = object.RoughnessMap end)
+        end
+        -- TerrainDetail texture maps are not consistently runtime-writable on
+        -- current clients. Keep the state for restore/compatibility but rely on
+        -- Terrain:SetMaterialColor for the safe runtime styling path.
+        return false
+    end
+
+    if object:IsA("SurfaceAppearance") then
+        local state = XCMapSurfaceState[object]
+        if not XCConfig.mapStyleEnabled and state then
+            if state.Parked then XCMapRestoreSurfaceParent(object, state) end
+            if object.Parent then
+                pcall(function()
+                    if state.Color ~= nil then object.Color = state.Color end
+                    if state.AlphaMode ~= nil then object.AlphaMode = state.AlphaMode end
+                    if state.EmissiveStrength ~= nil then object.EmissiveStrength = state.EmissiveStrength end
+                    if state.EmissiveTint ~= nil then object.EmissiveTint = state.EmissiveTint end
+                end)
+            end
+            return false
+        end
+        if not XCMapStyleEligible(object) then return false end
+        return XCMapApplySurfaceAppearance(object)
+    end
+
+    if object:IsA("ImageLabel") or object:IsA("ImageButton") or object:IsA("VideoFrame") or object:IsA("ViewportFrame") then
+        local state = XCMapGuiImageState[object]
+        if not XCConfig.mapStyleEnabled and state and object.Parent then
+            pcall(function()
+                object.Visible = state.Visible
+                if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                    object.Image = state.Image
+                    object.ImageColor3 = state.ImageColor3
+                    object.ImageTransparency = state.ImageTransparency
+                    if object:IsA("ImageButton") then
+                        if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
+                        if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+                    end
+                end
+            end)
+            return false
+        end
+        if not XCMapGuiVisualEligible(object) then return false end
+        if not state then
+            state = {Visible=object.Visible}; XCMapGuiImageState[object] = state
+            if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                state.Image = object.Image
+                state.ImageColor3 = object.ImageColor3
+                state.ImageTransparency = object.ImageTransparency
+                if object:IsA("ImageButton") then
+                    pcall(function() state.HoverImage = object.HoverImage end)
+                    pcall(function() state.PressedImage = object.PressedImage end)
+                end
+            end
+        end
+        pcall(function()
+            if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                object.ImageColor3 = XCConfig.mapStyleEnabled
+                    and state.ImageColor3:Lerp(XCMapToneFromColor(state.ImageColor3), math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1))
+                    or state.ImageColor3
+                object.ImageTransparency = stripColor and 1 or (1 - ((1 - state.ImageTransparency) * detail))
+                object.Image = state.Image
+                if object:IsA("ImageButton") then
+                    if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
+                    if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+                end
+            end
+            object.Visible = full and false or state.Visible
+        end)
+        return true
+    end
+
+    if not XCMapStyleEligible(object) then
+        if object:IsA("Decal") or object:IsA("Texture") then
+            local state = XCMapTextureState[object]
+            if state and object.Parent then
+                pcall(function()
+                    object.Transparency = state.Transparency
+                    object.Color3 = state.Color3
+                    object.Texture = state.Texture
+                end)
+                XCSetMapDecalContents(object, state, false)
+            end
+        elseif object:IsA("SpecialMesh") then
+            local state = XCMapMeshState[object]
+            if state and object.Parent then pcall(function() object.TextureId = state.TextureId end) end
+        end
+        return false
+    end
+    if not XCConfig.mapStyleEnabled and detail >= 0.999 then
+        if object:IsA("Decal") or object:IsA("Texture") then
+            local state = XCMapTextureState[object]
+            if state then
+                pcall(function()
+                    object.Transparency = state.Transparency
+                    object.Color3 = state.Color3
+                    object.Texture = state.Texture
+                end)
+                XCSetMapDecalContents(object, state, false)
+            end
+        elseif object:IsA("SpecialMesh") then
+            local state = XCMapMeshState[object]
+            if state then pcall(function() object.TextureId = state.TextureId end) end
+        end
+        return false
+    end
+
+    if object:IsA("Decal") or object:IsA("Texture") then
+        local state = XCMapTextureState[object]
+        if not state then
+            state={Transparency=object.Transparency, Color3=object.Color3, Texture=object.Texture}
+            XCMapTextureState[object]=state
+            XCCaptureMapDecalContent(object, state)
+        end
+        pcall(function()
+            object.Color3 = XCConfig.mapStyleEnabled
+                and state.Color3:Lerp(XCMapToneFromColor(state.Color3), math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1))
+                or state.Color3
+            object.Transparency = stripColor and 1 or (1 - ((1 - state.Transparency) * detail))
+            object.Texture = full and "" or state.Texture
+        end)
+        if full and XCContentNone ~= nil then XCSetMapDecalContents(object, state, true)
+        else XCSetMapDecalContents(object, state, false) end
+        return true
+
+    elseif object:IsA("SpecialMesh") then
+        local state = XCMapMeshState[object]
+        if not state then state={TextureId=object.TextureId}; XCMapMeshState[object]=state end
+        pcall(function() object.TextureId = full and "" or state.TextureId end)
+        return true
+    end
+    return false
+end
+
+local function XCMapEffectEligible(object)
+    if not object or not object.Parent then return false end
+    if object.Name:sub(1,2) == "XC" then return false end
+    if XCMapIsProtectedObject(object) then return false end
+    if object:IsDescendantOf(Lighting) then return true end
+    if not object:IsDescendantOf(Workspace) then return false end
+    return XCMapFindPart(object) ~= nil
+end
+
+local function XCApplyMapEffect(object)
+    if not XCConfig.mapOptimizerEnabled or not XCConfig.mapOptimizerDisableEffects then return false end
+    local profile = XCMapOptimizerProfile()
+    local isVisual = object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam")
+        or object:IsA("Smoke") or object:IsA("Fire") or object:IsA("Sparkles")
+    local isLight = object:IsA("PointLight") or object:IsA("SpotLight") or object:IsA("SurfaceLight")
+    local isPost = object:IsA("BloomEffect") or object:IsA("BlurEffect") or object:IsA("DepthOfFieldEffect") or object:IsA("SunRaysEffect")
+    local shouldDisable = (profile.Effects and isVisual) or (profile.Lights and isLight) or (profile.Effects and isPost)
+    local state = XCMapEffectState[object]
+    if not shouldDisable then
+        if state and object.Parent then pcall(function() object.Enabled = state.Enabled end) end
+        return false
+    end
+    if not XCMapEffectEligible(object) then return false end
+    if not state then
+        local ok, enabled = pcall(function() return object.Enabled end)
+        if not ok then return false end
+        state={Enabled=enabled}; XCMapEffectState[object]=state
+    end
+    pcall(function() object.Enabled = false end)
+    return true
+end
+
+local function XCApplyMapObject(object)
+    if not XCMapVisualActive() or not object then return false, false, false end
+    local partApplied = object:IsA("BasePart") and XCApplyMapPart(object) or false
+    local textureApplied = (object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh")
+        or object:IsA("SurfaceAppearance") or object:IsA("TerrainDetail")
+        or object:IsA("ImageLabel") or object:IsA("ImageButton") or object:IsA("VideoFrame") or object:IsA("ViewportFrame"))
+        and XCApplyMapTexture(object) or false
+    local effectApplied = XCApplyMapEffect(object)
+    return partApplied, textureApplied, effectApplied
+end
+
+local function XCRestoreMapPartEntry(part, state)
+    if not part or not part.Parent or not state then return end
+    pcall(function()
+        if state.Color ~= nil then part.Color=state.Color end
+        if state.Material ~= nil then part.Material=state.Material end
+        if state.Reflectance ~= nil then part.Reflectance=state.Reflectance end
+        if state.CastShadow ~= nil then part.CastShadow=state.CastShadow end
+        if state.MaterialVariant ~= nil then part.MaterialVariant=state.MaterialVariant end
+        if part:IsA("UnionOperation") and state.UsePartColor ~= nil then part.UsePartColor=state.UsePartColor end
+        if part:IsA("MeshPart") then
+            if state.TextureContentCaptured then pcall(function() part.TextureContent=state.TextureContent end)
+            elseif state.TextureID ~= nil then part.TextureID=state.TextureID end
+            if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity=state.RenderFidelity end) end
+        end
+    end)
+end
+
+local function XCRestoreMapTextureEntry(object, state)
+    if not object or not object.Parent or not state then return end
+    pcall(function()
+        object.Transparency=state.Transparency
+        object.Color3=state.Color3
+        object.Texture=state.Texture
+    end)
+    XCSetMapDecalContents(object, state, false)
+end
+
+local function XCRestoreMapMeshEntry(object, state)
+    if object and object.Parent and state then pcall(function() object.TextureId=state.TextureId end) end
+end
+
+local function XCRestoreMapSurfaceEntry(object, state)
+    if not object or not state then return end
+    if state.Parked then XCMapRestoreSurfaceParent(object, state) end
+    if not object.Parent then return end
+    pcall(function()
+        if state.Color ~= nil then object.Color = state.Color end
+        if state.AlphaMode ~= nil then object.AlphaMode = state.AlphaMode end
+        if state.EmissiveStrength ~= nil then object.EmissiveStrength = state.EmissiveStrength end
+        if state.EmissiveTint ~= nil then object.EmissiveTint = state.EmissiveTint end
+    end)
+end
+
+local function XCRestoreMapTerrainDetailEntry(object, state)
+    if not object or not object.Parent or not state then return end
+    pcall(function()
+        if state.ColorMap ~= nil then object.ColorMap = state.ColorMap end
+        if state.NormalMap ~= nil then object.NormalMap = state.NormalMap end
+        if state.RoughnessMap ~= nil then object.RoughnessMap = state.RoughnessMap end
+    end)
+end
+
+local function XCRestoreMapGuiImageEntry(object, state)
+    if not object or not object.Parent or not state then return end
+    pcall(function()
+        object.Visible = state.Visible
+        if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+            object.Image = state.Image
+            object.ImageColor3 = state.ImageColor3
+            object.ImageTransparency = state.ImageTransparency
+            if object:IsA("ImageButton") then
+                if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
+                if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+            end
+        end
+    end)
+end
+
+local function XCRestoreMapEffectEntry(object, state)
+    if object and object.Parent and state then pcall(function() object.Enabled=state.Enabled end) end
+end
+
+local function XCReconcileParkedSurfaces(serial, yielding)
+    local count=0
+    local budget=UserInputService.TouchEnabled and 4 or 24
+    local _, _, _, full = XCMapTexturePolicy()
+    for object,state in pairs(XCMapSurfaceState) do
+        if serial and serial ~= XCMapStyleScanSerial then return false end
+        if state and state.Parked then
+            local originalParent = state.OriginalParent
+            local shouldStayParked = full and originalParent and originalParent.Parent and XCMapStyleEligible(originalParent)
+            if not shouldStayParked then XCMapRestoreSurfaceParent(object,state) end
+        end
+        count = count + (1)
+        if yielding and count >= budget then
+            count=0
+            RunService.Heartbeat:Wait()
+        end
+    end
+    return true
+end
+
+function restoreXCMapStyle(immediate)
+    XCMapStyleScanSerial = XCMapStyleScanSerial + (1)
+    local serial=XCMapStyleScanSerial
+    XCRestoreMapGlobalState()
+
+    local function finishRestore()
+        if serial ~= XCMapStyleScanSerial then return end
+        XCMapPartState=setmetatable({}, {__mode="k"})
+        XCMapTextureState=setmetatable({}, {__mode="k"})
+        XCMapMeshState=setmetatable({}, {__mode="k"})
+        XCMapEffectState=setmetatable({}, {__mode="k"})
+        XCMapSurfaceState=setmetatable({}, {__mode="k"})
+        XCMapTerrainDetailState=setmetatable({}, {__mode="k"})
+        XCMapGuiImageState=setmetatable({}, {__mode="k"})
+        XCCleanupMapOwnedHelpers()
+    end
+
+    local function restoreAll(yielding)
+        local budget=UserInputService.TouchEnabled and 14 or 80
+        local count=0
+        local function maybeYield()
+            if not yielding then return true end
+            count = count + (1)
+            if count >= budget then
+                count=0
+                RunService.Heartbeat:Wait()
+                if serial ~= XCMapStyleScanSerial then return false end
+            end
+            return true
+        end
+        -- SurfaceAppearance objects can be parked outside Workspace, so restore
+        -- them before restoring their parent MeshPart state.
+        for object,state in pairs(XCMapSurfaceState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapSurfaceEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for part,state in pairs(XCMapPartState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapPartEntry(part,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapTextureState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapTextureEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapMeshState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapMeshEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapTerrainDetailState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapTerrainDetailEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapGuiImageState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapGuiImageEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapEffectState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapEffectEntry(object,state)
+            if not maybeYield() then return end
+        end
+        finishRestore()
+    end
+
+    if immediate == true or not UserInputService.TouchEnabled then restoreAll(false)
+    else task.spawn(function() restoreAll(true) end) end
+end
+
+local function XCMapScanBudget()
+    local _, stripColor, stripPBR, full = XCMapTexturePolicy()
+    if UserInputService.TouchEnabled then
+        if full then return 4 end
+        if stripColor or stripPBR then return 7 end
+        return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 10 or 18
+    end
+    if full then return 24 end
+    if stripColor or stripPBR then return 42 end
+    return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 48 or 90
+end
+
+local function XCMapCanDescend(object)
+    if not object then return false end
+    if camera and object == camera then return false end
+    if object:IsA("Tool") then return false end
+    if object:IsA("ScreenGui") then return false end
+    if object:IsA("Model") and object:FindFirstChildOfClass("Humanoid") then return false end
+    return true
+end
+
+function applyXCMapStyle(rescan)
+    if not XCMapVisualActive() then restoreXCMapStyle(); return end
+    XCApplyMapGlobalOptimizer()
+    XCMapStyleScanSerial = XCMapStyleScanSerial + (1)
+    local serial = XCMapStyleScanSerial
+    local shouldNotify = rescan ~= false
+
+    task.spawn(function()
+        local stats={Parts=0, Textures=0, Effects=0}
+        if not XCReconcileParkedSurfaces(serial, true) then return end
+        local stack={Workspace}
+        if XCConfig.mapOptimizerEnabled then stack[#stack+1]=Lighting end
+        if XCConfig.mapStyleEnabled and player then
+            local pGui=player:FindFirstChildOfClass("PlayerGui")
+            if pGui then stack[#stack+1]=pGui end
+        end
+        local processedThisSlice=0
+        local sliceStarted=os.clock()
+        local budget=XCMapScanBudget()
+        local maxSlice=UserInputService.TouchEnabled and 0.0018 or 0.0045
+
+        while #stack > 0 do
+            if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
+            local top=#stack
+            local object=stack[top]
+            stack[top]=nil
+
+            if (object and object.Parent) or object == Workspace or object == Lighting then
+                local p,t,e=XCApplyMapObject(object)
+                if p then stats.Parts = stats.Parts + (1) end
+                if t then stats.Textures = stats.Textures + (1) end
+                if e then stats.Effects = stats.Effects + (1) end
+
+                if XCMapCanDescend(object) then
+                    local ok, children=pcall(function() return object:GetChildren() end)
+                    if ok and children then
+                        for index=#children,1,-1 do stack[#stack+1]=children[index] end
+                    end
+                end
+            end
+
+            processedThisSlice = processedThisSlice + (1)
+            if processedThisSlice >= budget or (os.clock()-sliceStarted) >= maxSlice then
+                processedThisSlice=0
+                sliceStarted=os.clock()
+                RunService.Heartbeat:Wait()
+                budget=XCMapScanBudget()
+            end
+        end
+
+        if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() then return end
+        XCMapLastScanStats=stats
+        XCApplyMapGlobalOptimizer()
+        if shouldNotify then
+            if XCConfig.mapOptimizerEnabled then
+                XCNotify("Map optimizer", string.format("Processed safely: %d parts, %d visuals, %d effects", stats.Parts, stats.Textures, stats.Effects), "success", 2)
+            elseif XCConfig.mapStyleEnabled then
+                XCNotify("Map style", string.format("Styled safely: %d parts and %d visuals", stats.Parts, stats.Textures), "success", 1.8)
+            end
+        end
+    end)
+end
+
+function setXCMapStyleEnabled(enabled)
+    XCConfig.mapStyleEnabled=enabled and true or false
+    if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
+end
+
+function setXCMapOptimizerEnabled(enabled)
+    XCConfig.mapOptimizerEnabled=enabled and true or false
+    if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
+end
+
+local XCMapStreamQueue = {}
+local XCMapStreamHead = 1
+local XCMapStreamWorker = false
+local XCMapStreamQueued = setmetatable({}, {__mode="k"})
+
+local function XCQueueStreamMapObject(object)
+    if not object or XCMapStreamQueued[object] then return end
+    XCMapStreamQueued[object]=true
+    XCMapStreamQueue[#XCMapStreamQueue+1]=object
+    if XCMapStreamWorker then return end
+    XCMapStreamWorker=true
+    task.spawn(function()
+        while XCMapStreamHead <= #XCMapStreamQueue and xcSessionActive() do
+            local _, stripColor, stripPBR, full = XCMapTexturePolicy()
+            local budget = UserInputService.TouchEnabled
+                and (full and 3 or ((stripColor or stripPBR) and 5 or 9))
+                or (full and 14 or ((stripColor or stripPBR) and 20 or 32))
+            for _=1,budget do
+                if XCMapStreamHead > #XCMapStreamQueue then break end
+                local queued=XCMapStreamQueue[XCMapStreamHead]
+                XCMapStreamQueue[XCMapStreamHead]=false
+                XCMapStreamHead = XCMapStreamHead + (1)
+                if queued then
+                    XCMapStreamQueued[queued]=nil
+                    if XCMapVisualActive() and queued.Parent then XCApplyMapObject(queued) end
+                end
+            end
+            RunService.Heartbeat:Wait()
+        end
+        XCMapStreamQueue={}
+        XCMapStreamHead=1
+        XCMapStreamWorker=false
+    end)
+end
+
+table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
+    if XCMapVisualActive() then XCQueueStreamMapObject(object) end
+end))
+
+table.insert(connections, Lighting.DescendantAdded:Connect(function(object)
+    if XCConfig.mapOptimizerEnabled then XCQueueStreamMapObject(object) end
+end))
+
+task.defer(function()
+    local pGui=player and player:FindFirstChildOfClass("PlayerGui")
+    if pGui then
+        table.insert(connections, pGui.DescendantAdded:Connect(function(object)
+            if XCConfig.mapStyleEnabled and XCMapWorldGuiPart(object) then XCQueueStreamMapObject(object) end
+        end))
+    end
+end)
+--// [ CUBE CHECKER ] | Crosshair penetration probe: lime = the equipped weapon can exit the hit surface, red = the surface is not penetrable with its native properties.
+do
+    local CAN_PENETRATE = Color3.fromRGB(152, 204, 0)
+    local BLOCKED = Color3.fromRGB(220, 55, 62)
+    local cubePart = Instance.new("Part")
+    cubePart.Name = "XC_CubeChecker"
+    cubePart.Anchored = true
+    cubePart.CanCollide = false
+    cubePart.CanTouch = false
+    cubePart.CanQuery = false
+    cubePart.CastShadow = false
+    cubePart.Material = Enum.Material.Neon
+    cubePart.Transparency = 0.82
+    cubePart.Size = Vector3.new(1.5, 1.5, 0.01)
+
+    local cubeOutline = Instance.new("SelectionBox")
+    cubeOutline.Name = "CubeCheckerOutline"
+    cubeOutline.Adornee = cubePart
+    cubeOutline.Color3 = Color3.fromRGB(210, 45, 55)
+    cubeOutline.LineThickness = 0.04
+    cubeOutline.Transparency = 0.05
+    cubeOutline.Parent = cubePart
+
+    local cubeRayParams = RaycastParams.new()
+    cubeRayParams.FilterType = Enum.RaycastFilterType.Exclude
+    cubeRayParams.IgnoreWater = true
+
+    local cubeGetWeapon = nil
+    local cubeNextResolve = 0
+    local cubeNextProbe = 0
+    local cubeResult = nil
+    local cubeColor = BLOCKED
+
+    local function resolveCubeWeapon()
+        if type(cubeGetWeapon) == "function" then
+            local ok, weapon = pcall(cubeGetWeapon)
+            if ok and type(weapon) == "table" then return weapon end
+        end
+        if os.clock() < cubeNextResolve then return nil end
+        cubeNextResolve = os.clock() + 1
+        pcall(function()
+            local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+            local inventoryScript = controllers and controllers:FindFirstChild("InventoryController")
+            local inventory = inventoryScript and require(inventoryScript)
+            if type(inventory) == "table" and type(inventory.peekCurrentEquippedForMovement) == "function" then
+                cubeGetWeapon = inventory.peekCurrentEquippedForMovement
+            end
+        end)
+        if type(cubeGetWeapon) == "function" then
+            local ok, weapon = pcall(cubeGetWeapon)
+            if ok then return weapon end
+        end
+        return nil
+    end
+
+    local function ensureCubeRaycast()
+        if xcNativeRaycast and type(xcNativeRaycast.cast) == "function"
+            and type(xcNativeRaycast.castThrough) == "function" and type(xcNativeGetRayIgnore) == "function" then
+            return true
+        end
+        pcall(function()
+            local sharedFolder = ReplicatedStorage:FindFirstChild("Shared")
+            local components = ReplicatedStorage:FindFirstChild("Components")
+            local common = components and components:FindFirstChild("Common")
+            local raycastScript = sharedFolder and sharedFolder:FindFirstChild("Raycast")
+            local ignoreScript = common and common:FindFirstChild("GetRayIgnore")
+            if raycastScript and ignoreScript then
+                xcNativeRaycast = require(raycastScript)
+                xcNativeGetRayIgnore = require(ignoreScript)
+            end
+        end)
+        return xcNativeRaycast and type(xcNativeRaycast.cast) == "function"
+            and type(xcNativeRaycast.castThrough) == "function" and type(xcNativeGetRayIgnore) == "function"
+    end
+
+    local function probeCubePenetration(origin, direction, distance)
+        if not ensureCubeRaycast() then return nil, BLOCKED end
+        local ignore = xcNativeGetRayIgnore()
+        local first = xcNativeRaycast.cast(origin, direction * distance, nil, ignore)
+        if type(first) ~= "table" or not first.instance or typeof(first.position) ~= "Vector3" then
+            return nil, BLOCKED
+        end
+
+        local normal = typeof(first.normal) == "Vector3" and first.normal or -direction
+        local hitCharacter = first.instance:FindFirstAncestorOfClass("Model")
+        if hitCharacter and Players:GetPlayerFromCharacter(hitCharacter) then
+            return {Position = first.position, Normal = normal}, CAN_PENETRATE
+        end
+
+        local weapon = resolveCubeWeapon()
+        local properties = weapon and weapon.Bullet and weapon.Bullet.Properties
+        local penetration = math.max(0, tonumber(properties and properties.Penetration) or 0)
+        if penetration <= 0 then
+            return {Position = first.position, Normal = normal}, BLOCKED
+        end
+
+        local hits = xcNativeRaycast.castThrough(
+            first.position - direction * 0.001,
+            direction * (penetration + 0.001),
+            penetration,
+            ignore
+        )
+        local canExit = false
+        if type(hits) == "table" then
+            for index, hit in ipairs(hits) do
+                if index % 2 == 0 and type(hit) == "table" and hit.instance then
+                    canExit = true
+                    break
+                end
+            end
+        end
+        return {Position = first.position, Normal = normal}, canExit and CAN_PENETRATE or BLOCKED
+    end
+
+    local cubeRenderConnection = RunService.RenderStepped:Connect(function()
+        pcall(function()
+            if not XCConfig.cubeCheckerEnabled then
+                cubePart.Parent = nil
+                return
+            end
+
+            local cam = Workspace.CurrentCamera
+            if not cam then
+                cubePart.Parent = nil
+                return
+            end
+
+            local distance = math.clamp(tonumber(XCConfig.cubeCheckerDistance) or 20, 1, 200)
+            local size = math.clamp(tonumber(XCConfig.cubeCheckerSize) or 1.5, 0.1, 10)
+            local lineThickness = math.clamp(tonumber(XCConfig.cubeCheckerLineThickness) or 0.04, 0.01, 0.2)
+            local outlineTransparency = math.clamp(tonumber(XCConfig.cubeCheckerTransparency) or 0.2, 0, 1)
+            local origin = cam.CFrame.Position
+            local direction = cam.CFrame.LookVector
+            local now = os.clock()
+            if now >= cubeNextProbe then
+                cubeNextProbe = now + 0.075
+                cubeResult, cubeColor = probeCubePenetration(origin, direction, distance)
+                if not cubeResult then
+                    cubeRayParams.FilterDescendantsInstances = {player.Character, cubePart}
+                    local fallback = Workspace:Raycast(origin, direction * distance, cubeRayParams)
+                    if fallback then
+                        cubeResult = {Position = fallback.Position, Normal = fallback.Normal}
+                        cubeColor = BLOCKED
+                    end
+                end
+            end
+
+            if not cubeResult then
+                cubePart.Parent = nil
+                return
+            end
+
+            cubePart.Size = Vector3.new(size, size, 0.01)
+            cubePart.Color = cubeColor
+            cubePart.CFrame = CFrame.lookAt(
+                cubeResult.Position + cubeResult.Normal * 0.02,
+                cubeResult.Position + cubeResult.Normal
+            )
+            cubeOutline.Color3 = cubeColor
+            cubeOutline.LineThickness = lineThickness
+            cubeOutline.Transparency = outlineTransparency
+            cubePart.Parent = Workspace
+        end)
+    end)
+    table.insert(connections, cubeRenderConnection)
+end
+
+-- Scope overlay adapted from XC: FOV override, removable scope and configurable crosshair.
+function findSniperScope()
+    local pg = player and player:FindFirstChildOfClass("PlayerGui")
+    if not pg then return nil end
+    local main = pg:FindFirstChild("MainGui")
+    local gameplay = main and main:FindFirstChild("Gameplay")
+    local middle = gameplay and gameplay:FindFirstChild("Middle")
+    return middle and middle:FindFirstChild("SniperScope") or nil
+end
+
+function ensureScopeGui()
+    if scopeGui and scopeGui.Parent then return end
+    scopeGui = Instance.new("ScreenGui")
+    scopeGui.Name = "XCCustomScope"
+    scopeGui.ResetOnSpawn = false
+    scopeGui.IgnoreGuiInset = true
+    pcall(function() scopeGui.Parent = targetGui end)
+    if not scopeGui.Parent then scopeGui.Parent = CoreGui end
+    scopeContainer = Instance.new("Frame")
+    scopeContainer.BackgroundTransparency = 1
+    scopeContainer.AnchorPoint = Vector2.new(0.5,0.5)
+    scopeContainer.Position = UDim2.fromScale(0.5,0.5)
+    scopeContainer.Size = UDim2.fromOffset(0,0)
+    scopeContainer.Parent = scopeGui
+    for name,anchor in pairs({Left=Vector2.new(1,.5),Right=Vector2.new(0,.5),Top=Vector2.new(.5,1),Bottom=Vector2.new(.5,0)}) do
+        local f=Instance.new("Frame")
+        f.Name=name; f.AnchorPoint=anchor; f.BorderSizePixel=0; f.Parent=scopeContainer
+    end
+    local dot=Instance.new("Frame")
+    dot.Name="Dot"; dot.AnchorPoint=Vector2.new(.5,.5); dot.BorderSizePixel=0; dot.Parent=scopeContainer
+end
+
+function updateCustomScope()
+    ensureScopeGui()
+    local scope = findSniperScope()
+    local scoped = scope and scope.Visible == true
+    if scope and scopeSavedSize == nil then scopeSavedSize = scope.Size end
+
+    -- Never permanently alter the game's original scope size.
+    if scope then
+        if XCConfig.scopeRemoveOriginal and scoped then
+            scope.Size = UDim2.fromOffset(0,0)
+        elseif scopeSavedSize then
+            scope.Size = scopeSavedSize
+        end
+    end
+
+    local cam = Workspace.CurrentCamera or camera
+    if XCConfig.customScopeEnabled and scoped then
+        if XCConfig.scopeFovEnabled and cam then
+            if scopeSavedFov == nil then scopeSavedFov = cam.FieldOfView end
+            cam.FieldOfView = math.clamp(tonumber(XCConfig.scopeFov) or 70, 10, 120)
+        end
+
+        local enabled = XCConfig.scopeCrosshairEnabled ~= false
+        scopeContainer.Visible = enabled
+        if not enabled then return end
+
+        local col = rgb(XCConfig.scopeCrosshairColorR, XCConfig.scopeCrosshairColorG, XCConfig.scopeCrosshairColorB)
+        local len = math.clamp(tonumber(XCConfig.scopeCrosshairLength) or 85, 2, 500)
+        local thick = math.clamp(tonumber(XCConfig.scopeCrosshairThickness) or 2, 1, 12)
+        local gap = math.clamp(tonumber(XCConfig.scopeCrosshairGap) or 8, 0, 150)
+        local dynamic = XCConfig.scopeDynamicGap and math.clamp((1/(cam and cam.FieldOfView or 70))*700, 2, 30) or 0
+        gap = gap + dynamic
+        local opacity = math.clamp(tonumber(XCConfig.scopeCrosshairOpacity) or 0, 0, 1)
+        local style = XCConfig.scopeCrosshairStyle or "Cross"
+
+        local l=scopeContainer.Left; local r=scopeContainer.Right
+        local t=scopeContainer.Top; local b=scopeContainer.Bottom; local d=scopeContainer.Dot
+        local arms = {l,r,t,b,d}
+
+        for _,f in ipairs(arms) do
+            f.BackgroundColor3 = col
+            f.BackgroundTransparency = opacity
+            f.BorderSizePixel = 0
+            f.Visible = false
+            local st = f:FindFirstChild("ScopeOutline")
+            if not st then
+                st = Instance.new("UIStroke")
+                st.Name = "ScopeOutline"
+                st.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                st.Parent = f
+            end
+            st.Enabled = XCConfig.scopeCrosshairOutline == true
+            st.Thickness = math.clamp(tonumber(XCConfig.scopeCrosshairOutlineThickness) or 1, 1, 6)
+            st.Color = rgb(XCConfig.scopeCrosshairOutlineR,XCConfig.scopeCrosshairOutlineG,XCConfig.scopeCrosshairOutlineB)
+            st.Transparency = opacity
+        end
+
+        local function show(f, size, pos, rotation)
+            f.Size=size; f.Position=pos; f.Rotation=rotation or 0; f.Visible=true
+        end
+
+        -- Style presets: Cross, T, X and Dot. Individual arms still remain toggleable.
+        if style == "X" then
+            local xLen = math.max(2, len * 0.72)
+            if XCConfig.scopeCrosshairLeft ~= false then show(l,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(-gap,-gap),45) end
+            if XCConfig.scopeCrosshairRight ~= false then show(r,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(gap,-gap),-45) end
+            if XCConfig.scopeCrosshairTop ~= false then show(t,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(-gap,gap),-45) end
+            if XCConfig.scopeCrosshairBottom ~= false then show(b,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(gap,gap),45) end
+        elseif style == "T" then
+            if XCConfig.scopeCrosshairTop ~= false then show(t,UDim2.fromOffset(thick,len),UDim2.fromOffset(0,gap),0) end
+            if XCConfig.scopeCrosshairLeft ~= false then show(l,UDim2.fromOffset(len,thick),UDim2.fromOffset(-gap,0),0) end
+            if XCConfig.scopeCrosshairRight ~= false then show(r,UDim2.fromOffset(len,thick),UDim2.fromOffset(gap,0),0) end
+            -- Bottom can be independently disabled/enabled; enabled means a short lower arm.
+            if XCConfig.scopeCrosshairBottom ~= false then show(b,UDim2.fromOffset(thick,math.max(2,len*0.55)),UDim2.fromOffset(0,gap),0) end
+        elseif style == "Dot" then
+            -- Only the center dot is drawn for Dot style.
+        else -- Cross
+            if XCConfig.scopeCrosshairLeft ~= false then show(l,UDim2.fromOffset(len,thick),UDim2.fromOffset(-gap,0),0) end
+            if XCConfig.scopeCrosshairRight ~= false then show(r,UDim2.fromOffset(len,thick),UDim2.fromOffset(gap,0),0) end
+            if XCConfig.scopeCrosshairTop ~= false then show(t,UDim2.fromOffset(thick,len),UDim2.fromOffset(0,-gap),0) end
+            if XCConfig.scopeCrosshairBottom ~= false then show(b,UDim2.fromOffset(thick,len),UDim2.fromOffset(0,gap),0) end
+        end
+
+        d.Size=UDim2.fromOffset(math.max(1,thick*2),math.max(1,thick*2))
+        d.Position=UDim2.fromOffset(0,0)
+        d.Rotation=0
+        d.Visible = XCConfig.scopeCrosshairDot ~= false
+    else
+        scopeContainer.Visible=false
+        if scopeSavedFov and cam then cam.FieldOfView=scopeSavedFov end
+        scopeSavedFov=nil
+    end
+end
+
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    local worldVisualActive = XCConfig.nightModeEnabled or XCConfig.worldSkyboxEnabled
+        or XCConfig.worldPostFXEnabled or XCConfig.worldAtmosphereEnabled or XCConfig.worldBloomEnabled
+    if not XCConfig.weaponChamsEnabled
+        and not XCConfig.customScopeEnabled
+        and not XCConfig.customFovEnabled
+        and not worldVisualActive then
+        return
+    end
+    pcall(function()
+        if XCConfig.weaponChamsEnabled then setWeaponVisuals() end
+        if XCConfig.customScopeEnabled then updateCustomScope() end
+        -- XC Custom FOV: apply the camera FOV every render frame while enabled.
+        if XCConfig.customFovEnabled then
+            local cam = Workspace.CurrentCamera or camera
+            if cam then
+                cam.FieldOfView = math.clamp(tonumber(XCConfig.customFov) or 90, 70, 120)
+            end
+        end
+        if worldVisualActive then
+            XCFeatureState.worldUpdateAccumulator = XCFeatureState.worldUpdateAccumulator + (dt)
+            if XCFeatureState.worldUpdateAccumulator >= 0.2 then
+                XCFeatureState.worldUpdateAccumulator = 0
+                updateWorldChanger()
+            end
+        end
+    end)
+end))
+--// XC BLOXSTRIKE-SAFE JUMP CIRCLE + MOTION TRAIL | Does not rely on Humanoid.StateChanged and does not attach visual objects directly to the game character. This is more robust with custom controllers.
+local jumpRayParams = RaycastParams.new()
+jumpRayParams.FilterType = Enum.RaycastFilterType.Exclude
+jumpRayParams.IgnoreWater = true
+
+local function XCResolveVisualRoot(char)
+    if not char or not char.Parent then return nil end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+        or (hum and hum.RootPart)
+        or char.PrimaryPart
+        or char:FindFirstChild("LowerTorso")
+        or char:FindFirstChild("Torso")
+        or char:FindFirstChild("UpperTorso")
+    if root and root:IsA("BasePart") then return root end
+    for _, obj in ipairs(char:GetDescendants()) do
+        if obj:IsA("BasePart") and obj.Name ~= "Head" then
+            return obj
+        end
+    end
+    return nil
+end
+
+local function XCResolveVisualCharacter()
+    local char = player and player.Character
+    if char and char:IsA("Model") and char.Parent then
+        return char, XCResolveVisualRoot(char)
+    end
+    return nil, nil
+end
+
+local function XCGetRootVelocity(root, previousPosition, dt)
+    if not root then return Vector3.zero end
+    local ok, v = pcall(function() return root.AssemblyLinearVelocity end)
+    if ok and typeof(v) == "Vector3" and v.Magnitude > 0.05 then
+        return v
+    end
+    if previousPosition and dt and dt > 0 then
+        return (root.Position - previousPosition) / dt
+    end
+    return Vector3.zero
+end
+
+local function XCGetGroundHit(originPos, char, maxDistance)
+    local cam = Workspace.CurrentCamera or camera
+    local ignore = {jumpCircleFolder}
+    if char then table.insert(ignore, char) end
+    if cam then table.insert(ignore, cam) end
+    jumpRayParams.FilterDescendantsInstances = ignore
+    return Workspace:Raycast(
+        originPos + Vector3.new(0, 1.25, 0),
+        Vector3.new(0, -(maxDistance or 12), 0),
+        jumpRayParams
+    )
+end
+
+function getGroundY(originPos, char)
+    local cast = XCGetGroundHit(originPos, char, 18)
+    if cast then return cast.Position.Y + 0.045 end
+    return originPos.Y - 3
+end
+
+function buildJumpRing(segmentCount, radius, thickness, height)
+    local container = Instance.new("Folder")
+    container.Name = "JumpCircleContainer"
+
+    local segments = {}
+    segmentCount = math.clamp(math.floor(tonumber(segmentCount) or 48), 16, 96)
+    radius = math.max(0.5, tonumber(radius) or 3.5)
+    local angleStep = (math.pi * 2) / segmentCount
+    local chordLength = 2 * radius * math.sin(angleStep / 2) + 0.03
+    local lineH = height or 0.03
+    local lineThick = thickness or 0.06
+
+    for i = 1, segmentCount do
+        local angle = (i - 1) * angleStep
+        local part = Instance.new("Part")
+        part.Name = "Seg_" .. i
+        part.Size = Vector3.new(lineThick, lineH, chordLength)
+        part.Anchored = true
+        part.CanCollide = false
+        part.CanQuery = false
+        part.CanTouch = false
+        part.CastShadow = false
+        part.Material = Enum.Material.Neon
+        part.Color = currentTheme.Accent
+        part.Transparency = 0
+        part.Parent = container
+        segments[i] = {
+            Part = part,
+            Angle = angle,
+            BaseChord = chordLength,
+            BaseThick = lineThick,
+            BaseHeight = lineH,
+        }
+    end
+    return container, segments
+end
+
+function updateJumpRingLayout(segments, centerPosition, radius, thicknessMult)
+    local n = #segments
+    if n == 0 then return end
+    local tMult = thicknessMult or 1
+    for _, seg in ipairs(segments) do
+        local angle = seg.Angle
+        local nextAngle = angle + (math.pi * 2 / n)
+        local p1 = centerPosition + Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+        local p2 = centerPosition + Vector3.new(math.cos(nextAngle) * radius, 0, math.sin(nextAngle) * radius)
+        local mid = (p1 + p2) * 0.5
+        local length = (p2 - p1).Magnitude + 0.02
+        local part = seg.Part
+        if part and part.Parent then
+            part.Size = Vector3.new(seg.BaseThick * tMult, seg.BaseHeight, length)
+            part.CFrame = CFrame.lookAt(mid, p2)
+        end
+    end
+end
+
+function spawnJumpRipple(position)
+    if not XCConfig.jumpCircleEnabled or typeof(position) ~= "Vector3" then return end
+    local rippleFolder, segments = buildJumpRing(
+        XCConfig.jumpCircleSegmentCount,
+        XCConfig.jumpCircleRadius,
+        0.09,
+        0.045
+    )
+    rippleFolder.Parent = jumpCircleFolder
+    Debris:AddItem(rippleFolder, 0.75)
+
+    local startT = os.clock()
+    local duration = 0.58
+    local baseRadius = math.max(1, tonumber(XCConfig.jumpCircleRadius) or 3.5)
+    local maxR = baseRadius * 2.25
+    local col1 = currentTheme.Accent
+    local col2 = Color3.fromRGB(255, 255, 255)
+
+    local rippleConn
+    rippleConn = RunService.RenderStepped:Connect(function()
+        if not rippleFolder.Parent then
+            if rippleConn then rippleConn:Disconnect() end
+            return
+        end
+        local alpha = (os.clock() - startT) / duration
+        if alpha >= 1 or not XCConfig.jumpCircleEnabled then
+            if rippleConn then rippleConn:Disconnect() end
+            pcall(function() rippleFolder:Destroy() end)
+            return
+        end
+        local eased = 1 - math.pow(1 - alpha, 3)
+        local curR = baseRadius + (maxR - baseRadius) * eased
+        updateJumpRingLayout(segments, position, curR, 1 - alpha * 0.55)
+        for _, seg in ipairs(segments) do
+            local part = seg.Part
+            if part and part.Parent then
+                part.Transparency = math.clamp(alpha, 0, 1)
+                part.Color = col1:Lerp(col2, alpha)
+            end
+        end
+    end)
+end
+
+function clearActiveJumpCircle()
+    if not activeJumpCircleData then return end
+    if activeJumpCircleData.Connections then
+        for _, conn in ipairs(activeJumpCircleData.Connections) do
+            pcall(function() conn:Disconnect() end)
+        end
+    end
+    if activeJumpCircleData.Container then
+        pcall(function() activeJumpCircleData.Container:Destroy() end)
+    end
+    activeJumpCircleData = nil
+end
+
+function initJumpCircleForCharacter(char)
+    clearActiveJumpCircle()
+    if not XCConfig.jumpCircleEnabled then return end
+    char = char or (player and player.Character)
+    if not char then return end
+    local root = XCResolveVisualRoot(char)
+    if not root then return end
+
+    local container, segments = buildJumpRing(
+        XCConfig.jumpCircleSegmentCount,
+        XCConfig.jumpCircleRadius,
+        0.065,
+        0.035
+    )
+    container.Parent = jumpCircleFolder
+
+    local initialHit = XCGetGroundHit(root.Position, char, 10)
+    local circleData = {
+        Container = container,
+        Segments = segments,
+        Root = root,
+        Character = char,
+        Connections = {},
+        PreviousPosition = root.Position,
+        WasGrounded = initialHit ~= nil,
+        LastGroundPosition = initialHit and initialHit.Position or nil,
+        LastRipple = 0,
+    }
+    activeJumpCircleData = circleData
+
+    local startClock = os.clock()
+    local loopConn
+    loopConn = RunService.RenderStepped:Connect(function(dt)
+        if not XCConfig.jumpCircleEnabled then
+            clearActiveJumpCircle()
+            return
+        end
+
+        local currentChar, currentRoot = XCResolveVisualCharacter()
+        if not currentChar or not currentRoot then
+            return
+        end
+        if currentChar ~= circleData.Character or currentRoot ~= circleData.Root then
+            task.defer(function()
+                if XCConfig.jumpCircleEnabled then initJumpCircleForCharacter(currentChar) end
+            end)
+            clearActiveJumpCircle()
+            return
+        end
+
+        local rootPos = currentRoot.Position
+        local velocity = XCGetRootVelocity(currentRoot, circleData.PreviousPosition, dt)
+        local groundHit = XCGetGroundHit(rootPos, currentChar, 7.5)
+        local grounded = false
+        if groundHit then
+            local verticalGap = rootPos.Y - groundHit.Position.Y
+            grounded = verticalGap <= 4.4 and velocity.Y <= 7.5
+            circleData.LastGroundPosition = groundHit.Position + Vector3.new(0, 0.045, 0)
+        end
+
+        -- Detect take-off from actual movement instead of Humanoid state.
+        if circleData.WasGrounded and not grounded and velocity.Y > 1.2 then
+            local now = os.clock()
+            if now - circleData.LastRipple > 0.16 then
+                local ripplePos = circleData.LastGroundPosition
+                    or Vector3.new(rootPos.X, getGroundY(rootPos, currentChar), rootPos.Z)
+                spawnJumpRipple(ripplePos)
+                circleData.LastRipple = now
+            end
+        end
+        circleData.WasGrounded = grounded
+        circleData.PreviousPosition = rootPos
+
+        local center
+        if groundHit then
+            center = groundHit.Position + Vector3.new(0, 0.045, 0)
+        elseif circleData.LastGroundPosition then
+            center = Vector3.new(rootPos.X, circleData.LastGroundPosition.Y, rootPos.Z)
+        else
+            center = Vector3.new(rootPos.X, getGroundY(rootPos, currentChar), rootPos.Z)
+        end
+
+        local elapsed = os.clock() - startClock
+        local pulse = (math.sin(elapsed * 7) + 1) * 0.5
+        updateJumpRingLayout(segments, center, XCConfig.jumpCircleRadius, 1 + pulse * 0.38)
+
+        if XCConfig.jumpCircleStyle == "GradientWave" then
+            local n = #segments
+            local spin = (elapsed * 0.48) % 1
+            local c1 = currentTheme.Accent
+            local c2 = Color3.fromRGB(0, 230, 255)
+            for i, seg in ipairs(segments) do
+                local wave = (math.sin((((i / n) + spin) % 1) * math.pi * 2) + 1) * 0.5
+                if seg.Part and seg.Part.Parent then
+                    seg.Part.Color = c1:Lerp(c2, wave)
+                    seg.Part.Transparency = 0.05 + pulse * 0.18
+                end
+            end
+        elseif XCConfig.jumpCircleStyle == "ChromaPulse" then
+            local col = Color3.fromHSV((elapsed * 0.35) % 1, 0.85, 1)
+            for _, seg in ipairs(segments) do
+                if seg.Part and seg.Part.Parent then
+                    seg.Part.Color = col
+                    seg.Part.Transparency = 0.08 + pulse * 0.2
+                end
+            end
+        else
+            for _, seg in ipairs(segments) do
+                if seg.Part and seg.Part.Parent then
+                    seg.Part.Color = currentTheme.Accent
+                    seg.Part.Transparency = 0.05 + pulse * 0.18
+                end
+            end
+        end
+    end)
+    table.insert(circleData.Connections, loopConn)
+end
+
+table.insert(connections, player.CharacterAdded:Connect(function(char)
+    task.defer(function()
+        if XCConfig.jumpCircleEnabled then initJumpCircleForCharacter(char) end
+    end)
+end))
+table.insert(connections, player.CharacterRemoving:Connect(clearActiveJumpCircle))
+
+if player.Character and XCConfig.jumpCircleEnabled then
+    task.defer(function() initJumpCircleForCharacter(player.Character) end)
+end
+--// XC LOCAL MOTION TRAIL + GHOST AFTERIMAGES | World-space anchors are independent of Bloxstrike's character descendants.
+local XCMotionState = {
+    Character = nil,
+    Root = nil,
+    Rig = nil,
+    Anchor0 = nil,
+    Anchor1 = nil,
+    Attachment0 = nil,
+    Attachment1 = nil,
+    Trail = nil,
+    LastGhost = 0,
+    LastGhostPosition = nil,
+    PreviousRootPosition = nil,
+}
+
+local function getXCMotionColor(prefix, fallback)
+    local r = tonumber(XCConfig[prefix .. "R"])
+    local g = tonumber(XCConfig[prefix .. "G"])
+    local b = tonumber(XCConfig[prefix .. "B"])
+    if not r or not g or not b then return fallback end
+    return Color3.fromRGB(
+        math.clamp(math.floor(r + 0.5), 0, 255),
+        math.clamp(math.floor(g + 0.5), 0, 255),
+        math.clamp(math.floor(b + 0.5), 0, 255)
+    )
+end
+
+local function clearXCMotionTrail()
+    if XCMotionState.Rig then
+        pcall(function() XCMotionState.Rig:Destroy() end)
+    else
+        if XCMotionState.Trail then pcall(function() XCMotionState.Trail:Destroy() end) end
+        if XCMotionState.Anchor0 then pcall(function() XCMotionState.Anchor0:Destroy() end) end
+        if XCMotionState.Anchor1 then pcall(function() XCMotionState.Anchor1:Destroy() end) end
+    end
+    XCMotionState.Character = nil
+    XCMotionState.Root = nil
+    XCMotionState.Rig = nil
+    XCMotionState.Anchor0 = nil
+    XCMotionState.Anchor1 = nil
+    XCMotionState.Attachment0 = nil
+    XCMotionState.Attachment1 = nil
+    XCMotionState.Trail = nil
+    XCMotionState.LastGhostPosition = nil
+    XCMotionState.PreviousRootPosition = nil
+end
+
+local function XCMakeTrailAnchor(name, parent)
+    local part = Instance.new("Part")
+    part.Name = name
+    part.Size = Vector3.new(0.05, 0.05, 0.05)
+    part.Transparency = 1
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.CastShadow = false
+    part.Parent = parent
+    local attachment = Instance.new("Attachment")
+    attachment.Name = name .. "_Attachment"
+    attachment.Parent = part
+    return part, attachment
+end
+
+local function ensureXCMotionTrail(character, root)
+    if not XCConfig.motionTrailEnabled then
+        if XCMotionState.Trail then clearXCMotionTrail() end
+        return nil
+    end
+
+    if XCMotionState.Character ~= character
+        or XCMotionState.Root ~= root
+        or not XCMotionState.Trail
+        or not XCMotionState.Trail.Parent then
+
+        clearXCMotionTrail()
+
+        local rig = Instance.new("Folder")
+        rig.Name = "XC_MotionTrailWorldRig"
+        rig.Parent = Workspace
+
+        local anchor0, a0 = XCMakeTrailAnchor("XC_MotionTrail_Left", rig)
+        local anchor1, a1 = XCMakeTrailAnchor("XC_MotionTrail_Right", rig)
+
+        local trail = Instance.new("Trail")
+        trail.Name = "XC_MotionRibbon"
+        trail.Attachment0 = a0
+        trail.Attachment1 = a1
+        trail.FaceCamera = true
+        trail.LightEmission = 0.9
+        trail.LightInfluence = 0
+        trail.MinLength = 0.01
+        trail.Lifetime = math.clamp(tonumber(XCConfig.motionTrailLifetime) or 1.15, 0.15, 3)
+        trail.Color = ColorSequence.new(getXCMotionColor("motionTrailColor", Color3.new(1, 1, 1)))
+        trail.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.02),
+            NumberSequenceKeypoint.new(0.7, 0.18),
+            NumberSequenceKeypoint.new(1, 1),
+        })
+        trail.WidthScale = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1),
+            NumberSequenceKeypoint.new(0.82, 0.72),
+            NumberSequenceKeypoint.new(1, 0),
+        })
+        trail.Parent = rig
+
+        XCMotionState.Character = character
+        XCMotionState.Root = root
+        XCMotionState.Rig = rig
+        XCMotionState.Anchor0 = anchor0
+        XCMotionState.Anchor1 = anchor1
+        XCMotionState.Attachment0 = a0
+        XCMotionState.Attachment1 = a1
+        XCMotionState.Trail = trail
+        XCMotionState.LastGhostPosition = root.Position
+        XCMotionState.PreviousRootPosition = root.Position
+    end
+
+    local trail = XCMotionState.Trail
+    if trail then
+        trail.Lifetime = math.clamp(tonumber(XCConfig.motionTrailLifetime) or 1.15, 0.15, 3)
+        trail.Color = ColorSequence.new(getXCMotionColor("motionTrailColor", Color3.new(1, 1, 1)))
+        trail.Enabled = XCConfig.motionTrailEnabled
+    end
+    return trail
+end
+
+local function XCUpdateMotionAnchors(root)
+    if not root or not XCMotionState.Anchor0 or not XCMotionState.Anchor1 then return end
+    local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
+    local rootCF = root.CFrame
+    local right = rootCF.RightVector
+    local upOffset = Vector3.new(0, -2.0, 0)
+    local center = root.Position + upOffset
+    local half = math.max(0.04, width * 0.5)
+    XCMotionState.Anchor0.CFrame = CFrame.new(center - right * half)
+    XCMotionState.Anchor1.CFrame = CFrame.new(center + right * half)
+end
+
+local function spawnXCMotionGhost(character)
+    if not XCConfig.motionGhostEnabled or not character or not character.Parent then return end
+    local ghostModel = Instance.new("Model")
+    ghostModel.Name = "XC_MotionGhost"
+    ghostModel.Parent = Workspace
+
+    local ghostColor = getXCMotionColor("motionGhostColor", Color3.fromRGB(120, 185, 255))
+    local startTransparency = math.clamp(tonumber(XCConfig.motionGhostTransparency) or 0.62, 0.25, 0.92)
+    local fadeTime = math.clamp(tonumber(XCConfig.motionGhostFade) or 0.48, 0.12, 1.5)
+    local created = 0
+
+    for _, source in ipairs(character:GetDescendants()) do
+        if source:IsA("BasePart")
+            and source.Name ~= "HumanoidRootPart"
+            and source.Transparency < 0.96
+            and created < 28 then
+            local ok, ghost = pcall(function() return source:Clone() end)
+            if ok and ghost and ghost:IsA("BasePart") then
+                created = created + (1)
+                ghost.Name = "Ghost_" .. source.Name
+                ghost.Anchored = true
+                ghost.CanCollide = false
+                ghost.CanTouch = false
+                ghost.CanQuery = false
+                ghost.CastShadow = false
+                ghost.Massless = true
+                ghost.CFrame = source.CFrame
+                ghost.Color = ghostColor
+                ghost.Material = Enum.Material.ForceField
+                ghost.Transparency = startTransparency
+                pcall(function()
+                    if ghost:IsA("MeshPart") then ghost.TextureID = "" end
+                end)
+                for _, child in ipairs(ghost:GetDescendants()) do
+                    if child:IsA("Weld") or child:IsA("Motor6D") or child:IsA("WeldConstraint")
+                        or child:IsA("Attachment") or child:IsA("Decal") or child:IsA("Texture")
+                        or child:IsA("ParticleEmitter") or child:IsA("Trail") or child:IsA("Beam")
+                        or child:IsA("Script") or child:IsA("LocalScript") then
+                        pcall(function() child:Destroy() end)
+                    elseif child:IsA("SpecialMesh") then
+                        pcall(function()
+                            child.TextureId = ""
+                            child.VertexColor = Vector3.new(
+                                ghostColor.R * 2,
+                                ghostColor.G * 2,
+                                ghostColor.B * 2
+                            )
+                        end)
+                    end
+                end
+                ghost.Parent = ghostModel
+                TweenService:Create(
+                    ghost,
+                    TweenInfo.new(fadeTime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                    {Transparency = 1}
+                ):Play()
+            end
+        end
+    end
+
+    if created == 0 then
+        ghostModel:Destroy()
+        return
+    end
+    Debris:AddItem(ghostModel, fadeTime + 0.08)
+end
+
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    if not xcSessionActive() then
+        clearXCMotionTrail()
+        return
+    end
+    if not XCConfig.motionTrailEnabled then
+        if XCMotionState.Trail then clearXCMotionTrail() end
+        return
+    end
+
+    local character, root = XCResolveVisualCharacter()
+    if not character or not root then
+        if XCMotionState.Trail then clearXCMotionTrail() end
+        return
+    end
+
+    ensureXCMotionTrail(character, root)
+    XCUpdateMotionAnchors(root)
+
+    local previousPosition = XCMotionState.PreviousRootPosition
+    local velocity = XCGetRootVelocity(root, previousPosition, dt)
+    XCMotionState.PreviousRootPosition = root.Position
+
+    if not XCConfig.motionGhostEnabled then return end
+    local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
+    if horizontalSpeed < 2.0 then return end
+
+    local now = os.clock()
+    local interval = math.clamp(tonumber(XCConfig.motionGhostInterval) or 0.12, 0.06, 0.5)
+    if now - XCMotionState.LastGhost < interval then return end
+
+    local currentPosition = root.Position
+    local lastPosition = XCMotionState.LastGhostPosition
+    if lastPosition and (currentPosition - lastPosition).Magnitude < 0.45 then return end
+
+    XCMotionState.LastGhost = now
+    XCMotionState.LastGhostPosition = currentPosition
+    spawnXCMotionGhost(character)
+end))
+
+table.insert(connections, player.CharacterRemoving:Connect(function()
+    clearXCMotionTrail()
+end))
+--// XC WORLD WEATHER + CAMERA DIRECTOR | Inspired by the useful visual/camera ideas shown in the GameSense review. Both systems are local-only and use a single lightweight render path.
+XCFeatureState = {
+    weatherRig = nil,
+    weatherEmitter = nil,
+    weatherAtmosphere = nil,
+    weatherUpdateAccumulator = 0,
+    weatherSignature = nil,
+    cameraMode = nil,
+    savedCameraState = nil,
+    cameraFrame = nil,
+    cameraPosition = nil,
+    cameraYaw = 0,
+    cameraPitch = 0,
+    cameraTouch = nil,
+    cameraTouchLast = nil,
+    cameraTouchDelta = Vector2.zero,
+    streamerSnapshot = nil,
+    noSmokeRecords = setmetatable({}, {__mode = "k"}),
+    noSmokeAccumulator = 0,
+    antiAimNextChange = 0,
+    antiAimRandomYaw = 180,
+    bhopGroundSince = nil,
+    bhopLastJump = 0,
+    bhopWindowFocused = true,
+    menuOpen = true,
+    worldUpdateAccumulator = 0,
+    worldAtmosphere = nil,
+    worldOriginalAtmosphere = nil,
+    worldBloom = nil,
+    worldTonePresets = {
+        Neutral = Color3.fromRGB(255, 255, 255),
+        ["XC Lime"] = Color3.fromRGB(225, 242, 185),
+        Cold = Color3.fromRGB(205, 225, 255),
+        Warm = Color3.fromRGB(255, 224, 190),
+        Purple = Color3.fromRGB(225, 200, 255),
+    },
+    hitSounds = {
+        Skeet = "rbxassetid://83717596220569",
+        Neverlose = "rbxassetid://139452805868562",
+        Bell = "rbxassetid://96481309571950",
+        Bell2 = "rbxassetid://124010691633262",
+        Bubble = "rbxassetid://104824514322839",
+        Rust = "rbxassetid://1255040462",
+        Coins = "rbxassetid://5613553529",
+        Agro1 = "rbxassetid://132463144859699",
+        Agro2 = "rbxassetid://102651850556408",
+        Schaater = "rbxassetid://17405655409",
+        Pick = "rbxassetid://8616930816",
+    },
+    skeletonEdges = {
+        {"Head", "Neck"}, {"Neck", "Waist"},
+        {"Neck", "LeftShoulder"}, {"LeftShoulder", "LeftHand"},
+        {"Neck", "RightShoulder"}, {"RightShoulder", "RightHand"},
+        {"Waist", "LeftHip"}, {"LeftHip", "LeftFoot"},
+        {"Waist", "RightHip"}, {"RightHip", "RightFoot"},
+    },
+    streamerHiddenKeys = {
+        "watermarkEnabled", "spectatorListEnabled", "nametagsEnabled", "boxEspEnabled",
+        "cornerBoxEnabled", "healthBarEnabled", "headDotEnabled", "tracersEnabled",
+        "grenadeEspEnabled", "grenadeDangerZonesEnabled", "soundPositionEspEnabled", "weaponEspEnabled",
+        "jumpCircleEnabled", "motionTrailEnabled", "hitmarkerEnabled", "chamsEnabled", "skeletonEspEnabled",
+        "showFovCircle", "showSilentFovCircle",
+    },
+}
+
+function isXCSmokeObject(object)
+    if not object or not (object:IsA("ParticleEmitter") or object:IsA("Smoke")) then return false end
+    local cursor = object
+    for _ = 1, 6 do
+        if not cursor then break end
+        local name = cursor.Name:lower()
+        if name:find("smoke", 1, true) or name:find("voxel", 1, true) then return true end
+        cursor = cursor.Parent
+    end
+    return false
+end
+
+function trackXCSmokeObject(object)
+    if not XCConfig.noSmokeEnabled or not isXCSmokeObject(object) then return end
+    local record = XCFeatureState.noSmokeRecords[object]
+    if not record then
+        record = {Enabled = object.Enabled}
+        XCFeatureState.noSmokeRecords[object] = record
+    end
+    pcall(function() object.Enabled = false end)
+end
+
+function restoreXCSmoke()
+    for object, record in pairs(XCFeatureState.noSmokeRecords) do
+        pcall(function()
+            if object and object.Parent then object.Enabled = record.Enabled end
+        end)
+        XCFeatureState.noSmokeRecords[object] = nil
+    end
+end
+
+function applyXCSmokeState()
+    if not XCConfig.noSmokeEnabled then restoreXCSmoke() return end
+    task.spawn(function()
+        for _, rootName in ipairs({"Debris", "Effects"}) do
+            local root = Workspace:FindFirstChild(rootName)
+            if root then
+                for _, object in ipairs(root:GetDescendants()) do
+                    if not XCConfig.noSmokeEnabled then return end
+                    if object:IsA("ParticleEmitter") or object:IsA("Smoke") then trackXCSmokeObject(object) end
+                end
+            end
+        end
+    end)
+end
+
+function playXCHitSound(force)
+    if not force and not XCConfig.hitSoundEnabled then return end
+    task.spawn(function()
+        pcall(function()
+            local sound = Instance.new("Sound")
+            sound.Name = "XCHitSound"
+            sound.SoundId = XCFeatureState.hitSounds[XCConfig.hitSoundPreset] or XCFeatureState.hitSounds.Skeet
+            sound.Volume = math.clamp(tonumber(XCConfig.hitSoundVolume) or 1, 0.1, 3)
+            sound.PlaybackSpeed = 1
+            sound.Looped = false
+            sound.PlayOnRemove = false
+            sound.Parent = SoundService
+            -- Do not preload on mobile/injection. Some mobile clients wake the
+            -- audio route while PreloadAsync touches Sound assets. The asset is
+            -- requested only when an actual hit sound is intentionally played.
+            local played = pcall(function() SoundService:PlayLocalSound(sound) end)
+            if not played then sound:Play() end
+            Debris:AddItem(sound, 5)
+        end)
+    end)
+end
+
+table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
+    if XCConfig.noSmokeEnabled then trackXCSmokeObject(object) end
+end))
+table.insert(connections, RunService.Heartbeat:Connect(function(dt)
+    if not XCConfig.noSmokeEnabled then return end
+    XCFeatureState.noSmokeAccumulator = XCFeatureState.noSmokeAccumulator + (dt)
+    if XCFeatureState.noSmokeAccumulator < 0.5 then return end
+    XCFeatureState.noSmokeAccumulator = 0
+    for object in pairs(XCFeatureState.noSmokeRecords) do
+        if object and object.Parent then
+            pcall(function() object.Enabled = false end)
+        else
+            XCFeatureState.noSmokeRecords[object] = nil
+        end
+    end
+end))
+table.insert(connections, UserInputService.WindowFocusReleased:Connect(function()
+    XCFeatureState.bhopWindowFocused = false
+    XCFeatureState.bhopGroundSince = nil
+end))
+table.insert(connections, UserInputService.WindowFocused:Connect(function()
+    XCFeatureState.bhopWindowFocused = true
+end))
+
+function destroyXCWeather()
+    if XCFeatureState.weatherRig then pcall(function() XCFeatureState.weatherRig:Destroy() end) end
+    if XCFeatureState.weatherAtmosphere then pcall(function() XCFeatureState.weatherAtmosphere:Destroy() end) end
+    XCFeatureState.weatherRig = nil
+    XCFeatureState.weatherEmitter = nil
+    XCFeatureState.weatherAtmosphere = nil
+    XCFeatureState.weatherSignature = nil
+end
+
+function ensureXCWeatherObjects()
+    if not XCFeatureState.weatherRig or not XCFeatureState.weatherRig.Parent then
+        XCFeatureState.weatherRig = Instance.new("Part")
+        XCFeatureState.weatherRig.Name = "XCWeatherEmitter"
+        XCFeatureState.weatherRig.Size = Vector3.new(1, 1, 1)
+        XCFeatureState.weatherRig.Transparency = 1
+        XCFeatureState.weatherRig.Anchored = true
+        XCFeatureState.weatherRig.CanCollide = false
+        pcall(function() XCFeatureState.weatherRig.CanQuery = false; XCFeatureState.weatherRig.CanTouch = false end)
+        XCFeatureState.weatherRig.Parent = Workspace
+
+        XCFeatureState.weatherEmitter = Instance.new("ParticleEmitter")
+        XCFeatureState.weatherEmitter.Name = "XCWeatherParticles"
+        XCFeatureState.weatherEmitter.LockedToPart = false
+        XCFeatureState.weatherEmitter.LightInfluence = 0
+        XCFeatureState.weatherEmitter.Orientation = Enum.ParticleOrientation.FacingCamera
+        pcall(function()
+            XCFeatureState.weatherEmitter.Shape = Enum.ParticleEmitterShape.Box
+            XCFeatureState.weatherEmitter.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+            XCFeatureState.weatherEmitter.ShapeInOut = Enum.ParticleEmitterShapeInOut.Outward
+        end)
+        XCFeatureState.weatherEmitter.Parent = XCFeatureState.weatherRig
+    end
+end
+
+function applyXCWeather()
+    if not XCConfig.weatherEnabled then
+        destroyXCWeather()
+        return
+    end
+
+    ensureXCWeatherObjects()
+    local mode = tostring(XCConfig.weatherMode or "Rain")
+    local intensity = math.clamp(tonumber(XCConfig.weatherIntensity) or 45, 1, 100)
+    local wind = math.clamp(tonumber(XCConfig.weatherWind) or 0, -40, 40)
+    local signature = mode .. ":" .. tostring(intensity) .. ":" .. tostring(wind)
+    if XCFeatureState.weatherSignature == signature and XCFeatureState.weatherEmitter and XCFeatureState.weatherEmitter.Parent then return end
+    XCFeatureState.weatherSignature = signature
+    XCFeatureState.weatherEmitter.Enabled = mode ~= "Fog"
+
+    if XCFeatureState.weatherAtmosphere then
+        XCFeatureState.weatherAtmosphere.Density = mode == "Fog" and (0.18 + intensity * 0.0045) or 0
+        XCFeatureState.weatherAtmosphere.Haze = mode == "Fog" and (1 + intensity * 0.045) or 0
+    elseif mode == "Fog" then
+        XCFeatureState.weatherAtmosphere = Instance.new("Atmosphere")
+        XCFeatureState.weatherAtmosphere.Name = "XCWeatherAtmosphere"
+        XCFeatureState.weatherAtmosphere.Color = Color3.fromRGB(190, 198, 205)
+        XCFeatureState.weatherAtmosphere.Decay = Color3.fromRGB(90, 96, 105)
+        XCFeatureState.weatherAtmosphere.Density = 0.18 + intensity * 0.0045
+        XCFeatureState.weatherAtmosphere.Haze = 1 + intensity * 0.045
+        XCFeatureState.weatherAtmosphere.Glare = 0
+        XCFeatureState.weatherAtmosphere.Parent = Lighting
+    end
+
+    if mode == "Rain" then
+        XCFeatureState.weatherRig.Size = Vector3.new(90, 1, 90)
+        XCFeatureState.weatherEmitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+        XCFeatureState.weatherEmitter.Rate = intensity * 3.2
+        XCFeatureState.weatherEmitter.Lifetime = NumberRange.new(0.65, 1.05)
+        XCFeatureState.weatherEmitter.Speed = NumberRange.new(65, 90)
+        XCFeatureState.weatherEmitter.Acceleration = Vector3.new(wind, -65, 0)
+        XCFeatureState.weatherEmitter.SpreadAngle = Vector2.new(4, 4)
+        XCFeatureState.weatherEmitter.Size = NumberSequence.new(0.075)
+        XCFeatureState.weatherEmitter.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.3),
+            NumberSequenceKeypoint.new(0.85, 0.45),
+            NumberSequenceKeypoint.new(1, 1),
+        })
+        XCFeatureState.weatherEmitter.Color = ColorSequence.new(Color3.fromRGB(190, 220, 255))
+    elseif mode == "Snow" then
+        XCFeatureState.weatherRig.Size = Vector3.new(100, 1, 100)
+        XCFeatureState.weatherEmitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+        XCFeatureState.weatherEmitter.Rate = intensity * 1.45
+        XCFeatureState.weatherEmitter.Lifetime = NumberRange.new(4.5, 7)
+        XCFeatureState.weatherEmitter.Speed = NumberRange.new(5, 11)
+        XCFeatureState.weatherEmitter.Acceleration = Vector3.new(wind * 0.35, -2.5, 0)
+        XCFeatureState.weatherEmitter.SpreadAngle = Vector2.new(18, 18)
+        XCFeatureState.weatherEmitter.Size = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.12),
+            NumberSequenceKeypoint.new(0.5, 0.28),
+            NumberSequenceKeypoint.new(1, 0.08),
+        })
+        XCFeatureState.weatherEmitter.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.18),
+            NumberSequenceKeypoint.new(1, 0.55),
+        })
+        XCFeatureState.weatherEmitter.Color = ColorSequence.new(Color3.fromRGB(245, 248, 255))
+    elseif mode == "Ash" then
+        XCFeatureState.weatherRig.Size = Vector3.new(85, 1, 85)
+        XCFeatureState.weatherEmitter.Texture = "rbxasset://textures/particles/smoke_main.dds"
+        XCFeatureState.weatherEmitter.Rate = intensity * 1.15
+        XCFeatureState.weatherEmitter.Lifetime = NumberRange.new(3.5, 6)
+        XCFeatureState.weatherEmitter.Speed = NumberRange.new(4, 9)
+        XCFeatureState.weatherEmitter.Acceleration = Vector3.new(wind * 0.5, 5, 0)
+        XCFeatureState.weatherEmitter.SpreadAngle = Vector2.new(22, 22)
+        XCFeatureState.weatherEmitter.Size = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.16),
+            NumberSequenceKeypoint.new(1, 0.26),
+        })
+        XCFeatureState.weatherEmitter.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.3),
+            NumberSequenceKeypoint.new(1, 0.8),
+        })
+        XCFeatureState.weatherEmitter.Color = ColorSequence.new(Color3.fromRGB(135, 135, 135))
+    elseif mode == "Hell Fire" then
+        XCFeatureState.weatherRig.Size = Vector3.new(90, 1, 90)
+        XCFeatureState.weatherEmitter.Texture = "rbxassetid://242205518"
+        XCFeatureState.weatherEmitter.Rate = intensity * 2
+        XCFeatureState.weatherEmitter.Lifetime = NumberRange.new(2, 3.5)
+        XCFeatureState.weatherEmitter.Speed = NumberRange.new(18, 32)
+        XCFeatureState.weatherEmitter.Acceleration = Vector3.new(wind * 0.4, -12, 0)
+        XCFeatureState.weatherEmitter.SpreadAngle = Vector2.new(20, 20)
+        XCFeatureState.weatherEmitter.Size = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.35),
+            NumberSequenceKeypoint.new(1, 0.85),
+        })
+        XCFeatureState.weatherEmitter.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.12),
+            NumberSequenceKeypoint.new(1, 0.9),
+        })
+        XCFeatureState.weatherEmitter.Color = ColorSequence.new(
+            Color3.fromRGB(255, 145, 35), Color3.fromRGB(170, 25, 10)
+        )
+    end
+end
+
+function refreshXCToggle(key)
+    local refresh = UI_Bind_Registry[key]
+    if refresh then pcall(refresh, XCConfig[key] == true) end
+end
+
+function setXCStreamerMode(enabled)
+    enabled = enabled == true
+    if enabled and not XCFeatureState.streamerSnapshot then
+        XCFeatureState.streamerSnapshot = {}
+        for _, key in ipairs(XCFeatureState.streamerHiddenKeys) do
+            XCFeatureState.streamerSnapshot[key] = XCConfig[key]
+            XCConfig[key] = false
+            refreshXCToggle(key)
+        end
+        XCConfig.streamerModeEnabled = true
+        clearActiveJumpCircle()
+    elseif not enabled and XCFeatureState.streamerSnapshot then
+        for key, value in pairs(XCFeatureState.streamerSnapshot) do
+            XCConfig[key] = value
+            refreshXCToggle(key)
+        end
+        XCFeatureState.streamerSnapshot = nil
+        XCConfig.streamerModeEnabled = false
+        if XCConfig.jumpCircleEnabled and player.Character then
+            initJumpCircleForCharacter(player.Character)
+        end
+    else
+        XCConfig.streamerModeEnabled = enabled
+    end
+    refreshXCToggle("streamerModeEnabled")
+end
+
+function stopXCCameraMode()
+    XCFeatureState.cameraMode = nil
+    XCConfig.freecamEnabled = false
+    XCConfig.freelookEnabled = false
+    local cam = Workspace.CurrentCamera or camera
+    if cam and XCFeatureState.savedCameraState then
+        pcall(function()
+            cam.CameraType = XCFeatureState.savedCameraState.CameraType or Enum.CameraType.Custom
+            if XCFeatureState.savedCameraState.CameraSubject then cam.CameraSubject = XCFeatureState.savedCameraState.CameraSubject end
+            cam.CFrame = XCFeatureState.savedCameraState.CFrame or cam.CFrame
+        end)
+    end
+    if XCFeatureState.savedCameraState then
+        pcall(function()
+            UserInputService.MouseBehavior = XCFeatureState.savedCameraState.MouseBehavior
+            UserInputService.MouseIconEnabled = XCFeatureState.savedCameraState.MouseIconEnabled
+        end)
+    end
+    XCFeatureState.savedCameraState = nil
+    refreshXCToggle("freecamEnabled")
+    refreshXCToggle("freelookEnabled")
+end
+
+function setXCCameraMode(mode, enabled)
+    if not enabled then
+        if XCFeatureState.cameraMode == mode then stopXCCameraMode() end
+        return
+    end
+
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return end
+    if not XCFeatureState.savedCameraState then
+        XCFeatureState.savedCameraState = {
+            CameraType = cam.CameraType,
+            CameraSubject = cam.CameraSubject,
+            CFrame = cam.CFrame,
+            MouseBehavior = UserInputService.MouseBehavior,
+            MouseIconEnabled = UserInputService.MouseIconEnabled,
+        }
+    end
+
+    XCFeatureState.cameraMode = mode
+    XCConfig.freecamEnabled = mode == "Freecam"
+    XCConfig.freelookEnabled = mode == "Freelook"
+    XCFeatureState.cameraFrame = cam.CFrame
+    XCFeatureState.cameraPosition = cam.CFrame.Position
+    local pitch, yaw = cam.CFrame:ToOrientation()
+    XCFeatureState.cameraPitch = pitch
+    XCFeatureState.cameraYaw = yaw
+    cam.CameraType = Enum.CameraType.Scriptable
+    if not UserInputService.TouchEnabled then
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+        UserInputService.MouseIconEnabled = false
+    end
+    refreshXCToggle("freecamEnabled")
+    refreshXCToggle("freelookEnabled")
+end
+
+table.insert(connections, UserInputService.InputBegan:Connect(function(input, processed)
+    if input.UserInputType == Enum.UserInputType.Touch and XCFeatureState.cameraMode and not processed then
+        local cam = Workspace.CurrentCamera or camera
+        if cam and input.Position.X >= cam.ViewportSize.X * 0.45 then
+            XCFeatureState.cameraTouch = input
+            XCFeatureState.cameraTouchLast = input.Position
+            XCFeatureState.cameraTouchDelta = Vector2.zero
+        end
+    end
+    if processed then return end
+    local freecamKey = Enum.KeyCode[XCConfig.freecamKey or "F4"]
+    local freelookKey = Enum.KeyCode[XCConfig.freelookKey or "LeftAlt"]
+    local streamerKey = Enum.KeyCode[XCConfig.streamerKey or "F8"]
+    if freecamKey and input.KeyCode == freecamKey then
+        setXCCameraMode("Freecam", not XCConfig.freecamEnabled)
+    elseif freelookKey and input.KeyCode == freelookKey then
+        setXCCameraMode("Freelook", not XCConfig.freelookEnabled)
+    elseif streamerKey and input.KeyCode == streamerKey then
+        setXCStreamerMode(not XCConfig.streamerModeEnabled)
+    end
+end))
+
+table.insert(connections, UserInputService.InputChanged:Connect(function(input)
+    if input == XCFeatureState.cameraTouch and XCFeatureState.cameraTouchLast then
+        local current = input.Position
+        XCFeatureState.cameraTouchDelta = XCFeatureState.cameraTouchDelta + (Vector2.new(current.X - XCFeatureState.cameraTouchLast.X, current.Y - XCFeatureState.cameraTouchLast.Y))
+        XCFeatureState.cameraTouchLast = current
+    end
+end))
+
+table.insert(connections, UserInputService.InputEnded:Connect(function(input)
+    if input == XCFeatureState.cameraTouch then
+        XCFeatureState.cameraTouch = nil
+        XCFeatureState.cameraTouchLast = nil
+        XCFeatureState.cameraTouchDelta = Vector2.zero
+    end
+end))
+
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    if XCConfig.weatherEnabled then
+        XCFeatureState.weatherUpdateAccumulator = XCFeatureState.weatherUpdateAccumulator + (dt)
+        if XCFeatureState.weatherUpdateAccumulator >= 0.1 then
+            XCFeatureState.weatherUpdateAccumulator = 0
+            applyXCWeather()
+            local cam = Workspace.CurrentCamera or camera
+            if XCFeatureState.weatherRig and cam then
+                XCFeatureState.weatherRig.CFrame = CFrame.new(cam.CFrame.Position + Vector3.new(0, 30, 0))
+            end
+        end
+    elseif XCFeatureState.weatherRig or XCFeatureState.weatherAtmosphere then
+        destroyXCWeather()
+    end
+
+    if not XCFeatureState.cameraMode then return end
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return end
+    if (XCFeatureState.cameraMode == "Freecam" and not XCConfig.freecamEnabled)
+        or (XCFeatureState.cameraMode == "Freelook" and not XCConfig.freelookEnabled) then
+        stopXCCameraMode()
+        return
+    end
+
+    cam.CameraType = Enum.CameraType.Scriptable
+    local delta = UserInputService:GetMouseDelta() + XCFeatureState.cameraTouchDelta * 0.55
+    XCFeatureState.cameraTouchDelta = Vector2.zero
+    local sensitivity = XCFeatureState.cameraMode == "Freecam"
+        and (tonumber(XCConfig.freecamSensitivity) or 0.18)
+        or (tonumber(XCConfig.freelookSensitivity) or 0.16)
+    XCFeatureState.cameraYaw = XCFeatureState.cameraYaw - (math.rad(delta.X * sensitivity))
+    XCFeatureState.cameraPitch = math.clamp(XCFeatureState.cameraPitch - math.rad(delta.Y * sensitivity), math.rad(-85), math.rad(85))
+    local rotation = CFrame.Angles(0, XCFeatureState.cameraYaw, 0) * CFrame.Angles(XCFeatureState.cameraPitch, 0, 0)
+
+    if XCFeatureState.cameraMode == "Freecam" then
+        local movement = Vector3.zero
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then movement = movement + (Vector3.new(0, 0, -1)) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then movement = movement + (Vector3.new(0, 0, 1)) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then movement = movement + (Vector3.new(-1, 0, 0)) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then movement = movement + (Vector3.new(1, 0, 0)) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) or UserInputService:IsKeyDown(Enum.KeyCode.E) then movement = movement + (Vector3.new(0, 1, 0)) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Q) or UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then movement = movement + (Vector3.new(0, -1, 0)) end
+        local speed = math.max(5, tonumber(XCConfig.freecamSpeed) or 55)
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then speed = speed * (2.5) end
+        if movement.Magnitude > 0 then
+            XCFeatureState.cameraPosition = XCFeatureState.cameraPosition + (rotation:VectorToWorldSpace(movement.Unit) * speed * dt)
+        end
+        if UserInputService.TouchEnabled then
+            local character = player and player.Character
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid.MoveDirection.Magnitude > 0.05 then
+                XCFeatureState.cameraPosition = XCFeatureState.cameraPosition + (humanoid.MoveDirection.Unit * speed * dt)
+            end
+        end
+    end
+
+    XCFeatureState.cameraFrame = CFrame.new(XCFeatureState.cameraPosition) * rotation
+    cam.CFrame = XCFeatureState.cameraFrame
+end))
+--// CLEANUP ROUTINES
+function cleanup()
+    XCConfig.silentAimEnabled = false
+    setXCSilentAimRequested(false)
+    pcall(restoreXCKnifeModel)
+    setXCStreamerMode(false)
+    stopXCCameraMode()
+    destroyXCWeather()
+    pcall(function() setThirdPersonEnabled(false) end)
+    if player.Character then
+        local hum = player.Character:FindFirstChildOfClass("Humanoid")
+        if hum and savedAutoRotate ~= nil then
+            hum.AutoRotate = savedAutoRotate
+        end
+    end
+    savedAutoRotate = nil
+    hitmarkerSerial = hitmarkerSerial + (1)
+    for healthKey, pending in pairs(hitmarkerPendingHits) do
+        pcall(XCClearPendingLocalHit, healthKey, pending)
+    end
+    hitmarkerPendingHits = {}
+    pcall(function() setNoFallDamage(false) end)
+    pcall(restoreXCGloves)
+    pcall(function() updateXCAntiFlashState(false) end)
+    restoreXCCharacterInputHook()
+
+    for _, c in pairs(connections) do 
+        pcall(function() c:Disconnect() end) 
+    end
+    if antiAfkConnection then
+        pcall(function() antiAfkConnection:Disconnect() end)
+        antiAfkConnection = nil
+    end
+    for _, holder in pairs(activeEspHolders) do
+        pcall(function() holder.Holder:Destroy() end)
+    end
+    for _, esp in pairs(screenEspCache) do
+        pcall(function()
+            esp.Box:Destroy()
+            esp.BoxOutline:Destroy()
+            esp.TagCard:Destroy()
+            esp.HealthBarBg:Destroy()
+            esp.WeaponCard:Destroy()
+            for _, corner in pairs(esp.Corners) do
+                corner.H:Destroy()
+                corner.V:Destroy()
+            end
+            for _, line in ipairs(esp.SkeletonLines or {}) do line:Destroy() end
+        end)
+    end
+    for _, gUi in pairs(grenadePool) do
+        pcall(function() destroyXCGrenadeUI(gUi) end)
+    end
+    for _, danger in pairs(grenadeDangerPool) do
+        pcall(function() destroyXCGrenadeDanger(danger) end)
+    end
+    pcall(disconnectXCSoundPositionEsp)
+    pcall(function()
+        for _, sound in ipairs(SoundService:GetChildren()) do
+            if sound:IsA("Sound") and sound.Name == "XCHitSound" then
+                pcall(function() sound:Stop() end)
+                sound:Destroy()
+            end
+        end
+    end)
+    clearActiveJumpCircle()
+    pcall(function() jumpCircleFolder:Destroy() end)
+    pcall(function() hitmarkerGui:Destroy() end)
+    
+    pcall(function()
+        if bulletTrail then bulletTrail:Destroy() end
+        if bulletFlash then bulletFlash:Destroy() end
+    end)
+    
+    if genv then genv.XCShowHitmarker = nil end
+    if mobileSlideBtn then
+        pcall(function() mobileSlideBtn:Destroy() end)
+        mobileSlideBtn = nil
+    end
+    isSliding = false
+    currentSlideVel = Vector3.zero
+    for _, conn in ipairs(mobileJumpConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    mobileJumpConnections = {}
+    mobileJumpHookedButton = nil
+    activeEspHolders = {}
+    screenEspCache = {}
+    grenadePool = {}
+    grenadeDangerPool = setmetatable({}, {__mode = "k"})
+    grenadeDangerScanStarted = false
+    soundEspTracked = setmetatable({}, {__mode = "k"})
+    soundEspPulses = {}
+    pcall(function() restoreXCMapStyle(true) end)
+    
+    restoreLightingState()
+    restoreXCSmoke()
+    if genv and type(genv.XCRestoreWeaponState) == "function" then
+        pcall(genv.XCRestoreWeaponState)
+        genv.XCRestoreWeaponState = nil
+    end
+    if sharedXCEnv then
+        sharedXCEnv.XCSilentAimRequestedV25 = false
+        sharedXCEnv.XCBulletInterceptContextV29 = nil
+    end
+
+    pcall(function() if targetGui:FindFirstChild("XCScreenGui") then targetGui.XCScreenGui:Destroy() end end)
+    pcall(function() if targetGui:FindFirstChild("XCToggleGui") then targetGui.XCToggleGui:Destroy() end end)
+    pcall(function() if targetGui:FindFirstChild("XCFovGui") then targetGui.XCFovGui:Destroy() end end)
+    pcall(function() if targetGui:FindFirstChild("XCWatermarkGui") then targetGui.XCWatermarkGui:Destroy() end end)
+    pcall(function() if targetGui:FindFirstChild("XCNotificationsGui") then targetGui.XCNotificationsGui:Destroy() end end)
+    pcall(function() if targetGui:FindFirstChild("XCFallbackGui") then targetGui.XCFallbackGui:Destroy() end end)
+    pcall(function() if spectatorGui then spectatorGui:Destroy() end end)
+    stopXCAnimation()
+    pcall(function() if targetGui:FindFirstChild("XCMainContainer") then targetGui.XCMainContainer:Destroy() end end)
+end
+
+if genv then
+    genv.XCRunning = cleanup
+end
+
+function bindTouch(btn, callback)
+    btn.Activated:Connect(callback)
+end
+--// HUD & WATEMARK
+local fovGui = Instance.new("ScreenGui")
+fovGui.Name = "XCFovGui"
+fovGui.ResetOnSpawn = false
+fovGui.DisplayOrder = 9
+fovGui.IgnoreGuiInset = true
+fovGui.Parent = targetGui
+
+local fovFrame = Instance.new("Frame", fovGui)
+fovFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+fovFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+fovFrame.BackgroundTransparency = 1
+fovFrame.BorderSizePixel = 0
+fovFrame.Visible = false
+local fovStroke = Instance.new("UIStroke", fovFrame)
+fovStroke.Color = currentTheme.Accent
+fovStroke.Thickness = 0.8
+local fovCorner = Instance.new("UICorner", fovFrame)
+fovCorner.CornerRadius = UDim.new(1, 0)
+
+local silentFovFrame = Instance.new("Frame", fovGui)
+silentFovFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+silentFovFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+silentFovFrame.BackgroundTransparency = 1
+silentFovFrame.BorderSizePixel = 0
+silentFovFrame.Visible = false
+local silentFovStroke = Instance.new("UIStroke", silentFovFrame)
+silentFovStroke.Color = Color3.fromRGB(0, 230, 255)
+silentFovStroke.Thickness = 0.8
+local silentFovCorner = Instance.new("UICorner", silentFovFrame)
+silentFovCorner.CornerRadius = UDim.new(1, 0)
+
+local watermarkGui = Instance.new("ScreenGui")
+watermarkGui.Name = "XCWatermarkGui"
+watermarkGui.ResetOnSpawn = false
+watermarkGui.DisplayOrder = 20
+watermarkGui.IgnoreGuiInset = true
+watermarkGui.Parent = targetGui
+
+local wmCard = Instance.new("Frame", watermarkGui)
+wmCard.Position = UDim2.new(0, 14, 0, 14)
+wmCard.Size = UDim2.new(0, 0, 0, 22)
+wmCard.AutomaticSize = Enum.AutomaticSize.X
+wmCard.BackgroundColor3 = currentTheme.Background
+wmCard.BorderSizePixel = 0
+Instance.new("UICorner", wmCard).CornerRadius = UDim.new(0, 5)
+
+local wmStroke = Instance.new("UIStroke", wmCard)
+wmStroke.Color = currentTheme.Border
+wmStroke.Thickness = 1.0
+
+local wmPad = Instance.new("UIPadding", wmCard)
+wmPad.PaddingLeft = UDim.new(0, 8)
+wmPad.PaddingRight = UDim.new(0, 8)
+
+local wmLayout = Instance.new("UIListLayout", wmCard)
+wmLayout.FillDirection = Enum.FillDirection.Horizontal
+wmLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+wmLayout.Padding = UDim.new(0, 5)
+
+local wmDot = Instance.new("Frame", wmCard)
+wmDot.Size = UDim2.new(0, 5, 0, 5)
+wmDot.BackgroundColor3 = currentTheme.Accent
+wmDot.BorderSizePixel = 0
+Instance.new("UICorner", wmDot).CornerRadius = UDim.new(1, 0)
+
+local wmTitle = Instance.new("TextLabel", wmCard)
+wmTitle.AutomaticSize = Enum.AutomaticSize.X
+wmTitle.Size = UDim2.new(0, 0, 1, 0)
+wmTitle.BackgroundTransparency = 1
+wmTitle.Text = "XC"
+wmTitle.TextColor3 = currentTheme.Accent
+wmTitle.TextSize = 9
+wmTitle.Font = Enum.Font.GothamBold
+
+local wmDivider = Instance.new("Frame", wmCard)
+wmDivider.Size = UDim2.new(0, 1, 0, 10)
+wmDivider.BackgroundColor3 = currentTheme.Border
+wmDivider.BorderSizePixel = 0
+
+local wmMetrics = Instance.new("TextLabel", wmCard)
+wmMetrics.AutomaticSize = Enum.AutomaticSize.X
+wmMetrics.Size = UDim2.new(0, 0, 1, 0)
+wmMetrics.BackgroundTransparency = 1
+wmMetrics.Text = "FPS: 60 | PING: 0ms"
+wmMetrics.TextColor3 = currentTheme.TextSecondary
+wmMetrics.TextSize = 8.5
+wmMetrics.Font = Enum.Font.GothamBold
+
+local fpsCounter = 0
+local lastFpsUpdate = tick()
+--// GRENADE TRAJECTORY ENGINE
+local grenadeRayParams = RaycastParams.new()
+grenadeRayParams.FilterType = Enum.RaycastFilterType.Exclude
+grenadeRayParams.IgnoreWater = true
+
+function isEntityCharacter(inst)
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p.Character and inst:IsDescendantOf(p.Character) then
+            return true
+        end
+    end
+    return false
+end
+
+local function setXCGrenadeLine(line, a, b, color, thickness, transparency)
+    if not a or not b then line.Visible = false return end
+    local delta = b - a
+    if delta.Magnitude < 0.5 then line.Visible = false return end
+    line.Size = UDim2.fromOffset(delta.Magnitude + 1, thickness)
+    line.Position = UDim2.fromOffset((a.X + b.X) * 0.5, (a.Y + b.Y) * 0.5)
+    line.Rotation = math.deg(math.atan2(delta.Y, delta.X))
+    line.BackgroundColor3 = color
+    line.BackgroundTransparency = transparency
+    line.Visible = true
+end
+
+function getOrCreateGrenadeUI(nadeInstance)
+    if grenadePool[nadeInstance] then return grenadePool[nadeInstance] end
+
+    local tag = Instance.new("Frame", grenadeContainer)
+    tag.Size = UDim2.new(0, 0, 0, 20)
+    tag.AutomaticSize = Enum.AutomaticSize.X
+    tag.AnchorPoint = Vector2.new(0.5, 1)
+    tag.BackgroundColor3 = Color3.fromRGB(8, 10, 12)
+    tag.BackgroundTransparency = 0.12
+    tag.BorderSizePixel = 0
+    tag.Visible = false
+    tag.ZIndex = 12
+    Instance.new("UICorner", tag).CornerRadius = UDim.new(0, 4)
+    local tagStroke = Instance.new("UIStroke", tag)
+    tagStroke.Thickness = 1
+    tagStroke.Transparency = 0.22
+
+    local pad = Instance.new("UIPadding", tag)
+    pad.PaddingLeft = UDim.new(0, 9)
+    pad.PaddingRight = UDim.new(0, 7)
+
+    local accent = Instance.new("Frame", tag)
+    accent.Name = "Accent"
+    accent.AnchorPoint = Vector2.new(0, 0.5)
+    accent.Position = UDim2.new(0, -7, 0.5, 0)
+    accent.Size = UDim2.fromOffset(2, 12)
+    accent.BorderSizePixel = 0
+    accent.ZIndex = 13
+    Instance.new("UICorner", accent).CornerRadius = UDim.new(1, 0)
+
+    local lbl = Instance.new("TextLabel", tag)
+    lbl.AutomaticSize = Enum.AutomaticSize.X
+    lbl.Size = UDim2.new(0, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.TextSize = 9.5
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lbl.ZIndex = 13
+
+    local radiusCircle = Instance.new("Frame", grenadeContainer)
+    radiusCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+    radiusCircle.BackgroundTransparency = 1
+    radiusCircle.BorderSizePixel = 0
+    radiusCircle.Visible = false
+    Instance.new("UICorner", radiusCircle).CornerRadius = UDim.new(1, 0)
+    local radStroke = Instance.new("UIStroke", radiusCircle)
+    radStroke.Thickness = 1.5
+
+    local landingGlow = Instance.new("Frame", grenadeContainer)
+    landingGlow.Name = "GrenadeLandingGlow"
+    landingGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+    landingGlow.Size = UDim2.fromOffset(15, 15)
+    landingGlow.BorderSizePixel = 0
+    landingGlow.Rotation = 45
+    landingGlow.BackgroundTransparency = 0.72
+    landingGlow.Visible = false
+    landingGlow.ZIndex = 9
+    Instance.new("UICorner", landingGlow).CornerRadius = UDim.new(0, 3)
+
+    local landing = Instance.new("Frame", grenadeContainer)
+    landing.Name = "GrenadeLanding"
+    landing.AnchorPoint = Vector2.new(0.5, 0.5)
+    landing.Size = UDim2.fromOffset(8, 8)
+    landing.BorderSizePixel = 0
+    landing.Rotation = 45
+    landing.Visible = false
+    landing.ZIndex = 11
+    Instance.new("UICorner", landing).CornerRadius = UDim.new(0, 2)
+    local landingStroke = Instance.new("UIStroke", landing)
+    landingStroke.Color = Color3.fromRGB(5, 6, 7)
+    landingStroke.Thickness = 1
+
+    local data = {
+        Tag = tag,
+        TagStroke = tagStroke,
+        Accent = accent,
+        Label = lbl,
+        RadiusCircle = radiusCircle,
+        RadiusStroke = radStroke,
+        Landing = landing,
+        LandingGlow = landingGlow,
+        Lines = {},
+        RadiusLines = {},
+        PathWorld = {},
+        LandingWorld = nil,
+        RadiusCenter = nil,
+        NextTrajectory = 0,
+        NextRadius = 0,
+    }
+
+    for j = 1, 18 do
+        local glow = Instance.new("Frame", grenadeContainer)
+        glow.Name = "TrajectoryGlow_" .. j
+        glow.BorderSizePixel = 0
+        glow.AnchorPoint = Vector2.new(0.5, 0.5)
+        glow.Visible = false
+        glow.ZIndex = 8
+        local core = Instance.new("Frame", grenadeContainer)
+        core.Name = "TrajectoryCore_" .. j
+        core.BorderSizePixel = 0
+        core.AnchorPoint = Vector2.new(0.5, 0.5)
+        core.Visible = false
+        core.ZIndex = 10
+        table.insert(data.Lines, {Glow = glow, Core = core})
+    end
+
+    for j = 1, 24 do
+        local seg = Instance.new("Frame", grenadeContainer)
+        seg.Name = "GrenadeRadius_" .. j
+        seg.BorderSizePixel = 0
+        seg.AnchorPoint = Vector2.new(0.5, 0.5)
+        seg.Visible = false
+        seg.ZIndex = 7
+        table.insert(data.RadiusLines, seg)
+    end
+
+    grenadePool[nadeInstance] = data
+    return data
+end
+
+function hideXCGrenadeUI(ui)
+    ui.Tag.Visible = false
+    ui.RadiusCircle.Visible = false
+    ui.Landing.Visible = false
+    ui.LandingGlow.Visible = false
+    for _, line in ipairs(ui.Lines) do
+        line.Glow.Visible = false
+        line.Core.Visible = false
+    end
+    for _, line in ipairs(ui.RadiusLines) do line.Visible = false end
+end
+
+function destroyXCGrenadeUI(ui)
+    hideXCGrenadeUI(ui)
+    ui.Tag:Destroy()
+    ui.RadiusCircle:Destroy()
+    ui.Landing:Destroy()
+    ui.LandingGlow:Destroy()
+    for _, line in ipairs(ui.Lines) do
+        line.Glow:Destroy()
+        line.Core:Destroy()
+    end
+    for _, line in ipairs(ui.RadiusLines) do line:Destroy() end
+end
+
+function renderGrenadeOverlays()
+    if not XCConfig.grenadeEspEnabled then
+        for _, ui in pairs(grenadePool) do hideXCGrenadeUI(ui) end
+        return
+    end
+
+    local now = os.clock()
+    local camPos = camera.CFrame.Position
+    local activeGrenades = {}
+
+    for _, item in ipairs(Workspace:GetChildren()) do
+        if not isEntityCharacter(item) then
+            local nName = item.Name:lower()
+            local nadeType, nadeColor, effectRadiusStuds
+
+            -- Specific types must be checked before generic "grenade" names.
+            if nName:find("molotov", 1, true) or nName:find("incendiary", 1, true)
+                or nName:find("fire", 1, true) then
+                nadeType, nadeColor, effectRadiusStuds = "MOLOTOV", currentTheme.MolotovColor, 17
+            elseif nName:find("smoke", 1, true) then
+                nadeType, nadeColor, effectRadiusStuds = "SMOKE", currentTheme.SmokeColor, 20
+            elseif nName:find("flash", 1, true) then
+                nadeType, nadeColor, effectRadiusStuds = "FLASH", Color3.fromRGB(245, 235, 120), 10
+            elseif nName:find("hegrenade", 1, true) or nName:find("frag", 1, true)
+                or nName:find("grenade", 1, true) then
+                nadeType, nadeColor, effectRadiusStuds = "HE", currentTheme.HEColor, 15
+            end
+
+            if nadeType then
+                local part = item:IsA("BasePart") and item or item:FindFirstChildWhichIsA("BasePart", true)
+                if part and part.Parent and part:IsDescendantOf(Workspace) then
+                    local dist = (part.Position - camPos).Magnitude
+                    if dist <= XCConfig.grenadeMaxDist then
+                        activeGrenades[item] = true
+                        local ui = getOrCreateGrenadeUI(item)
+                        local screen, onScreen = camera:WorldToViewportPoint(part.Position)
+                        ui.Accent.BackgroundColor3 = nadeColor
+                        ui.TagStroke.Color = nadeColor
+                        ui.Label.TextColor3 = nadeColor
+                        ui.Label.Text = string.format("%s  ·  %dm", nadeType, math.floor(dist + 0.5))
+                        ui.Tag.Position = UDim2.fromOffset(screen.X, screen.Y - 9)
+                        ui.Tag.Visible = onScreen and screen.Z > 0
+                        ui.RadiusCircle.Visible = false
+
+                        grenadeRayParams.FilterDescendantsInstances = {player.Character, item, camera}
+                        local velocity = part.AssemblyLinearVelocity or Vector3.zero
+                        local pathEnabled = XCConfig.showGrenadePath and velocity.Magnitude > 2
+                        if pathEnabled and now >= ui.NextTrajectory then
+                            ui.NextTrajectory = now + (1 / 30)
+                            table.clear(ui.PathWorld)
+                            local simPosition = part.Position
+                            local gravity = Vector3.new(0, -Workspace.Gravity, 0)
+                            local stepTime = 0.075
+                            local bounces = 0
+                            ui.PathWorld[1] = simPosition
+                            ui.LandingWorld = simPosition
+                            for _ = 1, #ui.Lines do
+                                local nextPosition = simPosition + velocity * stepTime
+                                    + gravity * (0.5 * stepTime * stepTime)
+                                local nextVelocity = velocity + gravity * stepTime
+                                local hit = Workspace:Raycast(simPosition, nextPosition - simPosition, grenadeRayParams)
+                                if hit then nextPosition = hit.Position end
+                                ui.PathWorld[#ui.PathWorld + 1] = nextPosition
+                                ui.LandingWorld = nextPosition
+                                if hit then
+                                    bounces = bounces + (1)
+                                    local reflected = nextVelocity - 2 * nextVelocity:Dot(hit.Normal) * hit.Normal
+                                    velocity = reflected * (hit.Normal.Y > 0.45 and 0.43 or 0.52)
+                                    simPosition = hit.Position + hit.Normal * 0.06
+                                    if bounces >= 3 or velocity.Magnitude < 8 then break end
+                                else
+                                    simPosition = nextPosition
+                                    velocity = nextVelocity
+                                end
+                            end
+                        elseif not pathEnabled then
+                            table.clear(ui.PathWorld)
+                            ui.LandingWorld = nil
+                        end
+
+                        for step, line in ipairs(ui.Lines) do
+                            local worldA, worldB = ui.PathWorld[step], ui.PathWorld[step + 1]
+                            if worldA and worldB then
+                                local p1, visible1 = camera:WorldToViewportPoint(worldA)
+                                local p2, visible2 = camera:WorldToViewportPoint(worldB)
+                                if visible1 and visible2 and p1.Z > 0 and p2.Z > 0 then
+                                    local a = Vector2.new(p1.X, p1.Y)
+                                    local b = Vector2.new(p2.X, p2.Y)
+                                    local progress = step / #ui.Lines
+                                    setXCGrenadeLine(line.Glow, a, b, nadeColor, 4.5, 0.72 + progress * 0.18)
+                                    setXCGrenadeLine(line.Core, a, b, nadeColor, 1.55, 0.05 + progress * 0.45)
+                                else
+                                    line.Glow.Visible = false
+                                    line.Core.Visible = false
+                                end
+                            else
+                                line.Glow.Visible = false
+                                line.Core.Visible = false
+                            end
+                        end
+
+                        if pathEnabled and ui.LandingWorld then
+                            local landingScreen, landingVisible = camera:WorldToViewportPoint(ui.LandingWorld)
+                            local showLanding = landingVisible and landingScreen.Z > 0
+                            local pulse = 0.65 + math.sin(now * 6) * 0.15
+                            ui.Landing.Position = UDim2.fromOffset(landingScreen.X, landingScreen.Y)
+                            ui.Landing.BackgroundColor3 = nadeColor
+                            ui.Landing.Visible = showLanding
+                            ui.LandingGlow.Position = ui.Landing.Position
+                            ui.LandingGlow.BackgroundColor3 = nadeColor
+                            ui.LandingGlow.BackgroundTransparency = pulse
+                            ui.LandingGlow.Visible = showLanding
+                        else
+                            ui.Landing.Visible = false
+                            ui.LandingGlow.Visible = false
+                            for _, line in ipairs(ui.Lines) do
+                                line.Glow.Visible = false
+                                line.Core.Visible = false
+                            end
+                        end
+
+                        local shouldShowRadius = (nadeType == "MOLOTOV" and XCConfig.showMolotovRadius)
+                            or (nadeType == "SMOKE" and XCConfig.showSmokeRadius)
+                        if shouldShowRadius then
+                            if now >= ui.NextRadius or not ui.RadiusCenter then
+                                ui.NextRadius = now + 0.08
+                                local groundCast = Workspace:Raycast(part.Position + Vector3.new(0, 1, 0),
+                                    Vector3.new(0, -60, 0), grenadeRayParams)
+                                ui.RadiusCenter = groundCast and groundCast.Position or part.Position
+                            end
+                            local groundPosition = ui.RadiusCenter
+                            local points = table.create(#ui.RadiusLines)
+                            for index = 1, #ui.RadiusLines do
+                                local angle = math.pi * 2 * ((index - 1) / #ui.RadiusLines)
+                                local worldPoint = groundPosition + Vector3.new(
+                                    math.cos(angle) * effectRadiusStuds, 0.16,
+                                    math.sin(angle) * effectRadiusStuds
+                                )
+                                local point, visible = camera:WorldToViewportPoint(worldPoint)
+                                points[index] = visible and point.Z > 0 and Vector2.new(point.X, point.Y) or nil
+                            end
+                            for index, line in ipairs(ui.RadiusLines) do
+                                local a = points[index]
+                                local b = points[index == #ui.RadiusLines and 1 or index + 1]
+                                local alternating = index % 2 == 0
+                                setXCGrenadeLine(line, a, b, nadeColor, alternating and 1.8 or 1.2,
+                                    alternating and 0.2 or 0.48)
+                            end
+                        else
+                            for _, line in ipairs(ui.RadiusLines) do line.Visible = false end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    for instance, ui in pairs(grenadePool) do
+        if not activeGrenades[instance] or not instance.Parent then
+            destroyXCGrenadeUI(ui)
+            grenadePool[instance] = nil
+        end
+    end
+end
+--// GRENADE DANGER ZONES
+function classifyXCGrenadeDanger(object)
+    if not object or not object.Parent or isEntityCharacter(object) then return nil end
+    local name = object.Name:lower()
+    local grenadeAttribute = object:GetAttribute("GrenadeName")
+    if type(grenadeAttribute) == "string" then name = name .. (" " .. grenadeAttribute:lower()) end
+    if name:find("smokezone", 1, true) or name:find("smoke_zone", 1, true)
+        or name:find("voxelsmoke", 1, true) or name:find("smokearea", 1, true)
+        or name:find("gaszone", 1, true) then
+        return "SMOKE", currentTheme.SmokeColor, 20, true
+    end
+    if name:find("firezone", 1, true) or name:find("fire_zone", 1, true)
+        or name:find("voxelfire", 1, true) or name:find("molotov", 1, true)
+        or name:find("incendiary", 1, true) or name:find("ignite", 1, true)
+        or name:find("flamezone", 1, true) or name:find("burnzone", 1, true) then
+        return "FIRE", currentTheme.MolotovColor, 17, name:find("zone", 1, true) ~= nil or name:find("voxel", 1, true) ~= nil
+    end
+    if name:find("flashbang", 1, true) or name:find("flash_grenade", 1, true) or name:find("flash grenade", 1, true) then
+        return "FLASH", Color3.fromRGB(245, 235, 120), 10, false
+    end
+    if name:find("smokegrenade", 1, true) or name:find("smoke_grenade", 1, true) or name:find("smoke grenade", 1, true) then
+        return "SMOKE", currentTheme.SmokeColor, 20, false
+    end
+    if name:find("hegrenade", 1, true) or name:find("he_grenade", 1, true) or name:find("he grenade", 1, true)
+        or name:find("frag", 1, true) or name == "grenade" or name:find("grenadeprojectile", 1, true) then
+        return "HE", currentTheme.HEColor, 15, false
+    end
+    return nil
+end
+
+function getXCDangerPart(object)
+    if object:IsA("BasePart") then return object end
+    if object:IsA("Model") and object.PrimaryPart then return object.PrimaryPart end
+    return object:FindFirstChildWhichIsA("BasePart", true)
+end
+
+function createXCGrenadeDanger(object)
+    if grenadeDangerPool[object] then return grenadeDangerPool[object] end
+    local kind, color, radius, isZone = classifyXCGrenadeDanger(object)
+    if not kind then return nil end
+
+    local data = {
+        Object = object,
+        Kind = kind,
+        Color = color,
+        Radius = radius,
+        IsZone = isZone,
+        Center = nil,
+        NextPhysics = 0,
+        Segments = {},
+        InnerSegments = {},
+        Spokes = {},
+        Ticks = {},
+    }
+    for index = 1, 28 do
+        local line = Instance.new("Frame", grenadeContainer)
+        line.Name = "DangerOuter_" .. kind .. "_" .. index
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.BorderSizePixel = 0
+        line.BackgroundColor3 = color
+        line.Visible = false
+        line.ZIndex = 5
+        data.Segments[index] = line
+    end
+    for index = 1, 16 do
+        local line = Instance.new("Frame", grenadeContainer)
+        line.Name = "DangerInner_" .. kind .. "_" .. index
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.BorderSizePixel = 0
+        line.BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.22)
+        line.Visible = false
+        line.ZIndex = 4
+        data.InnerSegments[index] = line
+    end
+    for index = 1, 6 do
+        local line = Instance.new("Frame", grenadeContainer)
+        line.Name = "DangerSpoke_" .. kind .. "_" .. index
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.BorderSizePixel = 0
+        line.BackgroundColor3 = color
+        line.Visible = false
+        line.ZIndex = 3
+        data.Spokes[index] = line
+    end
+    for index = 1, 8 do
+        local line = Instance.new("Frame", grenadeContainer)
+        line.Name = "DangerTick_" .. kind .. "_" .. index
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.BorderSizePixel = 0
+        line.BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.35)
+        line.Visible = false
+        line.ZIndex = 6
+        data.Ticks[index] = line
+    end
+
+    local label = Instance.new("TextLabel", grenadeContainer)
+    label.Name = "DangerLabel_" .. kind
+    label.AnchorPoint = Vector2.new(0.5, 1)
+    label.Size = UDim2.fromOffset(112, 22)
+    label.BackgroundColor3 = Color3.fromRGB(8, 10, 12)
+    label.BackgroundTransparency = 0.14
+    label.BorderSizePixel = 0
+    label.Text = "[ " .. kind .. " ]"
+    label.TextColor3 = color
+    label.TextSize = 10
+    label.Font = Enum.Font.GothamBold
+    label.Visible = false
+    label.ZIndex = 7
+    Instance.new("UICorner", label).CornerRadius = UDim.new(0, 5)
+    local labelStroke = Instance.new("UIStroke", label)
+    labelStroke.Color = color
+    labelStroke.Thickness = 1
+    labelStroke.Transparency = 0.22
+    local centerGlow = Instance.new("Frame", grenadeContainer)
+    centerGlow.Name = "DangerCenterGlow_" .. kind
+    centerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+    centerGlow.Size = UDim2.fromOffset(22, 22)
+    centerGlow.BackgroundColor3 = color
+    centerGlow.BackgroundTransparency = 0.82
+    centerGlow.BorderSizePixel = 0
+    centerGlow.Rotation = 45
+    centerGlow.Visible = false
+    centerGlow.ZIndex = 2
+    Instance.new("UICorner", centerGlow).CornerRadius = UDim.new(0, 5)
+    local pulseRing = Instance.new("Frame", grenadeContainer)
+    pulseRing.Name = "DangerPulse_" .. kind
+    pulseRing.AnchorPoint = Vector2.new(0.5, 0.5)
+    pulseRing.Size = UDim2.fromOffset(28, 28)
+    pulseRing.BackgroundTransparency = 1
+    pulseRing.Visible = false
+    pulseRing.ZIndex = 2
+    local pulseStroke = Instance.new("UIStroke", pulseRing)
+    pulseStroke.Color = color
+    pulseStroke.Thickness = 1.25
+    pulseStroke.Transparency = 0.55
+    Instance.new("UICorner", pulseRing).CornerRadius = UDim.new(1, 0)
+    local centerDot = Instance.new("Frame", grenadeContainer)
+    centerDot.Name = "DangerCenter_" .. kind
+    centerDot.AnchorPoint = Vector2.new(0.5, 0.5)
+    centerDot.Size = UDim2.fromOffset(7, 7)
+    centerDot.BackgroundColor3 = color
+    centerDot.BorderSizePixel = 0
+    centerDot.Rotation = 45
+    centerDot.Visible = false
+    centerDot.ZIndex = 8
+    Instance.new("UICorner", centerDot).CornerRadius = UDim.new(0, 2)
+    data.Label = label
+    data.LabelStroke = labelStroke
+    data.CenterGlow = centerGlow
+    data.CenterDot = centerDot
+    data.PulseRing = pulseRing
+    data.PulseStroke = pulseStroke
+    grenadeDangerPool[object] = data
+    return data
+end
+
+function destroyXCGrenadeDanger(data)
+    if not data then return end
+    for _, collection in ipairs({data.Segments or {}, data.InnerSegments or {}, data.Spokes or {}, data.Ticks or {}}) do
+        for _, line in ipairs(collection) do pcall(function() line:Destroy() end) end
+    end
+    pcall(function() data.Label:Destroy() end)
+    pcall(function() data.CenterGlow:Destroy() end)
+    pcall(function() data.CenterDot:Destroy() end)
+    pcall(function() data.PulseRing:Destroy() end)
+end
+
+function hideXCGrenadeDanger(data)
+    for _, collection in ipairs({data.Segments or {}, data.InnerSegments or {}, data.Spokes or {}, data.Ticks or {}}) do
+        for _, line in ipairs(collection) do line.Visible = false end
+    end
+    data.Label.Visible = false
+    data.CenterGlow.Visible = false
+    data.CenterDot.Visible = false
+    if data.PulseRing then data.PulseRing.Visible = false end
+end
+
+function computeXCZoneBounds(object, fallbackPart, fallbackRadius)
+    local sumX, sumZ, minY, count = 0, 0, math.huge, 0
+    local parts = {}
+    if object:IsA("BasePart") then table.insert(parts, object) end
+    for _, descendant in ipairs(object:GetDescendants()) do
+        if descendant:IsA("BasePart") then table.insert(parts, descendant) end
+    end
+    for _, part in ipairs(parts) do
+        if part.Transparency < 1 or part.CanQuery then
+            sumX = sumX + (part.Position.X)
+            sumZ = sumZ + (part.Position.Z)
+            minY = math.min(minY, part.Position.Y - part.Size.Y * 0.5)
+            count = count + (1)
+        end
+    end
+    if count == 0 then return fallbackPart.Position, fallbackRadius end
+    local center = Vector3.new(sumX / count, minY, sumZ / count)
+    local radius = 0
+    for _, part in ipairs(parts) do
+        local horizontal = Vector2.new(part.Position.X - center.X, part.Position.Z - center.Z).Magnitude
+        radius = math.max(radius, horizontal + math.max(part.Size.X, part.Size.Z) * 0.5)
+    end
+    return center, math.clamp(radius, 2, fallbackRadius * 1.35)
+end
+
+local XC_DANGER_WHITE = Color3.new(1, 1, 1)
+local XCGrenadeDangerStylePresets = {
+    FIRE = {
+        OuterPulse = 0.022, PulseSpeed = 5.2, InnerScale = 0.72,
+        OuterMajorEvery = 2, OuterGap = 0.055, OuterMajorGap = 0.18,
+        OuterThickness = 1.75, OuterMajorThickness = 2.75,
+        InnerThickness = 1.15, InnerAlphaBias = 0.23,
+        SpokeCount = 6, SpokeThickness = 1.05, SpokeAlphaBias = 0.39,
+        TickCount = 8, TickThickness = 2.45,
+        CenterPulseSpeed = 7.0, CenterPulseSize = 6, RingAlphaBias = 0.13,
+        RotateSpeed = 0.0, LabelPrefix = "FIRE",
+    },
+    SMOKE = {
+        OuterPulse = 0.010, PulseSpeed = 2.3, InnerScale = 0.86,
+        OuterMajorEvery = 4, OuterGap = 0.02, OuterMajorGap = 0.055,
+        OuterThickness = 1.45, OuterMajorThickness = 1.8,
+        InnerThickness = 1.0, InnerAlphaBias = 0.42,
+        SpokeCount = 0, SpokeThickness = 0.8, SpokeAlphaBias = 0.62,
+        TickCount = 4, TickThickness = 1.45,
+        CenterPulseSpeed = 2.8, CenterPulseSize = 3, RingAlphaBias = 0.35,
+        RotateSpeed = 0.0, LabelPrefix = "SMOKE",
+    },
+    FLASH = {
+        OuterPulse = 0.030, PulseSpeed = 7.5, InnerScale = 0.76,
+        OuterMajorEvery = 2, OuterGap = 0.12, OuterMajorGap = 0.24,
+        OuterThickness = 1.6, OuterMajorThickness = 2.35,
+        InnerThickness = 0.95, InnerAlphaBias = 0.34,
+        SpokeCount = 4, SpokeThickness = 0.9, SpokeAlphaBias = 0.48,
+        TickCount = 8, TickThickness = 2.2,
+        CenterPulseSpeed = 9.0, CenterPulseSize = 8, RingAlphaBias = 0.18,
+        RotateSpeed = 0.55, LabelPrefix = "FLASH",
+    },
+    HE = {
+        OuterPulse = 0.018, PulseSpeed = 6.0, InnerScale = 0.70,
+        OuterMajorEvery = 3, OuterGap = 0.085, OuterMajorGap = 0.20,
+        OuterThickness = 1.75, OuterMajorThickness = 2.65,
+        InnerThickness = 1.05, InnerAlphaBias = 0.30,
+        SpokeCount = 4, SpokeThickness = 0.95, SpokeAlphaBias = 0.44,
+        TickCount = 8, TickThickness = 2.35,
+        CenterPulseSpeed = 7.5, CenterPulseSize = 7, RingAlphaBias = 0.18,
+        RotateSpeed = 0.28, LabelPrefix = "HE",
+    },
+}
+
+local function getXCGrenadeDangerStyle(kind)
+    return XCGrenadeDangerStylePresets[tostring(kind or "HE")] or XCGrenadeDangerStylePresets.HE
+end
+
+function updateXCGrenadeDangerPhysics(data, now)
+    if now < data.NextPhysics then return end
+    data.NextPhysics = now + 0.12
+    local object = data.Object
+    local part = getXCDangerPart(object)
+    if not part then data.Center = nil return end
+
+    if data.IsZone then
+        data.Center, data.RenderRadius = computeXCZoneBounds(object, part, data.Radius)
+        return
+    end
+
+    local position = part.Position
+    local velocity = part.AssemblyLinearVelocity
+    grenadeRayParams.FilterDescendantsInstances = {player.Character, object, camera}
+    if velocity.Magnitude > 1.5 then
+        local gravity = Vector3.new(0, -Workspace.Gravity, 0)
+        local stepTime = 0.08
+        for _ = 1, 32 do
+            local nextPosition = position + velocity * stepTime + gravity * (0.5 * stepTime * stepTime)
+            local result = Workspace:Raycast(position, nextPosition - position, grenadeRayParams)
+            if result then
+                position = result.Position
+                if result.Normal.Y > 0.42 then break end
+                velocity = (velocity - 2 * velocity:Dot(result.Normal) * result.Normal) * 0.42
+                position = position + (result.Normal * 0.08)
+            else
+                position = nextPosition
+            end
+            velocity = velocity + (gravity * stepTime)
+        end
+    end
+    local ground = Workspace:Raycast(position + Vector3.new(0, 3, 0), Vector3.new(0, -45, 0), grenadeRayParams)
+    data.Center = ground and ground.Position or position
+    data.RenderRadius = data.Radius
+end
+
+function renderXCGrenadeDangerZones()
+    local now = os.clock()
+    if not XCConfig.grenadeDangerZonesEnabled then
+        grenadeDangerScanStarted = false
+        for object, data in pairs(grenadeDangerPool) do
+            if not object.Parent then destroyXCGrenadeDanger(data) grenadeDangerPool[object] = nil
+            else hideXCGrenadeDanger(data) end
+        end
+        return
+    end
+
+    if not grenadeDangerScanStarted then
+        grenadeDangerScanStarted = true
+        task.spawn(function()
+            local queue, index, visited = {Workspace}, 1, 0
+            while queue[index] and xcSessionActive() and XCConfig.grenadeDangerZonesEnabled do
+                local parent = queue[index]
+                index = index + (1)
+                for _, child in ipairs(parent:GetChildren()) do
+                    if classifyXCGrenadeDanger(child) then createXCGrenadeDanger(child) end
+                    if child:IsA("Folder") or child:IsA("Model") then table.insert(queue, child) end
+                    visited = visited + (1)
+                    if visited % 160 == 0 then task.wait() end
+                end
+            end
+        end)
+    end
+
+    local camPosition = camera.CFrame.Position
+    for object, data in pairs(grenadeDangerPool) do
+        repeat
+        if not object.Parent or isEntityCharacter(object) then
+            destroyXCGrenadeDanger(data)
+            grenadeDangerPool[object] = nil
+        else
+            updateXCGrenadeDangerPhysics(data, now)
+            local center = data.Center
+            if not center or (center - camPosition).Magnitude > XCConfig.grenadeMaxDist then
+                hideXCGrenadeDanger(data)
+                break
+            end
+
+            local opacity = math.clamp(tonumber(XCConfig.grenadeDangerOpacity) or 0.82, 0.1, 1)
+            local style = getXCGrenadeDangerStyle(data.Kind)
+            local pulse = 1 + math.sin(now * style.PulseSpeed) * style.OuterPulse
+            local radius = (data.RenderRadius or data.Radius) * pulse
+            local innerRadius = radius * style.InnerScale
+            local angleOffset = now * style.RotateSpeed
+            local outerPoints = {}
+            local innerPoints = {}
+            for index = 1, #data.Segments do
+                local angle = math.pi * 2 * ((index - 1) / #data.Segments) + angleOffset
+                local worldPoint = center + Vector3.new(math.cos(angle) * radius, 0.18, math.sin(angle) * radius)
+                local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
+                outerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
+            end
+            for index = 1, #data.InnerSegments do
+                local angle = math.pi * 2 * ((index - 1) / #data.InnerSegments) - angleOffset * 0.35
+                local worldPoint = center + Vector3.new(math.cos(angle) * innerRadius, 0.16, math.sin(angle) * innerRadius)
+                local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
+                innerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
+            end
+            for index, line in ipairs(data.Segments) do
+                local a = outerPoints[index]
+                local b = outerPoints[index == #data.Segments and 1 or index + 1]
+                if a and b then
+                    local major = index % style.OuterMajorEvery == 0
+                    local gap = major and style.OuterMajorGap or style.OuterGap
+                    local extraAlpha = major and 0.02 or 0.10
+                    if data.Kind == "SMOKE" then extraAlpha = major and 0.18 or 0.28 end
+                    setXCGrenadeLine(line, a:Lerp(b, gap), b:Lerp(a, gap), data.Color,
+                        major and style.OuterMajorThickness or style.OuterThickness,
+                        math.clamp(1 - opacity + extraAlpha, 0, 0.94))
+                else
+                    line.Visible = false
+                end
+            end
+            for index, line in ipairs(data.InnerSegments or {}) do
+                local a = innerPoints[index]
+                local b = innerPoints[index == #data.InnerSegments and 1 or index + 1]
+                if a and b then
+                    local innerColor = data.Kind == "SMOKE"
+                        and data.Color:Lerp(XC_DANGER_WHITE, 0.10)
+                        or data.Color:Lerp(XC_DANGER_WHITE, 0.24)
+                    setXCGrenadeLine(line, a:Lerp(b, 0.055), b:Lerp(a, 0.055), innerColor,
+                        style.InnerThickness,
+                        math.clamp(1 - opacity + style.InnerAlphaBias, 0.08, 0.96))
+                else
+                    line.Visible = false
+                end
+            end
+            local centerScreen, centerVisible = camera:WorldToViewportPoint(center + Vector3.new(0, 0.35, 0))
+            local center2D = centerVisible and centerScreen.Z > 0 and Vector2.new(centerScreen.X, centerScreen.Y) or nil
+            for index, line in ipairs(data.Spokes or {}) do
+                if index <= style.SpokeCount then
+                    local pointIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, style.SpokeCount))) + 1
+                    local point = innerPoints[pointIndex]
+                    if point and center2D then
+                        setXCGrenadeLine(line, center2D, point, data.Color, style.SpokeThickness,
+                            math.clamp(1 - opacity + style.SpokeAlphaBias, 0.12, 0.97))
+                    else
+                        line.Visible = false
+                    end
+                else
+                    line.Visible = false
+                end
+            end
+            for index, line in ipairs(data.Ticks or {}) do
+                if index <= style.TickCount then
+                    local outerIndex = math.floor((index - 1) * (#data.Segments / math.max(1, style.TickCount))) + 1
+                    local innerIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, style.TickCount))) + 1
+                    local outer = outerPoints[outerIndex]
+                    local inner = innerPoints[innerIndex]
+                    if outer and inner then
+                        local startPoint = inner:Lerp(outer, data.Kind == "SMOKE" and 0.82 or 0.69)
+                        local endPoint = inner:Lerp(outer, data.Kind == "SMOKE" and 0.96 or 0.97)
+                        local tickColor = data.Color:Lerp(XC_DANGER_WHITE, data.Kind == "SMOKE" and 0.18 or 0.40)
+                        setXCGrenadeLine(line, startPoint, endPoint, tickColor, style.TickThickness,
+                            math.clamp(1 - opacity + (data.Kind == "SMOKE" and 0.25 or 0.01), 0, 0.92))
+                    else
+                        line.Visible = false
+                    end
+                else
+                    line.Visible = false
+                end
+            end
+            local distance = math.floor((center - camPosition).Magnitude + 0.5)
+            data.Label.TextColor3 = data.Color
+            data.LabelStroke.Color = data.Color
+            data.Label.Text = string.format("[ %s ]  •  %dm", style.LabelPrefix, distance)
+            data.Label.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y - (data.Kind == "FIRE" and 8 or 6))
+            data.Label.Visible = centerVisible and centerScreen.Z > 0
+            data.CenterDot.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y)
+            data.CenterDot.BackgroundColor3 = data.Color
+            data.CenterDot.Visible = centerVisible and centerScreen.Z > 0
+            data.CenterGlow.Position = data.CenterDot.Position
+            data.CenterGlow.BackgroundColor3 = data.Color
+            local glowBase = data.Kind == "SMOKE" and 0.88 or 0.76
+            local glowSwing = data.Kind == "SMOKE" and 0.035 or 0.08
+            data.CenterGlow.BackgroundTransparency = math.clamp(glowBase + math.sin(now * style.CenterPulseSpeed) * glowSwing, 0.6, 0.95)
+            data.CenterGlow.Visible = data.CenterDot.Visible
+            if data.PulseRing then
+                local baseSize = data.Kind == "SMOKE" and 30 or 24
+                local ringSize = baseSize + math.sin(now * style.CenterPulseSpeed) * style.CenterPulseSize
+                data.PulseRing.Size = UDim2.fromOffset(ringSize, ringSize)
+                data.PulseRing.Position = data.CenterDot.Position
+                data.PulseRing.Visible = data.CenterDot.Visible
+            end
+            if data.PulseStroke then
+                data.PulseStroke.Color = data.Color
+                local pulseAlpha = style.RingAlphaBias + math.sin(now * style.CenterPulseSpeed) * 0.07
+                data.PulseStroke.Transparency = math.clamp(1 - opacity + pulseAlpha, 0.10, 0.94)
+                data.PulseStroke.Thickness = data.Kind == "FIRE" and 1.55 or (data.Kind == "SMOKE" and 1.0 or 1.25)
+            end
+        end
+        until true
+    end
+end
+
+table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
+    if XCConfig.grenadeDangerZonesEnabled and classifyXCGrenadeDanger(object) then
+        createXCGrenadeDanger(object)
+    end
+end))
+--// ENEMY SOUND POSITION ESP
+function getXCSoundSource(sound)
+    local cursor = sound.Parent
+    local sourcePart
+    while cursor and cursor ~= Workspace do
+        if not sourcePart then
+            if cursor:IsA("Attachment") then
+                sourcePart = cursor
+            elseif cursor:IsA("BasePart") then
+                sourcePart = cursor
+            end
+        end
+        if cursor:IsA("Model") then
+            local owner = Players:GetPlayerFromCharacter(cursor)
+            if owner then
+                local position
+                if sourcePart and sourcePart:IsA("Attachment") then position = sourcePart.WorldPosition
+                elseif sourcePart and sourcePart:IsA("BasePart") then position = sourcePart.Position end
+                local root = cursor:FindFirstChild("HumanoidRootPart") or cursor:FindFirstChild("Torso") or cursor:FindFirstChild("UpperTorso")
+                return owner, position or (root and root.Position), cursor
+            end
+        end
+        for _, attributeName in ipairs({"Player", "Owner", "UserId", "CreatorId"}) do
+            local ownerValue = cursor:GetAttribute(attributeName)
+            local owner
+            if typeof(ownerValue) == "Instance" and ownerValue:IsA("Player") then owner = ownerValue
+            elseif type(ownerValue) == "number" then owner = Players:GetPlayerByUserId(ownerValue) end
+            if not owner and type(ownerValue) == "string" then
+                owner = Players:FindFirstChild(ownerValue)
+                if not owner then
+                    local numericId = tonumber(ownerValue)
+                    if numericId then owner = Players:GetPlayerByUserId(numericId) end
+                end
+            end
+            if owner then
+                local character = owner.Character
+                local root = character and (character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso"))
+                local position = sourcePart and (sourcePart:IsA("Attachment") and sourcePart.WorldPosition or sourcePart.Position)
+                return owner, position or (root and root.Position), character
+            end
+        end
+        cursor = cursor.Parent
+    end
+
+    local position = sourcePart and (sourcePart:IsA("Attachment") and sourcePart.WorldPosition or sourcePart.Position)
+    if position and classifyXCSound(sound) ~= "SOUND" then
+        local closestPlayer, closestCharacter, closestDistance = nil, nil, 5
+        for _, candidate in ipairs(Players:GetPlayers()) do
+            local character = candidate.Character
+            local root = character and (character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso"))
+            if root and isTargetEnemy(candidate, character) then
+                local distance = (root.Position - position).Magnitude
+                if distance < closestDistance then
+                    closestPlayer, closestCharacter, closestDistance = candidate, character, distance
+                end
+            end
+        end
+        if closestPlayer then return closestPlayer, position, closestCharacter end
+    end
+    return nil
+end
+
+function classifyXCSound(sound)
+    local name = sound.Name:lower()
+    if name:find("foot", 1, true) or name:find("step", 1, true)
+        or name:find("walk", 1, true) or name:find("run", 1, true) then return "STEP" end
+    if name:find("shoot", 1, true) or name:find("shot", 1, true)
+        or name:find("fire", 1, true) or name:find("gun", 1, true) then return "SHOT" end
+    if name:find("reload", 1, true) or name:find("mag", 1, true) then return "RELOAD" end
+    if name:find("jump", 1, true) or name:find("land", 1, true) then return "MOVE" end
+    return "SOUND"
+end
+
+function destroyXCSoundPulse(pulse)
+    pcall(function() pulse.Root:Destroy() end)
+end
+
+function createXCSoundPulse(position, category)
+    if #soundEspPulses >= 24 then
+        destroyXCSoundPulse(table.remove(soundEspPulses, 1))
+    end
+
+    local root = Instance.new("Frame", overlayContainer)
+    root.Name = "SoundESP_" .. category
+    root.AnchorPoint = Vector2.new(0.5, 0.5)
+    root.Size = UDim2.fromOffset(1, 1)
+    root.BackgroundTransparency = 1
+    root.Visible = false
+    root.ZIndex = 20
+
+    local ring = Instance.new("Frame", root)
+    ring.AnchorPoint = Vector2.new(0.5, 0.5)
+    ring.Position = UDim2.fromScale(0.5, 0.5)
+    ring.BackgroundTransparency = 1
+    ring.BorderSizePixel = 0
+    ring.ZIndex = 20
+    Instance.new("UICorner", ring).CornerRadius = UDim.new(1, 0)
+    local stroke = Instance.new("UIStroke", ring)
+    stroke.Color = currentTheme.Accent
+    stroke.Thickness = 2
+    stroke.Transparency = 0
+
+    local dot = Instance.new("Frame", root)
+    dot.AnchorPoint = Vector2.new(0.5, 0.5)
+    dot.Position = UDim2.fromScale(0.5, 0.5)
+    dot.Size = UDim2.fromOffset(5, 5)
+    dot.BackgroundColor3 = currentTheme.Accent
+    dot.BorderSizePixel = 0
+    dot.ZIndex = 21
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+    local label = Instance.new("TextLabel", root)
+    label.AnchorPoint = Vector2.new(0.5, 0)
+    label.Position = UDim2.fromOffset(0, 11)
+    label.Size = UDim2.fromOffset(58, 14)
+    label.BackgroundColor3 = Color3.fromRGB(10, 11, 13)
+    label.BackgroundTransparency = 0.28
+    label.BorderSizePixel = 0
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 8
+    label.Text = category
+    label.TextColor3 = currentTheme.Accent
+    label.ZIndex = 21
+    Instance.new("UICorner", label).CornerRadius = UDim.new(0, 3)
+
+    table.insert(soundEspPulses, {
+        Root = root,
+        Ring = ring,
+        Stroke = stroke,
+        Dot = dot,
+        Label = label,
+        Position = position,
+        Created = os.clock(),
+        Duration = math.clamp(tonumber(XCConfig.soundEspDuration) or 1.15, 0.35, 3),
+    })
+end
+
+function triggerXCSoundPosition(sound)
+    if not XCConfig.soundPositionEspEnabled or not sound or not sound.Parent then return end
+    local owner, position, character = getXCSoundSource(sound)
+    if not owner or not position or not isTargetEnemy(owner, character) then return end
+    local cam = Workspace.CurrentCamera or camera
+    if not cam or (position - cam.CFrame.Position).Magnitude > (tonumber(XCConfig.soundEspMaxDist) or 1200) then return end
+    local now = os.clock()
+    local record = soundEspTracked[sound]
+    if record and now - (record.LastPulse or 0) < 0.09 then return end
+    if not record then record = {} soundEspTracked[sound] = record end
+    record.LastPulse = now
+    createXCSoundPulse(position, classifyXCSound(sound))
+end
+
+function trackXCSound(sound)
+    if not XCConfig.soundPositionEspEnabled or not sound or not sound:IsA("Sound") then return end
+    local record = soundEspTracked[sound]
+    if record and record.Hooked then return end
+    record = record or {}
+    record.Hooked = true
+    soundEspTracked[sound] = record
+    pcall(function()
+        soundEspConnections[#soundEspConnections+1] = sound.Played:Connect(function()
+            triggerXCSoundPosition(sound)
+        end)
+    end)
+    pcall(function()
+        soundEspConnections[#soundEspConnections+1] = sound:GetPropertyChangedSignal("Playing"):Connect(function()
+            if sound.Playing then triggerXCSoundPosition(sound) end
+        end)
+    end)
+end
+
+function hookXCSoundCharacter(plr, character)
+    if not XCConfig.soundPositionEspEnabled or plr == player or not character then return end
+    for _, object in ipairs(character:GetDescendants()) do
+        if object:IsA("Sound") then trackXCSound(object) end
+    end
+    soundEspConnections[#soundEspConnections+1] = character.DescendantAdded:Connect(function(object)
+        if XCConfig.soundPositionEspEnabled and object:IsA("Sound") then trackXCSound(object) end
+    end)
+end
+
+function hookXCSoundPlayer(plr)
+    if not XCConfig.soundPositionEspEnabled or plr == player then return end
+    if plr.Character then hookXCSoundCharacter(plr, plr.Character) end
+    soundEspConnections[#soundEspConnections+1] = plr.CharacterAdded:Connect(function(character)
+        if XCConfig.soundPositionEspEnabled then hookXCSoundCharacter(plr, character) end
+    end)
+end
+
+function disconnectXCSoundPositionEsp()
+    for _, connection in ipairs(soundEspConnections) do
+        pcall(function() connection:Disconnect() end)
+    end
+    soundEspConnections = {}
+    soundEspHooked = false
+    soundEspTracked = setmetatable({}, {__mode = "k"})
+    for index = #soundEspPulses, 1, -1 do
+        pcall(function() destroyXCSoundPulse(soundEspPulses[index]) end)
+        table.remove(soundEspPulses, index)
+    end
+end
+
+function setXCSoundPositionEspEnabled(enabled)
+    XCConfig.soundPositionEspEnabled = enabled == true
+    if not XCConfig.soundPositionEspEnabled then
+        disconnectXCSoundPositionEsp()
+        return
+    end
+    if soundEspHooked then return end
+    soundEspHooked = true
+    for _, otherPlayer in ipairs(Players:GetPlayers()) do hookXCSoundPlayer(otherPlayer) end
+    soundEspConnections[#soundEspConnections+1] = Players.PlayerAdded:Connect(function(plr)
+        if XCConfig.soundPositionEspEnabled then hookXCSoundPlayer(plr) end
+    end)
+    soundEspConnections[#soundEspConnections+1] = Workspace.DescendantAdded:Connect(function(object)
+        if XCConfig.soundPositionEspEnabled and object:IsA("Sound") then trackXCSound(object) end
+    end)
+end
+
+function renderXCSoundPositionEsp()
+    local now = os.clock()
+    for index = #soundEspPulses, 1, -1 do
+        local pulse = soundEspPulses[index]
+        local alpha = (now - pulse.Created) / pulse.Duration
+        if not XCConfig.soundPositionEspEnabled or alpha >= 1 then
+            destroyXCSoundPulse(pulse)
+            table.remove(soundEspPulses, index)
+        else
+            local point, visible = camera:WorldToViewportPoint(pulse.Position)
+            if visible and point.Z > 0 then
+                local size = 12 + alpha * 34
+                pulse.Root.Position = UDim2.fromOffset(point.X, point.Y)
+                pulse.Ring.Size = UDim2.fromOffset(size, size)
+                pulse.Stroke.Color = currentTheme.Accent
+                pulse.Stroke.Transparency = math.clamp(alpha, 0, 1)
+                pulse.Dot.BackgroundColor3 = currentTheme.Accent
+                pulse.Dot.BackgroundTransparency = math.clamp(alpha * 0.8, 0, 1)
+                pulse.Label.TextColor3 = currentTheme.Accent
+                pulse.Label.TextTransparency = math.clamp(alpha, 0, 1)
+                pulse.Label.BackgroundTransparency = 0.28 + alpha * 0.72
+                pulse.Root.Visible = true
+            else
+                pulse.Root.Visible = false
+            end
+        end
+    end
+end
+--// AIM ENGINE SHLAK
+local visRayParams = RaycastParams.new()
+visRayParams.FilterType = Enum.RaycastFilterType.Exclude
+visRayParams.IgnoreWater = true
+
+function isTargetVisible(originPos, targetPart, targetChar)
+    if not XCConfig.visibleCheck then return true end
+    local myChar = player.Character
+    visRayParams.FilterDescendantsInstances = {myChar, camera}
+    local dir = targetPart.Position - originPos
+    
+    local hit = Workspace:Raycast(originPos, dir, visRayParams)
+    if hit and (hit.Instance:IsDescendantOf(targetChar) or hit.Instance == targetPart) then
+        return true
+    end
+    return false
+end
+
+function getPingLatency()
+    local ping = 0.03
+    pcall(function()
+        local serverStats = Stats:FindFirstChild("Network") and Stats.Network:FindFirstChild("ServerStatsItem")
+        if serverStats and serverStats:FindFirstChild("Data Ping") then
+            ping = (serverStats["Data Ping"]:GetValue() / 1000)
+        end
+    end)
+    return ping
+end
+
+function getKinematicAimPosition(targetPart)
+    local rawPos = targetPart.Position
+    if not XCConfig.predictionEnabled then
+        return rawPos
+    end
+
+    local ping = getPingLatency()
+    local predDelta = (XCConfig.predictionFactor * 0.5) + ping
+    local targetVel = targetPart.AssemblyLinearVelocity or Vector3.zero
+
+    local myChar = player.Character
+    local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    local myVel = (myHrp and myHrp.AssemblyLinearVelocity) or Vector3.zero
+    
+    local relativeVel = targetVel - (myVel * 0.15)
+    return rawPos + (relativeVel * predDelta)
+end
+
+function getClosestTarget()
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil end
+
+    local camCFrame = cam.CFrame
+    local camPos = camCFrame.Position
+    local camLook = camCFrame.LookVector
+    local maxAngleRad = math.rad(XCConfig.aimFov * 0.5)
+
+    if currentAimTarget then
+        local cChar = currentAimTarget.Char
+        local cHum = currentAimTarget.Hum
+        local cPart = currentAimTarget.Part
+        local priorityName = tostring(XCConfig.priorityPlayerName or "None")
+        local currentPlayer = currentAimTarget.Player
+        local priorityAllowsSticky = priorityName == "None"
+            or (currentPlayer and (currentPlayer.Name == priorityName or currentPlayer.DisplayName == priorityName))
+        if isEntityAlive(cChar, cHum) and cPart and cPart.Parent then
+            local predPos = getKinematicAimPosition(cPart)
+            local toTarget = (predPos - camPos).Unit
+            local angle = math.acos(math.clamp(camLook:Dot(toTarget), -1, 1))
+            
+            if priorityAllowsSticky and angle <= (maxAngleRad * 1.15)
+                and isTargetVisible(camPos, cPart, cChar) then
+                currentAimTarget.AimPosition = predPos
+                return currentAimTarget
+            end
+        end
+    end
+
+    local bestTarget = nil
+    local bestScore = math.huge
+    local allPlayers = Players:GetPlayers()
+
+    for i = 1, #allPlayers do
+        local plr = allPlayers[i]
+        local char = plr.Character
+        if char and plr ~= player and isTargetEnemy(plr, char) then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if isEntityAlive(char, hum) then
+                local hitPart = getTargetHitbox(char)
+                if hitPart then
+                    local aimPos = getKinematicAimPosition(hitPart)
+                    local toTarget = (aimPos - camPos).Unit
+                    local angle = math.acos(math.clamp(camLook:Dot(toTarget), -1, 1))
+
+                    if angle <= maxAngleRad and isTargetVisible(camPos, hitPart, char) then
+                        local dist = (aimPos - camPos).Magnitude
+                        local score = (angle * 0.7) + ((dist / 1000) * 0.3)
+                        local priorityName = tostring(XCConfig.priorityPlayerName or "None")
+                        if priorityName ~= "None"
+                            and (plr.Name == priorityName or plr.DisplayName == priorityName) then
+                            score = score - (1000)
+                        end
+                        if score < bestScore then
+                            bestScore = score
+                            bestTarget = {
+                                Player = plr,
+                                Char = char,
+                                Part = hitPart,
+                                Hum = hum,
+                                Position = hitPart.Position,
+                                AimPosition = aimPos,
+                                AngularDelta = angle
+                            }
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if bestTarget and (tick() - lastTargetSwitchTick > TARGET_HYSTERESIS_TIME) then
+        currentAimTarget = bestTarget
+        lastTargetSwitchTick = tick()
+    elseif not bestTarget then
+        currentAimTarget = nil
+    end
+
+    return currentAimTarget
+end
+--// RAGEBOT TT
+function getRageTarget(originOverride, propertiesOverride)
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil end
+
+    local camPos = typeof(originOverride) == "Vector3" and originOverride or cam.CFrame.Position
+    local camLook = cam.CFrame.LookVector
+    local properties = type(propertiesOverride) == "table"
+        and propertiesOverride
+        or resolveXCAutoWallProperties()
+        or {}
+    local maxAngle = math.rad(math.clamp(tonumber(XCConfig.rageFov) or 360, 1, 360) * 0.5)
+    local weaponRange = math.max(1, tonumber(properties.Range) or 500)
+
+    local bestTarget = nil
+    local bestScore = math.huge
+    local allPlayers = Players:GetPlayers()
+
+    for i = 1, #allPlayers do
+        repeat
+        local plr = allPlayers[i]
+        if plr == player then break end
+        if XCConfig.silentAimTeamCheck and isAlly(plr) then break end
+
+        local char = plr.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if not isEntityAlive(char, hum) then break end
+
+        local hitPart
+        if XCConfig.silentAimAimHead then
+            hitPart = char:FindFirstChild("Head")
+                or char:FindFirstChild("UpperTorso")
+                or char:FindFirstChild("HumanoidRootPart")
+        else
+            hitPart = char:FindFirstChild("UpperTorso")
+                or char:FindFirstChild("HumanoidRootPart")
+                or char:FindFirstChild("Torso")
+                or char:FindFirstChild("Head")
+        end
+        if not hitPart or not hitPart:IsA("BasePart") then break end
+
+        for _, multipoint in ipairs(XCBuildMultipoints(hitPart)) do
+            repeat
+            local shotPosition = multipoint.Position
+            local aimPosition = shotPosition
+            local delta = aimPosition - camPos
+            if delta.Magnitude <= 0.05 or delta.Magnitude > weaponRange then break end
+
+            local angle = math.acos(math.clamp(camLook:Dot(delta.Unit), -1, 1))
+            if angle > maxAngle then break end
+
+            local path = XCInspectShotPath(camPos, hitPart, char, properties, shotPosition)
+            local allowed = path.Visible
+                or XCConfig.extremeWallbangEnabled
+                or XCConfig.wallbangEnabled
+                or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+            if not allowed then break end
+
+            local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
+                camPos, hitPart, char, properties, shotPosition, path
+            )
+            if not minDamageOk then break end
+
+            local score
+            if XCConfig.rageTargetMode == "Health" then
+                score = hum.Health
+            elseif XCConfig.rageTargetMode == "FOV" then
+                score = angle
+            elseif XCConfig.rageTargetMode == "Priority" then
+                local priorityName = tostring(XCConfig.priorityPlayerName or "None")
+                local isPriority = priorityName ~= "None"
+                    and (plr.Name == priorityName or plr.DisplayName == priorityName)
+                score = (isPriority and -100000 or 0) + delta.Magnitude
+            else
+                score = delta.Magnitude
+            end
+
+            score = score + ((multipoint.Rank or 0) * 0.00001)
+            if score < bestScore then
+                bestScore = score
+                bestTarget = {
+                    Player = plr,
+                    Char = char,
+                    Part = hitPart,
+                    Hum = hum,
+                    Position = shotPosition,
+                    ShotPosition = shotPosition,
+                    AimPosition = aimPosition,
+                    Multipoint = multipoint.Name,
+                    EstimatedDamage = estimatedDamage,
+                    Visible = path.Visible,
+                }
+            end
+            until true
+        end
+        until true
+    end
+    return bestTarget
+end
+--// TRIGGERBOT + MATERIAL/THICKNESS PENETRATION
+local triggerRayParams = RaycastParams.new()
+triggerRayParams.FilterType = Enum.RaycastFilterType.Exclude
+triggerRayParams.IgnoreWater = true
+
+-- Conservative BloxStrike material limits adapted from the existing
+-- penetration model. Values are maximum accumulated thickness.
+local triggerMaterialLimits = {
+    [Enum.Material.Asphalt] = 0.25, [Enum.Material.Basalt] = 0.25,
+    [Enum.Material.Brick] = 0.25, [Enum.Material.Cobblestone] = 0.25,
+    [Enum.Material.Concrete] = 0.25, [Enum.Material.CrackedLava] = 0.25,
+    [Enum.Material.DiamondPlate] = 0.25, [Enum.Material.Foil] = 0.25,
+    [Enum.Material.Glacier] = 0.25, [Enum.Material.Granite] = 0.25,
+    [Enum.Material.Grass] = 0.25, [Enum.Material.Ground] = 0.25,
+    [Enum.Material.Ice] = 0.25, [Enum.Material.LeafyGrass] = 0.25,
+    [Enum.Material.Limestone] = 0.25, [Enum.Material.Marble] = 0.25,
+    [Enum.Material.Metal] = 0.25, [Enum.Material.Mud] = 0.25,
+    [Enum.Material.Pavement] = 0.25, [Enum.Material.Rock] = 0.25,
+    [Enum.Material.Salt] = 0.25, [Enum.Material.Sand] = 0.25,
+    [Enum.Material.Sandstone] = 0.25, [Enum.Material.Slate] = 0.25,
+    [Enum.Material.Snow] = 0.25, [Enum.Material.ForceField] = 0.25,
+    [Enum.Material.Neon] = 0.25, [Enum.Material.CorrodedMetal] = 0.25,
+    [Enum.Material.Pebble] = 0.25, [Enum.Material.CeramicTiles] = 0.25,
+    [Enum.Material.Plaster] = 0.25,
+    [Enum.Material.Plastic] = 7, [Enum.Material.SmoothPlastic] = 7,
+    [Enum.Material.Wood] = 7, [Enum.Material.WoodPlanks] = 7,
+    [Enum.Material.Cardboard] = 7, [Enum.Material.Glass] = 100,
+    [Enum.Material.Fabric] = 100,
+}
+
+local triggerMaterialVariantLimits = {
+    IndoorWall = 0.25,
+    ["Sandy Brick"] = 0.25,
+}
+
+function triggerIsCharacterPart(part, targetModel)
+    return part and targetModel and part:IsDescendantOf(targetModel)
+end
+
+function triggerFindTargetAlongRay(origin, direction, targetModel)
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.IgnoreWater = true
+    local filter = {player.Character}
+    params.FilterDescendantsInstances = filter
+
+    local currentOrigin = origin
+    local remaining = direction.Unit * math.min(direction.Magnitude, 1000)
+    local accumulated = {}
+    local steps = 0
+
+    while remaining.Magnitude > 0.05 and steps < 100 do
+        repeat
+        steps = steps + (1)
+        local hit = Workspace:Raycast(currentOrigin, remaining, params)
+        if not hit or not hit.Instance then
+            return nil
+        end
+
+        if triggerIsCharacterPart(hit.Instance, targetModel) then
+            return hit
+        end
+
+        local part = hit.Instance
+        if not part:IsA("BasePart") then
+            table.insert(filter, part)
+            params.FilterDescendantsInstances = filter
+            currentOrigin = hit.Position + remaining.Unit * 0.01
+            remaining = direction.Unit * math.max(0, (origin + direction.Unit * math.min(direction.Magnitude, 1000) - currentOrigin).Magnitude)
+            break
+        end
+
+        -- Find the exit point through THIS exact hit part.
+        local backParams = RaycastParams.new()
+        backParams.FilterType = Enum.RaycastFilterType.Include
+        backParams.IgnoreWater = true
+        backParams.FilterDescendantsInstances = {part}
+
+        local farPoint = hit.Position + remaining.Unit * 1000
+        local exitHit = Workspace:Raycast(farPoint, hit.Position - farPoint, backParams)
+        if not exitHit then
+            return nil
+        end
+
+        local thickness = (hit.Position - exitHit.Position).Magnitude
+        local variant = part.MaterialVariant
+        local limit = triggerMaterialVariantLimits[variant]
+        local key = variant ~= "" and variant or part.Material
+
+        if limit then
+            accumulated[key] = (accumulated[key] or 0) + thickness
+            if accumulated[key] > limit then
+                return nil
+            end
+        else
+            limit = triggerMaterialLimits[part.Material]
+            if limit == nil then
+                -- Unknown surfaces are treated conservatively rather than
+                -- allowing a blind shot through an arbitrary map object.
+                limit = 0.25
+            end
+            accumulated[key] = (accumulated[key] or 0) + thickness
+            if accumulated[key] > limit then
+                return nil
+            end
+        end
+
+        table.insert(filter, part)
+        params.FilterDescendantsInstances = filter
+
+        local endPoint = origin + direction.Unit * math.min(direction.Magnitude, 1000)
+        currentOrigin = exitHit.Position + direction.Unit * 0.01
+        local left = (endPoint - currentOrigin).Magnitude
+        if left <= 0.05 then
+            return nil
+        end
+        remaining = direction.Unit * left
+        until true
+    end
+
+    return nil
+end
+
+function triggerbotFire(vp, forcedPart, forcedCharacter, forcedPosition, redirectMode)
+    -- Queue the exact trigger target for the next real local Bullet raycast.
+    -- Keeping the queue in getgenv also lets persistent v36 wrappers from a
+    -- reinjection consume the CURRENT session's target callback/state.
+    local redirectStore = sharedXCEnv or _G
+    local ticket = nil
+    if redirectStore then
+        if typeof(forcedPart) == "Instance" and forcedPart:IsA("BasePart") and forcedPart.Parent then
+            ticket = {
+                Part = forcedPart,
+                Character = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model"),
+                Position = typeof(forcedPosition) == "Vector3" and forcedPosition or forcedPart.Position,
+                Mode = redirectMode,
+                Expires = os.clock() + 0.35,
+            }
+            redirectStore.XCTriggerRedirectV38 = ticket
+            task.delay(0.4, function()
+                if redirectStore.XCTriggerRedirectV38 == ticket then
+                    redirectStore.XCTriggerRedirectV38 = nil
+                end
+            end)
+        else
+            redirectStore.XCTriggerRedirectV38 = nil
+        end
+    end
+
+    pcall(function()
+        local myChar = player.Character
+        local equippedTool = myChar and myChar:FindFirstChildOfClass("Tool")
+        if equippedTool then
+            equippedTool:Activate()
+            return
+        end
+
+        -- Blox Strike keeps weapons outside Roblox Tool instances. Invoke its
+        -- native shoot method so mobile input mode is not changed to Mouse.
+        local nativeFired = false
+        pcall(function()
+            local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+            local scriptObject = controllers and controllers:FindFirstChild("InventoryController")
+            local inventory = scriptObject and require(scriptObject)
+            local getter = inventory and inventory.peekCurrentEquippedForMovement
+            local weapon = type(getter) == "function" and getter() or nil
+            if weapon and type(weapon.shoot) == "function" then
+                weapon:shoot()
+                nativeFired = true
+            end
+        end)
+        if nativeFired then return end
+
+        if VirtualInputManager and not UserInputService.TouchEnabled then
+            VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, true, game, 0)
+            task.wait(0.01)
+            VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, false, game, 0)
+        end
+    end)
+end
+
+function runMobileTriggerbot()
+    if not XCConfig.triggerbotEnabled then return end
+    -- Do not run a second standalone trigger loop while Ragebot owns firing.
+    -- The Triggerbot toggle itself is untouched and resumes when Ragebot is off.
+    if XCConfig.rageBotEnabled then return end
+
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return end
+
+    if XCConfig.triggerbotScopedOnly then
+        local nativeScope = findSniperScope()
+        if not ((nativeScope and nativeScope.Visible) or cam.FieldOfView < 68) then return end
+    end
+
+    local now = tick()
+    local delay = math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5)
+    if (now - lastTriggerTick) < delay then return end
+
+    local vp = cam.ViewportSize
+    local origin = cam.CFrame.Position
+    local rayDirection = cam.CFrame.LookVector * 1000
+    local triggerMode = tostring(XCConfig.triggerbotMode or "Crosshair")
+
+    -- Silent FOV mode deliberately shares Silent Aim's target selector/FOV/team/visibility settings.
+    if triggerMode == "Silent FOV" then
+        local targetPart = getSilentAimTarget and getSilentAimTarget() or nil
+        if targetPart and targetPart.Parent then
+            local targetCharacter = targetPart:FindFirstAncestorOfClass("Model")
+            if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
+                local visible = targetCharacter and isVisibleThroughWalls(targetPart, targetCharacter) or false
+                local properties = resolveXCAutoWallProperties() or {}
+                local path = XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPart.Position)
+                local allowed = path.Visible
+                    or XCConfig.extremeWallbangEnabled
+                    or XCConfig.wallbangEnabled
+                    or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+                local minDamageOk = XCPassesMinimumDamage(
+                    origin, targetPart, targetCharacter, properties, targetPart.Position, path
+                )
+                if allowed and minDamageOk then
+                    lastTriggerTick = now
+                    if triggerbotMobileAutoFire then
+                        triggerbotFire(vp, targetPart, targetCharacter, targetPart.Position)
+                    end
+                end
+            end
+        end
+        return
+    end
+
+    -- Trigger FOV mode fires on the closest valid enemy inside Trigger FOV,
+    -- without requiring the center ray to already touch the character.
+    if triggerMode == "Trigger FOV" then
+        local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
+        local radius = math.max(1, tonumber(XCConfig.triggerbotFov) or 160)
+        local properties = resolveXCAutoWallProperties() or {}
+        local best = nil
+        local bestDist = math.huge
+
+        for _, targetPlayer in ipairs(Players:GetPlayers()) do
+            if targetPlayer ~= player and isTargetEnemy(targetPlayer, targetPlayer.Character) then
+                local char = targetPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
+                    local part = char:FindFirstChild("Head")
+                        or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
+                    if part and (not XCConfig.triggerbotHeadOnly or part.Name == "Head") then
+                        for _, multipoint in ipairs(XCBuildMultipoints(part)) do
+                            local point, onScreen = cam:WorldToViewportPoint(multipoint.Position)
+                            if onScreen and point.Z > 0 then
+                                local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
+                                if dist <= radius and dist < bestDist then
+                                    local path = XCInspectShotPath(
+                                        origin, part, char, properties, multipoint.Position
+                                    )
+                                    local allowed = path.Visible
+                                        or XCConfig.extremeWallbangEnabled
+                                        or XCConfig.wallbangEnabled
+                                        or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+                                    local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
+                                        origin, part, char, properties, multipoint.Position, path
+                                    )
+                                    if allowed and minDamageOk then
+                                        bestDist = dist
+                                        best = {
+                                            Part = part,
+                                            Character = char,
+                                            Position = multipoint.Position,
+                                            Damage = estimatedDamage,
+                                        }
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        if best then
+            lastTriggerTick = now
+            if triggerbotMobileAutoFire then
+                triggerbotFire(vp, best.Part, best.Character, best.Position)
+            end
+        end
+        return
+    end
+
+    -- First pass: only consider whatever is actually under the FOV center.
+    triggerRayParams.FilterDescendantsInstances = {player.Character}
+    local first = Workspace:Raycast(origin, rayDirection, triggerRayParams)
+    if not first or not first.Instance then return end
+
+    local firstModel = first.Instance:FindFirstAncestorOfClass("Model")
+    local firstPlayer = firstModel and Players:GetPlayerFromCharacter(firstModel)
+
+    if firstPlayer and firstPlayer ~= player then
+        local _, onScreen = cam:WorldToViewportPoint(first.Instance.Position)
+        if not onScreen then return end
+        if firstModel:GetAttribute("Dead") or firstModel:GetAttribute("Invincible") then return end
+        local hum = firstModel:FindFirstChildOfClass("Humanoid")
+        if hum and hum.Health <= 0 then return end
+        if not isTargetEnemy(firstPlayer, firstModel) then return end
+        if XCConfig.triggerbotHeadOnly and first.Instance.Name ~= "Head" then return end
+
+        local properties = resolveXCAutoWallProperties() or {}
+        local path = XCInspectShotPath(origin, first.Instance, firstModel, properties, first.Instance.Position)
+        local minDamageOk = XCPassesMinimumDamage(
+            origin, first.Instance, firstModel, properties, first.Instance.Position, path
+        )
+        if not minDamageOk then return end
+
+        lastTriggerTick = now
+        if triggerbotMobileAutoFire then
+            triggerbotFire(vp, first.Instance, firstModel, first.Instance.Position)
+        end
+        return
+    end
+
+    -- Wall hit: find enemy candidates near the FOV center, then test the
+    -- exact camera -> candidate line for material + physical penetration.
+    local bestTarget, bestScreenDistance = nil, math.huge
+    for _, hitPlayer in ipairs(Players:GetPlayers()) do
+        if hitPlayer ~= player and isTargetEnemy(hitPlayer, hitPlayer.Character) then
+            local char = hitPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
+                local targetPart = char:FindFirstChild("Head") or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
+                if targetPart then
+                    if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
+                        local screenPos, onScreen = cam:WorldToViewportPoint(targetPart.Position)
+                        if onScreen and screenPos.Z > 0 then
+                            local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
+                            local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                            local fovRadius = tonumber(XCConfig.triggerbotFov) or tonumber(XCConfig.aimFov) or 160
+                            if dist <= fovRadius and dist < bestScreenDistance then
+                                bestScreenDistance = dist
+                                bestTarget = {Player = hitPlayer, Model = char, Part = targetPart}
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if not bestTarget then return end
+
+    -- Auto Wall is weapon-aware now. Do not use the old generic material
+    -- thickness table here: validate the exact camera -> target path with the
+    -- equipped weapon's native Bullet.Properties.Penetration. Forced wallbang
+    -- modes intentionally bypass this budget.
+    local canShootThrough = XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled
+    if not canShootThrough and XCConfig.silentAimAutoWallEnabled then
+        canShootThrough = canXCAutoWallReach(origin, bestTarget.Part, bestTarget.Model)
+    end
+    if not canShootThrough then return end
+
+    local wallProperties = resolveXCAutoWallProperties() or {}
+    local wallPath = XCInspectShotPath(
+        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position
+    )
+    local minDamageOk = XCPassesMinimumDamage(
+        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position, wallPath
+    )
+    if not minDamageOk then return end
+
+    lastTriggerTick = now
+    if triggerbotMobileAutoFire then
+        triggerbotFire(vp, bestTarget.Part, bestTarget.Model, bestTarget.Part.Position)
+    end
+end
+--// 2D ESP
+function hideXCSkeleton(esp)
+    if not esp or not esp.SkeletonLines then return end
+    for _, line in ipairs(esp.SkeletonLines) do line.Visible = false end
+end
+
+function setXCSkeletonLine(line, from, to, color, alpha)
+    local delta = to - from
+    local length = delta.Magnitude
+    if length < 0.5 then line.Visible = false return end
+    line.AnchorPoint = Vector2.new(0.5, 0.5)
+    line.Position = UDim2.fromOffset((from.X + to.X) * 0.5, (from.Y + to.Y) * 0.5)
+    line.Size = UDim2.fromOffset(length, math.clamp(tonumber(XCConfig.skeletonThickness) or 1.5, 1, 4))
+    line.Rotation = math.deg(math.atan2(delta.Y, delta.X))
+    line.BackgroundColor3 = color
+    line.BackgroundTransparency = 1 - alpha
+    line.Visible = true
+end
+
+function renderXCSkeleton(esp, char, color, distance)
+    if not XCConfig.skeletonEspEnabled or not char then hideXCSkeleton(esp) return end
+    local head = char:FindFirstChild("Head")
+    local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
+    local waistPart = char:FindFirstChild("LowerTorso") or torso
+    if not head or not torso or not waistPart then hideXCSkeleton(esp) return end
+
+    local leftArm = char:FindFirstChild("LeftUpperArm") or char:FindFirstChild("Left Arm")
+    local rightArm = char:FindFirstChild("RightUpperArm") or char:FindFirstChild("Right Arm")
+    local leftHand = char:FindFirstChild("LeftHand") or char:FindFirstChild("LeftLowerArm") or leftArm
+    local rightHand = char:FindFirstChild("RightHand") or char:FindFirstChild("RightLowerArm") or rightArm
+    local leftLeg = char:FindFirstChild("LeftUpperLeg") or char:FindFirstChild("Left Leg")
+    local rightLeg = char:FindFirstChild("RightUpperLeg") or char:FindFirstChild("Right Leg")
+    local leftFoot = char:FindFirstChild("LeftFoot") or char:FindFirstChild("LeftLowerLeg") or leftLeg
+    local rightFoot = char:FindFirstChild("RightFoot") or char:FindFirstChild("RightLowerLeg") or rightLeg
+
+    local points = {
+        Head = head.Position,
+        Neck = torso.CFrame:PointToWorldSpace(Vector3.new(0, torso.Size.Y * 0.42, 0)),
+        Waist = waistPart.CFrame:PointToWorldSpace(Vector3.new(0, -waistPart.Size.Y * 0.25, 0)),
+        LeftShoulder = leftArm and leftArm.CFrame:PointToWorldSpace(Vector3.new(0, leftArm.Size.Y * 0.4, 0)),
+        RightShoulder = rightArm and rightArm.CFrame:PointToWorldSpace(Vector3.new(0, rightArm.Size.Y * 0.4, 0)),
+        LeftHand = leftHand and leftHand.CFrame:PointToWorldSpace(Vector3.new(0, -leftHand.Size.Y * 0.45, 0)),
+        RightHand = rightHand and rightHand.CFrame:PointToWorldSpace(Vector3.new(0, -rightHand.Size.Y * 0.45, 0)),
+        LeftHip = leftLeg and leftLeg.CFrame:PointToWorldSpace(Vector3.new(0, leftLeg.Size.Y * 0.4, 0)),
+        RightHip = rightLeg and rightLeg.CFrame:PointToWorldSpace(Vector3.new(0, rightLeg.Size.Y * 0.4, 0)),
+        LeftFoot = leftFoot and leftFoot.CFrame:PointToWorldSpace(Vector3.new(0, -leftFoot.Size.Y * 0.45, 0)),
+        RightFoot = rightFoot and rightFoot.CFrame:PointToWorldSpace(Vector3.new(0, -rightFoot.Size.Y * 0.45, 0)),
+    }
+    local alpha = XCConfig.skeletonDistanceFade
+        and math.clamp(1 - distance / math.max(1, XCConfig.espMaxDist), 0.18, 1) or 1
+    for index, edge in ipairs(XCFeatureState.skeletonEdges) do
+        local line = esp.SkeletonLines[index]
+        local a, b = points[edge[1]], points[edge[2]]
+        if a and b then
+            local pa, va = camera:WorldToViewportPoint(a)
+            local pb, vb = camera:WorldToViewportPoint(b)
+            if va and vb and pa.Z > 0 and pb.Z > 0 then
+                setXCSkeletonLine(line, Vector2.new(pa.X, pa.Y), Vector2.new(pb.X, pb.Y), color, alpha)
+            else
+                line.Visible = false
+            end
+        else
+            line.Visible = false
+        end
+    end
+end
+
+function getOrCreateScreenEsp(plr)
+    if screenEspCache[plr] then return screenEspCache[plr] end
+
+    local box = Instance.new("Frame", overlayContainer)
+    box.Name = "Box_" .. plr.Name
+    box.BackgroundTransparency = 1
+    box.BorderSizePixel = 0
+    box.Visible = false
+    box.ZIndex = 7
+
+    local boxOutline = Instance.new("Frame", overlayContainer)
+    boxOutline.Name = "BoxOutline_" .. plr.Name
+    boxOutline.BackgroundTransparency = 1
+    boxOutline.BorderSizePixel = 0
+    boxOutline.Visible = false
+    boxOutline.ZIndex = 6
+
+    local outlineStroke = Instance.new("UIStroke", boxOutline)
+    outlineStroke.Color = Color3.fromRGB(5, 7, 9)
+    outlineStroke.Thickness = XCConfig.boxThickness + 2
+    outlineStroke.Transparency = 0.12
+    outlineStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    local stroke = Instance.new("UIStroke", box)
+    stroke.Color = currentTheme.Enemy_Accent
+    stroke.Thickness = XCConfig.boxThickness
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    local healthBarBg = Instance.new("Frame", overlayContainer)
+    healthBarBg.Name = "HealthBg_" .. plr.Name
+    healthBarBg.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+    healthBarBg.BorderSizePixel = 0
+    healthBarBg.Visible = false
+    Instance.new("UICorner", healthBarBg).CornerRadius = UDim.new(0, 2)
+    local hbStroke = Instance.new("UIStroke", healthBarBg)
+    hbStroke.Color = Color3.fromRGB(35, 38, 45)
+    hbStroke.Thickness = 0.8
+
+    local healthBarFill = Instance.new("Frame", healthBarBg)
+    healthBarFill.Name = "Fill"
+    healthBarFill.AnchorPoint = Vector2.new(0, 1)
+    healthBarFill.Position = UDim2.new(0, 0, 1, 0)
+    healthBarFill.Size = UDim2.new(1, 0, 1, 0)
+    healthBarFill.BackgroundColor3 = currentTheme.HealthHigh
+    healthBarFill.BorderSizePixel = 0
+    Instance.new("UICorner", healthBarFill).CornerRadius = UDim.new(0, 2)
+    local healthGradient = Instance.new("UIGradient", healthBarFill)
+    healthGradient.Name = "HealthGradient"
+    healthGradient.Rotation = 90
+    healthGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(152, 204, 0)),
+        ColorSequenceKeypoint.new(0.55, Color3.fromRGB(210, 196, 55)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 65, 55)),
+    })
+
+    local weaponCard = Instance.new("Frame", overlayContainer)
+    weaponCard.Name = "WeaponIcon_" .. plr.Name
+    weaponCard.AnchorPoint = Vector2.new(0.5, 0)
+    weaponCard.Size = UDim2.fromOffset(36, 15)
+    weaponCard.BackgroundColor3 = Color3.fromRGB(5, 6, 7)
+    weaponCard.BackgroundTransparency = 1
+    weaponCard.BorderSizePixel = 0
+    weaponCard.ClipsDescendants = true
+    weaponCard.Visible = false
+    weaponCard.ZIndex = 8
+    Instance.new("UICorner", weaponCard).CornerRadius = UDim.new(0, 3)
+    local weaponCardStroke = Instance.new("UIStroke", weaponCard)
+    weaponCardStroke.Color = currentTheme.Enemy_Accent
+    weaponCardStroke.Thickness = 1
+    weaponCardStroke.Transparency = 1
+    weaponCardStroke.Enabled = false
+
+    local weaponImageShadow = Instance.new("ImageLabel", weaponCard)
+    weaponImageShadow.Name = "ImageShadow"
+    weaponImageShadow.Size = UDim2.new(1, -4, 1, -4)
+    weaponImageShadow.Position = UDim2.fromOffset(3, 3)
+    weaponImageShadow.BackgroundTransparency = 1
+    weaponImageShadow.ScaleType = Enum.ScaleType.Fit
+    weaponImageShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    weaponImageShadow.ImageTransparency = 0.28
+    weaponImageShadow.Visible = false
+    weaponImageShadow.ZIndex = 8
+
+    local weaponImage = Instance.new("ImageLabel", weaponCard)
+    weaponImage.Name = "Image"
+    weaponImage.Size = UDim2.new(1, -4, 1, -4)
+    weaponImage.Position = UDim2.fromOffset(2, 1)
+    weaponImage.BackgroundTransparency = 1
+    weaponImage.ScaleType = Enum.ScaleType.Fit
+    weaponImage.ImageColor3 = currentTheme.Enemy_Accent
+    weaponImage.Visible = false
+    weaponImage.ZIndex = 10
+
+    local weaponViewport = Instance.new("ViewportFrame", weaponCard)
+    weaponViewport.Name = "Viewport"
+    weaponViewport.Size = UDim2.new(1, -4, 1, -4)
+    weaponViewport.Position = UDim2.fromOffset(2, 1)
+    weaponViewport.BackgroundTransparency = 1
+    weaponViewport.Ambient = Color3.fromRGB(72, 96, 0)
+    weaponViewport.LightColor = currentTheme.Enemy_Accent
+    weaponViewport.LightDirection = Vector3.new(-1, -0.45, -1)
+    weaponViewport.Visible = false
+    weaponViewport.ZIndex = 10
+    local weaponWorld = Instance.new("WorldModel", weaponViewport)
+    local weaponCamera = Instance.new("Camera", weaponViewport)
+    weaponViewport.CurrentCamera = weaponCamera
+
+    local corners = {}
+    for i = 1, 4 do
+        local hLine = Instance.new("Frame", overlayContainer)
+        hLine.Name = "CornerH_" .. plr.Name .. "_" .. i
+        hLine.BackgroundColor3 = currentTheme.Enemy_Accent
+        hLine.BorderSizePixel = 0
+        hLine.Visible = false
+        hLine.ZIndex = 7
+        local hOutline = Instance.new("UIStroke", hLine)
+        hOutline.Color = Color3.fromRGB(5, 7, 9)
+        hOutline.Thickness = 1
+        hOutline.Transparency = 0.1
+
+        local vLine = Instance.new("Frame", overlayContainer)
+        vLine.Name = "CornerV_" .. plr.Name .. "_" .. i
+        vLine.BackgroundColor3 = currentTheme.Enemy_Accent
+        vLine.BorderSizePixel = 0
+        vLine.Visible = false
+        vLine.ZIndex = 7
+        local vOutline = Instance.new("UIStroke", vLine)
+        vOutline.Color = Color3.fromRGB(5, 7, 9)
+        vOutline.Thickness = 1
+        vOutline.Transparency = 0.1
+
+        table.insert(corners, {H = hLine, V = vLine, HOutline = hOutline, VOutline = vOutline})
+    end
+
+    local tagCard = Instance.new("Frame", overlayContainer)
+    tagCard.Name = "TagCard_" .. plr.Name
+    tagCard.AnchorPoint = Vector2.new(0.5, 1)
+    tagCard.Size = UDim2.new(0, 0, 0, 16)
+    tagCard.AutomaticSize = Enum.AutomaticSize.X
+    tagCard.BackgroundColor3 = currentTheme.Sidebar
+    tagCard.BackgroundTransparency = XCConfig.tagTransparency
+    tagCard.BorderSizePixel = 0
+    tagCard.Visible = false
+
+    Instance.new("UICorner", tagCard).CornerRadius = UDim.new(0, 4)
+    local cardStroke = Instance.new("UIStroke", tagCard)
+    cardStroke.Color = currentTheme.Border
+    cardStroke.Thickness = 0.8
+    cardStroke.Enabled = false
+
+    local pad = Instance.new("UIPadding", tagCard)
+    pad.PaddingRight = UDim.new(0, 6)
+    pad.PaddingLeft = UDim.new(0, 6)
+
+    local tagLabel = Instance.new("TextLabel", tagCard)
+    tagLabel.AutomaticSize = Enum.AutomaticSize.X
+    tagLabel.Size = UDim2.new(0, 0, 1, 0)
+    tagLabel.BackgroundTransparency = 1
+    tagLabel.TextColor3 = currentTheme.NametagTextColor
+    tagLabel.TextSize = XCConfig.espTextSize
+    tagLabel.Font = Enum.Font.GothamBold
+
+    local skeletonLines = {}
+    for index = 1, #XCFeatureState.skeletonEdges do
+        local line = Instance.new("Frame", overlayContainer)
+        line.Name = "Skeleton_" .. plr.Name .. "_" .. index
+        line.BorderSizePixel = 0
+        line.Visible = false
+        skeletonLines[index] = line
+    end
+
+    local data = {
+        Box = box,
+        BoxStroke = stroke,
+        BoxOutline = boxOutline,
+        BoxOutlineStroke = outlineStroke,
+        HealthBarBg = healthBarBg,
+        HealthBarFill = healthBarFill,
+        WeaponCard = weaponCard,
+        WeaponCardStroke = weaponCardStroke,
+        WeaponImageShadow = weaponImageShadow,
+        WeaponImage = weaponImage,
+        WeaponViewport = weaponViewport,
+        WeaponWorld = weaponWorld,
+        WeaponCamera = weaponCamera,
+        WeaponRaw = nil,
+        WeaponName = nil,
+        WeaponReady = false,
+        Corners = corners,
+        TagCard = tagCard,
+        TagCardStroke = cardStroke,
+        TagLabel = tagLabel,
+        SkeletonLines = skeletonLines,
+        LastText = "",
+        Character = nil,
+        BodyParts = nil,
+        BodyBounds = nil,
+        NextBoundsRefresh = 0,
+        SmoothRect = nil,
+    }
+    screenEspCache[plr] = data
+    return data
+end
+
+function getXCEquippedWeapon(plr, char)
+    local raw = plr:GetAttribute("CurrentEquipped")
+    local weaponName
+    if type(raw) == "string" and raw ~= "" then
+        pcall(function()
+            local decoded = HttpService:JSONDecode(raw)
+            if type(decoded) == "table" then
+                weaponName = decoded.Name or decoded.Weapon or decoded.ItemName
+            end
+        end)
+    end
+    local tool = char and char:FindFirstChildOfClass("Tool")
+    if type(weaponName) ~= "string" or weaponName == "" then
+        weaponName = tool and tool.Name or nil
+    end
+    return weaponName, tool, raw
+end
+
+function clearXCWeaponPreview(esp)
+    esp.WeaponImage.Image = ""
+    esp.WeaponImage.Visible = false
+    esp.WeaponImageShadow.Image = ""
+    esp.WeaponImageShadow.Visible = false
+    esp.WeaponViewport.Visible = false
+    esp.WeaponWorld:ClearAllChildren()
+    esp.WeaponReady = false
+end
+
+function findXCWeaponAsset(weaponName)
+    if type(weaponName) ~= "string" or weaponName == "" then return nil end
+    local assets = ReplicatedStorage:FindFirstChild("Assets")
+    local weapons = assets and assets:FindFirstChild("Weapons")
+    if not weapons then return nil end
+    local direct = weapons:FindFirstChild(weaponName)
+    if direct then return direct end
+    local normalized = weaponName:lower():gsub("[^%w]", "")
+    for _, candidate in ipairs(weapons:GetChildren()) do
+        if candidate.Name:lower():gsub("[^%w]", "") == normalized then return candidate end
+    end
+    return nil
+end
+
+function findXCCharacterWeaponVisual(character, weaponName)
+    if not character or type(weaponName) ~= "string" then return nil end
+    local direct = character:FindFirstChild(weaponName, true)
+    if direct and (direct:IsA("Model") or direct:IsA("Tool") or direct:IsA("BasePart")) then return direct end
+    local normalized = weaponName:lower():gsub("[^%w]", "")
+    for _, candidate in ipairs(character:GetDescendants()) do
+        if (candidate:IsA("Model") or candidate:IsA("Tool"))
+            and candidate.Name:lower():gsub("[^%w]", "") == normalized then
+            return candidate
+        end
+    end
+    return nil
+end
+
+function buildXCWeaponViewport(esp, weaponName, tool, character)
+    clearXCWeaponPreview(esp)
+
+    if tool and type(tool.TextureId) == "string" and tool.TextureId ~= "" then
+        esp.WeaponImage.Image = tool.TextureId
+        esp.WeaponImageShadow.Image = tool.TextureId
+        esp.WeaponImage.Visible = true
+        esp.WeaponImageShadow.Visible = true
+        esp.WeaponReady = true
+        return true
+    end
+    if tool then
+        local embedded = tool:FindFirstChildWhichIsA("ImageLabel", true)
+        if embedded and embedded.Image ~= "" then
+            esp.WeaponImage.Image = embedded.Image
+            esp.WeaponImageShadow.Image = embedded.Image
+            esp.WeaponImage.Visible = true
+            esp.WeaponImageShadow.Visible = true
+            esp.WeaponReady = true
+            return true
+        end
+    end
+
+    local characterVisual = findXCCharacterWeaponVisual(character, weaponName)
+    local asset = findXCWeaponAsset(weaponName)
+    local source = characterVisual or (asset and (
+        asset:FindFirstChild("World")
+        or asset:FindFirstChild("Dropped")
+        or asset:FindFirstChild("ThirdPerson")
+        or asset:FindFirstChild("Camera")
+        or asset
+    )) or tool
+    if not source then return false end
+
+    local ok, clone = pcall(function() return source:Clone() end)
+    if not ok or not clone then return false end
+    clone.Parent = esp.WeaponWorld
+    local cloneObjects = {clone}
+    local visibleParts = {}
+    for _, object in ipairs(clone:GetDescendants()) do table.insert(cloneObjects, object) end
+    for _, object in ipairs(cloneObjects) do
+        if object:IsA("LuaSourceContainer") then
+            object:Destroy()
+        elseif object:IsA("BasePart") then
+            local lower = object.Name:lower()
+            if lower:find("arm", 1, true) or lower:find("hand", 1, true)
+                or lower:find("glove", 1, true) or lower:find("sleeve", 1, true)
+                or lower == "root" or lower:find("camera", 1, true)
+                or lower:find("reference", 1, true) or lower:find("pivot", 1, true) then
+                object:Destroy()
+            else
+                object.Anchored = true
+                object.CanCollide = false
+                object.CanTouch = false
+                object.CanQuery = false
+                object.CastShadow = false
+                object.Color = currentTheme.Enemy_Accent
+                object.Material = Enum.Material.Neon
+                object.Reflectance = 0
+                if object:IsA("MeshPart") then object.TextureID = "" end
+                if object.Transparency < 0.98 then table.insert(visibleParts, object) end
+            end
+        elseif object:IsA("SurfaceAppearance") or object:IsA("Decal") or object:IsA("Texture") then
+            object:Destroy()
+        end
+    end
+
+    if #visibleParts == 0 then
+        clearXCWeaponPreview(esp)
+        return false
+    end
+
+    local minimum = Vector3.new(math.huge, math.huge, math.huge)
+    local maximum = Vector3.new(-math.huge, -math.huge, -math.huge)
+    for _, part in ipairs(visibleParts) do
+        local half = part.Size * 0.5
+        for x = -1, 1, 2 do
+            for y = -1, 1, 2 do
+                for z = -1, 1, 2 do
+                    local point = part.CFrame:PointToWorldSpace(Vector3.new(half.X * x, half.Y * y, half.Z * z))
+                    minimum = Vector3.new(math.min(minimum.X, point.X), math.min(minimum.Y, point.Y), math.min(minimum.Z, point.Z))
+                    maximum = Vector3.new(math.max(maximum.X, point.X), math.max(maximum.Y, point.Y), math.max(maximum.Z, point.Z))
+                end
+            end
+        end
+    end
+    local boundsSize = maximum - minimum
+    if boundsSize.Magnitude < 0.01 then clearXCWeaponPreview(esp) return false end
+
+    local center = (minimum + maximum) * 0.5
+    local longOnX = boundsSize.X >= boundsSize.Z
+    local viewDirection = longOnX and Vector3.new(0, 0.08, 1) or Vector3.new(1, 0.08, 0)
+    local horizontalSize = longOnX and boundsSize.X or boundsSize.Z
+    local depthSize = longOnX and boundsSize.Z or boundsSize.X
+    local fieldOfView = 24
+    local tangent = math.tan(math.rad(fieldOfView * 0.5))
+    local viewportAspect = 2.6
+    local distanceForWidth = horizontalSize / math.max(0.01, 2 * tangent * viewportAspect)
+    local distanceForHeight = boundsSize.Y / math.max(0.01, 2 * tangent)
+    local cameraDistance = math.max(distanceForWidth, distanceForHeight, 0.35) * 1.18 + depthSize * 0.5
+    esp.WeaponCamera.FieldOfView = fieldOfView
+    esp.WeaponCamera.CFrame = CFrame.lookAt(center + viewDirection.Unit * cameraDistance, center, Vector3.yAxis)
+    esp.WeaponViewport.Visible = true
+    esp.WeaponReady = true
+    return true
+end
+
+function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxWidth, boxHeight)
+    if not XCConfig.weaponEspEnabled then
+        esp.WeaponCard.Visible = false
+        return
+    end
+
+    local weaponName, tool, raw = getXCEquippedWeapon(plr, char)
+    local key = tostring(raw or "") .. "|" .. tostring(weaponName or "") .. "|" .. tostring(tool)
+    local now = os.clock()
+    if key ~= esp.WeaponRaw or (not esp.WeaponReady and now >= (esp.WeaponNextRetry or 0)) then
+        esp.WeaponRaw = key
+        esp.WeaponName = weaponName
+        esp.WeaponNextRetry = now + 1
+        buildXCWeaponViewport(esp, weaponName, tool, char)
+    end
+
+    local weaponLime = currentTheme.Enemy_Accent
+    esp.WeaponCardStroke.Color = weaponLime
+    esp.WeaponImage.ImageColor3 = weaponLime
+    esp.WeaponImageShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    esp.WeaponViewport.Ambient = weaponLime
+    esp.WeaponViewport.LightColor = Color3.fromRGB(225, 255, 160)
+    local iconWidth = math.floor(math.clamp(boxWidth * 1.45, 42, 68) + 0.5)
+    local iconHeight = math.floor(math.clamp(iconWidth * 0.38, 18, 27) + 0.5)
+    esp.WeaponCard.Size = UDim2.fromOffset(iconWidth, iconHeight)
+    esp.WeaponCard.Position = UDim2.fromOffset(boxPosX + boxWidth * 0.5, boxPosY + boxHeight + 3)
+    esp.WeaponCard.Visible = weaponName ~= nil and esp.WeaponReady
+end
+
+table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
+    local oldChar = plr.Character
+    local oldHum = oldChar and oldChar:FindFirstChildOfClass("Humanoid")
+    if oldHum then
+        hitmarkerPendingHits[oldHum] = nil
+    end
+    if oldChar then hitmarkerPendingHits[oldChar] = nil end
+
+    local cache = screenEspCache[plr]
+    if cache then
+        pcall(function()
+            cache.Box:Destroy()
+            cache.BoxOutline:Destroy()
+            cache.HealthBarBg:Destroy()
+            cache.WeaponCard:Destroy()
+            cache.TagCard:Destroy()
+            for _, corner in pairs(cache.Corners) do
+                corner.H:Destroy()
+                corner.V:Destroy()
+            end
+            for _, line in ipairs(cache.SkeletonLines) do line:Destroy() end
+        end)
+        screenEspCache[plr] = nil
+    end
+end))
+--// TACTICAL ESP
+local tacticalOverlayWasActive = false
+function hideTacticalOverlay()
+    for _, esp in pairs(screenEspCache) do
+        esp.Box.Visible = false
+        esp.BoxOutline.Visible = false
+        esp.HealthBarBg.Visible = false
+        esp.WeaponCard.Visible = false
+        esp.TagCard.Visible = false
+        for _, corner in ipairs(esp.Corners) do
+            corner.H.Visible = false
+            corner.V.Visible = false
+        end
+        hideXCSkeleton(esp)
+    end
+end
+
+-- Produces one stable rectangle shared by Box ESP, Corner Box and Health Bar.
+-- Screen position always uses the current camera frame (no positional lerp),
+-- while size follows true camera-to-target distance and is independent of FOV.
+function getXCCharacterScreenRect(esp, char, rootPart)
+    if esp.Character ~= char then
+        esp.Character = char
+        esp.SmoothRect = nil
+    end
+
+    local rootPosition = rootPart.Position
+    local currentFov = math.clamp(tonumber(camera.FieldOfView) or 70, 10, 120)
+    if esp.LastProjectionFov and math.abs(esp.LastProjectionFov - currentFov) > 0.05 then
+        esp.SmoothRect = nil
+    end
+    esp.LastProjectionFov = currentFov
+
+    local rootScreen = camera:WorldToViewportPoint(rootPosition + Vector3.new(0, 0.15, 0))
+    if rootScreen.Z <= 0.2 then
+        esp.SmoothRect = nil
+        return nil
+    end
+    local viewport = camera.ViewportSize
+    local preferredAspect = math.clamp(tonumber(XCConfig.espBoxAspect) or 0.52, 0.38, 0.8)
+    local perspectiveScale = math.clamp(tonumber(XCConfig.espPerspectiveScale) or 1, 0.65, 1.5)
+
+    -- Project a fixed six-stud body against a virtual 70-degree camera. The
+    -- position follows the live camera, while box size uses radial distance
+    -- only—not camera yaw, Custom FOV, or render order.
+    local distance = (rootPosition - camera.CFrame.Position).Magnitude
+    if distance <= 0.2 then
+        esp.SmoothRect = nil
+        return nil
+    end
+
+    local referenceFocal = viewport.Y / (2 * math.tan(math.rad(35)))
+    local projectedHeight = (6 * referenceFocal / distance) * perspectiveScale
+    local maxHeight = math.max(80, viewport.Y * 0.72)
+    local height = math.clamp(projectedHeight, 16, maxHeight)
+    local width = height * preferredAspect
+    local centerScreenX = rootScreen.X
+    local centerScreenY = rootScreen.Y
+    local target = {
+        X = centerScreenX - width * 0.5,
+        Y = centerScreenY - height * 0.5,
+        W = width,
+        H = height,
+    }
+    local smooth = math.clamp(tonumber(XCConfig.espBoxSmoothing) or 0.42, 0, 0.9)
+    local alpha = 1 - smooth
+    local old = esp.SmoothRect
+    if old then
+        -- Only dimensions are smoothed. Smoothing X/Y makes ESP visibly trail
+        -- behind targets whenever the player rotates the camera at high FOV.
+        height = old.H + (height - old.H) * alpha
+        width = height * preferredAspect
+        target.X = centerScreenX - width * 0.5
+        target.Y = centerScreenY - height * 0.5
+        target.W = width
+        target.H = height
+    end
+
+    target.X = math.floor(target.X + 0.5)
+    target.Y = math.floor(target.Y + 0.5)
+    target.W = math.max(2, math.floor(target.W + 0.5))
+    target.H = math.max(2, math.floor(target.H + 0.5))
+    esp.SmoothRect = target
+
+    if target.X > viewport.X or target.Y > viewport.Y or target.X + target.W < 0 or target.Y + target.H < 0 then
+        return nil
+    end
+    return target
+end
+
+function renderTacticalOverlay()
+    local active = XCConfig.nametagsEnabled or XCConfig.boxEspEnabled or XCConfig.cornerBoxEnabled
+        or XCConfig.healthBarEnabled or XCConfig.skeletonEspEnabled or XCConfig.weaponEspEnabled
+    if not active then
+        if tacticalOverlayWasActive then hideTacticalOverlay() end
+        tacticalOverlayWasActive = false
+        return
+    end
+    tacticalOverlayWasActive = true
+    local camPos = camera.CFrame.Position
+    local allPlayers = Players:GetPlayers()
+
+    for i = 1, #allPlayers do
+        local plr = allPlayers[i]
+        local esp = getOrCreateScreenEsp(plr)
+        local char = plr.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
+        local head = char and char:FindFirstChild("Head")
+
+        local isEnemy = isTargetEnemy(plr, char)
+        local isAlive = isEntityAlive(char, hum)
+        local health, maxHealth = getXCHealth(char, plr, hum)
+
+        if isEnemy and isAlive and rootPart and active then
+            local dist = (rootPart.Position - camPos).Magnitude
+
+            if dist <= XCConfig.espMaxDist then
+                local isVisible = isVisibleThroughWalls(head or rootPart, char)
+                local sideColor = isVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
+
+                local screenRect = getXCCharacterScreenRect(esp, char, rootPart)
+
+                if screenRect then
+                    local boxHeight = screenRect.H
+                    local boxWidth = screenRect.W
+                    local boxPosX = screenRect.X
+                    local boxPosY = screenRect.Y
+
+                    if XCConfig.boxEspEnabled and not XCConfig.cornerBoxEnabled then
+                        esp.BoxStroke.Color = sideColor
+                        local boxStrokeWidth = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
+                        esp.BoxStroke.Thickness = boxStrokeWidth
+                        esp.Box.Size = UDim2.new(0, boxWidth, 0, boxHeight)
+                        esp.Box.Position = UDim2.new(0, boxPosX, 0, boxPosY)
+                        esp.Box.Visible = true
+                        esp.BoxOutlineStroke.Thickness = boxStrokeWidth + 2
+                        esp.BoxOutline.Size = esp.Box.Size
+                        esp.BoxOutline.Position = esp.Box.Position
+                        esp.BoxOutline.Visible = XCConfig.espBoxOutline
+                        for _, corner in ipairs(esp.Corners) do
+                            corner.H.Visible = false
+                            corner.V.Visible = false
+                        end
+                    elseif XCConfig.cornerBoxEnabled then
+                        esp.Box.Visible = false
+                        esp.BoxOutline.Visible = false
+                        local lengthX = math.min(
+                            math.floor(math.clamp(boxWidth * 0.30, 3, 28) + 0.5),
+                            math.max(2, math.floor(boxWidth * 0.48))
+                        )
+                        local lengthY = math.min(
+                            math.floor(math.clamp(boxHeight * 0.20, 5, 36) + 0.5),
+                            math.max(3, math.floor(boxHeight * 0.48))
+                        )
+                        local thick = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
+
+                        for _, corner in ipairs(esp.Corners) do
+                            corner.H.BackgroundColor3 = sideColor
+                            corner.V.BackgroundColor3 = sideColor
+                            corner.HOutline.Enabled = XCConfig.espBoxOutline
+                            corner.VOutline.Enabled = XCConfig.espBoxOutline
+                        end
+
+                        esp.Corners[1].H.Size = UDim2.new(0, lengthX, 0, thick)
+                        esp.Corners[1].H.Position = UDim2.new(0, boxPosX, 0, boxPosY)
+                        esp.Corners[1].H.Visible = true
+
+                        esp.Corners[1].V.Size = UDim2.new(0, thick, 0, lengthY)
+                        esp.Corners[1].V.Position = UDim2.new(0, boxPosX, 0, boxPosY)
+                        esp.Corners[1].V.Visible = true
+
+                        esp.Corners[2].H.Size = UDim2.new(0, lengthX, 0, thick)
+                        esp.Corners[2].H.Position = UDim2.new(0, boxPosX + boxWidth - lengthX, 0, boxPosY)
+                        esp.Corners[2].H.Visible = true
+
+                        esp.Corners[2].V.Size = UDim2.new(0, thick, 0, lengthY)
+                        esp.Corners[2].V.Position = UDim2.new(0, boxPosX + boxWidth - thick, 0, boxPosY)
+                        esp.Corners[2].V.Visible = true
+
+                        esp.Corners[3].H.Size = UDim2.new(0, lengthX, 0, thick)
+                        esp.Corners[3].H.Position = UDim2.new(0, boxPosX, 0, boxPosY + boxHeight - thick)
+                        esp.Corners[3].H.Visible = true
+
+                        esp.Corners[3].V.Size = UDim2.new(0, thick, 0, lengthY)
+                        esp.Corners[3].V.Position = UDim2.new(0, boxPosX, 0, boxPosY + boxHeight - lengthY)
+                        esp.Corners[3].V.Visible = true
+
+                        esp.Corners[4].H.Size = UDim2.new(0, lengthX, 0, thick)
+                        esp.Corners[4].H.Position = UDim2.new(0, boxPosX + boxWidth - lengthX, 0, boxPosY + boxHeight - thick)
+                        esp.Corners[4].H.Visible = true
+
+                        esp.Corners[4].V.Size = UDim2.new(0, thick, 0, lengthY)
+                        esp.Corners[4].V.Position = UDim2.new(0, boxPosX + boxWidth - thick, 0, boxPosY + boxHeight - lengthY)
+                        esp.Corners[4].V.Visible = true
+                    else
+                        esp.Box.Visible = false
+                        esp.BoxOutline.Visible = false
+                        for _, corner in ipairs(esp.Corners) do
+                            corner.H.Visible = false
+                            corner.V.Visible = false
+                        end
+                    end
+
+                    if XCConfig.healthBarEnabled and health then
+                        local hpPercent = math.clamp(health / maxHealth, 0, 1)
+
+                        local barWidth = boxHeight < 32 and 3 or 4
+                        local barGap = boxHeight < 32 and 2 or 3
+                        local barX = boxPosX - barWidth - barGap
+                        local barY = boxPosY
+                        local fillHeight = math.max(1, math.floor((boxHeight - 2) * hpPercent + 0.5))
+
+                        esp.HealthBarBg.Size = UDim2.new(0, barWidth, 0, boxHeight)
+                        esp.HealthBarBg.Position = UDim2.new(0, barX, 0, barY)
+                        esp.HealthBarBg.Visible = true
+
+                        esp.HealthBarFill.Position = UDim2.new(0, 1, 1, -1)
+                        esp.HealthBarFill.Size = UDim2.fromOffset(barWidth - 2, fillHeight)
+                        
+                        esp.HealthBarFill.BackgroundColor3 = Color3.new(1, 1, 1)
+                        local healthGradient = esp.HealthBarFill:FindFirstChild("HealthGradient")
+                        local healthHigh = isVisible and currentTheme.HealthHigh or currentTheme.Enemy_Hidden
+                        local healthMid = isVisible and currentTheme.HealthMid or currentTheme.Enemy_Hidden
+                        local healthLow = isVisible and currentTheme.HealthLow or currentTheme.Enemy_Hidden
+                        if healthGradient and (esp.HealthGradientHigh ~= healthHigh
+                            or esp.HealthGradientMid ~= healthMid or esp.HealthGradientLow ~= healthLow) then
+                            healthGradient.Color = ColorSequence.new({
+                                ColorSequenceKeypoint.new(0, healthHigh),
+                                ColorSequenceKeypoint.new(0.55, healthMid),
+                                ColorSequenceKeypoint.new(1, healthLow),
+                            })
+                            esp.HealthGradientHigh, esp.HealthGradientMid, esp.HealthGradientLow = healthHigh, healthMid, healthLow
+                        end
+                    else
+                        esp.HealthBarBg.Visible = false
+                    end
+
+                    if XCConfig.nametagsEnabled then
+                        esp.TagCard.BackgroundTransparency = XCConfig.tagTransparency
+                        esp.TagCardStroke.Enabled = false
+                        esp.TagLabel.TextColor3 = currentTheme.Enemy_Accent
+                        esp.TagLabel.TextSize = XCConfig.espTextSize
+
+                        local baseName = plr.DisplayName or plr.Name
+                        local infoText = baseName
+                        
+                        if XCConfig.espShowDistance then
+                            infoText = string.format("%s [%dm]", infoText, math.floor(dist))
+                        end
+                        if XCConfig.espShowHealth and health then
+                            infoText = string.format("%s [%dHP]", infoText, math.floor(health + 0.5))
+                        end
+                        if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then
+                            local tool = char:FindFirstChildOfClass("Tool")
+                            if tool then
+                                infoText = string.format("%s {%s}", infoText, tool.Name)
+                            end
+                        end
+
+                        if esp.LastText ~= infoText then
+                            esp.TagLabel.Text = infoText
+                            esp.LastText = infoText
+                        end
+
+                        esp.TagCard.Position = UDim2.new(0, boxPosX + boxWidth * 0.5, 0, boxPosY - 4)
+                        esp.TagCard.Visible = true
+                    else
+                        esp.TagCard.Visible = false
+                    end
+                    updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxWidth, boxHeight)
+                    renderXCSkeleton(esp, char, sideColor, dist)
+                else
+                    esp.Box.Visible = false
+                    esp.BoxOutline.Visible = false
+                    esp.HealthBarBg.Visible = false
+                    esp.WeaponCard.Visible = false
+                    for _, corner in ipairs(esp.Corners) do
+                        corner.H.Visible = false
+                        corner.V.Visible = false
+                    end
+                    esp.TagCard.Visible = false
+                    hideXCSkeleton(esp)
+                end
+            else
+                esp.Box.Visible = false
+                esp.BoxOutline.Visible = false
+                esp.HealthBarBg.Visible = false
+                esp.WeaponCard.Visible = false
+                for _, corner in ipairs(esp.Corners) do
+                    corner.H.Visible = false
+                    corner.V.Visible = false
+                end
+                esp.TagCard.Visible = false
+                hideXCSkeleton(esp)
+            end
+        else
+            esp.Box.Visible = false
+            esp.BoxOutline.Visible = false
+            esp.HealthBarBg.Visible = false
+            esp.WeaponCard.Visible = false
+            for _, corner in ipairs(esp.Corners) do
+                corner.H.Visible = false
+                corner.V.Visible = false
+            end
+            esp.TagCard.Visible = false
+            hideXCSkeleton(esp)
+        end
+    end
+end
+--// 3D ESP
+function attachEspToPlayer(plr)
+    if plr == player then return end
+
+    local holder = Instance.new("Folder")
+    holder.Name = "XCESP_" .. plr.Name
+    holder.Parent = mainContainer
+
+    local dotBillboard = Instance.new("BillboardGui", holder)
+    dotBillboard.Size = UDim2.new(0, 6, 0, 6)
+    dotBillboard.StudsOffset = Vector3.new(0, 0.5, 0)
+    dotBillboard.AlwaysOnTop = true
+    dotBillboard.Enabled = false
+
+    local dotFrame = Instance.new("Frame", dotBillboard)
+    dotFrame.Size = UDim2.new(1, 0, 1, 0)
+    dotFrame.BackgroundColor3 = currentTheme.Enemy_Accent
+    dotFrame.BorderSizePixel = 0
+    Instance.new("UICorner", dotFrame).CornerRadius = UDim.new(1, 0)
+
+    local tracerLine = Instance.new("Frame", mainContainer)
+    tracerLine.AnchorPoint = Vector2.new(0.5, 0.5)
+    tracerLine.BorderSizePixel = 0
+    tracerLine.BackgroundColor3 = currentTheme.Enemy_Accent
+    tracerLine.Visible = false
+
+    local hl = Instance.new("Highlight")
+    hl.Name = "XCChams_" .. plr.Name
+    hl.FillTransparency = XCConfig.chamsFillTransparency
+    hl.OutlineTransparency = XCConfig.chamsOutlineTransparency
+    hl.Enabled = false
+    hl.FillColor = currentTheme.Enemy_Accent
+    hl.OutlineColor = currentTheme.TextPrimary
+    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    hl.Parent = holder
+
+    local function setupCharacter(char)
+        if not char then return end
+        task.spawn(function()
+            local head = char:WaitForChild("Head", 3)
+            if head and dotBillboard then
+                dotBillboard.Adornee = head
+            end
+            if hl then
+                hl.Adornee = char
+            end
+        end)
+    end
+
+    if plr.Character then setupCharacter(plr.Character) end
+    local charConn = plr.CharacterAdded:Connect(setupCharacter)
+    local charRemConn = plr.CharacterRemoving:Connect(function()
+        if hl then
+            hl.Adornee = nil
+            hl.Enabled = false
+        end
+    end)
+    table.insert(connections, charConn)
+    table.insert(connections, charRemConn)
+
+    activeEspHolders[plr] = {
+        Holder = holder,
+        HeadDot = dotBillboard,
+        DotFrame = dotFrame,
+        Tracer = tracerLine,
+        Highlight = hl
+    }
+end
+
+for _, v in pairs(Players:GetPlayers()) do attachEspToPlayer(v) end
+table.insert(connections, Players.PlayerAdded:Connect(attachEspToPlayer))
+--// MAIN ENGINE RENDER LOOP
+local visualOverlayAccumulator = 0
+local interfaceRefreshAccumulator = 0
+local threeDEspWasActive = false
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    camera = Workspace.CurrentCamera or camera
+    if not camera then return end
+
+    applyThirdPerson(dt)
+
+    local localPos = camera.CFrame.Position
+
+    fpsCounter = fpsCounter + 1
+    local nowTick = tick()
+    if nowTick - lastFpsUpdate >= 0.5 then
+        local currentFps = math.floor(fpsCounter / (nowTick - lastFpsUpdate))
+        local pingVal = 0
+        pcall(function()
+            local serverStats = Stats:FindFirstChild("Network") and Stats.Network:FindFirstChild("ServerStatsItem")
+            if serverStats and serverStats:FindFirstChild("Data Ping") then
+                pingVal = math.floor(serverStats["Data Ping"]:GetValue())
+            end
+        end)
+        local parts = {}
+        if XCConfig.watermarkShowFPS then table.insert(parts, string.format("FPS: %d", currentFps)) end
+        if XCConfig.watermarkShowPing then table.insert(parts, string.format("PING: %dms", pingVal)) end
+        wmMetrics.Text = table.concat(parts, " | ")
+        fpsCounter = 0
+        lastFpsUpdate = nowTick
+    end
+    -- Static UI properties do not need to be reassigned every rendered frame.
+    -- 10 Hz keeps controls visually immediate while reducing property churn.
+    interfaceRefreshAccumulator = interfaceRefreshAccumulator + (dt)
+    if interfaceRefreshAccumulator >= 0.1 then
+        interfaceRefreshAccumulator = 0
+        wmCard.Visible = XCConfig.watermarkEnabled
+        wmTitle.Text = XCConfig.watermarkText or "XC"
+        if XCConfig.watermarkShowName then
+            wmTitle.Text = (XCConfig.watermarkText or "XC") .. " • " .. player.Name
+        end
+        wmMetrics.Visible = XCConfig.watermarkShowFPS or XCConfig.watermarkShowPing
+        wmDivider.Visible = wmMetrics.Visible
+
+        if fovFrame then
+            local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
+            fovFrame.Visible = isFovVisible
+            if isFovVisible then
+                local diameter = XCConfig.aimFov * 2
+                fovFrame.Size = UDim2.new(0, diameter, 0, diameter)
+            end
+        end
+
+        if silentFovFrame then
+            local isSilentFovVisible = XCConfig.silentAimEnabled and XCConfig.showSilentFovCircle
+            silentFovFrame.Visible = isSilentFovVisible
+            if isSilentFovVisible then
+                local diameter = XCConfig.silentAimFov * 2
+                silentFovFrame.Size = UDim2.new(0, diameter, 0, diameter)
+            end
+        end
+    end
+
+    if XCConfig.silentAimEnabled then
+        -- Perfect Silent is intentionally native-only. If the real Bullet
+        -- ray hook is unavailable, do not fall back to broad camera/workspace
+        -- interception that could redirect unrelated raycasts.
+        local silentRequested = (not XCConfig.pSilentEnabled) or xcNativeSilentHooked
+        setXCSilentAimRequested(silentRequested)
+        silentAimResolved = silentRequested and getSilentAimTarget() or nil
+    else
+        setXCSilentAimRequested(false)
+        silentAimResolved = nil
+        xcSilentShotContextV31 = nil
+        if sharedXCEnv then sharedXCEnv.XCSilentShotContextV31 = nil end
+    end
+
+    -- RAGEBOT & AIMBOT EXECUTION
+    -- Ragebot does not move the camera. Auto fire uses Triggerbot's firing
+    -- path; every actual bullet is redirected by the shared native hook.
+    if XCConfig.rageBotEnabled then
+        local target = getRageTarget()
+        if target and target.Part and target.Part.Parent
+            and XCConfig.rageAutoFire
+            and tick() - lastTriggerTick > math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5) then
+
+            lastTriggerTick = tick()
+            pcall(function()
+                local vp = camera.ViewportSize
+                triggerbotFire(
+                    vp,
+                    target.Part,
+                    target.Char,
+                    target.AimPosition or target.ShotPosition or target.Position,
+                    "Rage"
+                )
+            end)
+        end
+    elseif XCConfig.aimbotEnabled then
+        local target = getClosestTarget()
+        if target and target.Part and target.Part.Parent then
+            local aimPos = getKinematicAimPosition(target.Part)
+            local currentCF = camera.CFrame
+            local desiredCF = CFrame.lookAt(currentCF.Position, aimPos)
+
+            if XCConfig.snapAimMode then
+                camera.CFrame = desiredCF
+            else
+                local responsiveness = math.clamp(XCConfig.aimbotSpeed, 1, 100)
+                local damping = 1 - math.clamp(XCConfig.aimbotSmoothness, 0, 0.95)
+                local effectiveFactor = 1 - math.exp(-responsiveness * damping * dt)
+                camera.CFrame = currentCF:Lerp(desiredCF, effectiveFactor)
+            end
+        end
+    else
+        currentAimTarget = nil
+    end
+
+    runMobileTriggerbot()
+
+    visualOverlayAccumulator = visualOverlayAccumulator + (dt)
+    if visualOverlayAccumulator >= (1 / 30) then
+        visualOverlayAccumulator = 0
+        renderTacticalOverlay()
+        renderGrenadeOverlays()
+        renderXCGrenadeDangerZones()
+        renderXCSoundPositionEsp()
+
+        local threeDEspActive = XCConfig.chamsEnabled or XCConfig.headDotEnabled or XCConfig.tracersEnabled
+        if threeDEspActive or threeDEspWasActive then
+        for plr, data in pairs(activeEspHolders) do
+            repeat
+        if not threeDEspActive then
+            data.HeadDot.Enabled = false
+            data.Highlight.Enabled = false
+            data.Tracer.Visible = false
+            break
+        end
+        local char = plr.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
+        local head = char and char:FindFirstChild("Head")
+        
+        local ally = isAlly(plr)
+        local isAlive = isEntityAlive(char, hum)
+        local dist = rootPart and (rootPart.Position - localPos).Magnitude or 9999
+
+        if char and isAlive and (dist <= XCConfig.espMaxDist) then
+            local isVisible = isVisibleThroughWalls(head or rootPart, char)
+            
+            if XCConfig.chamsEnabled then
+                if ally and not XCConfig.chamsShowTeammates then
+                    data.Highlight.Enabled = false
+                else
+                    data.Highlight.Enabled = true
+                    if data.Highlight.Adornee ~= char then
+                        data.Highlight.Adornee = char
+                    end
+                    data.Highlight.FillTransparency = XCConfig.chamsFillTransparency
+                    data.Highlight.OutlineTransparency = XCConfig.chamsOutlineTransparency
+                    if ally then
+                        data.Highlight.FillColor = currentTheme.Enemy_Accent:Lerp(currentTheme.TextPrimary, 0.45)
+                        data.Highlight.OutlineColor = currentTheme.TextPrimary
+                    else
+                        local chamsAccent = isVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
+                        data.Highlight.FillColor = XCConfig.chamsOcclusion and chamsAccent or currentTheme.Enemy_Accent
+                        data.Highlight.OutlineColor = XCConfig.chamsOcclusion and chamsAccent or currentTheme.Enemy_Accent
+                    end
+                end
+            else
+                data.Highlight.Enabled = false
+            end
+
+            if not ally then
+                local activeAccent = isVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
+                
+                if head and data.HeadDot.Adornee ~= head then
+                    data.HeadDot.Adornee = head
+                end
+                data.DotFrame.BackgroundColor3 = activeAccent
+                data.HeadDot.Enabled = XCConfig.headDotEnabled
+
+                if XCConfig.tracersEnabled and rootPart then
+                    local scrPos, onScreen = camera:WorldToViewportPoint(rootPart.Position)
+                    if onScreen and scrPos.Z > 0 then
+                        local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
+                        local dest = Vector2.new(scrPos.X, scrPos.Y)
+                        local lineDist = (dest - origin).Magnitude
+                        local center = (origin + dest) * 0.5
+                        local angle = math.deg(math.atan2(dest.Y - origin.Y, dest.X - origin.X))
+
+                        data.Tracer.BackgroundColor3 = activeAccent
+                        data.Tracer.Size = UDim2.new(0, lineDist, 0, 1.5)
+                        data.Tracer.Position = UDim2.new(0, center.X, 0, center.Y)
+                        data.Tracer.Rotation = angle
+                        data.Tracer.Visible = true
+                    else
+                        data.Tracer.Visible = false
+                    end
+                else
+                    data.Tracer.Visible = false
+                end
+            else
+                data.HeadDot.Enabled = false
+                data.Tracer.Visible = false
+            end
+        else
+            data.HeadDot.Enabled = false
+            data.Highlight.Enabled = false
+            data.Tracer.Visible = false
+            if data.Highlight.Adornee then data.Highlight.Adornee = nil end
+            if data.HeadDot.Adornee then data.HeadDot.Adornee = nil end
+        end
+            until true
+        end
+        end
+        threeDEspWasActive = threeDEspActive
+    end
+
+    if XCConfig.fullBrightEnabled then
+        Lighting.Brightness = 3
+        Lighting.ClockTime = 14
+        Lighting.GlobalShadows = false
+    elseif XCConfig.nightModeEnabled then
+        local cfg = nightPresets[XCConfig.nightPreset] or nightPresets["Midnight"]
+        Lighting.Brightness = XCConfig.nightBrightness or cfg.Brightness
+        Lighting.ClockTime = XCConfig.nightClockTime or cfg.ClockTime
+        Lighting.GlobalShadows = true
+        Lighting.OutdoorAmbient = cfg.OutdoorAmbient
+        Lighting.Ambient = cfg.Ambient
+    end
+
+    if XCConfig.removeFogEnabled then
+        Lighting.FogEnd = 100000
+    else
+        Lighting.FogEnd = defaultLighting.FogEnd
+    end
+    updateXCAntiFlashState(XCConfig.antiFlashEnabled)
+end))
+
+-- Stateful anti-flash: preserve the game's original Enabled values instead
+-- of permanently disabling ColorCorrectionEffect objects.
+local xcAntiFlashSaved = setmetatable({}, {__mode = "k"})
+function updateXCAntiFlashState(enabled)
+    if enabled then
+        for _, effect in ipairs(Lighting:GetChildren()) do
+            if effect:IsA("ColorCorrectionEffect") and effect.Saturation < -0.5 then
+                if xcAntiFlashSaved[effect] == nil then xcAntiFlashSaved[effect] = effect.Enabled end
+                if effect.Enabled then effect.Enabled = false end
+            end
+        end
+    else
+        for effect, originalEnabled in pairs(xcAntiFlashSaved) do
+            if effect and effect.Parent then
+                pcall(function() effect.Enabled = originalEnabled == true end)
+            end
+            xcAntiFlashSaved[effect] = nil
+        end
+    end
+end
+--// ANTI-AIM ROTATION SHLAK
+function resetXCCharacterInputState()
+    xcCharacterInputHook.Character = nil
+    xcCharacterInputHook.GroundSince = nil
+    xcCharacterInputHook.LastJumpDown = false
+    xcCharacterInputHook.AntiCharacter = nil
+    xcCharacterInputHook.AntiStarted = nil
+    xcCharacterInputHook.AntiLastStep = nil
+    xcCharacterInputHook.RandomYaw = nil
+    xcCharacterInputHook.AntiComputedStep = nil
+    xcCharacterInputHook.AntiComputedRandomYaw = nil
+    xcCharacterInputHook.AntiFireUntil = 0
+end
+
+function restoreXCCharacterInputHook()
+    local state = xcCharacterInputHook
+    if state.Module and state.Wrapper and state.Module.SampleInput == state.Wrapper and state.Original then
+        pcall(function() state.Module.SampleInput = state.Original end)
+    end
+    if state.Module and rawget(state.Module, "__XCInputOwner") == xcSessionToken then
+        pcall(function() rawset(state.Module, "__XCInputOwner", nil) end)
+    end
+    state.Ready = false
+    resetXCCharacterInputState()
+end
+
+-- One resolver is shared by the native input hook and the compatibility
+-- fallback. This keeps every preset visually identical on both paths and
+-- avoids running a second anti-aim engine.
+local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart)
+    local baseDegrees = tonumber(XCConfig.antiAimYaw) or 180
+    local rangeDegrees = math.clamp(tonumber(XCConfig.antiAimJitter) or 60, 0, 180)
+    local patternRate = math.clamp(tonumber(XCConfig.spinSpeed) or 50, 10, 150)
+    local rateScale = patternRate / 50
+    local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
+    local side = step % 2 == 0 and -1 or 1
+    local baseYaw = originalYaw + math.rad(baseDegrees)
+
+    local velocity = Vector3.zero
+    if rootPart and rootPart:IsA("BasePart") then
+        velocity = rootPart.AssemblyLinearVelocity
+    end
+    local horizontalVelocity = Vector3.new(velocity.X, 0, velocity.Z)
+    local speed = horizontalVelocity.Magnitude
+
+    local function velocityYaw()
+        if speed < 0.2 then return originalYaw end
+        -- CFrame yaw=0 looks toward -Z, hence the negated X/Z pair.
+        return math.atan2(-horizontalVelocity.X, -horizontalVelocity.Z)
+    end
+
+    if mode == "Vector Shift" then
+        -- Movement-aware: face against travel while continually crossing the
+        -- movement vector. At low speed it becomes a compact alternating hold.
+        if speed > 1.5 then
+            local speedScale = math.clamp(speed / 22, 0.25, 1)
+            return velocityYaw() + math.pi + math.rad(baseDegrees * 0.25)
+                + math.rad(rangeDegrees * (0.28 + 0.22 * speedScale) * side)
+        end
+        return baseYaw + math.rad(rangeDegrees * 0.32 * side)
+
+    elseif mode == "Pendulum Snap" then
+        -- Triangle-wave travel with a hard endpoint snap every fourth phase.
+        local phase = (elapsed / interval) % 4
+        local triangle
+        if phase < 1 then triangle = phase
+        elseif phase < 3 then triangle = 2 - phase
+        else triangle = phase - 4 end
+        local snap = (step % 8 == 0 or step % 8 == 4) and 0.35 * side or 0
+        return baseYaw + math.rad(rangeDegrees * math.clamp(triangle + snap, -1, 1))
+
+    elseif mode == "Crosswind" then
+        -- Uses lateral movement relative to the current look direction. The
+        -- faster the sideways travel, the harder the yaw is pushed crosswise.
+        local lookRight = Vector3.new(math.cos(originalYaw), 0, -math.sin(originalYaw))
+        local lateral = speed > 0.2 and horizontalVelocity.Unit:Dot(lookRight) or 0
+        local windSide = math.abs(lateral) > 0.12 and (lateral > 0 and -1 or 1) or side
+        local speedScale = math.clamp(speed / 18, 0.15, 1)
+        return baseYaw + math.rad(rangeDegrees * windSide * (0.35 + 0.65 * speedScale))
+
+    elseif mode == "Golden Flick" then
+        -- Deterministic golden-angle sequence: it does not repeat in the short
+        -- patterns typical of 2/3-way jitter and does not call math.random.
+        local golden = 137.50776405003785
+        local raw = ((step * golden + patternRate * 0.37) % 360) - 180
+        local scale = rangeDegrees / 180
+        return baseYaw + math.rad(raw * scale)
+
+    elseif mode == "Phase Lattice" then
+        -- Eight-state asymmetric lattice deliberately avoids mirrored pairs.
+        local lattice = {0.12, -0.78, 0.46, 1.00, -0.24, 0.71, -1.00, 0.31}
+        local value = lattice[(step % #lattice) + 1]
+        return baseYaw + math.rad(rangeDegrees * value)
+
+    elseif mode == "Velocity Brake" then
+        -- Moving players face back into their velocity with a speed-dependent
+        -- brake angle. Standing players use a wide two-step hold instead.
+        if speed > 2 then
+            local brake = rangeDegrees > 0 and math.min(rangeDegrees, math.max(8, speed * 2.2)) or 0
+            return velocityYaw() + math.pi + math.rad(brake * side)
+        end
+        local standingRange = rangeDegrees > 0 and math.min(105, rangeDegrees) or 0
+        return baseYaw + math.rad(standingRange * side)
+
+    elseif mode == "Double Pulse" then
+        -- Two quick opposite pulses followed by a longer neutral recovery.
+        local phase = step % 6
+        local pulse
+        if phase == 0 then pulse = 1
+        elseif phase == 1 then pulse = -0.72
+        elseif phase == 2 then pulse = 0.38
+        elseif phase == 3 then pulse = 0
+        elseif phase == 4 then pulse = 0
+        else pulse = -0.18 end
+        return baseYaw + math.rad(rangeDegrees * pulse)
+
+    elseif mode == "Reverse Step" then
+        -- A non-uniform four-corner walk around the base direction. Pattern
+        -- rate subtly rotates the starting phase without continuous spinning.
+        local corners = {-1.0, 0.42, -0.27, 0.83, 0.08}
+        local phaseShift = math.floor(patternRate / 30) % #corners
+        local value = corners[((step + phaseShift) % #corners) + 1]
+        return baseYaw + math.rad(rangeDegrees * value)
+    end
+
+    return baseYaw
+end
+
+function setupXCCharacterInputHook()
+    if xcCharacterInputHook.Ready then return true end
+    local ok, failure = pcall(function()
+        local classes = ReplicatedStorage:FindFirstChild("Classes")
+        local movement = ReplicatedStorage:FindFirstChild("MovementV2")
+        local characterModule = classes and classes:FindFirstChild("Character")
+        local buttonsModule = movement and movement:FindFirstChild("Buttons")
+        assert(characterModule and buttonsModule, "Blox Strike movement modules are unavailable")
+        local module = require(characterModule)
+        local buttons = require(buttonsModule)
+        assert(type(module) == "table" and type(module.SampleInput) == "function", "SampleInput is unavailable")
+        assert(type(buttons) == "table" and type(buttons.has) == "function" and type(buttons.with) == "function", "Button helpers are unavailable")
+        if table.isfrozen and table.isfrozen(module) then error("Character module is frozen", 0) end
+
+        local original = module.SampleInput
+        xcCharacterInputHook.Module = module
+        xcCharacterInputHook.Original = original
+        xcCharacterInputHook.Buttons = buttons
+
+        xcCharacterInputHook.Wrapper = function(character, context, ...)
+            local input = original(character, context, ...)
+            xcCharacterInputHook.Calls = (xcCharacterInputHook.Calls or 0) + 1
+            xcCharacterInputHook.LastCall = os.clock()
+            if type(input) ~= "table" or not xcSessionActive() then return input end
+            local success, modified = pcall(function()
+                local model = player.Character
+                if not model or character.IsDestroyed or character.Character ~= model
+                    or GuiService.MenuIsOpen or UserInputService:GetFocusedTextBox()
+                    or player:GetAttribute("IsPlayerChatting") == true then
+                    resetXCCharacterInputState()
+                    return input
+                end
+
+                local result = input
+                local movementState = context and context.State
+                local now = (context and context.ScheduledServerTime) or os.clock()
+
+                local bhopActive = XCConfig.bunnyHopEnabled and movementState
+                    and not (XCConfig.bhopPauseWithMenu and XCFeatureState.menuOpen)
+                if bhopActive then
+                    if xcCharacterInputHook.Character ~= character then
+                        xcCharacterInputHook.Character = character
+                        xcCharacterInputHook.GroundSince = nil
+                        xcCharacterInputHook.LastJumpDown = buttons.has((movementState.PreviousButtons or 0), buttons.Jump)
+                    end
+                    local moving = input.Move and input.Move.Magnitude > 0.05
+                    local requested = XCConfig.bhopMode == "Automatic" or character.JumpInputDown
+                        or isMobileJumpHeld or buttons.has(input.Buttons, buttons.Jump)
+                    if requested and (not XCConfig.bhopMovingOnly or moving) then
+                        if movementState.OnGround then
+                            xcCharacterInputHook.GroundSince = xcCharacterInputHook.GroundSince or now
+                        else
+                            xcCharacterInputHook.GroundSince = nil
+                        end
+                        local delay = math.clamp(tonumber(XCConfig.bhopGroundDelay) or 0, 0, 0.25)
+                        local jump = movementState.OnGround == true
+                            and not xcCharacterInputHook.LastJumpDown
+                            and xcCharacterInputHook.GroundSince ~= nil
+                            and now - xcCharacterInputHook.GroundSince >= delay
+                        result = table.clone(result)
+                        result.Buttons = buttons.with(input.Buttons, buttons.Jump, jump)
+                        xcCharacterInputHook.LastJumpDown = jump
+                        if jump then xcCharacterInputHook.GroundSince = nil end
+                    else
+                        xcCharacterInputHook.GroundSince = nil
+                        xcCharacterInputHook.LastJumpDown = buttons.has(input.Buttons, buttons.Jump)
+                    end
+                else
+                    xcCharacterInputHook.Character = nil
+                    xcCharacterInputHook.GroundSince = nil
+                    xcCharacterInputHook.LastJumpDown = false
+                end
+
+                -- Pause anti-aim only for the tiny server-input window of a
+                -- local shot. The visual spin resumes immediately afterwards,
+                -- while bullet ray calculation remains camera-based.
+                local weaponIsFiring = false
+                if skinData and type(skinData.GetWeapon) == "function" then
+                    pcall(function()
+                        local weapon = skinData.GetWeapon()
+                        weaponIsFiring = weapon and (weapon.IsFireHeld or weapon.IsShooting or weapon.IsBurstShooting) == true
+                    end)
+                end
+                if weaponIsFiring then
+                    xcCharacterInputHook.AntiFireUntil = os.clock() + 0.16
+                end
+                local antiAimPausedForShot = os.clock() < (xcCharacterInputHook.AntiFireUntil or 0)
+
+                if XCConfig.antiAimEnabled and not antiAimPausedForShot then
+                    if xcCharacterInputHook.AntiCharacter ~= character or not xcCharacterInputHook.AntiStarted then
+                        xcCharacterInputHook.AntiCharacter = character
+                        xcCharacterInputHook.AntiStarted = now
+                        xcCharacterInputHook.AntiLastStep = nil
+                        xcCharacterInputHook.RandomYaw = nil
+                    end
+                    local elapsed = math.max(0, now - xcCharacterInputHook.AntiStarted)
+                    local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
+                    local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
+                    local step = math.floor(elapsed / interval)
+                    local originalYaw = tonumber(result.LookYaw) or 0
+                    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
+                    local rootPart = model:FindFirstChild("HumanoidRootPart")
+                    local yaw = resolveXCAntiAimYaw(
+                        mode, originalYaw, elapsed, step, xcCharacterInputHook, rootPart
+                    )
+                    yaw = (yaw + math.pi) % (math.pi * 2) - math.pi
+                    local move = result.Move or Vector2.zero
+                    if move.Magnitude > 1 then move = move.Unit end
+                    local delta = yaw - originalYaw
+                    local cosine, sine = math.cos(delta), math.sin(delta)
+                    if result == input then result = table.clone(result) end
+                    result.Move = Vector2.new(move.X * cosine - move.Y * sine, move.X * sine + move.Y * cosine)
+                    result.LookYaw = yaw
+                    xcCharacterInputHook.AntiLastStep = step
+                elseif not XCConfig.antiAimEnabled then
+                    xcCharacterInputHook.AntiCharacter = nil
+                    xcCharacterInputHook.AntiStarted = nil
+                end
+                return result
+            end)
+            if success then return modified end
+            xcCharacterInputHook.LastError = tostring(modified)
+            return input
+        end
+
+        module.SampleInput = xcCharacterInputHook.Wrapper
+        rawset(module, "__XCInputOwner", xcSessionToken)
+        xcCharacterInputHook.Ready = true
+        xcCharacterInputHook.LastError = nil
+    end)
+    if not ok then
+        xcCharacterInputHook.LastError = tostring(failure)
+        restoreXCCharacterInputHook()
+    end
+    return xcCharacterInputHook.Ready
+end
+
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+    if not XCConfig.antiAimEnabled then
+        XCFeatureState.antiAimStarted = nil
+        XCFeatureState.AntiComputedStep = nil
+        XCFeatureState.AntiComputedRandomYaw = nil
+        if hum and savedAutoRotate ~= nil then
+            hum.AutoRotate = savedAutoRotate
+            savedAutoRotate = nil
+        end
+        return
+    end
+
+    -- The native Blox Strike input hook is authoritative. The HRP rotation
+    -- below remains only as a compatibility fallback for other experiences.
+    -- Some executors allow replacing SampleInput but the game continues to
+    -- call a cached closure. Treat the hook as authoritative only when it was
+    -- actually invoked recently; otherwise use the compatible HRP fallback.
+    if xcCharacterInputHook.Ready
+        and os.clock() - (xcCharacterInputHook.LastCall or 0) < 0.5 then return end
+
+    if not hrp or not hum or hum.Health <= 0 then return end
+
+    if savedAutoRotate == nil then
+        savedAutoRotate = hum.AutoRotate
+        hum.AutoRotate = false
+    end
+
+    local activeCamera = Workspace.CurrentCamera or camera
+    if not activeCamera then return end
+    local _, cameraYaw = activeCamera.CFrame:ToOrientation()
+    local now = os.clock()
+    XCFeatureState.antiAimStarted = XCFeatureState.antiAimStarted or now
+    local elapsed = now - XCFeatureState.antiAimStarted
+    local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
+    local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
+    local step = math.floor(elapsed / interval)
+    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
+    local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp)
+    targetYaw = (targetYaw + math.pi) % (math.pi * 2) - math.pi
+    hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, targetYaw, 0)
+end))
+
+--// XC stage-2 wrapper | Keeps the main chunk below Luau's 200-local limit.
+function XCInitStage2()
+--// GROUND CHECK & MOBILE INPUT HOOKS
+local groundRayParams = RaycastParams.new()
+groundRayParams.FilterType = Enum.RaycastFilterType.Exclude
+groundRayParams.IgnoreWater = true
+
+function isPlayerGrounded(char, hrp)
+    groundRayParams.FilterDescendantsInstances = {char, camera}
+    local origin = hrp.Position
+    local direction = Vector3.new(0, -3.2, 0)
+    return Workspace:Raycast(origin, direction, groundRayParams) ~= nil
+end
+
+function captureDefaultHipHeight(char)
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum and hum.Parent then
+        defaultHipHeight = hum.HipHeight
+        defaultHipHeightCaptured = true
+    end
+end
+
+function restoreDefaultHipHeight()
+    local char = player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.HipHeight = defaultHipHeightCaptured and defaultHipHeight or hum.HipHeight
+    end
+end
+
+local mobileSlideDragging = false
+local mobileSlideToggleActive = false
+
+function positionMobileSlideButton(jumpBtn)
+    if not mobileSlideBtn or not jumpBtn then return end
+    mobileSlideBtn.Position = UDim2.new(
+        jumpBtn.Position.X.Scale,
+        jumpBtn.Position.X.Offset - 60,
+        jumpBtn.Position.Y.Scale,
+        jumpBtn.Position.Y.Offset
+    )
+end
+
+function updateMobileSlideIndicator()
+    if not mobileSlideBtn then return end
+    local stroke = mobileSlideBtn:FindFirstChild("XCSlideStroke")
+    if mobileSlideToggleActive then
+        mobileSlideBtn.BackgroundColor3 = currentTheme.Accent
+        mobileSlideBtn.BackgroundTransparency = 0.08
+        mobileSlideBtn.TextColor3 = currentTheme.TextPrimary
+        if stroke then
+            stroke.Color = currentTheme.Accent
+            stroke.Thickness = 2
+        end
+    else
+        mobileSlideBtn.BackgroundColor3 = currentTheme.CardBg
+        mobileSlideBtn.BackgroundTransparency = 0.3
+        mobileSlideBtn.TextColor3 = currentTheme.Accent
+        if stroke then
+            stroke.Color = currentTheme.Border
+            stroke.Thickness = 1.2
+        end
+    end
+end
+
+function updateMobileSlideVisibility()
+    if mobileSlideBtn then
+        mobileSlideBtn.Visible = XCConfig.slideEnabled and UserInputService.TouchEnabled
+        if not XCConfig.slideEnabled then
+            mobileSlideToggleActive = false
+            isSliding = false
+            currentSlideVel = Vector3.zero
+            updateMobileSlideIndicator()
+        end
+    end
+end
+
+function triggerMobileSlideStart()
+    if not XCConfig.slideEnabled then return end
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not (hrp and hum and isEntityAlive(char, hum) and isPlayerGrounded(char, hrp)) then return false end
+
+    local moveDir = hum.MoveDirection.Magnitude > 0.1 and hum.MoveDirection or hrp.CFrame.LookVector
+    currentSlideVel = moveDir * (16 * XCConfig.slideSpeedBoost)
+    isSliding = true
+    hum.HipHeight = defaultHipHeight * 0.4
+    return true
+end
+
+function triggerMobileSlideEnd()
+    isSliding = false
+    currentSlideVel = Vector3.zero
+    restoreDefaultHipHeight()
+end
+
+function toggleMobileSlide()
+    if not XCConfig.slideEnabled then return end
+    if mobileSlideToggleActive then
+        mobileSlideToggleActive = false
+        triggerMobileSlideEnd()
+    else
+        if triggerMobileSlideStart() then
+            mobileSlideToggleActive = true
+        end
+    end
+    updateMobileSlideIndicator()
+end
+
+function createMobileSlideButton()
+    if mobileSlideBtn then
+        updateMobileSlideVisibility()
+        return
+    end
+
+    mobileSlideBtn = Instance.new("TextButton")
+    mobileSlideBtn.Name = "XCMobileSlideBtn"
+    mobileSlideBtn.Size = UDim2.new(0, 50, 0, 50)
+    mobileSlideBtn.Position = UDim2.new(1, -145, 1, -115)
+    mobileSlideBtn.BackgroundColor3 = currentTheme.CardBg
+    mobileSlideBtn.BackgroundTransparency = 0.3
+    mobileSlideBtn.Text = "SLIDE"
+    mobileSlideBtn.TextColor3 = currentTheme.Accent
+    mobileSlideBtn.TextSize = 9.5
+    mobileSlideBtn.Font = Enum.Font.GothamBold
+    mobileSlideBtn.Visible = XCConfig.slideEnabled and UserInputService.TouchEnabled
+    mobileSlideBtn.ZIndex = 80
+    mobileSlideBtn.Active = true
+    mobileSlideBtn.AutoButtonColor = false
+    mobileSlideBtn.Parent = mainContainer
+
+    Instance.new("UICorner", mobileSlideBtn).CornerRadius = UDim.new(1, 0)
+    local stroke = Instance.new("UIStroke", mobileSlideBtn)
+    stroke.Name = "XCSlideStroke"
+    stroke.Color = currentTheme.Border
+    stroke.Thickness = 1.2
+
+    local tapConn = mobileSlideBtn.Activated:Connect(function()
+        if mobileSlideDragging then
+            mobileSlideDragging = false
+            return
+        end
+        toggleMobileSlide()
+    end)
+    table.insert(connections, tapConn)
+
+    local dragStart, buttonStart = nil, nil
+    local dragConn = mobileSlideBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            dragStart = input.Position
+            buttonStart = mobileSlideBtn.Position
+            mobileSlideDragging = false
+        end
+    end)
+    table.insert(connections, dragConn)
+
+    local changedConn = mobileSlideBtn.InputChanged:Connect(function(input)
+        if input.UserInputType ~= Enum.UserInputType.Touch or not dragStart or not buttonStart then return end
+        local delta = input.Position - dragStart
+        if math.abs(delta.X) > 10 or math.abs(delta.Y) > 10 then
+            mobileSlideDragging = true
+            mobileSlideBtn.Position = UDim2.new(
+                buttonStart.X.Scale,
+                buttonStart.X.Offset + delta.X,
+                buttonStart.Y.Scale,
+                buttonStart.Y.Offset + delta.Y
+            )
+        end
+    end)
+    table.insert(connections, changedConn)
+
+    updateMobileSlideIndicator()
+end
+
+function hookMobileJumpButton()
+    task.spawn(function()
+        local pGui = player:WaitForChild("PlayerGui", 5)
+        if not pGui then return end
+        local touchGui = pGui:WaitForChild("TouchGui", 5)
+        if not touchGui then return end
+        local controlFrame = touchGui:WaitForChild("TouchControlFrame", 5)
+        if not controlFrame then return end
+        local jumpBtn = controlFrame:WaitForChild("JumpButton", 5)
+        if not jumpBtn then return end
+
+        if mobileJumpHookedButton == jumpBtn then
+            positionMobileSlideButton(jumpBtn)
+            return
+        end
+
+        for _, conn in ipairs(mobileJumpConnections) do pcall(function() conn:Disconnect() end) end
+        mobileJumpConnections = {}
+        mobileJumpHookedButton = jumpBtn
+
+        local jConn1 = jumpBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+                isMobileJumpHeld = true
+            end
+        end)
+        table.insert(mobileJumpConnections, jConn1)
+        table.insert(connections, jConn1)
+
+        local jConn2 = jumpBtn.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+                isMobileJumpHeld = false
+            end
+        end)
+        table.insert(mobileJumpConnections, jConn2)
+        table.insert(connections, jConn2)
+
+        positionMobileSlideButton(jumpBtn)
+    end)
+end
+
+createMobileSlideButton()
+hookMobileJumpButton()
+
+function hookCharacterWeapons(char)
+    if not char then return end
+    local childAddedConnection = char.ChildAdded:Connect(function(child)
+        if child:IsA("Tool") then scanAndMorphKnives(child) end
+    end)
+    table.insert(connections, childAddedConnection)
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then scanAndMorphKnives(tool) end
+    end
+end
+
+table.insert(connections, player.CharacterAdded:Connect(function(char)
+    mobileSlideToggleActive = false
+    mobileSlideDragging = false
+    isSliding = false
+    currentSlideVel = Vector3.zero
+    mobileSlideInputActive = false
+    defaultHipHeightCaptured = false
+    XCFeatureState.bhopGroundSince = nil
+    XCFeatureState.bhopLastJump = 0
+    local hum = char:WaitForChild("Humanoid", 5)
+    if hum then
+        defaultHipHeight = hum.HipHeight
+        defaultHipHeightCaptured = true
+        hum.HipHeight = defaultHipHeight
+    end
+    hookMobileJumpButton()
+    hookCharacterWeapons(char)
+    if XCConfig.animationsEnabled then
+        task.delay(0.75, function()
+            if xcSessionActive() and XCConfig.animationsEnabled and player.Character == char then
+                playXCAnimation()
+            end
+        end)
+    end
+end))
+
+if player.Character then
+    captureDefaultHipHeight(player.Character)
+    hookCharacterWeapons(player.Character)
+end
+
+local jumpReqConn = UserInputService.JumpRequest:Connect(function() isMobileJumpHeld = true end)
+table.insert(connections, jumpReqConn)
+
+local inBeganConn = UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Space then isMobileJumpHeld = true end
+    if XCConfig.slideEnabled and (input.KeyCode == Enum.KeyCode.C or input.KeyCode == Enum.KeyCode.LeftControl) then
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hrp and hum and isEntityAlive(char, hum) and isPlayerGrounded(char, hrp) then
+            if not defaultHipHeightCaptured then captureDefaultHipHeight(char) end
+            local moveDir = hum.MoveDirection.Magnitude > 0.1 and hum.MoveDirection or hrp.CFrame.LookVector
+            currentSlideVel = moveDir * (16 * XCConfig.slideSpeedBoost)
+            isSliding = true
+            hum.HipHeight = defaultHipHeight * 0.4
+        end
+    end
+end)
+table.insert(connections, inBeganConn)
+
+local inEndedConn = UserInputService.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Space then isMobileJumpHeld = false end
+    if input.KeyCode == Enum.KeyCode.C or input.KeyCode == Enum.KeyCode.LeftControl then
+        isSliding = false
+        currentSlideVel = Vector3.zero
+        restoreDefaultHipHeight()
+    end
+end)
+table.insert(connections, inEndedConn)
+--// LOCAL-SHOT HIT CONFIRMATION & PHYSICS LOOP
+table.insert(connections, RunService.Heartbeat:Connect(function()
+    if not XCConfig.hitmarkerEnabled
+        and not XCConfig.hitSoundEnabled
+        and not XCConfig.killEffectEnabled then
+
+        for healthKey, pending in pairs(
+            hitmarkerPendingHits
+        ) do
+            XCClearPendingLocalHit(
+                healthKey,
+                pending
+            )
+        end
+        return
+    end
+
+    local now = os.clock()
+
+    for healthKey, pending in pairs(
+        repeat
+        hitmarkerPendingHits
+    ) do
+        local char = pending.Character
+        local targetPlr = pending.Player
+
+        if now > pending.Expires then
+            XCClearPendingLocalHit(
+                healthKey,
+                pending
+            )
+            break
+        end
+
+        if not char or not targetPlr then
+            XCClearPendingLocalHit(
+                healthKey,
+                pending
+            )
+            break
+        end
+
+        local position = XCResolveKillEffectPosition(
+            char,
+            pending.LastPosition
+        )
+        if typeof(position) == "Vector3" then
+            pending.LastPosition = position
+        end
+
+        if not char.Parent then
+            if now
+                - (
+                    tonumber(
+                        pending.LastHitAt
+                    )
+                    or 0
+                )
+                <= 0.85
+                and (
+                    pending.SawDamage
+                    or tonumber(
+                        pending.LastObservedHealth
+                    ) == nil
+                    or tonumber(
+                        pending.LastObservedHealth
+                    ) <= 0
+                ) then
+
+                XCConfirmPendingLocalKill(
+                    healthKey,
+                    pending,
+                    pending.LastPosition
+                )
+            else
+                XCClearPendingLocalHit(
+                    healthKey,
+                    pending
+                )
+            end
+            break
+        end
+
+        local hum = char:FindFirstChildOfClass(
+            "Humanoid"
+        )
+        local currentHealth = getXCHealth(
+            char,
+            targetPlr,
+            hum
+        )
+        local dead =
+            char:GetAttribute("Dead") == true
+            or targetPlr:GetAttribute(
+                "Dead"
+            ) == true
+
+        if currentHealth ~= nil then
+            pending.LastObservedHealth =
+                currentHealth
+        end
+
+        if dead
+            or (
+                currentHealth ~= nil
+                and currentHealth <= 0
+            ) then
+
+            if currentHealth ~= nil
+                and currentHealth
+                    < pending.Health then
+                local damage =
+                    pending.Health - currentHealth
+                pending.SawDamage = true
+                showHitmarker(damage)
+            end
+
+            XCConfirmPendingLocalKill(
+                healthKey,
+                pending,
+                pending.LastPosition
+            )
+            break
+        end
+
+        if currentHealth ~= nil
+            and currentHealth
+                < pending.Health then
+
+            local damage =
+                pending.Health - currentHealth
+
+            pending.SawDamage = true
+            pending.Health = currentHealth
+            showHitmarker(damage)
+
+            -- Keep a short grace period for a Died/Dead signal from the
+            -- same local shot after the health change arrives.
+            if XCConfig.killEffectEnabled then
+                pending.Expires = math.min(
+                    math.max(
+                        pending.Expires,
+                        now + 0.45
+                    ),
+                    (
+                        tonumber(
+                            pending.LastHitAt
+                        )
+                        or now
+                    ) + 1.75
+                )
+            else
+                XCClearPendingLocalHit(
+                    healthKey,
+                    pending
+                )
+            end
+
+        elseif currentHealth ~= nil
+            and currentHealth
+                > pending.Health then
+
+            pending.Health = currentHealth
+            pending.LastObservedHealth =
+                currentHealth
+        end
+        until true
+    end
+end))
+
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum or not isEntityAlive(char, hum) then return end
+
+    local moveDir = hum.MoveDirection
+    if moveDir.Magnitude < 0.05 then
+        local camCFrame = Workspace.CurrentCamera.CFrame
+        local kbDir = Vector3.zero
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then kbDir = kbDir + (camCFrame.LookVector) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then kbDir = kbDir - (camCFrame.LookVector) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then kbDir = kbDir - (camCFrame.RightVector) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then kbDir = kbDir + (camCFrame.RightVector) end
+        kbDir = Vector3.new(kbDir.X, 0, kbDir.Z)
+        if kbDir.Magnitude > 0 then moveDir = kbDir.Unit end
+    end
+
+    local currentMove = moveDir
+    if currentMove.Magnitude > 0.05 then lastMoveDirection = currentMove end
+
+    local currentVel = hrp.AssemblyLinearVelocity
+    local finalVelocity = nil
+    local activeMode = "Normal"
+
+    if XCConfig.flightEnabled then
+        activeMode = "Flight"
+        finalVelocity = camera.CFrame.LookVector * XCConfig.flightSpeed
+    elseif XCConfig.slideEnabled and isSliding then
+        if isPlayerGrounded(char, hrp) and currentSlideVel.Magnitude > XCConfig.slideMinSpeed then
+            activeMode = "Slide"
+            local frictionFactor = math.pow(math.clamp(XCConfig.slideFriction, 0, 1), math.max(dt, 0) * 60)
+            currentSlideVel = currentSlideVel * frictionFactor
+            finalVelocity = Vector3.new(currentSlideVel.X, currentVel.Y, currentSlideVel.Z)
+        else
+            isSliding = false
+            currentSlideVel = Vector3.zero
+            restoreDefaultHipHeight()
+        end
+    end
+
+    -- Keep the reference Humanoid/velocity path active even when the native
+    -- SampleInput hook exists. The hook requests a server-valid jump; this
+    -- path supplies the configured speed/air-strafe and is also a fallback on
+    -- executors where SampleInput assignment succeeds but is not consumed.
+    if activeMode == "Normal" and XCConfig.bunnyHopEnabled then
+        local paused = not XCFeatureState.bhopWindowFocused
+            or UserInputService:GetFocusedTextBox() ~= nil
+            or GuiService.MenuIsOpen
+            or player:GetAttribute("IsPlayerChatting") == true
+            or (XCConfig.bhopPauseWithMenu and XCFeatureState.menuOpen)
+        if paused then
+            XCFeatureState.bhopGroundSince = nil
+        else
+            local now = os.clock()
+            local grounded = isPlayerGrounded(char, hrp) or hum.FloorMaterial ~= Enum.Material.Air
+            local isSpacePressed = UserInputService:IsKeyDown(Enum.KeyCode.Space)
+            local automatic = XCConfig.bhopMode == "Automatic" or XCConfig.bhopAutoJump
+            local requested = automatic or isMobileJumpHeld or hum.Jump or isSpacePressed
+            local moving = currentMove.Magnitude > 0.05
+            local movementAllowed = not XCConfig.bhopMovingOnly or moving
+
+            if grounded then
+                XCFeatureState.bhopGroundSince = XCFeatureState.bhopGroundSince or now
+            else
+                XCFeatureState.bhopGroundSince = nil
+            end
+
+            local groundDelay = math.clamp(tonumber(XCConfig.bhopGroundDelay) or 0, 0, 0.25)
+            local canJump = grounded and requested and movementAllowed
+                and XCFeatureState.bhopGroundSince
+                and now - XCFeatureState.bhopGroundSince >= groundDelay
+                and now - XCFeatureState.bhopLastJump >= 0.05
+
+            if canJump then
+                activeMode = "Bhop"
+                XCFeatureState.bhopLastJump = now
+                XCFeatureState.bhopGroundSince = nil
+                hum.Jump = true
+                finalVelocity = Vector3.new(currentVel.X, math.clamp(tonumber(XCConfig.bhopJumpPower) or 52, 30, 100), currentVel.Z)
+                pcall(function() hum:ChangeState(Enum.HumanoidStateType.Jumping) end)
+            end
+
+            if moving and (grounded or XCConfig.bhopAirStrafe) then
+                activeMode = canJump and "Bhop" or (grounded and "Bhop accelerate" or "AutoStrafe")
+
+                local speedBoost = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+                local acceleration = math.clamp(tonumber(XCConfig.bhopAcceleration) or 12, 2, 30)
+                local desiredDir = currentMove.Unit
+                local targetSpeed = 16 * speedBoost
+
+                -- Strong auto-strafe is intentionally air-only. It keeps the
+                -- normal grounded bhop acceleration unchanged, while making
+                -- airborne steering react much harder without touching Y speed.
+                if not grounded and XCConfig.bhopAirStrafe and XCConfig.bhopStrongAutoStrafe then
+                    local strafeStrength = math.clamp(tonumber(XCConfig.bhopStrafeStrength) or 3, 1, 5)
+                    local horizontal = Vector3.new(currentVel.X, 0, currentVel.Z)
+                    local horizontalSpeed = horizontal.Magnitude
+
+                    -- Preserve existing momentum and allow a strong configurable
+                    -- air-speed ceiling. This avoids losing speed on direction
+                    -- changes while still keeping the result deterministic.
+                    local strongTargetSpeed = 16 * speedBoost * strafeStrength
+                    targetSpeed = math.max(targetSpeed, math.min(horizontalSpeed + (10 * strafeStrength), strongTargetSpeed))
+                    acceleration = math.min(120, acceleration * (1 + strafeStrength * 1.35))
+
+                    -- Mix a small amount of current momentum into the requested
+                    -- direction so fast 90-degree turns stay smooth instead of
+                    -- snapping the root part sideways in one frame.
+                    if horizontalSpeed > 0.05 then
+                        local momentumDir = horizontal.Unit
+                        local steerWeight = math.clamp(0.30 + strafeStrength * 0.12, 0.42, 0.82)
+                        local mixed = momentumDir:Lerp(desiredDir, steerWeight)
+                        if mixed.Magnitude > 0.001 then
+                            desiredDir = mixed.Unit
+                        end
+                    end
+                end
+
+                local targetVel = desiredDir * targetSpeed
+                local blend = 1 - math.exp(-acceleration * math.max(dt, 0))
+                local base = finalVelocity or currentVel
+                finalVelocity = Vector3.new(
+                    base.X + (targetVel.X - base.X) * blend,
+                    base.Y,
+                    base.Z + (targetVel.Z - base.Z) * blend
+                )
+            end
+        end
+    else
+        XCFeatureState.bhopGroundSince = nil
+    end
+
+    if activeMode == "Normal" and XCConfig.speedEnabled and currentMove.Magnitude > 0 then
+        activeMode = "Speed"
+        local targetVel = currentMove * (16 * XCConfig.walkMultiplier)
+        finalVelocity = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
+    end
+
+    if finalVelocity then 
+        hrp.AssemblyLinearVelocity = finalVelocity 
+    end
+end))
+--// UI BUILDER
+-- Public configuration catalog. The client exchanges JSON settings only;
+-- downloaded entries are filtered through XCConfig's existing keys and are
+-- never evaluated as Lua code.
+local XCPublicConfigs = {
+    ApiBase = "https://xosocity-api.zxcswastik.workers.dev/api/v1",
+    Items = {},
+}
+
+local function xcPublicRequestFunction()
+    local env = type(getgenv) == "function" and getgenv() or nil
+    return (env and (env.request or env.http_request))
+        or (type(request) == "function" and request)
+        or (type(http_request) == "function" and http_request)
+        or (syn and type(syn.request) == "function" and syn.request)
+        or (http and type(http.request) == "function" and http.request)
+        or (fluxus and type(fluxus.request) == "function" and fluxus.request)
+        or (krnl and type(krnl.request) == "function" and krnl.request)
+end
+
+local function xcPublicJsonValue(value, depth)
+    depth = depth or 0
+    if depth > 8 then return nil end
+    local valueType = typeof(value)
+    if valueType == "boolean" or valueType == "number" or valueType == "string" then return value end
+    if valueType == "Color3" then return {__type="Color3",r=value.R,g=value.G,b=value.B} end
+    if valueType == "UDim2" then
+        return {__type="UDim2",xs=value.X.Scale,xo=value.X.Offset,ys=value.Y.Scale,yo=value.Y.Offset}
+    end
+    if valueType ~= "table" then return nil end
+    local copy = {}
+    for key, child in pairs(value) do
+        if type(key) == "string" or type(key) == "number" then
+            local safeChild = xcPublicJsonValue(child, depth + 1)
+            if safeChild ~= nil then copy[key] = safeChild end
+        end
+    end
+    return copy
+end
+
+function XCPublicConfigs.Serialize()
+    local settings = {}
+    for key, value in pairs(XCConfig) do
+        if key ~= "publicConfigSelection" then
+            local safeValue = xcPublicJsonValue(value)
+            if safeValue ~= nil then settings[key] = safeValue end
+        end
+    end
+    if XCFeatureState.streamerSnapshot then
+        for key, value in pairs(XCFeatureState.streamerSnapshot) do settings[key] = xcPublicJsonValue(value) end
+        settings.streamerModeEnabled = false
+    end
+    return settings
+end
+
+function XCPublicConfigs.Request(method, path, body)
+    local requestFn = xcPublicRequestFunction()
+    local headers = {Accept = "application/json", ["Content-Type"] = "application/json"}
+    local requestUrl = XCPublicConfigs.ApiBase .. path
+    local options = {Url = requestUrl, URL = requestUrl, Method = method, Headers = headers}
+    if body ~= nil then options.Body = HttpService:JSONEncode(body) end
+
+    local ok, response
+    if type(requestFn) == "function" then
+        ok, response = pcall(requestFn, options)
+    elseif method == "GET" then
+        ok, response = pcall(function() return game:HttpGet(requestUrl) end)
+    else
+        return false, "Executor HTTP request API unavailable"
+    end
+    if not ok then return false, "HTTP request failed: " .. tostring(response or "unknown error") end
+
+    local rawBody = ""
+    local statusCode
+    local successFlag
+    local statusMessage
+    if type(response) == "string" then
+        rawBody = response
+        statusCode = 200
+    elseif type(response) == "table" then
+        rawBody = response.Body or response.body or response.ResponseBody or response.response or response.Data or ""
+        local statusValue = response.StatusCode or response.status_code or response.Status or response.status or response.Code
+        statusCode = tonumber(statusValue) or tonumber(tostring(statusValue or ""):match("%d%d%d"))
+        successFlag = response.Success
+        if successFlag == nil then successFlag = response.success end
+        statusMessage = response.StatusMessage or response.status_message or response.Message
+    else
+        return false, "Executor returned an unsupported HTTP response"
+    end
+
+    local decoded
+    if type(rawBody) == "table" then
+        decoded = rawBody
+    else
+        if type(rawBody) ~= "string" then rawBody = tostring(rawBody or "") end
+        if rawBody ~= "" then pcall(function() decoded = HttpService:JSONDecode(rawBody) end) end
+    end
+    if decoded == nil and type(response) == "table"
+        and (response.items ~= nil or response.ok ~= nil or response.id ~= nil or response.error ~= nil) then
+        decoded = response
+    end
+
+    local serverMessage = type(decoded) == "table" and (decoded.error or decoded.message) or nil
+    if successFlag == false or (statusCode and (statusCode < 200 or statusCode >= 300)) then
+        return false, tostring(serverMessage or statusMessage or (statusCode and ("HTTP " .. statusCode)) or "Request failed")
+    end
+    if not statusCode and serverMessage then
+        return false, tostring(serverMessage)
+    end
+    if decoded == nil then
+        return false, "Server returned invalid JSON" .. (statusCode and (" (HTTP " .. statusCode .. ")") or "")
+    end
+    return true, decoded
+end
+
+function XCPublicConfigs.List(query)
+    local suffix = "?limit=50"
+    if query and query ~= "" then suffix = suffix .. ("&query=" .. HttpService:UrlEncode(query)) end
+    local ok, response = XCPublicConfigs.Request("GET", "/configs" .. suffix)
+    if ok then XCPublicConfigs.Items = type(response.items) == "table" and response.items or {} end
+    return ok, response
+end
+
+function XCPublicConfigs.Publish(name, description, author)
+    name = tostring(name or ""):match("^%s*(.-)%s*$")
+    if name == "" then return false, "Config name is required" end
+    return XCPublicConfigs.Request("POST", "/configs", {
+        schema = 2,
+        product = "XC",
+        name = name:sub(1, 48),
+        description = tostring(description or ""):sub(1, 240),
+        author = tostring(author or "Anonymous"):sub(1, 32),
+        settings = XCPublicConfigs.Serialize(),
+    })
+end
+
+function XCPublicConfigs.Get(id)
+    id = tostring(id or "")
+    if not id:match("^[%w%-_]+$") then return false, "Invalid config id" end
+    return XCPublicConfigs.Request("GET", "/configs/" .. HttpService:UrlEncode(id))
+end
+
+function setAntiAfkEnabled(enabled)
+    XCConfig.antiAfkEnabled = enabled
+    if antiAfkConnection then
+        pcall(function() antiAfkConnection:Disconnect() end)
+        antiAfkConnection = nil
+    end
+    if not XCConfig.antiAfkEnabled then return end
+
+    antiAfkConnection = player.Idled:Connect(function()
+        pcall(function()
+            if VirtualInputManager then
+                VirtualInputManager:SendMouseButtonEvent(1, 1, 0, true, game, 0)
+                VirtualInputManager:SendMouseButtonEvent(1, 1, 0, false, game, 0)
+            end
+        end)
+    end)
+end
+--// XC SKEET / GAMESENSE INTERFACE
+function buildXCUI()
+    setAntiAfkEnabled(XCConfig.antiAfkEnabled)
+
+    local function configColor(prefix, fallback) return xcConfigColor(prefix, fallback) end
+    local initialMain = configColor("menuBackground", Color3.fromRGB(17, 17, 17))
+    local initialPanel = configColor("menuPanel", Color3.fromRGB(12, 12, 12))
+    local initialText = configColor("menuText", Color3.fromRGB(235, 235, 235))
+    local C = {
+        Main = initialMain,
+        Sidebar = initialMain:Lerp(Color3.new(0, 0, 0), 0.24),
+        Panel = initialPanel,
+        Control = initialPanel:Lerp(initialText, 0.06),
+        Control2 = initialPanel:Lerp(initialText, 0.11),
+        Border = initialPanel:Lerp(initialText, 0.17),
+        Black = Color3.fromRGB(0, 0, 0),
+        Lime = configColor("menuAccent", Color3.fromRGB(152, 204, 0)),
+        White = initialText,
+        Text = initialText:Lerp(initialMain, 0.14),
+        Muted = initialText:Lerp(initialMain, 0.53),
+    }
+
+    local toggleGui = Instance.new("ScreenGui")
+    toggleGui.Name = "XCToggleGui"
+    toggleGui.ResetOnSpawn = false
+    toggleGui.IgnoreGuiInset = true
+    toggleGui.DisplayOrder = 100
+    toggleGui.Parent = targetGui
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "XCScreenGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.DisplayOrder = 50
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.Parent = targetGui
+
+    local function getViewportSize()
+        local activeCamera = Workspace.CurrentCamera or camera
+        return (activeCamera and activeCamera.ViewportSize) or Vector2.new(1280, 720)
+    end
+
+    local main = Instance.new("Frame")
+    main.Name = "SkeetMain"
+    main.Size = UDim2.fromOffset(680, 450)
+    main.Position = UDim2.new(0.5, -340, 0.5, -225)
+    main.BackgroundColor3 = C.Main
+    main.BackgroundTransparency = XCConfig.menuTransparency
+    main.BorderColor3 = C.Border
+    main.BorderSizePixel = 1
+    main.Active = true
+    main.Parent = screenGui
+
+    local mainStroke = Instance.new("UIStroke")
+    mainStroke.Color = C.Black
+    mainStroke.Thickness = 2
+    mainStroke.Parent = main
+
+    local scale = Instance.new("UIScale")
+    scale.Name = "ResponsiveScale"
+    scale.Parent = main
+
+    local function updateScale()
+        local viewport = getViewportSize()
+        if viewport.X <= 0 or viewport.Y <= 0 then return end
+        local preferred = (UserInputService.TouchEnabled and 0.82 or 1)
+            * math.clamp(tonumber(XCConfig.uiScale) or 1, 0.65, 1.25)
+        if XCConfig.settingsCompactMode then preferred = preferred * (0.88) end
+        scale.Scale = math.min(preferred, (viewport.X - 20) / 680, (viewport.Y - 20) / 450)
+        main.Position = UDim2.new(0.5, -340 * scale.Scale, 0.5, -225 * scale.Scale)
+    end
+    updateScale()
+    task.defer(updateScale)
+    if Workspace.CurrentCamera then
+        table.insert(connections, Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScale))
+    end
+
+    local topLine = Instance.new("Frame")
+    topLine.Size = UDim2.new(1, -4, 0, 2)
+    topLine.Position = UDim2.fromOffset(2, 2)
+    topLine.BorderSizePixel = 0
+    topLine.BackgroundColor3 = C.Lime
+    topLine.Parent = main
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 210, 255)),
+        ColorSequenceKeypoint.new(0.25, Color3.fromRGB(160, 75, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 65, 140)),
+        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255, 135, 20)),
+        ColorSequenceKeypoint.new(1, C.Lime),
+    })
+    gradient.Parent = topLine
+
+    local dragBar = Instance.new("Frame")
+    dragBar.Name = "DragBar"
+    dragBar.Size = UDim2.new(1, -52, 0, 10)
+    dragBar.Position = UDim2.fromOffset(52, 0)
+    dragBar.BackgroundTransparency = 1
+    dragBar.Active = true
+    dragBar.ZIndex = 20
+    dragBar.Parent = main
+
+    local sidebar = Instance.new("Frame")
+    sidebar.Name = "IconBar"
+    sidebar.Size = UDim2.new(0, 48, 1, -4)
+    sidebar.Position = UDim2.fromOffset(2, 2)
+    sidebar.BackgroundColor3 = C.Sidebar
+    sidebar.BackgroundTransparency = math.clamp(XCConfig.menuTransparency * 0.7, 0, 0.4)
+    sidebar.BorderColor3 = C.Border
+    sidebar.BorderSizePixel = 1
+    sidebar.Parent = main
+
+    -- Filled after the floating XC button is created. Keeping this callback
+    -- here lets live theme changes recolor both letters without rebuilding UI.
+    local openButtonThemeRefresh = function() end
+    local refreshESPPreview = function() end
+    local refreshSkinGallery = function() end
+
+    local function applyMenuTheme()
+        local old = {Main=C.Main, Sidebar=C.Sidebar, Panel=C.Panel, Control=C.Control,
+            Control2=C.Control2, Border=C.Border, Lime=C.Lime, White=C.White, Text=C.Text, Muted=C.Muted}
+        local newMain = configColor("menuBackground", old.Main)
+        local newPanel = configColor("menuPanel", old.Panel)
+        local newText = configColor("menuText", old.White)
+        local nextColors = {
+            Main=newMain, Sidebar=newMain:Lerp(Color3.new(0,0,0),0.24), Panel=newPanel,
+            Control=newPanel:Lerp(newText,0.06), Control2=newPanel:Lerp(newText,0.11),
+            Border=newPanel:Lerp(newText,0.17), Lime=configColor("menuAccent",old.Lime),
+            White=newText, Text=newText:Lerp(newMain,0.14), Muted=newText:Lerp(newMain,0.53),
+        }
+        local function replaceColor(value)
+            for role, previous in pairs(old) do if value == previous then return nextColors[role] end end
+            return value
+        end
+        for _, root in ipairs({screenGui, toggleGui}) do
+            local objects = {root}
+            for _, object in ipairs(root:GetDescendants()) do objects[#objects+1] = object end
+            for _, object in ipairs(objects) do pcall(function()
+                if object:IsA("GuiObject") then
+                    object.BackgroundColor3 = replaceColor(object.BackgroundColor3)
+                    object.BorderColor3 = replaceColor(object.BorderColor3)
+                end
+                if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then
+                    object.TextColor3 = replaceColor(object.TextColor3)
+                end
+                if object:IsA("TextBox") then object.PlaceholderColor3 = replaceColor(object.PlaceholderColor3) end
+                if object:IsA("ImageLabel") or object:IsA("ImageButton") then object.ImageColor3 = replaceColor(object.ImageColor3) end
+                if object:IsA("UIStroke") then object.Color = replaceColor(object.Color) end
+                if object:IsA("ScrollingFrame") then object.ScrollBarImageColor3 = replaceColor(object.ScrollBarImageColor3) end
+            end) end
+        end
+        for role, value in pairs(nextColors) do C[role] = value end
+        main.BackgroundColor3 = C.Main
+        main.BackgroundTransparency = math.clamp(tonumber(XCConfig.menuTransparency) or 0, 0, 0.45)
+        sidebar.BackgroundColor3 = C.Sidebar
+        sidebar.BackgroundTransparency = math.clamp(main.BackgroundTransparency * 0.7, 0, 0.4)
+        topLine.BackgroundColor3 = C.Lime
+        gradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0,C.Lime:Lerp(Color3.fromRGB(0,170,255),0.45)),
+            ColorSequenceKeypoint.new(0.48,C.Lime:Lerp(C.White,0.2)),
+            ColorSequenceKeypoint.new(1,C.Lime),
+        })
+        syncXCUserTheme()
+        refreshESPPreview()
+        openButtonThemeRefresh()
+        updateScale()
+    end
+
+    local sideLayout = Instance.new("UIListLayout")
+    sideLayout.Padding = UDim.new(0, 1)
+    sideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    sideLayout.Parent = sidebar
+
+    local content = Instance.new("Frame")
+    content.Name = "Content"
+    content.Size = UDim2.new(1, -64, 1, -46)
+    content.Position = UDim2.fromOffset(56, 38)
+    content.BackgroundTransparency = 1
+    content.Parent = main
+
+    local pages = {}
+    local tabData = {}
+    local currentPage
+    local refreshers = {}
+    local activeSliderInput
+    local activeSliderMove
+    local searchableControls = {}
+    local sectionGroups = {}
+    local activeSectionByParent = {}
+    local moduleStatusRefreshers = {}
+    local scheduleConfigAutoSave = function() end
+    local applySearch
+
+    local searchBar = Instance.new("Frame")
+    searchBar.Name = "QuickSearch"
+    searchBar.Size = UDim2.new(1, -64, 0, 24)
+    searchBar.Position = UDim2.fromOffset(56, 10)
+    searchBar.BackgroundColor3 = C.Panel
+    searchBar.BorderColor3 = C.Border
+    searchBar.BorderSizePixel = 1
+    searchBar.Parent = main
+    local searchIcon = Instance.new("TextLabel")
+    searchIcon.Size = UDim2.fromOffset(24, 22)
+    searchIcon.BackgroundTransparency = 1
+    searchIcon.Text = ">"
+    searchIcon.TextColor3 = C.Lime
+    searchIcon.Font = Enum.Font.Code
+    searchIcon.TextSize = 13
+    searchIcon.Parent = searchBar
+    local searchBox = Instance.new("TextBox")
+    searchBox.Size = UDim2.new(1, -50, 1, 0)
+    searchBox.Position = UDim2.fromOffset(23, 0)
+    searchBox.BackgroundTransparency = 1
+    searchBox.ClearTextOnFocus = false
+    searchBox.PlaceholderText = "Search modules in this tab..."
+    searchBox.PlaceholderColor3 = C.Muted
+    searchBox.Text = ""
+    searchBox.TextColor3 = C.Text
+    searchBox.Font = Enum.Font.Code
+    searchBox.TextSize = 10
+    searchBox.TextXAlignment = Enum.TextXAlignment.Left
+    searchBox.Parent = searchBar
+    local clearSearch = Instance.new("TextButton")
+    clearSearch.Size = UDim2.fromOffset(24, 22)
+    clearSearch.Position = UDim2.new(1, -25, 0, 0)
+    clearSearch.BackgroundTransparency = 1
+    clearSearch.Text = "x"
+    clearSearch.TextColor3 = C.Muted
+    clearSearch.Font = Enum.Font.Code
+    clearSearch.TextSize = 12
+    clearSearch.Parent = searchBar
+    clearSearch.Activated:Connect(function() searchBox.Text = "" end)
+
+    local CONTROL_HELP = {
+        aimbotEnabled = "Tracks a valid target inside the configured field of view.",
+        silentAimEnabled = "Redirects supported shot data without visibly snapping the camera.",
+        triggerbotEnabled = "Automatically fires when the selected Triggerbot mode finds a valid enemy.",
+        triggerbotMode = "Crosshair uses the center ray; Trigger FOV scans the Trigger FOV; Silent FOV shares Silent Aim target selection and FOV.",
+        triggerbotDelay = "Minimum delay between automatic trigger shots.",
+        triggerbotScopedOnly = "Allows Triggerbot to fire only while a native scope is active.",
+        triggerbotHeadOnly = "Triggerbot fires only when the detected hit part is the head.",
+        rageBotEnabled = "Combines Silent Aim bullet redirection with Triggerbot-style firing while keeping both standalone modules independent.",
+        multipointEnabled = "Checks center and offset hitbox points for Silent Aim, Trigger FOV and Ragebot.",
+        multipointScale = "How far multipoints are placed from the hitbox center.",
+        minimumDamageEnabled = "Rejects shots whose estimated current-weapon damage is below the selected threshold.",
+        minimumDamage = "Minimum estimated damage for a direct visible shot.",
+        minimumDamageWall = "Minimum estimated damage after a penetrated wall path.",
+        killEffectEnabled = "Spawns the selected local visual effect after a recently registered local hit is confirmed as a kill.",
+        killEffectStyle = "Selects the local kill-effect style. Headshot Crown is currently a manual style; the kill tracker does not yet expose hit-bone metadata.",
+        killEffectRainbow = "Cycles kill-effect colors through the hue spectrum where supported.",
+        killEffectTrails = "Adds short glow trails to a limited subset of kill fireflies.",
+        killEffectCount = "Effect density. Fireflies uses the full value; other styles scale it to safe per-effect limits.",
+        killEffectSize = "Base visual scale shared by the kill effects.",
+        killEffectSpeed = "Motion/range intensity shared by the kill effects.",
+        killEffectGlow = "Strength of the short center flash when the kill effect starts.",
+        killEffectDuration = "How long the selected kill effect remains visible.",
+        noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
+        noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
+        silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
+        wallbangEnabled = "Forced wallbang boosts the native penetration path so Silent Aim can shoot through otherwise blocked surfaces.",
+        extremeWallbangEnabled = "Extreme wallbang rewrites the final shot payload to the Silent Aim target, matching the direct-hit Send behavior used by Memesense-style scripts.",
+        thirdPersonEnabled = "Moves the native camera behind the character.",
+        bunnyHopEnabled = "Smooth XC Bhop with grounded timing and optional air control.",
+        bhopMode = "Hold requires jump input; Automatic keeps hopping while movement is active.",
+        bhopMovingOnly = "Prevents automatic jumps while no movement direction is pressed.",
+        bhopPauseWithMenu = "Pauses Bhop while the XC menu or a text box is open.",
+        bhopGroundDelay = "Delay after touching the ground before the next jump.",
+        bhopAcceleration = "How quickly horizontal velocity approaches the configured Bhop speed.",
+        bhopStrongAutoStrafe = "Greatly increases airborne steering and momentum while Air strafe is enabled.",
+        bhopStrafeStrength = "Strength of airborne auto-strafe steering and speed gain. Higher values are intentionally aggressive.",
+        flightEnabled = "Moves the character along the camera direction.",
+        chamsEnabled = "Adds a local highlight to valid player models.",
+        skeletonEspEnabled = "Draws a lightweight R6/R15 skeleton at 30 updates per second.",
+        skeletonDistanceFade = "Gradually fades skeleton lines at long distances.",
+        noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
+        hitSoundEnabled = "Plays the selected local sound when enemy health decreases.",
+        antiAimMode = "Selects an XC-native anti-aim pattern. Several modes react to movement velocity; others use deterministic asymmetric phase sequences.",
+        nightModeEnabled = "Applies the selected lighting preset locally.",
+        worldSkyboxEnabled = "Applies the selected custom skybox locally.",
+        worldPostFXEnabled = "Enables local color correction and post-processing.",
+        mapStyleEnabled = "Restyles map geometry locally using a soft minimal palette while preserving characters, weapons and gameplay objects.",
+        mapOptimizerEnabled = "Mobile-safe FPS optimizer: processes the map gradually and reduces shadows, decorative effects and mesh cost without touching characters or weapons.",
+        mapOptimizerMode = "Safe changes only low-risk rendering settings. Balanced is recommended for phones. Aggressive also clears map texture IDs gradually and disables decorative lights.",
+        mapOptimizerDisableShadows = "Disables map/global shadow rendering while the optimizer is active.",
+        mapOptimizerDisableEffects = "Balanced removes eligible decorative particles/beams/post effects; Aggressive also removes eligible decorative lights.",
+        mapOptimizerLowMesh = "Requests Performance render fidelity for eligible MeshParts where Roblox allows it.",
+        mapStylePreset = "Chooses the minimal map palette. Black & White keeps several soft luminance levels instead of harsh pure black and white.",
+        mapStyleStrength = "Blends the original map color toward the selected minimal palette.",
+        mapStyleTextureDetail = "Controls how strongly ordinary map decals and image surfaces are faded in Soft Tint/Minimal modes. Full Minimal removes supported image paths regardless of this slider.",
+        mapStyleTextureMode = "Soft Tint keeps assets and tints/fades them; Minimal flattens materials and hides low-detail overlays; Full Minimal also removes MeshPart textures and temporarily parks SurfaceAppearance objects.",
+        mapStyleFlatMaterials = "Uses a private neutral SmoothPlastic MaterialVariant on eligible map parts so global MaterialService overrides do not re-texture the map.",
+        mapStylePreserveSigns = "Keeps map signs, screens and poster-like surfaces unchanged. Disable this for full texture coverage.",
+        mapStyleAffectTransparent = "Also styles glass and other substantially transparent map parts; enabled by default for full coverage.",
+        worldSkyboxPreset = "Selects a local sky preset from the supplied World visual scripts.",
+        worldTonePreset = "Applies a coordinated tint preset to Post FX and atmosphere.",
+        worldAtmosphereEnabled = "Adds a configurable local Atmosphere without deleting the game's original one.",
+        worldBloomEnabled = "Adds a lightweight local Bloom effect with configurable intensity.",
+        weatherEnabled = "Local weather layer. Uses one particle emitter to avoid frame spikes.",
+        weatherMode = "Rain, snow, fog or ash. The effect follows the active camera.",
+        weatherIntensity = "Controls particle rate or fog density.",
+        weatherWind = "Horizontal drift of rain, snow and ash particles.",
+        freecamEnabled = "Detaches the camera. WASD moves, Space/E rises, Q/Ctrl lowers, Shift boosts.",
+        freecamSpeed = "Movement speed of the detached camera.",
+        freecamKey = "Hotkey that toggles Freecam without opening the menu.",
+        freelookEnabled = "Rotates the view in place without moving the character or camera origin.",
+        freelookSensitivity = "Mouse sensitivity used by Freelook.",
+        freelookKey = "Hotkey that toggles Freelook without opening the menu.",
+        streamerModeEnabled = "Roblox-safe capture mode: temporarily hides XC overlays without deleting their settings.",
+        streamerKey = "Hotkey for quickly hiding or restoring XC overlays.",
+        priorityPlayerName = "Roblox player selected as the preferred target. The list uses live server usernames.",
+        customScopeEnabled = "Draws the XC scope overlay when scoped.",
+        customHandsEnabled = "Offsets the detected first-person weapon or hands model.",
+        grenadeEspEnabled = "Shows styled grenade labels, bounce trajectory and landing marker.",
+        showGrenadePath = "Predicts the grenade arc with surface bounces and a landing marker.",
+        grenadeDangerZonesEnabled = "Draws perspective-correct smoke, fire and grenade danger rings.",
+        showMolotovRadius = "Shows the projected fire effect radius on the ground.",
+        showSmokeRadius = "Shows the projected smoke effect radius on the ground.",
+        grenadeDangerOpacity = "Controls danger-ring visibility without changing trajectory brightness.",
+        weaponEspEnabled = "Shows a compact lime weapon silhouette below the player box.",
+        spectatorListEnabled = "Shows players currently observing the local player when detectable.",
+        settingsAutoSave = "Saves the current profile shortly after a UI setting changes.",
+        menuKey = "Keyboard shortcut used to show or hide XC.",
+        tab_Rage = "Combat: aim assistants, targeting and weapon mechanics.",
+        tab_AntiAim = "Movement: anti-aim, third person, bhop, slide and flight.",
+        tab_Visuals = "Visuals: ESP, chams and on-screen combat feedback.",
+        tab_World = "World: lighting, weather, scope and camera tools.",
+        tab_Misc = "Utilities: session helpers, animations and viewmodel controls.",
+        tab_Skins = "Inventory changer: weapon finishes, wear, knives and gloves.",
+        tab_Players = "Players: target rules, priority player and ESP details.",
+        tab_Settings = "Settings: interface, palette, module editor and quick actions.",
+        tab_Configs = "Configs: local profiles and the shared community catalog.",
+    }
+
+    local helpPopup = Instance.new("Frame")
+    helpPopup.Name = "ContextHelp"
+    helpPopup.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 260 or 235, 0)
+    helpPopup.AutomaticSize = Enum.AutomaticSize.Y
+    helpPopup.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+    helpPopup.BorderColor3 = C.Lime
+    helpPopup.BorderSizePixel = 1
+    helpPopup.Visible = false
+    helpPopup.ZIndex = 300
+    helpPopup.Parent = screenGui
+    local helpPadding = Instance.new("UIPadding")
+    helpPadding.PaddingTop = UDim.new(0, 7)
+    helpPadding.PaddingBottom = UDim.new(0, 7)
+    helpPadding.PaddingLeft = UDim.new(0, 9)
+    helpPadding.PaddingRight = UDim.new(0, 9)
+    helpPadding.Parent = helpPopup
+    local helpText = Instance.new("TextLabel")
+    helpText.Size = UDim2.new(1, 0, 0, 0)
+    helpText.AutomaticSize = Enum.AutomaticSize.Y
+    helpText.BackgroundTransparency = 1
+    helpText.TextColor3 = C.Text
+    helpText.Font = Enum.Font.Code
+    helpText.TextSize = UserInputService.TouchEnabled and 11 or 10
+    helpText.TextWrapped = true
+    helpText.TextXAlignment = Enum.TextXAlignment.Left
+    helpText.TextYAlignment = Enum.TextYAlignment.Top
+    helpText.ZIndex = 301
+    helpText.Parent = helpPopup
+    local helpToken = 0
+
+    local function hideHelp()
+        helpToken = helpToken + (1)
+        helpPopup.Visible = false
+    end
+
+    local function showHelp(target, message)
+        if not message or message == "" or not target or not target.Parent then return end
+        helpToken = helpToken + (1)
+        helpText.Text = message
+        helpPopup.Visible = true
+        task.defer(function()
+            if not helpPopup.Visible or not target.Parent then return end
+            local viewport = getViewportSize()
+            local width = helpPopup.AbsoluteSize.X
+            local height = math.max(helpPopup.AbsoluteSize.Y, 34)
+            local x = math.clamp(target.AbsolutePosition.X, 6, math.max(6, viewport.X - width - 6))
+            local below = target.AbsolutePosition.Y + target.AbsoluteSize.Y + 5
+            local y = below + height <= viewport.Y - 6 and below
+                or math.max(6, target.AbsolutePosition.Y - height - 5)
+            helpPopup.Position = UDim2.fromOffset(x, y)
+        end)
+    end
+
+    local function attachHelp(target, key)
+        local message = CONTROL_HELP[key]
+        if not message then return end
+        local touchHelpShown = false
+        target.MouseEnter:Connect(function() showHelp(target, message) end)
+        target.MouseLeave:Connect(hideHelp)
+        target.InputBegan:Connect(function(input)
+            if input.UserInputType ~= Enum.UserInputType.Touch then return end
+            touchHelpShown = false
+            helpToken = helpToken + (1)
+            local token = helpToken
+            task.delay(0.45, function()
+                if token == helpToken then
+                    touchHelpShown = true
+                    target:SetAttribute("XCLongPressUntil", os.clock() + 0.4)
+                    showHelp(target, message)
+                end
+            end)
+        end)
+        target.InputEnded:Connect(function(input)
+            if input.UserInputType ~= Enum.UserInputType.Touch then return end
+            if touchHelpShown then
+                local shownToken = helpToken
+                task.delay(2.5, function()
+                    if shownToken == helpToken then hideHelp() end
+                end)
+            else
+                hideHelp()
+            end
+        end)
+    end
+
+    local function createPage(name)
+        local page = Instance.new("Frame")
+        page.Name = name
+        page.Size = UDim2.fromScale(1, 1)
+        page.BackgroundTransparency = 1
+        page.Visible = false
+        page.Parent = content
+        pages[name] = page
+        return page
+    end
+
+    local function createPanel(page, title, x, width)
+        local panel = Instance.new("Frame")
+        panel.Name = title
+        panel.Size = UDim2.new(width, 0, 1, 0)
+        panel.Position = UDim2.new(x, 0, 0, 0)
+        panel.BackgroundColor3 = C.Panel
+        panel.BorderColor3 = C.Border
+        panel.BorderSizePixel = 1
+        panel.Parent = page
+
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Size = UDim2.new(1, -16, 0, 24)
+        titleLabel.Position = UDim2.fromOffset(8, 3)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = title
+        titleLabel.TextColor3 = C.Text
+        titleLabel.Font = Enum.Font.Code
+        titleLabel.TextSize = 12
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        titleLabel.Parent = panel
+
+        local scroll = Instance.new("ScrollingFrame")
+        scroll.Name = "Controls"
+        scroll.Size = UDim2.new(1, -14, 1, -32)
+        scroll.Position = UDim2.fromOffset(7, 28)
+        scroll.BackgroundTransparency = 1
+        scroll.BorderSizePixel = 0
+        scroll.ScrollBarThickness = 2
+        scroll.ScrollBarImageColor3 = C.Border
+        scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        scroll.CanvasSize = UDim2.new()
+        scroll.Parent = panel
+
+        local layout = Instance.new("UIListLayout")
+        layout.Padding = UDim.new(0, 4)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.Parent = scroll
+        local padding = Instance.new("UIPadding")
+        padding.PaddingLeft = UDim.new(0, 7)
+        padding.PaddingRight = UDim.new(0, 7)
+        padding.PaddingBottom = UDim.new(0, 9)
+        padding.Parent = scroll
+        return scroll
+    end
+
+    local function section(parent, text)
+        local outer = Instance.new("Frame")
+        outer.Name = "Section_" .. text:gsub("%W", "_")
+        outer.Size = UDim2.new(1, 0, 0, 0)
+        outer.AutomaticSize = Enum.AutomaticSize.Y
+        outer.BackgroundTransparency = 1
+        outer.Parent = parent
+        local outerLayout = Instance.new("UIListLayout")
+        outerLayout.Padding = UDim.new(0, 5)
+        outerLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        outerLayout.Parent = outer
+
+        local header = Instance.new("TextButton")
+        header.Size = UDim2.new(1, 0, 0, 24)
+        header.LayoutOrder = 1
+        header.BackgroundTransparency = 1
+        header.BorderSizePixel = 0
+        header.Text = ""
+        header.AutoButtonColor = false
+        header.Parent = outer
+
+        local title = Instance.new("TextLabel")
+        title.Name = "SectionTitle"
+        title.Size = UDim2.new(1, -26, 0, 18)
+        title.Position = UDim2.fromOffset(1, 0)
+        title.BackgroundTransparency = 1
+        title.Text = text:upper()
+        title.TextColor3 = C.White
+        title.Font = Enum.Font.Code
+        title.TextSize = 11
+        title.TextXAlignment = Enum.TextXAlignment.Left
+        title.Parent = header
+
+        local collapseIcon = Instance.new("TextLabel")
+        collapseIcon.Name = "CollapseIcon"
+        collapseIcon.Size = UDim2.fromOffset(20, 18)
+        collapseIcon.Position = UDim2.new(1, -20, 0, 0)
+        collapseIcon.BackgroundTransparency = 1
+        collapseIcon.Text = "v"
+        collapseIcon.TextColor3 = C.Lime
+        collapseIcon.Font = Enum.Font.Code
+        collapseIcon.TextSize = 11
+        collapseIcon.Parent = header
+
+        local accentLine = Instance.new("Frame")
+        accentLine.Name = "LimeDivider"
+        accentLine.Size = UDim2.new(1, 0, 0, 1)
+        accentLine.Position = UDim2.new(0, 0, 1, -2)
+        accentLine.BackgroundColor3 = C.Lime
+        accentLine.BackgroundTransparency = 0.08
+        accentLine.BorderSizePixel = 0
+        accentLine.Parent = header
+
+        local lineFade = Instance.new("UIGradient")
+        lineFade.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0),
+            NumberSequenceKeypoint.new(0.72, 0.28),
+            NumberSequenceKeypoint.new(1, 1),
+        })
+        lineFade.Parent = accentLine
+
+        local body = Instance.new("Frame")
+        body.Name = "Body"
+        body.Size = UDim2.new(1, 0, 0, 0)
+        body.LayoutOrder = 2
+        body.AutomaticSize = Enum.AutomaticSize.Y
+        body.BackgroundTransparency = 1
+        body.Parent = outer
+        local bodyLayout = Instance.new("UIListLayout")
+        bodyLayout.Padding = UDim.new(0, 4)
+        bodyLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        bodyLayout.Parent = body
+
+        local group = {outer = outer, body = body, header = header, collapsed = false}
+        table.insert(sectionGroups, group)
+        activeSectionByParent[parent] = body
+        header.Activated:Connect(function()
+            group.collapsed = not group.collapsed
+            body.Visible = not group.collapsed
+            collapseIcon.Text = group.collapsed and ">" or "v"
+            title.TextColor3 = group.collapsed and C.Text or C.White
+            accentLine.BackgroundTransparency = group.collapsed and 0.45 or 0.08
+        end)
+        return body
+    end
+
+    local function registerSearch(gui, label)
+        table.insert(searchableControls, {gui = gui, label = tostring(label):lower()})
+    end
+
+    local function refreshConfigControls(key, value)
+        for _, refreshControl in ipairs(refreshers[key] or {}) do pcall(refreshControl, value) end
+    end
+
+    local function getModuleRuntimeStatus(key)
+        if XCConfig[key] ~= true then return "OFF", C.Muted end
+        if key == "skinChangerEnabled" then
+            if skinData.LastError then return "ERR", Color3.fromRGB(218, 82, 82) end
+            if not skinData.Ready then return "WAIT", Color3.fromRGB(220, 170, 72) end
+        elseif key == "antiAimEnabled" or key == "bunnyHopEnabled" then
+            if not xcCharacterInputHook.Ready and xcCharacterInputHook.LastError then
+                return "FALL", Color3.fromRGB(220, 170, 72)
+            end
+            if not xcCharacterInputHook.Ready then return "WAIT", Color3.fromRGB(220, 170, 72) end
+        elseif key == "silentAimEnabled" and not xcNativeSilentHooked then
+            return "WAIT", Color3.fromRGB(220, 170, 72)
+        end
+        return "ON", C.Lime
+    end
+
+    local function addToggle(parent, label, key, onChanged)
+        parent = activeSectionByParent[parent] or parent
+        local row = Instance.new("TextButton")
+        row.Name = key
+        row.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 28 or 22)
+        row.BackgroundTransparency = 1
+        row.Text = ""
+        row.AutoButtonColor = false
+        row.Parent = parent
+        local text = Instance.new("TextLabel")
+        text.Size = UDim2.new(1, -76, 1, 0)
+        text.Position = UDim2.fromOffset(0, 0)
+        text.BackgroundTransparency = 1
+        text.Text = label
+        text.TextColor3 = C.Text
+        text.Font = Enum.Font.Code
+        text.TextSize = 11
+        text.TextXAlignment = Enum.TextXAlignment.Left
+        text.Parent = row
+
+        local statusText = Instance.new("TextLabel")
+        statusText.Name = "RuntimeStatus"
+        statusText.Size = UDim2.fromOffset(34, 14)
+        statusText.Position = UDim2.new(1, -67, 0.5, -7)
+        statusText.BackgroundColor3 = C.Control
+        statusText.BackgroundTransparency = 0.15
+        statusText.BorderSizePixel = 0
+        statusText.Font = Enum.Font.Code
+        statusText.TextSize = 8
+        statusText.TextXAlignment = Enum.TextXAlignment.Center
+        statusText.Parent = row
+        local statusCorner = Instance.new("UICorner")
+        statusCorner.CornerRadius = UDim.new(0, 3)
+        statusCorner.Parent = statusText
+
+        local track = Instance.new("Frame")
+        track.Name = "SwitchTrack"
+        track.Size = UDim2.fromOffset(27, 13)
+        track.Position = UDim2.new(1, -28, 0.5, -6)
+        track.BackgroundColor3 = C.Control2
+        track.BorderColor3 = C.Black
+        track.BorderSizePixel = 1
+        track.Parent = row
+        local trackCorner = Instance.new("UICorner")
+        trackCorner.CornerRadius = UDim.new(1, 0)
+        trackCorner.Parent = track
+
+        local knob = Instance.new("Frame")
+        knob.Name = "Knob"
+        knob.Size = UDim2.fromOffset(9, 9)
+        knob.Position = UDim2.new(0, 2, 0.5, -4)
+        knob.BackgroundColor3 = C.Muted
+        knob.BorderSizePixel = 0
+        knob.Parent = track
+        local knobCorner = Instance.new("UICorner")
+        knobCorner.CornerRadius = UDim.new(1, 0)
+        knobCorner.Parent = knob
+
+        local function refreshStatus()
+            local state, color = getModuleRuntimeStatus(key)
+            local background = state == "ERR" and Color3.fromRGB(45, 18, 18)
+                or (state == "WAIT" or state == "FALL") and Color3.fromRGB(43, 34, 17) or C.Control
+            if statusText.Text ~= state then statusText.Text = state end
+            if statusText.TextColor3 ~= color then statusText.TextColor3 = color end
+            if statusText.BackgroundColor3 ~= background then statusText.BackgroundColor3 = background end
+        end
+        local function refresh(value)
+            track.BackgroundColor3 = value and Color3.fromRGB(76, 102, 0) or C.Control2
+            knob.BackgroundColor3 = value and C.Lime or C.Muted
+            knob.Position = value and UDim2.new(1, -11, 0.5, -4) or UDim2.new(0, 2, 0.5, -4)
+            text.TextColor3 = value and C.White or C.Text
+            refreshStatus()
+        end
+        refresh(XCConfig[key] == true)
+        UI_Bind_Registry[key] = refresh
+        refreshers[key] = refreshers[key] or {}
+        table.insert(refreshers[key], refresh)
+        table.insert(moduleStatusRefreshers, function()
+            if row.Parent then refreshStatus() end
+        end)
+        row.Activated:Connect(function()
+            if os.clock() < (row:GetAttribute("XCLongPressUntil") or 0) then return end
+            XCConfig[key] = not XCConfig[key]
+            refreshConfigControls(key, XCConfig[key])
+            if onChanged then onChanged(XCConfig[key]) end
+            scheduleConfigAutoSave()
+            if key ~= "settingsShowNotifications" then
+                XCNotify(label, XCConfig[key] and "Enabled" or "Disabled", XCConfig[key] and "success" or "warning", 1.5)
+            end
+        end)
+        attachHelp(row, key)
+        registerSearch(row, label .. " " .. key)
+        return row
+    end
+
+    local function addSlider(parent, label, key, minValue, maxValue, step, suffix, onChanged)
+        parent = activeSectionByParent[parent] or parent
+        local holder = Instance.new("Frame")
+        holder.Name = key
+        holder.Size = UDim2.new(1, 0, 0, 36)
+        holder.BackgroundTransparency = 1
+        holder.Active = true
+        holder.Parent = parent
+        local name = Instance.new("TextLabel")
+        name.Size = UDim2.new(0.68, 0, 0, 16)
+        name.BackgroundTransparency = 1
+        name.Text = label
+        name.TextColor3 = C.Text
+        name.Font = Enum.Font.Code
+        name.TextSize = 10
+        name.TextXAlignment = Enum.TextXAlignment.Left
+        name.Parent = holder
+        local valueLabel = Instance.new("TextLabel")
+        valueLabel.Size = UDim2.new(0.32, 0, 0, 16)
+        valueLabel.Position = UDim2.new(0.68, 0, 0, 0)
+        valueLabel.BackgroundTransparency = 1
+        valueLabel.TextColor3 = C.Text
+        valueLabel.Font = Enum.Font.Code
+        valueLabel.TextSize = 10
+        valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+        valueLabel.Parent = holder
+        local bar = Instance.new("Frame")
+        bar.Size = UDim2.new(1, 0, 0, 7)
+        bar.Position = UDim2.fromOffset(0, 21)
+        bar.BackgroundColor3 = C.Control2
+        bar.BorderColor3 = C.Black
+        bar.BorderSizePixel = 1
+        bar.Active = true
+        bar.Parent = holder
+        local fill = Instance.new("Frame")
+        fill.BorderSizePixel = 0
+        fill.BackgroundColor3 = C.Lime
+        fill.Parent = bar
+        local function refresh(value)
+            value = math.clamp(tonumber(value) or minValue, minValue, maxValue)
+            fill.Size = UDim2.new((value - minValue) / (maxValue - minValue), 0, 1, 0)
+            local shown = step < 0.01 and string.format("%.3f", value)
+                or step < 1 and string.format("%.2f", value)
+                or tostring(math.floor(value + 0.5))
+            valueLabel.Text = shown .. (suffix or "")
+        end
+        local function setFromX(x)
+            if bar.AbsoluteSize.X <= 0 then return end
+            local pct = math.clamp((x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+            local raw = minValue + (maxValue - minValue) * pct
+            local value = math.floor(raw / step + 0.5) * step
+            XCConfig[key] = value
+            refreshConfigControls(key, value)
+            if onChanged then onChanged(value) end
+            scheduleConfigAutoSave()
+        end
+        refresh(XCConfig[key])
+        refreshers[key] = refreshers[key] or {}
+        table.insert(refreshers[key], refresh)
+        bar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                activeSliderInput = input
+                activeSliderMove = setFromX
+                setFromX(input.Position.X)
+            end
+        end)
+        attachHelp(holder, key)
+        registerSearch(holder, label .. " " .. key)
+    end
+
+    table.insert(connections, UserInputService.InputChanged:Connect(function(input)
+        if activeSliderMove and activeSliderInput
+            and (input == activeSliderInput or input.UserInputType == Enum.UserInputType.MouseMovement) then
+            activeSliderMove(input.Position.X)
+        end
+    end))
+    table.insert(connections, UserInputService.InputEnded:Connect(function(input)
+        if input == activeSliderInput
+            or (activeSliderInput and activeSliderInput.UserInputType == Enum.UserInputType.MouseButton1
+                and input.UserInputType == Enum.UserInputType.MouseButton1) then
+            activeSliderInput = nil
+            activeSliderMove = nil
+        end
+    end))
+
+    local activeDropdown
+    local function closeDropdown()
+        if activeDropdown and activeDropdown.popup then
+            activeDropdown.popup:Destroy()
+        end
+        activeDropdown = nil
+    end
+
+    local function pointInside(gui, point)
+        if not gui or not gui.Parent then return false end
+        local pos, size = gui.AbsolutePosition, gui.AbsoluteSize
+        return point.X >= pos.X and point.X <= pos.X + size.X
+            and point.Y >= pos.Y and point.Y <= pos.Y + size.Y
+    end
+
+    table.insert(connections, UserInputService.InputBegan:Connect(function(input)
+        if not activeDropdown then return end
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1
+            and input.UserInputType ~= Enum.UserInputType.Touch then return end
+        if not pointInside(activeDropdown.button, input.Position)
+            and not pointInside(activeDropdown.popup, input.Position) then
+            closeDropdown()
+        end
+    end))
+
+    local function openDropdown(button, key, values, onChanged, refresh)
+        hideHelp()
+        if activeDropdown and activeDropdown.button == button then
+            closeDropdown()
+            return
+        end
+        closeDropdown()
+
+        local rowHeight = UserInputService.TouchEnabled and 28 or 23
+        local visibleRows = math.min(#values, UserInputService.TouchEnabled and 5 or 7)
+        local popupHeight = visibleRows * rowHeight + 2
+        local buttonPos, buttonSize = button.AbsolutePosition, button.AbsoluteSize
+        local viewport = getViewportSize()
+        local belowY = buttonPos.Y + buttonSize.Y + 2
+        local aboveY = buttonPos.Y - popupHeight - 2
+        local openAbove = belowY + popupHeight > viewport.Y - 6 and aboveY >= 6
+
+        local popup = Instance.new("ScrollingFrame")
+        popup.Name = "SmartDropdown_" .. key
+        popup.Position = UDim2.fromOffset(
+            math.clamp(buttonPos.X, 6, math.max(6, viewport.X - buttonSize.X - 6)),
+            openAbove and aboveY or math.min(belowY, viewport.Y - popupHeight - 6)
+        )
+        popup.Size = UDim2.fromOffset(buttonSize.X, popupHeight)
+        popup.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+        popup.BorderColor3 = C.Border
+        popup.BorderSizePixel = 1
+        popup.ScrollBarThickness = #values > visibleRows and 2 or 0
+        popup.ScrollBarImageColor3 = C.Lime
+        popup.CanvasSize = UDim2.fromOffset(0, #values * rowHeight)
+        popup.ZIndex = 200
+        popup.Parent = screenGui
+
+        local popupStroke = Instance.new("UIStroke")
+        popupStroke.Color = C.Black
+        popupStroke.Thickness = 1
+        popupStroke.Parent = popup
+
+        local layout = Instance.new("UIListLayout")
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.Parent = popup
+
+        for index, option in ipairs(values) do
+            local selected = XCConfig[key] == option
+            local optionButton = Instance.new("TextButton")
+            optionButton.Name = tostring(option)
+            optionButton.LayoutOrder = index
+            optionButton.Size = UDim2.new(1, 0, 0, rowHeight)
+            optionButton.BackgroundColor3 = selected and Color3.fromRGB(32, 39, 17) or Color3.fromRGB(18, 18, 18)
+            optionButton.BorderSizePixel = 0
+            optionButton.Text = ""
+            optionButton.Font = Enum.Font.Code
+            optionButton.TextSize = UserInputService.TouchEnabled and 11 or 10
+            optionButton.AutoButtonColor = false
+            optionButton.ZIndex = 201
+            optionButton.Parent = popup
+
+            local optionText = Instance.new("TextLabel")
+            optionText.Size = UDim2.new(1, -28, 1, 0)
+            optionText.Position = UDim2.fromOffset(19, 0)
+            optionText.BackgroundTransparency = 1
+            optionText.Text = tostring(option)
+            optionText.TextColor3 = selected and C.White or C.Text
+            optionText.Font = Enum.Font.Code
+            optionText.TextSize = UserInputService.TouchEnabled and 11 or 10
+            optionText.TextXAlignment = Enum.TextXAlignment.Left
+            optionText.ZIndex = 202
+            optionText.Parent = optionButton
+
+            local marker = Instance.new("Frame")
+            marker.Name = "SelectionMarker"
+            marker.Size = UDim2.fromOffset(selected and 7 or 4, selected and 7 or 4)
+            marker.Position = UDim2.new(0, 7, 0.5, selected and -3 or -2)
+            marker.BackgroundColor3 = selected and C.Lime or C.Border
+            marker.BorderSizePixel = 0
+            marker.ZIndex = 202
+            marker.Parent = optionButton
+            local markerCorner = Instance.new("UICorner")
+            markerCorner.CornerRadius = UDim.new(1, 0)
+            markerCorner.Parent = marker
+
+            optionButton.MouseEnter:Connect(function()
+                optionButton.BackgroundColor3 = selected and Color3.fromRGB(38, 48, 18) or C.Control2
+                optionText.TextColor3 = C.White
+            end)
+            optionButton.MouseLeave:Connect(function()
+                optionButton.BackgroundColor3 = selected and Color3.fromRGB(32, 39, 17) or Color3.fromRGB(18, 18, 18)
+                optionText.TextColor3 = selected and C.White or C.Text
+            end)
+            optionButton.Activated:Connect(function()
+                XCConfig[key] = option
+                refreshConfigControls(key, option)
+                if onChanged then onChanged(option) end
+                scheduleConfigAutoSave()
+                closeDropdown()
+            end)
+        end
+
+        local selectedIndex = table.find(values, XCConfig[key]) or 1
+        popup.CanvasPosition = Vector2.new(0, math.max(0, (selectedIndex - 2) * rowHeight))
+        activeDropdown = {popup = popup, button = button, key = key}
+    end
+
+    local function addChoice(parent, label, key, values, onChanged)
+        parent = activeSectionByParent[parent] or parent
+        local holder = Instance.new("Frame")
+        holder.Size = UDim2.new(1, 0, 0, 38)
+        holder.BackgroundTransparency = 1
+        holder.Active = true
+        holder.Parent = parent
+        local name = Instance.new("TextLabel")
+        name.Size = UDim2.new(1, 0, 0, 14)
+        name.BackgroundTransparency = 1
+        name.Text = label
+        name.TextColor3 = C.Text
+        name.Font = Enum.Font.Code
+        name.TextSize = 10
+        name.TextXAlignment = Enum.TextXAlignment.Left
+        name.Parent = holder
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, 0, 0, 22)
+        button.Position = UDim2.fromOffset(0, 15)
+        button.BackgroundColor3 = C.Control
+        button.BorderColor3 = C.Black
+        button.BorderSizePixel = 1
+        button.Text = ""
+        button.AutoButtonColor = false
+        button.Parent = holder
+
+        local valueText = Instance.new("TextLabel")
+        valueText.Size = UDim2.new(1, -30, 1, 0)
+        valueText.Position = UDim2.fromOffset(8, 0)
+        valueText.BackgroundTransparency = 1
+        valueText.TextColor3 = C.Text
+        valueText.Font = Enum.Font.Code
+        valueText.TextSize = 10
+        valueText.TextXAlignment = Enum.TextXAlignment.Left
+        valueText.TextTruncate = Enum.TextTruncate.AtEnd
+        valueText.Parent = button
+
+        local arrow = Instance.new("Frame")
+        arrow.Name = "Chevron"
+        arrow.Size = UDim2.fromOffset(14, 12)
+        arrow.Position = UDim2.new(1, -20, 0.5, -6)
+        arrow.BackgroundTransparency = 1
+        arrow.Parent = button
+        local arrowLeft = Instance.new("Frame")
+        arrowLeft.AnchorPoint = Vector2.new(0.5, 0.5)
+        arrowLeft.Position = UDim2.fromOffset(5, 5)
+        arrowLeft.Size = UDim2.fromOffset(6, 1.4)
+        arrowLeft.BackgroundColor3 = C.Muted
+        arrowLeft.BorderSizePixel = 0
+        arrowLeft.Rotation = 42
+        arrowLeft.Parent = arrow
+        local arrowRight = Instance.new("Frame")
+        arrowRight.AnchorPoint = Vector2.new(0.5, 0.5)
+        arrowRight.Position = UDim2.fromOffset(9, 5)
+        arrowRight.Size = UDim2.fromOffset(6, 1.4)
+        arrowRight.BackgroundColor3 = C.Muted
+        arrowRight.BorderSizePixel = 0
+        arrowRight.Rotation = -42
+        arrowRight.Parent = arrow
+
+        local function resolvedValues()
+            local list = type(values) == "function" and values() or values
+            return type(list) == "table" and #list > 0 and list or {"Default"}
+        end
+        local function refresh(value)
+            valueText.Text = tostring(value)
+            valueText.TextColor3 = C.Text
+        end
+        local initialValues = resolvedValues()
+        refresh(XCConfig[key] or initialValues[1])
+        refreshers[key] = refreshers[key] or {}
+        table.insert(refreshers[key], refresh)
+        button.Activated:Connect(function()
+            openDropdown(button, key, resolvedValues(), onChanged, refresh)
+        end)
+        attachHelp(holder, key)
+        registerSearch(holder, label .. " " .. key)
+    end
+
+    local function addButton(parent, label, callback)
+        parent = activeSectionByParent[parent] or parent
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, 0, 0, 24)
+        button.BackgroundColor3 = C.Control
+        button.BorderColor3 = C.Black
+        button.BorderSizePixel = 1
+        button.Text = label
+        button.TextColor3 = C.Text
+        button.Font = Enum.Font.Code
+        button.TextSize = 10
+        button.AutoButtonColor = false
+        button.Parent = parent
+        button.Activated:Connect(callback)
+        registerSearch(button, label)
+        return button
+    end
+
+    local function addNote(parent, message)
+        parent = activeSectionByParent[parent] or parent
+        local note = Instance.new("TextLabel")
+        note.Size = UDim2.new(1, 0, 0, 30)
+        note.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
+        note.BorderColor3 = C.Border
+        note.BorderSizePixel = 1
+        note.Text = message
+        note.TextColor3 = C.Muted
+        note.Font = Enum.Font.Code
+        note.TextSize = 8
+        note.TextWrapped = true
+        note.TextXAlignment = Enum.TextXAlignment.Left
+        note.Parent = parent
+        local padding = Instance.new("UIPadding")
+        padding.PaddingLeft = UDim.new(0, 6)
+        padding.PaddingRight = UDim.new(0, 6)
+        padding.Parent = note
+        registerSearch(note, message)
+        return note
+    end
+
+    local activeColorPopup
+    local activeColorConnections = {}
+    local function closeColorPopup()
+        for _, connection in ipairs(activeColorConnections) do pcall(function() connection:Disconnect() end) end
+        table.clear(activeColorConnections)
+        if activeColorPopup then activeColorPopup:Destroy(); activeColorPopup = nil end
+    end
+
+    local function addColorPicker(parent, label, prefix, onChanged)
+        parent = activeSectionByParent[parent] or parent
+        local holder = Instance.new("Frame")
+        holder.Name = prefix .. "ColorPicker"
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 32 or 26)
+        holder.BackgroundTransparency = 1
+        holder.Parent = parent
+        local title = Instance.new("TextLabel")
+        title.Size = UDim2.new(1, -94, 1, 0)
+        title.BackgroundTransparency = 1
+        title.Text = label
+        title.TextColor3 = C.Text
+        title.Font = Enum.Font.Code
+        title.TextSize = 10
+        title.TextXAlignment = Enum.TextXAlignment.Left
+        title.Parent = holder
+        local hexLabel = Instance.new("TextLabel")
+        hexLabel.Size = UDim2.fromOffset(58, 18)
+        hexLabel.Position = UDim2.new(1, -88, 0.5, -9)
+        hexLabel.BackgroundTransparency = 1
+        hexLabel.TextColor3 = C.Muted
+        hexLabel.Font = Enum.Font.Code
+        hexLabel.TextSize = 9
+        hexLabel.TextXAlignment = Enum.TextXAlignment.Right
+        hexLabel.Parent = holder
+        local swatch = Instance.new("TextButton")
+        swatch.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 27 or 23, UserInputService.TouchEnabled and 27 or 19)
+        swatch.Position = UDim2.new(1, -(UserInputService.TouchEnabled and 27 or 23), 0.5, -(UserInputService.TouchEnabled and 13 or 9))
+        swatch.BorderColor3 = C.Black
+        swatch.BorderSizePixel = 1
+        swatch.Text = ""
+        swatch.AutoButtonColor = false
+        swatch.Parent = holder
+        Instance.new("UICorner", swatch).CornerRadius = UDim.new(0, 3)
+
+        local function readColor()
+            return configColor(prefix, Color3.fromRGB(255, 255, 255))
+        end
+        local function refresh()
+            local color = readColor()
+            swatch.BackgroundColor3 = color
+            hexLabel.Text = string.format("#%02X%02X%02X",
+                math.floor(color.R * 255 + 0.5), math.floor(color.G * 255 + 0.5), math.floor(color.B * 255 + 0.5))
+        end
+        refresh()
+        for _, suffix in ipairs({"R", "G", "B"}) do
+            local key = prefix .. suffix
+            refreshers[key] = refreshers[key] or {}
+            table.insert(refreshers[key], refresh)
+        end
+
+        swatch.Activated:Connect(function()
+            closeColorPopup()
+            local popup = Instance.new("Frame")
+            activeColorPopup = popup
+            popup.Name = "Palette_" .. prefix
+            popup.Size = UDim2.fromOffset(238, 180)
+            local absolute = swatch.AbsolutePosition
+            local viewport = getViewportSize()
+            popup.Position = UDim2.fromOffset(
+                math.clamp(absolute.X - 205, 6, math.max(6, viewport.X - 244)),
+                math.clamp(absolute.Y + swatch.AbsoluteSize.Y + 4, 6, math.max(6, viewport.Y - 186)))
+            popup.BackgroundColor3 = C.Panel
+            popup.BorderColor3 = C.Border
+            popup.BorderSizePixel = 1
+            popup.ZIndex = 300
+            popup.Parent = screenGui
+            local popupStroke = Instance.new("UIStroke", popup)
+            popupStroke.Color = C.Black
+            popupStroke.Thickness = 1
+            local popupTitle = Instance.new("TextLabel", popup)
+            popupTitle.Position = UDim2.fromOffset(8, 3)
+            popupTitle.Size = UDim2.new(1, -34, 0, 20)
+            popupTitle.BackgroundTransparency = 1
+            popupTitle.Text = label:upper()
+            popupTitle.TextColor3 = C.Text
+            popupTitle.Font = Enum.Font.Code
+            popupTitle.TextSize = 9
+            popupTitle.TextXAlignment = Enum.TextXAlignment.Left
+            popupTitle.ZIndex = 301
+            local close = Instance.new("TextButton", popup)
+            close.Size = UDim2.fromOffset(22, 20)
+            close.Position = UDim2.new(1, -25, 0, 2)
+            close.BackgroundTransparency = 1
+            close.Text = "×"
+            close.TextColor3 = C.Muted
+            close.Font = Enum.Font.Code
+            close.TextSize = 16
+            close.ZIndex = 302
+            close.Activated:Connect(closeColorPopup)
+
+            local selected = readColor()
+            local hue, saturation, value = selected:ToHSV()
+            local sv = Instance.new("Frame", popup)
+            sv.Position = UDim2.fromOffset(8, 25)
+            sv.Size = UDim2.fromOffset(170, 108)
+            sv.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+            sv.BorderSizePixel = 0
+            sv.Active = true
+            sv.ZIndex = 301
+            local white = Instance.new("Frame", sv)
+            white.Size = UDim2.fromScale(1, 1); white.BorderSizePixel = 0; white.BackgroundColor3 = Color3.new(1,1,1); white.ZIndex = 302
+            local whiteGradient = Instance.new("UIGradient", white)
+            whiteGradient.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,1)})
+            local black = Instance.new("Frame", sv)
+            black.Size = UDim2.fromScale(1, 1); black.BorderSizePixel = 0; black.BackgroundColor3 = Color3.new(0,0,0); black.ZIndex = 303
+            local blackGradient = Instance.new("UIGradient", black)
+            blackGradient.Rotation = 90
+            blackGradient.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(1,0)})
+            local cursor = Instance.new("Frame", sv)
+            cursor.AnchorPoint = Vector2.new(0.5,0.5); cursor.Size = UDim2.fromOffset(8,8); cursor.BackgroundTransparency = 1
+            cursor.BorderColor3 = Color3.new(1,1,1); cursor.BorderSizePixel = 1; cursor.ZIndex = 305
+
+            local hueBar = Instance.new("Frame", popup)
+            hueBar.Position = UDim2.fromOffset(8, 141); hueBar.Size = UDim2.fromOffset(170, 14)
+            hueBar.BorderSizePixel = 0; hueBar.Active = true; hueBar.ZIndex = 301
+            local hueGradient = Instance.new("UIGradient", hueBar)
+            hueGradient.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0,Color3.fromRGB(255,0,0)), ColorSequenceKeypoint.new(0.17,Color3.fromRGB(255,255,0)),
+                ColorSequenceKeypoint.new(0.33,Color3.fromRGB(0,255,0)), ColorSequenceKeypoint.new(0.5,Color3.fromRGB(0,255,255)),
+                ColorSequenceKeypoint.new(0.67,Color3.fromRGB(0,0,255)), ColorSequenceKeypoint.new(0.83,Color3.fromRGB(255,0,255)),
+                ColorSequenceKeypoint.new(1,Color3.fromRGB(255,0,0))})
+            local hueCursor = Instance.new("Frame", hueBar)
+            hueCursor.AnchorPoint = Vector2.new(0.5,0.5); hueCursor.Size = UDim2.fromOffset(3,18)
+            hueCursor.Position = UDim2.new(hue,0,0.5,0); hueCursor.BackgroundColor3 = Color3.new(1,1,1)
+            hueCursor.BorderColor3 = Color3.new(0,0,0); hueCursor.BorderSizePixel = 1; hueCursor.ZIndex = 304
+
+            local preview = Instance.new("Frame", popup)
+            preview.Position = UDim2.fromOffset(187, 26); preview.Size = UDim2.fromOffset(42,42)
+            preview.BorderColor3 = C.Black; preview.BorderSizePixel = 1; preview.ZIndex = 301
+            Instance.new("UICorner", preview).CornerRadius = UDim.new(0,4)
+            local hex = Instance.new("TextBox", popup)
+            hex.Position = UDim2.fromOffset(184, 78); hex.Size = UDim2.fromOffset(47,24)
+            hex.BackgroundColor3 = C.Control; hex.BorderColor3 = C.Black; hex.BorderSizePixel = 1
+            hex.ClearTextOnFocus = false; hex.TextColor3 = C.Text; hex.Font = Enum.Font.Code; hex.TextSize = 9; hex.ZIndex = 301
+
+            local function commitColor(color)
+                XCConfig[prefix.."R"] = math.floor(color.R*255+0.5)
+                XCConfig[prefix.."G"] = math.floor(color.G*255+0.5)
+                XCConfig[prefix.."B"] = math.floor(color.B*255+0.5)
+                preview.BackgroundColor3 = color
+                hex.Text = string.format("%02X%02X%02X",XCConfig[prefix.."R"],XCConfig[prefix.."G"],XCConfig[prefix.."B"])
+                cursor.Position = UDim2.fromScale(saturation,1-value)
+                hueCursor.Position = UDim2.new(hue,0,0.5,0)
+                refresh()
+                if onChanged then onChanged(color) end
+                scheduleConfigAutoSave()
+            end
+            local function updateSV(position)
+                saturation = math.clamp((position.X-sv.AbsolutePosition.X)/math.max(1,sv.AbsoluteSize.X),0,1)
+                value = 1-math.clamp((position.Y-sv.AbsolutePosition.Y)/math.max(1,sv.AbsoluteSize.Y),0,1)
+                commitColor(Color3.fromHSV(hue,saturation,value))
+            end
+            local function updateHue(position)
+                hue = math.clamp((position.X-hueBar.AbsolutePosition.X)/math.max(1,hueBar.AbsoluteSize.X),0,1)
+                sv.BackgroundColor3 = Color3.fromHSV(hue,1,1)
+                commitColor(Color3.fromHSV(hue,saturation,value))
+            end
+            local draggingSV, draggingHue = false, false
+            sv.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then draggingSV=true; updateSV(input.Position) end end)
+            hueBar.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then draggingHue=true; updateHue(input.Position) end end)
+            local paletteMoveConnection = UserInputService.InputChanged:Connect(function(input)
+                if input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch then
+                    if draggingSV then updateSV(input.Position) elseif draggingHue then updateHue(input.Position) end
+                end
+            end)
+            table.insert(activeColorConnections,paletteMoveConnection)
+            table.insert(connections,paletteMoveConnection)
+            local paletteEndConnection = UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then draggingSV=false; draggingHue=false end
+            end)
+            table.insert(activeColorConnections,paletteEndConnection)
+            table.insert(connections,paletteEndConnection)
+            hex.FocusLost:Connect(function(enterPressed)
+                local valueText = hex.Text:gsub("#","")
+                if enterPressed and valueText:match("^[%x][%x][%x][%x][%x][%x]$") then
+                    local color = Color3.fromRGB(tonumber(valueText:sub(1,2),16),tonumber(valueText:sub(3,4),16),tonumber(valueText:sub(5,6),16))
+                    hue,saturation,value = color:ToHSV(); sv.BackgroundColor3 = Color3.fromHSV(hue,1,1); commitColor(color)
+                end
+            end)
+            commitColor(selected)
+        end)
+        registerSearch(holder,label.." color palette "..prefix)
+        return holder
+    end
+
+    local function addESPPreview(parent)
+        parent = activeSectionByParent[parent] or parent
+        local card = Instance.new("Frame")
+        card.Name = "ESPPreview"
+        card.Size = UDim2.new(1, 0, 0, 190)
+        card.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+        card.BorderColor3 = C.Border
+        card.BorderSizePixel = 1
+        card.ClipsDescendants = true
+        card.Parent = parent
+
+        local title = Instance.new("TextLabel", card)
+        title.Size = UDim2.new(1, -76, 0, 20)
+        title.Position = UDim2.fromOffset(7, 3)
+        title.BackgroundTransparency = 1
+        title.Text = "PLAYER ESP PREVIEW"
+        title.TextColor3 = C.Text
+        title.Font = Enum.Font.Code
+        title.TextSize = 9
+        title.TextXAlignment = Enum.TextXAlignment.Left
+
+        local previewVisible = true
+        local mode = Instance.new("TextButton", card)
+        mode.Size = UDim2.fromOffset(67, 18)
+        mode.Position = UDim2.new(1, -72, 0, 4)
+        mode.BackgroundColor3 = C.Control
+        mode.BorderColor3 = C.Border
+        mode.BorderSizePixel = 1
+        mode.Font = Enum.Font.Code
+        mode.TextSize = 8
+        mode.AutoButtonColor = false
+
+        local canvas = Instance.new("Frame", card)
+        canvas.Size = UDim2.new(1, -12, 1, -31)
+        canvas.Position = UDim2.fromOffset(6, 26)
+        canvas.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        canvas.BorderSizePixel = 0
+        canvas.ClipsDescendants = true
+
+        -- All preview objects share one fixed local coordinate space. This
+        -- avoids mixing AbsolutePosition with local offsets when the menu is
+        -- scaled, scrolled or opened on a phone.
+        local root = Instance.new("Frame", canvas)
+        root.Name = "PreviewSpace"
+        root.AnchorPoint = Vector2.new(0.5, 0.5)
+        root.Position = UDim2.fromScale(0.5, 0.54)
+        root.Size = UDim2.fromOffset(126, 142)
+        root.BackgroundTransparency = 1
+
+        local body = Instance.new("Frame", root)
+        body.AnchorPoint = Vector2.new(0.5, 0.5)
+        body.Position = UDim2.fromOffset(63, 75)
+        body.Size = UDim2.fromOffset(18, 56)
+        body.BackgroundTransparency = 0.72
+        body.BorderSizePixel = 0
+        local head = Instance.new("Frame", root)
+        head.AnchorPoint = Vector2.new(0.5, 0.5)
+        head.Position = UDim2.fromOffset(63, 37)
+        head.Size = UDim2.fromOffset(17, 17)
+        head.BackgroundTransparency = 0.72
+        head.BorderSizePixel = 0
+        Instance.new("UICorner", head).CornerRadius = UDim.new(1, 0)
+
+        local boxOutlineFrame = Instance.new("Frame", root)
+        boxOutlineFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        boxOutlineFrame.Position = UDim2.fromOffset(63, 70)
+        boxOutlineFrame.BackgroundTransparency = 1
+        local boxOutline = Instance.new("UIStroke", boxOutlineFrame)
+        boxOutline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        boxOutline.Color = Color3.fromRGB(3, 3, 3)
+        local box = Instance.new("Frame", root)
+        box.AnchorPoint = Vector2.new(0.5, 0.5)
+        box.Position = UDim2.fromOffset(63, 70)
+        box.BackgroundTransparency = 1
+        local boxStroke = Instance.new("UIStroke", box)
+        boxStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+        local cornerLines = {}
+        for index = 1, 8 do
+            local line = Instance.new("Frame", root)
+            line.BorderSizePixel = 0
+            cornerLines[index] = line
+        end
+
+        local healthBack = Instance.new("Frame", root)
+        healthBack.AnchorPoint = Vector2.new(1, 0)
+        healthBack.BackgroundColor3 = Color3.fromRGB(4, 4, 4)
+        healthBack.BorderSizePixel = 0
+        local healthFill = Instance.new("Frame", healthBack)
+        healthFill.AnchorPoint = Vector2.new(0, 1)
+        healthFill.Position = UDim2.new(0, 1, 1, -1)
+        healthFill.Size = UDim2.new(1, -2, 0.72, -1)
+        healthFill.BorderSizePixel = 0
+        local healthGradient = Instance.new("UIGradient", healthFill)
+        healthGradient.Rotation = 90
+
+        local tag = Instance.new("TextLabel", root)
+        tag.AnchorPoint = Vector2.new(0.5, 1)
+        tag.Position = UDim2.fromOffset(63, 23)
+        tag.Size = UDim2.fromOffset(124, 16)
+        tag.BackgroundTransparency = 1
+        tag.Text = "enemy [42m] [72HP]"
+        tag.Font = Enum.Font.Code
+        tag.TextSize = 9
+
+        local function makeLine(a, b, thickness)
+            local delta, middle = b - a, (a + b) * 0.5
+            local line = Instance.new("Frame", root)
+            line.AnchorPoint = Vector2.new(0.5, 0.5)
+            line.Position = UDim2.fromOffset(middle.X, middle.Y)
+            line.Size = UDim2.fromOffset(delta.Magnitude, thickness or 1)
+            line.Rotation = math.deg(math.atan2(delta.Y, delta.X))
+            line.BorderSizePixel = 0
+            return line
+        end
+        local skeletonLines = {
+            makeLine(Vector2.new(63,45),Vector2.new(63,70),1),
+            makeLine(Vector2.new(63,53),Vector2.new(48,68),1),
+            makeLine(Vector2.new(63,53),Vector2.new(78,68),1),
+            makeLine(Vector2.new(63,70),Vector2.new(51,99),1),
+            makeLine(Vector2.new(63,70),Vector2.new(75,99),1),
+        }
+        local tracer = makeLine(Vector2.new(7,137),Vector2.new(63,37),1)
+        local headDot = Instance.new("Frame", root)
+        headDot.AnchorPoint = Vector2.new(0.5,0.5)
+        headDot.Position = UDim2.fromOffset(63,37)
+        headDot.Size = UDim2.fromOffset(5,5)
+        headDot.BorderSizePixel = 0
+        Instance.new("UICorner",headDot).CornerRadius = UDim.new(1,0)
+
+        local weaponIcon = Instance.new("Frame", root)
+        weaponIcon.AnchorPoint = Vector2.new(0.5,0)
+        weaponIcon.Position = UDim2.fromOffset(63,111)
+        weaponIcon.Size = UDim2.fromOffset(38,12)
+        weaponIcon.BackgroundTransparency = 1
+        local weaponBody = Instance.new("Frame",weaponIcon)
+        weaponBody.Position = UDim2.fromOffset(3,2);weaponBody.Size=UDim2.fromOffset(25,4);weaponBody.BorderSizePixel=0
+        local weaponBarrel = Instance.new("Frame",weaponIcon)
+        weaponBarrel.Position = UDim2.fromOffset(27,3);weaponBarrel.Size=UDim2.fromOffset(9,2);weaponBarrel.BorderSizePixel=0
+        local weaponGrip = Instance.new("Frame",weaponIcon)
+        weaponGrip.Position = UDim2.fromOffset(17,5);weaponGrip.Size=UDim2.fromOffset(4,7);weaponGrip.Rotation=18;weaponGrip.BorderSizePixel=0
+
+        local function refreshPreview()
+            local color = previewVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
+            local height = math.clamp(76 * (tonumber(XCConfig.espPerspectiveScale) or 1), 58, 94)
+            local width = math.clamp(height * (tonumber(XCConfig.espBoxAspect) or 0.52), 27, 57)
+            local left, top = 63-width*0.5, 70-height*0.5
+            local thick = math.clamp(tonumber(XCConfig.boxThickness) or 1,1,3)
+            mode.Text = previewVisible and "VISIBLE" or "HIDDEN"
+            mode.TextColor3 = color
+            box.Size = UDim2.fromOffset(width,height)
+            boxOutlineFrame.Size = UDim2.fromOffset(width,height)
+            boxStroke.Color = color;boxStroke.Thickness = thick
+            boxOutline.Thickness = thick+2;boxOutline.Transparency = 0.1
+            box.Visible = XCConfig.boxEspEnabled and not XCConfig.cornerBoxEnabled
+            boxOutlineFrame.Visible = box.Visible and XCConfig.espBoxOutline
+            body.BackgroundColor3=color;head.BackgroundColor3=color
+            body.Visible=XCConfig.chamsEnabled;head.Visible=XCConfig.chamsEnabled
+            healthBack.Position=UDim2.fromOffset(left-3,top);healthBack.Size=UDim2.fromOffset(4,height)
+            healthBack.Visible=XCConfig.healthBarEnabled
+            local hpHigh=previewVisible and currentTheme.HealthHigh or currentTheme.Enemy_Hidden
+            local hpMid=previewVisible and currentTheme.HealthMid or currentTheme.Enemy_Hidden
+            local hpLow=previewVisible and currentTheme.HealthLow or currentTheme.Enemy_Hidden
+            healthFill.BackgroundColor3=Color3.new(1,1,1)
+            healthGradient.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,hpHigh),ColorSequenceKeypoint.new(0.55,hpMid),ColorSequenceKeypoint.new(1,hpLow)})
+            local tagText="enemy"
+            if XCConfig.espShowDistance then tagText = tagText .. (" [42m]") end
+            if XCConfig.espShowHealth then tagText = tagText .. (" [72HP]") end
+            if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then tagText = tagText .. (" [AK-47]") end
+            tag.Text=tagText;tag.TextColor3=color;tag.TextSize=XCConfig.espTextSize;tag.Visible=XCConfig.nametagsEnabled
+            local length=math.clamp(math.floor(width*0.32+0.5),6,16)
+            local specs={{left,top,length,thick},{left,top,thick,length},{left+width-length,top,length,thick},{left+width-thick,top,thick,length},
+                {left,top+height-thick,length,thick},{left,top+height-length,thick,length},{left+width-length,top+height-thick,length,thick},{left+width-thick,top+height-length,thick,length}}
+            for index,line in ipairs(cornerLines) do local spec=specs[index]
+                line.Position=UDim2.fromOffset(spec[1],spec[2]);line.Size=UDim2.fromOffset(spec[3],spec[4]);line.BackgroundColor3=color
+                line.Visible=XCConfig.cornerBoxEnabled
+            end
+            for _,line in ipairs(skeletonLines) do line.BackgroundColor3=color;line.Visible=XCConfig.skeletonEspEnabled end
+            tracer.BackgroundColor3=color;tracer.Visible=XCConfig.tracersEnabled
+            headDot.BackgroundColor3=color;headDot.Visible=XCConfig.headDotEnabled
+            weaponBody.BackgroundColor3=color;weaponBarrel.BackgroundColor3=color;weaponGrip.BackgroundColor3=color
+            weaponIcon.Visible=XCConfig.weaponEspEnabled
+        end
+        refreshESPPreview = refreshPreview
+        mode.Activated:Connect(function() previewVisible=not previewVisible;refreshPreview() end)
+        for _,key in ipairs({"boxEspEnabled","cornerBoxEnabled","healthBarEnabled","nametagsEnabled","chamsEnabled","skeletonEspEnabled",
+            "tracersEnabled","headDotEnabled","weaponEspEnabled","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline",
+            "espTextSize","espShowDistance","espShowHealth","tagShowWeapon",
+            "espVisibleR","espVisibleG","espVisibleB","espHiddenR","espHiddenG","espHiddenB","espHealthHighR","espHealthHighG","espHealthHighB",
+            "espHealthMidR","espHealthMidG","espHealthMidB","espHealthLowR","espHealthLowG","espHealthLowB"}) do
+            refreshers[key]=refreshers[key] or {};table.insert(refreshers[key],refreshPreview)
+        end
+        task.defer(refreshPreview)
+        registerSearch(card,"player esp preview box corner health nametag chams skeleton tracer head dot weapon")
+        return card
+    end
+
+    local function addSkinGallery(parent)
+        parent = activeSectionByParent[parent] or parent
+        local holder = Instance.new("Frame", parent)
+        holder.Name = "SkinImageGallery"
+        holder.Size = UDim2.new(1, 0, 0, 388)
+        holder.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+        holder.BorderColor3 = C.Border
+        holder.BorderSizePixel = 1
+
+        local categoryButtons = {}
+        local categoryBar = Instance.new("Frame", holder)
+        categoryBar.Position = UDim2.fromOffset(6, 5)
+        categoryBar.Size = UDim2.new(1, -12, 0, 25)
+        categoryBar.BackgroundTransparency = 1
+        for index, modeName in ipairs({"Weapon", "Knife", "Gloves"}) do
+            local button = Instance.new("TextButton", categoryBar)
+            button.Position = UDim2.new((index-1)/3, index==1 and 0 or 2, 0, 0)
+            button.Size = UDim2.new(1/3, -3, 1, 0)
+            button.BackgroundColor3 = C.Control
+            button.BorderColor3 = C.Border
+            button.BorderSizePixel = 1
+            button.Text = ({Weapon="WEAPONS",Knife="KNIVES",Gloves="GLOVES"})[modeName]
+            button.TextColor3 = C.Muted
+            button.Font = Enum.Font.Code
+            button.TextSize = 9
+            button.AutoButtonColor = false
+            categoryButtons[modeName] = button
+            button.Activated:Connect(function()
+                XCConfig.skinGalleryMode = modeName
+                refreshSkinGallery()
+                scheduleConfigAutoSave()
+            end)
+        end
+
+        local itemBar = Instance.new("ScrollingFrame", holder)
+        itemBar.Position = UDim2.fromOffset(6, 35)
+        itemBar.Size = UDim2.new(1, -12, 0, UserInputService.TouchEnabled and 36 or 31)
+        itemBar.BackgroundColor3 = C.Panel
+        itemBar.BorderColor3 = C.Border
+        itemBar.BorderSizePixel = 1
+        itemBar.ScrollBarThickness = 2
+        itemBar.ScrollBarImageColor3 = C.Lime
+        itemBar.ScrollingDirection = Enum.ScrollingDirection.X
+        itemBar.CanvasSize = UDim2.new()
+        local itemLayout = Instance.new("UIListLayout", itemBar)
+        itemLayout.FillDirection = Enum.FillDirection.Horizontal
+        itemLayout.Padding = UDim.new(0, 4)
+        itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        local itemPadding = Instance.new("UIPadding", itemBar)
+        itemPadding.PaddingLeft = UDim.new(0, 4)
+        itemPadding.PaddingRight = UDim.new(0, 4)
+        itemPadding.PaddingTop = UDim.new(0, 3)
+        itemPadding.PaddingBottom = UDim.new(0, 3)
+
+        local heading = Instance.new("TextLabel", holder)
+        heading.Position = UDim2.fromOffset(7, UserInputService.TouchEnabled and 75 or 70)
+        heading.Size = UDim2.new(1, -14, 0, 20)
+        heading.BackgroundTransparency = 1
+        heading.TextColor3 = C.Text
+        heading.Font = Enum.Font.Code
+        heading.TextSize = 9
+        heading.TextXAlignment = Enum.TextXAlignment.Left
+
+        local grid = Instance.new("ScrollingFrame", holder)
+        grid.Position = UDim2.fromOffset(6, UserInputService.TouchEnabled and 96 or 91)
+        grid.Size = UDim2.new(1, -12, 1, UserInputService.TouchEnabled and -102 or -97)
+        grid.BackgroundTransparency = 1
+        grid.BorderSizePixel = 0
+        grid.ScrollBarThickness = 2
+        grid.ScrollBarImageColor3 = C.Lime
+        grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        grid.CanvasSize = UDim2.new()
+        local layout = Instance.new("UIGridLayout", grid)
+        layout.CellSize = UDim2.new(0.25, -5, 0, UserInputService.TouchEnabled and 118 or 108)
+        layout.CellPadding = UDim2.fromOffset(5, 5)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        local padding = Instance.new("UIPadding", grid)
+        padding.PaddingRight = UDim.new(0, 2)
+        padding.PaddingBottom = UDim.new(0, 4)
+
+        local function normalizeImage(value)
+            if type(value)=="number" and value>0 then return "rbxassetid://"..math.floor(value) end
+            if type(value)~="string" or value=="" then return nil end
+            if value:match("^%d+$") then return "rbxassetid://"..value end
+            if value:find("rbxasset",1,true) or value:find("http",1,true) then return value end
+            return nil
+        end
+        local function findPreviewImage(itemName, skinName)
+            local folder=skinData.SkinsRoot and skinData.SkinsRoot:FindFirstChild(itemName)
+            local skinFolder=folder and folder:FindFirstChild(skinName)
+            if skinFolder then
+                for _,key in ipairs({"Image","Icon","Thumbnail","Preview","ImageId","IconId","ThumbnailId"}) do
+                    local image=normalizeImage(skinFolder:GetAttribute(key));if image then return image end
+                end
+                for _,object in ipairs(skinFolder:GetDescendants()) do
+                    local lower=object.Name:lower()
+                    if lower:find("image",1,true) or lower:find("icon",1,true) or lower:find("thumbnail",1,true) or lower:find("preview",1,true) then
+                        if object:IsA("StringValue") or object:IsA("IntValue") or object:IsA("NumberValue") then
+                            local image=normalizeImage(object.Value);if image then return image end
+                        elseif object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                            local image=normalizeImage(object.Image);if image then return image end
+                        end
+                    end
+                end
+            end
+            if skinData.SkinLibrary and type(skinData.SkinLibrary.GetAllSkinsForWeapon)=="function" then
+                local ok,entries=pcall(skinData.SkinLibrary.GetAllSkinsForWeapon,itemName)
+                if ok and type(entries)=="table" then for _,info in ipairs(entries) do
+                    if type(info)=="table" and (info.skin==skinName or info.name==skinName) then
+                        for _,key in ipairs({"image","Image","icon","Icon","thumbnail","Thumbnail","preview","Preview"}) do
+                            local image=normalizeImage(info[key]);if image then return image end
+                        end
+                    end
+                end end
+            end
+            return nil
+        end
+        local function addGlovePreview(viewport,itemName,skinName)
+            local liveCamera=Workspace.CurrentCamera or camera
+            if not liveCamera then return false end
+
+            -- Gloves in the live viewmodel are the most reliable preview source.
+            -- The game's glove skin folders primarily contain SurfaceAppearance
+            -- textures rather than a separate renderable model for every finish.
+            local arms
+            for _,child in ipairs(liveCamera:GetChildren()) do
+                if child:IsA("Model") and (child.Name:match("Arms") or child:FindFirstChild("Right Arm")) then
+                    arms=child
+                    break
+                end
+            end
+            if not arms then return false end
+
+            local leftArm=arms:FindFirstChild("Left Arm")
+            local rightArm=arms:FindFirstChild("Right Arm")
+            local sources={
+                leftArm and leftArm:FindFirstChild("Glove"),
+                rightArm and rightArm:FindFirstChild("Glove")
+            }
+            if not sources[1] and not sources[2] then return false end
+
+            local previewModel=Instance.new("Model")
+            previewModel.Name="GlovePreview"
+            local clones={}
+            for _,source in ipairs(sources) do
+                if source then
+                    local ok,clone=pcall(function()
+                        source.Archivable=true
+                        return source:Clone()
+                    end)
+                    if ok and clone then
+                        for _,object in ipairs(clone:GetDescendants()) do
+                            if object:IsA("Script") or object:IsA("LocalScript") or object:IsA("ModuleScript")
+                                or object:IsA("Motor6D") or object:IsA("Weld") or object:IsA("WeldConstraint")
+                                or object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam") then
+                                object:Destroy()
+                            elseif object:IsA("BasePart") then
+                                object.Anchored=true
+                                object.CanCollide=false
+                                object.CastShadow=false
+                            end
+                        end
+                        if clone:IsA("BasePart") then
+                            clone.Anchored=true
+                            clone.CanCollide=false
+                            clone.CastShadow=false
+                        end
+                        clone.Parent=previewModel
+                        clones[#clones+1]=clone
+                    end
+                end
+            end
+            if #clones==0 or not previewModel:FindFirstChildWhichIsA("BasePart",true) then
+                previewModel:Destroy()
+                return false
+            end
+
+            if skinName~="Default" and skinData.SkinsRoot then
+                local gloveFolder=skinData.SkinsRoot:FindFirstChild(itemName)
+                local skinFolder=gloveFolder and gloveFolder:FindFirstChild(skinName)
+                local cameraFolder=skinFolder and skinFolder:FindFirstChild("Camera")
+                local textureFolder=cameraFolder and (cameraFolder:FindFirstChild("Factory New") or cameraFolder:GetChildren()[1])
+                if textureFolder then
+                    local appearances={}
+                    for _,appearance in ipairs(textureFolder:GetChildren()) do
+                        if appearance:IsA("SurfaceAppearance") then
+                            appearances[#appearances+1]=appearance
+                        end
+                    end
+                    if #appearances>0 then
+                        for _,clone in ipairs(clones) do
+                            local targets={}
+                            if clone:IsA("BasePart") then targets[#targets+1]=clone end
+                            for _,object in ipairs(clone:GetDescendants()) do
+                                if object:IsA("BasePart") then targets[#targets+1]=object end
+                            end
+                            for _,target in ipairs(targets) do
+                                for _,old in ipairs(target:GetChildren()) do
+                                    if old:IsA("SurfaceAppearance") then old:Destroy() end
+                                end
+                                for _,appearance in ipairs(appearances) do
+                                    appearance:Clone().Parent=target
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            local world=Instance.new("WorldModel",viewport)
+            previewModel.Parent=world
+            local cam=Instance.new("Camera",viewport)
+            cam.FieldOfView=22
+            viewport.CurrentCamera=cam
+
+            local ok,bounds,size=pcall(function()
+                local cf,sz=previewModel:GetBoundingBox()
+                return cf,sz
+            end)
+            if not ok or not bounds or not size then
+                world:Destroy()
+                return false
+            end
+
+            -- The live pair already has the natural left/right spacing and pose.
+            -- Fit it tightly and view it slightly from above so both finishes are visible.
+            local horizontalSize=math.max(size.X,size.Z,0.1)
+            local verticalSize=math.max(size.Y,0.1)
+            local viewportSize=viewport.AbsoluteSize
+            local aspect=(viewportSize.Y>1) and math.max(viewportSize.X/viewportSize.Y,1) or 2
+            local vfov=math.rad(cam.FieldOfView)
+            local hfov=2*math.atan(math.tan(vfov/2)*aspect)
+            local distanceH=(horizontalSize*0.5)/math.tan(hfov/2)
+            local distanceV=(verticalSize*0.5)/math.tan(vfov/2)
+            local distance=math.max(distanceH,distanceV)*1.08
+            local center=bounds.Position
+            local viewDir=(size.X>=size.Z) and bounds.LookVector or bounds.RightVector
+            local elevated=center+bounds.UpVector*(verticalSize*0.10)
+            cam.CFrame=CFrame.lookAt(elevated+viewDir*distance,elevated,bounds.UpVector)
+            return true
+        end
+
+        local function addModelPreview(viewport,itemName,skinName)
+            local asset=skinData.WeaponAssets and skinData.WeaponAssets:FindFirstChild(itemName)
+            if not asset then
+                local assets=ReplicatedStorage:FindFirstChild("Assets")
+                for _,rootName in ipairs({"Gloves","Viewmodels","Models","Characters"}) do
+                    local rootFolder=assets and assets:FindFirstChild(rootName)
+                    asset=rootFolder and rootFolder:FindFirstChild(itemName,true)
+                    if asset then break end
+                end
+            end
+            if not asset then return false end
+            local source=asset:IsA("Model") and asset or asset:FindFirstChildWhichIsA("Model",true)
+            if not source or not source:FindFirstChildWhichIsA("BasePart",true) then return false end
+            local ok,model=pcall(function() source.Archivable=true;return source:Clone() end)
+            if not ok or not model then return false end
+
+            -- Preview clones do not need scripts/effects or invisible positioning helpers.
+            -- Removing those helpers also prevents a giant invisible bounding box from
+            -- making the actual weapon look tiny in the card.
+            for _,object in ipairs(model:GetDescendants()) do
+                if object:IsA("Script") or object:IsA("LocalScript") or object:IsA("ModuleScript")
+                    or object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam") then
+                    object:Destroy()
+                elseif object:IsA("BasePart") then
+                    object.Anchored=true;object.CanCollide=false;object.CastShadow=false
+                    if object.Transparency>=0.995 and not object:FindFirstChildWhichIsA("SurfaceAppearance") then
+                        object:Destroy()
+                    end
+                end
+            end
+            if not model:FindFirstChildWhichIsA("BasePart",true) then model:Destroy();return false end
+
+            pcall(applySurfaceAppearanceSkin,model,itemName,skinName,0)
+            local world=Instance.new("WorldModel",viewport);model.Parent=world
+            local cam=Instance.new("Camera",viewport)
+            cam.FieldOfView=28
+            viewport.CurrentCamera=cam
+
+            local boundsOk,bounds,size=pcall(function() local cf,sz=model:GetBoundingBox();return cf,sz end)
+            if not boundsOk or not bounds or not size then model:Destroy();return false end
+
+            -- Show the long side of the item horizontally and fit it tightly to the card.
+            local lengthAlongX=size.X>=size.Z
+            local viewDir=lengthAlongX and bounds.LookVector or bounds.RightVector
+            local upDir=bounds.UpVector
+            local horizontalSize=math.max(lengthAlongX and size.X or size.Z,0.1)
+            local verticalSize=math.max(size.Y,0.1)
+            local viewportSize=viewport.AbsoluteSize
+            local aspect=(viewportSize.Y>1) and math.max(viewportSize.X/viewportSize.Y,1) or 2
+            local vfov=math.rad(cam.FieldOfView)
+            local hfov=2*math.atan(math.tan(vfov/2)*aspect)
+            local distanceH=(horizontalSize*0.5)/math.tan(hfov/2)
+            local distanceV=(verticalSize*0.5)/math.tan(vfov/2)
+            local distance=math.max(distanceH,distanceV)*1.16
+            local center=bounds.Position
+            cam.CFrame=CFrame.lookAt(center+viewDir*distance,center,upDir)
+            return true
+        end
+
+        local gallerySerial=0
+        local cards={}
+        local function currentItem()
+            if XCConfig.skinGalleryMode=="Knife" then return XCConfig.selectedKnifeType
+            elseif XCConfig.skinGalleryMode=="Gloves" then return XCConfig.selectedGloveModel end
+            return XCConfig.skinEditorWeapon
+        end
+        local function currentSelection(itemName)
+            if XCConfig.skinGalleryMode=="Knife" then return XCConfig.selectedSkin
+            elseif XCConfig.skinGalleryMode=="Gloves" then return XCConfig.selectedGloveSkin end
+            return XCConfig.weaponSkinSelections[itemName] or "Default"
+        end
+        local function categoryItems()
+            if XCConfig.skinGalleryMode=="Knife" then return getXCKnifeChoices()
+            elseif XCConfig.skinGalleryMode=="Gloves" then return getXCGloveModelChoices() end
+            return getXCWeaponSkinChoices()
+        end
+        local function selectItem(itemName, resetFinish)
+            if XCConfig.skinGalleryMode=="Knife" then
+                XCConfig.selectedKnifeType=itemName
+                if resetFinish then XCConfig.selectedSkin="Default" end
+                applyXCKnifeChanger()
+            elseif XCConfig.skinGalleryMode=="Gloves" then
+                XCConfig.selectedGloveModel=itemName
+                if resetFinish then XCConfig.selectedGloveSkin="Default" end
+                applyXCGloves()
+            else
+                XCConfig.skinEditorWeapon=itemName
+                XCConfig.skinEditorFinish=XCConfig.weaponSkinSelections[itemName] or "Default"
+                XCConfig.skinWear=XCConfig.weaponSkinWear[itemName] or 0
+                refreshConfigControls("skinWear",XCConfig.skinWear)
+            end
+        end
+        local function updateCardSelection(itemName)
+            local selected=currentSelection(itemName)
+            for skinName,card in pairs(cards) do
+                local active=skinName==selected
+                card.BorderColor3=active and C.Lime or C.Border
+                card.BorderSizePixel=active and 2 or 1
+                local check=card:FindFirstChild("Selected")
+                if check then check.Visible=active;check.TextColor3=C.Lime end
+            end
+        end
+        refreshSkinGallery=function()
+            gallerySerial = gallerySerial + (1);local serial=gallerySerial
+            refreshXCSkinData();table.clear(cards)
+            for _,child in ipairs(grid:GetChildren()) do if child~=layout and child~=padding then child:Destroy() end end
+            for _,child in ipairs(itemBar:GetChildren()) do if child~=itemLayout and child~=itemPadding then child:Destroy() end end
+            for modeName,button in pairs(categoryButtons) do
+                local active=modeName==XCConfig.skinGalleryMode
+                button.BackgroundColor3=active and C.Lime:Lerp(C.Panel,0.72) or C.Control
+                button.BorderColor3=active and C.Lime or C.Border
+                button.TextColor3=active and C.White or C.Muted
+            end
+            local items=categoryItems()
+            local itemName=currentItem()
+            if not table.find(items,itemName) then itemName=items[1] or "Default";selectItem(itemName,false) end
+            local itemWidthTotal=8
+            for index,name in ipairs(items) do
+                local width=math.clamp(#tostring(name)*7+20,68,132)
+                local itemButton=Instance.new("TextButton",itemBar)
+                itemButton.Name="Item_"..tostring(name);itemButton.LayoutOrder=index
+                itemButton.Size=UDim2.fromOffset(width,UserInputService.TouchEnabled and 28 or 23)
+                itemButton.BackgroundColor3=name==itemName and C.Lime:Lerp(C.Panel,0.72) or C.Control
+                itemButton.BorderColor3=name==itemName and C.Lime or C.Border;itemButton.BorderSizePixel=1
+                itemButton.Text=tostring(name);itemButton.TextColor3=name==itemName and C.White or C.Text
+                itemButton.Font=Enum.Font.Code;itemButton.TextSize=9;itemButton.AutoButtonColor=false
+                itemButton.Activated:Connect(function()
+                    if name==currentItem() then return end
+                    selectItem(name,true);refreshSkinGallery();scheduleConfigAutoSave()
+                end)
+                itemWidthTotal = itemWidthTotal + (width+4)
+            end
+            itemBar.CanvasSize=UDim2.fromOffset(itemWidthTotal,0)
+            local choices
+            if XCConfig.skinGalleryMode=="Gloves" then choices=getXCGloveSkinChoices(itemName)
+            else choices=getXCSkinChoicesForWeapon(itemName) end
+            local previewJobs={}
+            heading.Text=string.format("%s  >  SKINS  (%d)",tostring(itemName):upper(),#choices)
+            for index,skinName in ipairs(choices) do
+                local card=Instance.new("TextButton",grid)
+                card.Name="Skin_"..skinName;card.LayoutOrder=index;card.BackgroundColor3=C.Panel
+                card.BorderColor3=C.Border;card.BorderSizePixel=1;card.Text="";card.AutoButtonColor=false;cards[skinName]=card
+                local visual=Instance.new("ViewportFrame",card)
+                visual.Name="Preview";visual.Position=UDim2.fromOffset(3,3);visual.Size=UDim2.new(1,-6,1,-25)
+                visual.BackgroundColor3=C.Control;visual.BorderSizePixel=0;visual.Ambient=Color3.fromRGB(190,190,190)
+                visual.LightColor=Color3.fromRGB(255,255,255);visual.LightDirection=Vector3.new(-1,-0.5,-1)
+                local label=Instance.new("TextLabel",card)
+                label.Position=UDim2.new(0,4,1,-21);label.Size=UDim2.new(1,-8,0,18);label.BackgroundTransparency=1
+                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.Code;label.TextSize=8;label.TextTruncate=Enum.TextTruncate.AtEnd
+                local selected=Instance.new("TextLabel",card)
+                selected.Name="Selected";selected.Position=UDim2.fromOffset(5,4);selected.Size=UDim2.fromOffset(13,13)
+                selected.BackgroundColor3=Color3.fromRGB(4,4,4);selected.BackgroundTransparency=0.2;selected.Text="✓"
+                selected.Font=Enum.Font.Code;selected.TextSize=10;selected.Visible=false;selected.ZIndex=5
+                local imageId=findPreviewImage(itemName,skinName)
+                previewJobs[#previewJobs+1]=function()
+                    if serial~=gallerySerial or not visual.Parent then return end
+                    if XCConfig.skinGalleryMode=="Gloves" and addGlovePreview(visual,itemName,skinName) then return end
+                    if addModelPreview(visual,itemName,skinName) then return end
+                    if imageId then
+                        local image=Instance.new("ImageLabel",visual)
+                        image.Size=UDim2.new(1,-8,1,-8);image.Position=UDim2.fromOffset(4,4);image.BackgroundTransparency=1
+                        image.Image=imageId;image.ScaleType=Enum.ScaleType.Fit
+                    else
+                        local fallback=Instance.new("TextLabel",visual);fallback.Size=UDim2.fromScale(1,1);fallback.BackgroundTransparency=1
+                        fallback.Text=skinName=="Default" and "DEFAULT" or itemName;fallback.TextColor3=C.Muted
+                        fallback.Font=Enum.Font.Code;fallback.TextSize=8;fallback.TextWrapped=true
+                    end
+                end
+                card.Activated:Connect(function()
+                    if XCConfig.skinGalleryMode=="Knife" then XCConfig.selectedSkin=skinName;refreshConfigControls("selectedSkin",skinName);applyXCKnifeChanger()
+                    elseif XCConfig.skinGalleryMode=="Gloves" then XCConfig.selectedGloveSkin=skinName;XCConfig.gloveChangerEnabled=true;refreshConfigControls("selectedGloveSkin",skinName);applyXCGloves()
+                    else XCConfig.skinEditorFinish=skinName;XCConfig.weaponSkinSelections[itemName]=skinName
+                        XCConfig.weaponSkinWear[itemName]=XCConfig.skinWear;refreshConfigControls("skinEditorFinish",skinName);applyXCSelectedWeaponSkin() end
+                    updateCardSelection(itemName);scheduleConfigAutoSave()
+                end)
+            end
+            updateCardSelection(itemName)
+            task.spawn(function()
+                for _,job in ipairs(previewJobs) do
+                    RunService.Heartbeat:Wait()
+                    if serial~=gallerySerial then return end
+                    job()
+                end
+            end)
+        end
+        task.defer(refreshSkinGallery)
+        registerSearch(holder,"skin changer image gallery weapon knife glove previews")
+        return holder
+    end
+
+    local function specialToggle(key, value)
+        if value then
+            if key == "fireRateEnabled" then lazyFeatureRequests.fireRate = true end
+            if key == "noRecoilEnabled" or key == "noSpreadEnabled" or key == "rcsEnabled" then lazyFeatureRequests.recoilSpread = true end
+            if key == "silentAimEnabled" then lazyFeatureRequests.silentFallback = true end
+        end
+        if key == "slideEnabled" then updateMobileSlideVisibility()
+        elseif key == "jumpCircleEnabled" then
+            if value and player.Character then initJumpCircleForCharacter(player.Character) else clearActiveJumpCircle() end
+        elseif key == "skinChangerEnabled" then
+            XCConfig.gloveChangerEnabled = value
+            if value then
+                hookBloxStrikeModules(true)
+                applyXCKnifeChanger()
+                applyXCSelectedWeaponSkin()
+                applyXCGloves()
+            else
+                restoreXCKnifeModel()
+                restoreXCSelectedWeaponSkin()
+                restoreXCGloves()
+            end
+        elseif key == "gloveChangerEnabled" then
+            if value then applyXCGloves() else restoreXCGloves() end
+        elseif key == "noFallDamageEnabled" then
+            setNoFallDamage(value)
+        elseif key == "thirdPersonDistance" or key == "thirdPersonHeight" then
+            refreshThirdPerson()
+        elseif key == "nightModeEnabled" then
+            if value then
+                applyNightPreset(XCConfig.nightPreset)
+            else
+                Lighting.Brightness = defaultLighting.Brightness
+                Lighting.ClockTime = defaultLighting.ClockTime
+                Lighting.GlobalShadows = defaultLighting.GlobalShadows
+                Lighting.Ambient = defaultLighting.Ambient
+                Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
+            end
+            updateWorldChanger()
+        elseif key == "fullBrightEnabled" and not value and not XCConfig.nightModeEnabled then
+            Lighting.Brightness = defaultLighting.Brightness
+            Lighting.ClockTime = defaultLighting.ClockTime
+            Lighting.GlobalShadows = defaultLighting.GlobalShadows
+            Lighting.Ambient = defaultLighting.Ambient
+            Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
+            updateWorldChanger()
+        elseif key == "removeFogEnabled" and not value then
+            Lighting.FogStart = defaultLighting.FogStart or 0
+            Lighting.FogEnd = defaultLighting.FogEnd
+            Lighting.FogColor = defaultLighting.FogColor
+            updateWorldChanger()
+        elseif key == "thirdPersonEnabled" then setThirdPersonEnabled(value)
+        elseif key == "antiAfkEnabled" then setAntiAfkEnabled(value)
+        elseif key == "spectatorListEnabled" and value then buildSpectatorGui()
+        elseif key == "animationsEnabled" then if value then playXCAnimation() else stopXCAnimation() end
+        elseif key == "customHandsEnabled" then
+            handsLastModel = nil
+            handsLastPivot = nil
+            if value then setupXCCustomHandsHook() end
+        elseif key == "weaponChamsEnabled" then setWeaponVisuals()
+        elseif key == "soundPositionEspEnabled" then setXCSoundPositionEspEnabled(value)
+        elseif key == "customScopeEnabled" then updateCustomScope()
+        elseif key == "customFovEnabled" and not value then
+            local cam = Workspace.CurrentCamera or camera
+            if cam then cam.FieldOfView = 70 end
+        elseif key == "weatherEnabled" then applyXCWeather(); updateWorldChanger()
+        elseif key == "noSmokeEnabled" then applyXCSmokeState()
+        elseif key == "mapStyleEnabled" then setXCMapStyleEnabled(value)
+        elseif key == "mapOptimizerEnabled" then setXCMapOptimizerEnabled(value)
+        elseif key == "mapStyleFlatMaterials" or key == "mapStylePreserveSigns" or key == "mapStyleAffectTransparent"
+            or key == "mapOptimizerDisableShadows" or key == "mapOptimizerDisableEffects" or key == "mapOptimizerLowMesh" then
+            if XCMapVisualActive() then applyXCMapStyle(true) end
+        elseif key == "worldSkyboxEnabled" or key == "worldSkyCelestial" or key == "worldPostFXEnabled"
+            or key == "worldAtmosphereEnabled" or key == "worldBloomEnabled" then updateWorldChanger()
+        elseif key == "freecamEnabled" then setXCCameraMode("Freecam", value)
+        elseif key == "freelookEnabled" then setXCCameraMode("Freelook", value)
+        elseif key == "streamerModeEnabled" then setXCStreamerMode(value)
+        elseif key == "settingsCompactMode" then updateScale()
+        end
+        if value and (key == "antiAimEnabled" or key == "bunnyHopEnabled") then
+            setupXCCharacterInputHook()
+        end
+    end
+    local function toggle(parent, label, key)
+        return addToggle(parent, label, key, function(v) specialToggle(key, v) end)
+    end
+
+    local advancedCategories = {"Combat","Visuals","Movement","World & Camera","Skins","Interface","Misc"}
+    local function advancedCategoryForKey(key)
+        local lower=tostring(key):lower()
+        if lower:find("skin",1,true) or lower:find("knife",1,true) or lower:find("glove",1,true) then return "Skins" end
+        if lower:find("menu",1,true) or lower:find("uiscale",1,true) or lower:find("settings",1,true)
+            or lower:find("watermark",1,true) or lower:find("advanced",1,true) or lower:find("linkmenu",1,true) then return "Interface" end
+        if lower:find("antiaim",1,true) or lower:find("bhop",1,true) or lower:find("bunny",1,true)
+            or lower:find("slide",1,true) or lower:find("flight",1,true) or lower:find("walk",1,true)
+            or lower:find("speed",1,true) or lower:find("thirdperson",1,true) then return "Movement" end
+        if lower:find("world",1,true) or lower:find("mapstyle",1,true) or lower:find("mapoptimizer",1,true) or lower:find("night",1,true) or lower:find("weather",1,true)
+            or lower:find("fog",1,true) or lower:find("smoke",1,true) or lower:find("flash",1,true)
+            or lower:find("scope",1,true) or lower:find("fov",1,true) or lower:find("freecam",1,true)
+            or lower:find("freelook",1,true) or lower:find("customhands",1,true) or lower:find("fullbright",1,true) then return "World & Camera" end
+        if lower:find("aim",1,true) or lower:find("trigger",1,true) or lower:find("rage",1,true)
+            or lower:find("recoil",1,true) or lower:find("spread",1,true) or lower:find("firerate",1,true)
+            or lower:find("rcs",1,true) or lower:find("wallbang",1,true) or lower:find("prediction",1,true) then return "Combat" end
+        if lower:find("esp",1,true) or lower:find("chams",1,true) or lower:find("box",1,true)
+            or lower:find("tag",1,true) or lower:find("skeleton",1,true) or lower:find("tracer",1,true)
+            or lower:find("grenade",1,true) or lower:find("sound",1,true) or lower:find("hit",1,true)
+            or lower:find("kill",1,true) or lower:find("bullet",1,true) or lower:find("cube",1,true)
+            or lower:find("head",1,true) then return "Visuals" end
+        return "Misc"
+    end
+    local function getAdvancedSettingKeys(category)
+        local keys={}
+        for key,value in pairs(XCConfig) do local t=type(value)
+            if (t=="boolean" or t=="number" or t=="string") and key~="advancedCategory" and key~="advancedSettingKey"
+                and advancedCategoryForKey(key)==category then keys[#keys+1]=key end
+        end
+        table.sort(keys,function(a,b)return a:lower()<b:lower() end)
+        return #keys>0 and keys or {"menuKey"}
+    end
+    local function applyXCSettingRuntime(key,value)
+        if XCConfig[key]==nil then return false end
+        local previousType=type(XCConfig[key]); local lower=key:lower()
+        if previousType=="number" then
+            value=tonumber(value); if not value or value~=value or math.abs(value)>1000000 then return false end
+            if (lower:find("color",1,true) or lower:find("accent",1,true) or lower:find("background",1,true)
+                or lower:find("panel",1,true) or lower:find("text",1,true) or lower:find("visible",1,true)
+                or lower:find("hidden",1,true) or lower:find("grenade",1,true)) and lower:match("[rgb]$") then
+                value=math.clamp(math.floor(value+0.5),0,255)
+            elseif lower:find("transparency",1,true) or lower:find("opacity",1,true) then value=math.clamp(value,0,1)
+            elseif key=="uiScale" then value=math.clamp(value,0.65,1.25)
+            elseif lower:find("hitchance",1,true) then value=math.clamp(value,0,100) end
+        end
+        XCConfig[key]=value; refreshConfigControls(key,value)
+        if previousType=="boolean" then specialToggle(key,value==true) end
+        if lower:find("menu",1,true) or key=="uiScale" or key=="linkMenuAndEspColor"
+            or lower:find("espvisible",1,true) or lower:find("esphidden",1,true) or lower:find("grenade",1,true) then applyMenuTheme()
+        elseif lower:find("mapstyle",1,true) or lower:find("mapoptimizer",1,true) then
+            if XCMapVisualActive() then applyXCMapStyle(false) else restoreXCMapStyle() end
+        elseif lower:find("world",1,true) or lower:find("night",1,true) or lower:find("fog",1,true) then updateWorldChanger();updateWorldPostFX()
+        elseif lower:find("weather",1,true) then applyXCWeather();updateWorldChanger()
+        elseif lower:find("scope",1,true) then updateCustomScope()
+        elseif lower:find("weaponchams",1,true) then setWeaponVisuals()
+        elseif lower:find("knife",1,true) or lower:find("skin",1,true) then applyXCKnifeChanger();applyXCSelectedWeaponSkin()
+        elseif lower:find("glove",1,true) then applyXCGloves() end
+        scheduleConfigAutoSave(); return true
+    end
+
+    local ICON_OFF = Color3.fromRGB(88, 88, 88)
+    local ICON_HOVER = Color3.fromRGB(155, 155, 155)
+    local ICON_ON = C.White
+
+    local function iconLine(parent, x, y, w, h, color, rotation)
+        local line = Instance.new("Frame")
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.Position = UDim2.fromOffset(x, y)
+        line.Size = UDim2.fromOffset(w, h)
+        line.BackgroundColor3 = color
+        line.BorderSizePixel = 0
+        line.Rotation = rotation or 0
+        line.Parent = parent
+        return line
+    end
+
+    local function iconCircle(parent, x, y, size, color, filled)
+        local circle = Instance.new("Frame")
+        circle.AnchorPoint = Vector2.new(0.5, 0.5)
+        circle.Position = UDim2.fromOffset(x, y)
+        circle.Size = UDim2.fromOffset(size, size)
+        circle.BackgroundColor3 = color
+        circle.BackgroundTransparency = filled and 0 or 1
+        circle.BorderSizePixel = 0
+        circle.Parent = parent
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(1, 0)
+        corner.Parent = circle
+        if not filled then
+            local stroke = Instance.new("UIStroke")
+            stroke.Color = color
+            stroke.Thickness = 1.4
+            stroke.Parent = circle
+        end
+        return circle
+    end
+
+    local function drawTabIcon(parent, kind, color)
+        local root = Instance.new("Frame")
+        root.Name = "VectorIcon"
+        root.Size = UDim2.fromOffset(22, 22)
+        root.Position = UDim2.fromScale(0.5, 0.5)
+        root.AnchorPoint = Vector2.new(0.5, 0.5)
+        root.BackgroundTransparency = 1
+        root.Parent = parent
+        local cx, cy = 11, 11
+
+        if kind == "target" then
+            iconCircle(root, cx, cy, 14, color, false)
+            iconCircle(root, cx, cy, 5, color, false)
+            iconLine(root, cx, 2.5, 1.5, 5, color)
+            iconLine(root, cx, 19.5, 1.5, 5, color)
+            iconLine(root, 2.5, cy, 5, 1.5, color)
+            iconLine(root, 19.5, cy, 5, 1.5, color)
+        elseif kind == "antiaim" then
+            iconCircle(root, cx, cy, 15, color, false)
+            iconLine(root, 7, 9, 7, 1.5, color, -32)
+            iconLine(root, 15, 9, 7, 1.5, color, 32)
+            iconLine(root, cx, 15, 1.5, 7, color)
+        elseif kind == "visuals" then
+            iconCircle(root, cx, cy, 7, color, false)
+            for _, angle in ipairs({0, 45, 90, 135}) do
+                iconLine(root, cx, 2, 1.5, 4, color, angle)
+                iconLine(root, cx, 20, 1.5, 4, color, angle)
+            end
+        elseif kind == "world" then
+            iconCircle(root, cx, cy, 15, color, false)
+            iconLine(root, cx, cy, 1.5, 13, color)
+            iconLine(root, cx, cy, 13, 1.5, color)
+            iconCircle(root, cx, cy, 8, color, false)
+        elseif kind == "misc" then
+            iconCircle(root, cx, cy, 9, color, false)
+            iconCircle(root, cx, cy, 3, color, false)
+            for _, angle in ipairs({0, 45, 90, 135}) do iconLine(root, cx, 2, 3, 5, color, angle) end
+        elseif kind == "skins" then
+            iconLine(root, 12, 10, 14, 2, color, -42)
+            iconLine(root, 6, 16, 7, 2, color, 42)
+            iconLine(root, 8, 17.5, 6, 2, color, -42)
+        elseif kind == "players" then
+            iconCircle(root, cx, 6, 7, color, false)
+            iconLine(root, cx, 14, 10, 1.6, color)
+            iconLine(root, 7, 17, 1.7, 7, color, 18)
+            iconLine(root, 15, 17, 1.7, 7, color, -18)
+        elseif kind == "configs" then
+            local box = Instance.new("Frame")
+            box.Size = UDim2.fromOffset(14, 16)
+            box.Position = UDim2.fromOffset(4, 3)
+            box.BackgroundTransparency = 1
+            box.Parent = root
+            local stroke = Instance.new("UIStroke")
+            stroke.Color = color
+            stroke.Thickness = 1.4
+            stroke.Parent = box
+            iconLine(root, 8, 8, 7, 1.4, color)
+            iconLine(root, 8, 12, 7, 1.4, color)
+            iconLine(root, 8, 16, 7, 1.4, color)
+        end
+        return root
+    end
+
+    local function recolorTabIcon(root, color)
+        for _, object in ipairs(root:GetDescendants()) do
+            if object:IsA("UIStroke") then
+                object.Color = color
+            elseif object:IsA("Frame") and object.BackgroundTransparency < 1 then
+                object.BackgroundColor3 = color
+            end
+        end
+    end
+
+    local tabs = {
+        {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"Players", "players"},
+        {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"},
+        {"Settings", "misc"}, {"Configs", "configs"},
+    }
+    local function switchPage(name)
+        closeDropdown()
+        hideHelp()
+        currentPage = name
+        for pageName, page in pairs(pages) do page.Visible = pageName == name end
+        for tabName, data in pairs(tabData) do
+            data.active.Visible = tabName == name
+            recolorTabIcon(data.icon, tabName == name and ICON_ON or ICON_OFF)
+        end
+        if applySearch then applySearch() end
+    end
+    for index, info in ipairs(tabs) do
+        local holder = Instance.new("Frame")
+        holder.Size = UDim2.new(1, 0, 0, 41)
+        holder.LayoutOrder = index
+        holder.BackgroundTransparency = 1
+        holder.Parent = sidebar
+        local active = Instance.new("Frame")
+        active.Size = UDim2.fromOffset(2, 30)
+        active.Position = UDim2.new(0, -1, 0.5, -15)
+        active.BackgroundColor3 = C.Lime
+        active.BorderSizePixel = 0
+        active.Visible = false
+        active.Parent = holder
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, -8, 1, 0)
+        button.Position = UDim2.fromOffset(4, 0)
+        button.BackgroundTransparency = 1
+        button.Text = ""
+        button.AutoButtonColor = false
+        button.Parent = holder
+        local icon = drawTabIcon(button, info[2], ICON_OFF)
+        button.MouseEnter:Connect(function()
+            if currentPage ~= info[1] then recolorTabIcon(icon, ICON_HOVER) end
+        end)
+        button.MouseLeave:Connect(function()
+            if currentPage ~= info[1] then recolorTabIcon(icon, ICON_OFF) end
+        end)
+        button.Activated:Connect(function() switchPage(info[1]) end)
+        attachHelp(button, "tab_" .. info[1])
+        tabData[info[1]] = {button = button, active = active, icon = icon}
+        createPage(info[1])
+    end
+
+    local function columns(name, leftTitle, rightTitle)
+        local page = pages[name]
+        return createPanel(page, leftTitle, 0, 0.49), createPanel(page, rightTitle, 0.51, 0.49)
+    end
+
+    local function currentPlayerChoices()
+        local values = {"None"}
+        local names = {}
+        for _, serverPlayer in ipairs(Players:GetPlayers()) do
+            if serverPlayer ~= player then table.insert(names, serverPlayer.Name) end
+        end
+        table.sort(names, function(a, b) return a:lower() < b:lower() end)
+        for _, name in ipairs(names) do table.insert(values, name) end
+        return values
+    end
+
+    local L, R = columns("Rage", "Rage & silent", "Aim & weapon")
+    section(L, "Ragebot")
+    toggle(L, "Ragebot", "rageBotEnabled")
+    addSlider(L, "Rage FOV", "rageFov", 30, 360, 1, "°")
+    addChoice(L, "Target priority", "rageTargetMode", {"Distance", "Health", "FOV", "Priority"})
+    toggle(L, "Rage auto fire", "rageAutoFire")
+
+    section(L, "Silent aim")
+    toggle(L, "Silent aim", "silentAimEnabled")
+    addSlider(L, "Silent FOV", "silentAimFov", 10, 360, 1, "px")
+    addSlider(L, "Hit chance", "silentAimHitChance", 1, 100, 1, "%")
+    toggle(L, "Aim at head", "silentAimAimHead")
+    toggle(L, "Multipoint", "multipointEnabled")
+    addSlider(L, "Multipoint scale", "multipointScale", 0.10, 0.95, 0.05, "x")
+    toggle(L, "Perfect silent", "pSilentEnabled")
+    toggle(L, "Team check", "silentAimTeamCheck")
+    toggle(L, "Visible check", "silentAimVisibleCheck")
+    toggle(L, "Auto wall", "silentAimAutoWallEnabled")
+    toggle(L, "Wallbang", "wallbangEnabled")
+    toggle(L, "Extreme wallbang", "extremeWallbangEnabled")
+
+    section(R, "Aimbot")
+    toggle(R, "Tracking", "aimbotEnabled")
+    addSlider(R, "Aim FOV", "aimFov", 10, 360, 1, "°")
+    addSlider(R, "Aim speed", "aimbotSpeed", 1, 100, 1, "%")
+    addSlider(R, "Smoothness", "aimbotSmoothness", 0.01, 1, 0.01, "")
+    toggle(R, "Visible check", "visibleCheck")
+
+    section(R, "Triggerbot")
+    toggle(R, "Triggerbot", "triggerbotEnabled")
+    addChoice(R, "Trigger mode", "triggerbotMode", {"Crosshair", "Trigger FOV", "Silent FOV"})
+    addSlider(R, "Trigger FOV", "triggerbotFov", 10, 360, 1, "px")
+    addSlider(R, "Trigger delay", "triggerbotDelay", 0.01, 0.5, 0.005, "s")
+    toggle(R, "Scoped only", "triggerbotScopedOnly")
+    toggle(R, "Head only", "triggerbotHeadOnly")
+    toggle(R, "Minimum damage", "minimumDamageEnabled")
+    addSlider(R, "Visible min damage", "minimumDamage", 1, 100, 1, " HP")
+    addSlider(R, "Wall min damage", "minimumDamageWall", 1, 100, 1, " HP")
+
+    section(R, "Weapon assistance")
+    toggle(R, "No recoil", "noRecoilEnabled")
+    toggle(R, "No spread", "noSpreadEnabled")
+    toggle(R, "Recoil control", "rcsEnabled")
+    addSlider(R, "RCS strength", "rcsStrength", 10, 100, 1, "%")
+    addSlider(R, "RCS pitch", "rcsPitchFactor", 0.1, 2, 0.1, "x")
+    addSlider(R, "RCS yaw", "rcsYawFactor", 0.1, 2, 0.1, "x")
+    toggle(R, "Fire rate", "fireRateEnabled")
+    addSlider(R, "Fire interval", "fireRate", 0.01, 0.2, 0.01, "s")
+
+    task.wait()
+    L, R = columns("AntiAim", "Movement", "Anti-aim & camera")
+    section(L, "Bunny hop")
+    toggle(L, "Bhop engine", "bunnyHopEnabled")
+    addChoice(L, "Bhop mode", "bhopMode", {"Hold", "Automatic"})
+    toggle(L, "Moving only", "bhopMovingOnly")
+    toggle(L, "Pause with menu", "bhopPauseWithMenu")
+    addSlider(L, "Bhop power", "bhopJumpPower", 30, 100, 1, "")
+    addSlider(L, "Bhop speed", "bhopSpeedBoost", 1, 3, 0.1, "x")
+    addSlider(L, "Ground delay", "bhopGroundDelay", 0, 0.25, 0.01, "s")
+    addSlider(L, "Acceleration", "bhopAcceleration", 2, 30, 1, "")
+    toggle(L, "Air strafe", "bhopAirStrafe")
+    toggle(L, "Strong auto strafe", "bhopStrongAutoStrafe")
+    addSlider(L, "Strafe strength", "bhopStrafeStrength", 1, 5, 0.1, "x")
+
+    section(L, "Movement")
+    toggle(L, "Speed boost", "speedEnabled")
+    addSlider(L, "Walk multiplier", "walkMultiplier", 1, 5, 0.1, "x")
+    toggle(L, "Slide", "slideEnabled")
+    addSlider(L, "Slide boost", "slideSpeedBoost", 1.2, 3, 0.1, "x")
+    toggle(L, "Flight", "flightEnabled")
+    addSlider(L, "Flight speed", "flightSpeed", 10, 150, 1, "")
+    toggle(L, "No fall damage", "noFallDamageEnabled")
+
+    section(R, "Anti-aim")
+    toggle(R, "Anti-aim", "antiAimEnabled")
+    addChoice(R, "Anti-aim mode", "antiAimMode", {
+        "Vector Shift", "Pendulum Snap", "Crosswind", "Golden Flick",
+        "Phase Lattice", "Velocity Brake", "Double Pulse", "Reverse Step"
+    })
+    addSlider(R, "Base offset", "antiAimYaw", -180, 180, 1, "°")
+    addSlider(R, "Pattern range", "antiAimJitter", 0, 180, 1, "°")
+    addSlider(R, "Pattern rate", "spinSpeed", 10, 150, 1, "")
+    addSlider(R, "Switch interval", "antiAimInterval", 0.04, 0.5, 0.01, "s")
+
+    section(R, "Third person")
+    toggle(R, "Third person", "thirdPersonEnabled")
+    addSlider(R, "Third person distance", "thirdPersonDistance", 5, 25, 1, "", refreshThirdPerson)
+    addSlider(R, "Third person height", "thirdPersonHeight", -3, 6, 0.5, "", refreshThirdPerson)
+
+    task.wait()
+    L, R = columns("Visuals", "Player ESP", "Indicators & feedback")
+    section(L, "Box ESP")
+    toggle(L, "Box overlay", "boxEspEnabled")
+    toggle(L, "Corner box", "cornerBoxEnabled")
+    toggle(L, "Health bar", "healthBarEnabled")
+    toggle(L, "Dark ESP outline", "espBoxOutline")
+    addSlider(L, "ESP distance", "espMaxDist", 100, 5000, 50, "")
+    addSlider(L, "Box stability", "espBoxSmoothing", 0, 0.9, 0.05, "")
+    addSlider(L, "ESP scale", "espPerspectiveScale", 0.65, 1.5, 0.05, "x")
+    addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
+    section(L, "Chams")
+    toggle(L, "Chams", "chamsEnabled")
+    section(L, "Skeleton")
+    toggle(L, "Skeleton ESP", "skeletonEspEnabled")
+    toggle(L, "Distance fade", "skeletonDistanceFade")
+    addSlider(L, "Skeleton thickness", "skeletonThickness", 1, 4, 0.5, "px")
+    section(L, "Weapon ESP")
+    toggle(L, "Weapon image", "weaponEspEnabled")
+    section(L, "Nametags")
+    toggle(L, "Nametags", "nametagsEnabled")
+    addSlider(L, "Text size", "espTextSize", 8, 20, 1, "")
+    toggle(L, "Show distance", "espShowDistance")
+    toggle(L, "Show health", "espShowHealth")
+    toggle(L, "Show weapon", "tagShowWeapon")
+    section(R, "ESP preview")
+    addESPPreview(R)
+    section(R, "ESP indicators")
+    toggle(R, "Grenade ESP", "grenadeEspEnabled")
+    toggle(R, "Trajectory prediction", "showGrenadePath")
+    toggle(R, "Grenade danger zones", "grenadeDangerZonesEnabled")
+    toggle(R, "Molotov radius", "showMolotovRadius")
+    toggle(R, "Smoke radius", "showSmokeRadius")
+    addSlider(R, "Danger opacity", "grenadeDangerOpacity", 0.1, 1, 0.05, "")
+    toggle(R, "Sound position ESP", "soundPositionEspEnabled")
+    addSlider(R, "Sound marker duration", "soundEspDuration", 0.4, 2.5, 0.05, "s")
+    toggle(R, "Tracers", "tracersEnabled")
+    toggle(R, "Head dot", "headDotEnabled")
+    section(R, "Hit feedback")
+    toggle(R, "Hitmarker", "hitmarkerEnabled")
+    toggle(R, "Hit sound", "hitSoundEnabled")
+    addChoice(R, "Hit sound preset", "hitSoundPreset", {"Skeet", "Neverlose", "Bell", "Bell2", "Bubble", "Rust", "Agro1", "Agro2", "Coins", "Schaater", "Pick"}, function()
+        playXCHitSound(true)
+    end)
+    addSlider(R, "Hit sound volume", "hitSoundVolume", 0.1, 3, 0.1, "x")
+    addButton(R, "TEST HIT SOUND", function() playXCHitSound(true) end)
+    addSlider(R, "Hitmarker size", "hitmarkerSize", 5, 30, 1, "")
+    addSlider(R, "Hitmarker duration", "hitmarkerDuration", 0.05, 1, 0.05, "s")
+    toggle(R, "Kill effects", "killEffectEnabled")
+    addChoice(R, "Kill effect style", "killEffectStyle", {
+        "Fireflies", "Lightning Strike", "Dissolve", "Soul", "Black Hole",
+        "Electric Burst", "Blood Moon", "Confetti", "Ghost", "Portal",
+        "Crystal Shatter", "Headshot Crown", "Kill Beam", "EMP", "Inferno", "Void", "Random"
+    })
+    toggle(R, "Rainbow effect", "killEffectRainbow")
+    toggle(R, "Firefly trails", "killEffectTrails")
+    addColorPicker(R, "Kill effect color", "killEffectColor")
+    addSlider(R, "Effect amount", "killEffectCount", 10, 260, 5, "")
+    addSlider(R, "Effect size", "killEffectSize", 0.04, 0.65, 0.01, "")
+    addSlider(R, "Burst speed", "killEffectSpeed", 2, 45, 1, "")
+    addSlider(R, "Glow strength", "killEffectGlow", 0, 3, 0.1, "x")
+    addSlider(R, "Effect duration", "killEffectDuration", 0.35, 3.5, 0.05, "s")
+    addButton(R, "PREVIEW KILL EFFECT", function() XCPreviewKillFireflies() end)
+    section(R, "Jump circle")
+    toggle(R, "Jump circle", "jumpCircleEnabled")
+    addSlider(R, "Jump radius", "jumpCircleRadius", 1.5, 8, 0.5, "")
+    addChoice(R, "Jump style", "jumpCircleStyle", {"GradientWave", "ChromaPulse", "StaticNeon"})
+
+    section(R, "Motion trail")
+    toggle(R, "Movement ribbon", "motionTrailEnabled")
+    addColorPicker(R, "Trail color", "motionTrailColor")
+    addSlider(R, "Trail lifetime", "motionTrailLifetime", 0.15, 3, 0.05, "s")
+    addSlider(R, "Trail width", "motionTrailWidth", 0.02, 0.55, 0.01, "")
+    toggle(R, "Ghost afterimages", "motionGhostEnabled")
+    addColorPicker(R, "Ghost color", "motionGhostColor")
+    addSlider(R, "Ghost interval", "motionGhostInterval", 0.06, 0.5, 0.01, "s")
+    addSlider(R, "Ghost fade", "motionGhostFade", 0.12, 1.5, 0.03, "s")
+    addSlider(R, "Ghost opacity", "motionGhostTransparency", 0.25, 0.92, 0.01, "")
+
+    task.wait()
+    L, R = columns("World", "Environment", "Scope & camera")
+    section(L, "lighting")
+    toggle(L, "World changer", "nightModeEnabled")
+    toggle(L, "Fullbright", "fullBrightEnabled")
+    toggle(L, "Remove fog", "removeFogEnabled")
+    toggle(L, "Anti flash", "antiFlashEnabled")
+    toggle(L, "No smoke", "noSmokeEnabled")
+    addChoice(L, "Night preset", "nightPreset", {"Midnight", "Nebula", "DeepBlood", "CyberPurple", "EmeraldNight", "PitchBlack"}, function(v) if XCConfig.nightModeEnabled then applyNightPreset(v) end end)
+    addSlider(L, "Brightness", "nightBrightness", 0, 5, 0.1, "")
+    addSlider(L, "Clock time", "nightClockTime", 0, 24, 0.5, "h")
+    section(L, "map optimizer")
+    toggle(L, "FPS map optimizer", "mapOptimizerEnabled")
+    addChoice(L, "Optimizer mode", "mapOptimizerMode", {"Safe", "Balanced", "Aggressive"}, function()
+        if XCMapVisualActive() then applyXCMapStyle(true) end
+    end)
+    toggle(L, "Disable shadows", "mapOptimizerDisableShadows")
+    toggle(L, "Disable decorative FX", "mapOptimizerDisableEffects")
+    toggle(L, "Low mesh fidelity", "mapOptimizerLowMesh")
+    addButton(L, "RESCAN / OPTIMIZE MAP", function()
+        if XCMapVisualActive() then applyXCMapStyle(true) end
+    end)
+
+    section(L, "minimal map style")
+    toggle(L, "Minimal map style", "mapStyleEnabled")
+    addChoice(L, "Style preset", "mapStylePreset", {"Black & White", "Soft Gray", "Cold Minimal", "Warm Minimal", "Obsidian", "Paper Invert", "Custom"}, function()
+        if XCMapVisualActive() then applyXCMapStyle(false) end
+    end)
+    addSlider(L, "Style strength", "mapStyleStrength", 0, 1, 0.05, "", function()
+        if XCMapVisualActive() then applyXCMapStyle(false) end
+    end)
+    addChoice(L, "Texture mode", "mapStyleTextureMode", {"Soft Tint", "Minimal", "Full Minimal"}, function()
+        if XCMapVisualActive() then applyXCMapStyle(true) end
+    end)
+    addSlider(L, "Texture detail", "mapStyleTextureDetail", 0, 1, 0.05, "", function()
+        if XCMapVisualActive() then applyXCMapStyle(false) end
+    end)
+    toggle(L, "Flat materials", "mapStyleFlatMaterials")
+    toggle(L, "Preserve signs", "mapStylePreserveSigns")
+    toggle(L, "Style transparent parts", "mapStyleAffectTransparent")
+    addColorPicker(L, "Custom dark", "mapStyleDark", function()
+        XCConfig.mapStylePreset = "Custom"
+        refreshConfigControls("mapStylePreset", "Custom")
+        if XCMapVisualActive() then applyXCMapStyle(false) end
+    end)
+    addColorPicker(L, "Custom light", "mapStyleLight", function()
+        XCConfig.mapStylePreset = "Custom"
+        refreshConfigControls("mapStylePreset", "Custom")
+        if XCMapVisualActive() then applyXCMapStyle(false) end
+    end)
+    section(L, "sky & tone")
+    toggle(L, "Custom skybox", "worldSkyboxEnabled")
+    addChoice(L, "Skybox preset", "worldSkyboxPreset", {"Night", "Ocean Sunset", "My Summer Car", "Standard", "Minecraft", "Spongebob", "Deep Space", "Clouded Sky", "Retro", "City", "Purple Nebula", "Pink Sky"}, function() updateWorldChanger() end)
+    addSlider(L, "Sky rotation", "worldSkyRotation", -180, 180, 1, "°", function() updateWorldChanger() end)
+    addSlider(L, "Stars", "worldSkyStars", 0, 5000, 100, "", function() updateWorldChanger() end)
+    toggle(L, "Sun & moon", "worldSkyCelestial")
+    toggle(L, "Post FX", "worldPostFXEnabled")
+    addChoice(L, "Tone preset", "worldTonePreset", {"Neutral", "XC Lime", "Cold", "Warm", "Purple", "Custom"}, function() updateWorldChanger() end)
+    addColorPicker(L, "Custom world tint", "worldColor", function()
+        XCConfig.worldTonePreset = "Custom"
+        refreshConfigControls("worldTonePreset", "Custom")
+        updateWorldPostFX()
+    end)
+    addSlider(L, "Exposure", "worldExposure", -3, 3, 0.1, "", function() updateWorldChanger() end)
+    addSlider(L, "Saturation", "worldSaturation", -1, 1, 0.05, "", function() updateWorldChanger() end)
+    addSlider(L, "Contrast", "worldContrast", -1, 1, 0.05, "", function() updateWorldChanger() end)
+    section(L, "atmosphere & bloom")
+    toggle(L, "Atmosphere", "worldAtmosphereEnabled")
+    addSlider(L, "Atmosphere density", "worldAtmosphereDensity", 0, 1, 0.05, "", function() updateWorldChanger() end)
+    addSlider(L, "Atmosphere haze", "worldAtmosphereHaze", 0, 10, 0.1, "", function() updateWorldChanger() end)
+    addSlider(L, "Atmosphere glare", "worldAtmosphereGlare", 0, 10, 0.1, "", function() updateWorldChanger() end)
+    toggle(L, "Bloom", "worldBloomEnabled")
+    addSlider(L, "Bloom intensity", "worldBloomIntensity", 0, 3, 0.05, "", function() updateWorldChanger() end)
+    addSlider(L, "Bloom size", "worldBloomSize", 0, 56, 1, "", function() updateWorldChanger() end)
+    addSlider(L, "Bloom threshold", "worldBloomThreshold", 0, 5, 0.1, "", function() updateWorldChanger() end)
+    section(L, "weather")
+    toggle(L, "Weather effects", "weatherEnabled")
+    addChoice(L, "Weather type", "weatherMode", {"Rain", "Snow", "Fog", "Ash", "Hell Fire"}, function() applyXCWeather(); updateWorldChanger() end)
+    addSlider(L, "Weather intensity", "weatherIntensity", 1, 100, 1, "%", function() applyXCWeather() end)
+    addSlider(L, "Wind", "weatherWind", -40, 40, 1, "", function() applyXCWeather() end)
+    section(R, "scope")
+    toggle(R, "Custom scope", "customScopeEnabled")
+    toggle(R, "Custom FOV", "customFovEnabled")
+    addSlider(R, "Camera FOV", "customFov", 70, 120, 1, "°")
+    toggle(R, "Remove original scope", "scopeRemoveOriginal")
+    toggle(R, "Scope crosshair", "scopeCrosshairEnabled")
+    addChoice(R, "Crosshair style", "scopeCrosshairStyle", {"Cross", "T", "X", "Dot"})
+    addColorPicker(R, "Crosshair color", "scopeCrosshairColor")
+    addColorPicker(R, "Crosshair outline", "scopeCrosshairOutline")
+    addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
+    addSlider(R, "Crosshair gap", "scopeCrosshairGap", 0, 80, 1, "")
+    addSlider(R, "Crosshair length", "scopeCrosshairLength", 5, 300, 1, "")
+    section(R, "camera director")
+    toggle(R, "Freecam", "freecamEnabled")
+    addSlider(R, "Freecam speed", "freecamSpeed", 5, 180, 1, "")
+    addSlider(R, "Freecam sensitivity", "freecamSensitivity", 0.05, 0.5, 0.01, "")
+    addChoice(R, "Freecam bind", "freecamKey", {"F3", "F4", "F5", "F6", "LeftAlt", "RightAlt"})
+    toggle(R, "Freelook", "freelookEnabled")
+    addSlider(R, "Look sensitivity", "freelookSensitivity", 0.05, 0.5, 0.01, "")
+    addChoice(R, "Freelook bind", "freelookKey", {"LeftAlt", "RightAlt", "F3", "F4", "F5", "F6"})
+
+    task.wait()
+    local S = createPanel(pages["Skins"], "Skin changer", 0, 1)
+    section(S, "Weapons and skins")
+    addSkinGallery(S)
+    section(S, "Skin changer")
+    toggle(S, "Skin changer", "skinChangerEnabled")
+    addSlider(S, "Weapon wear", "skinWear", 0, 1, 0.01, "", function(value)
+        local weaponName = XCConfig.skinEditorWeapon
+        XCConfig.weaponSkinWear[weaponName] = value
+        applyXCSelectedWeaponSkin()
+    end)
+    addSlider(S, "Knife wear", "knifeWear", 0, 1, 0.01, "", function() applyXCKnifeChanger() end)
+    addButton(S, "OPEN HELD WEAPON", function()
+        refreshXCSkinData()
+        local ok, weapon = type(skinData.GetWeapon) == "function" and pcall(skinData.GetWeapon)
+        local view = ok and weapon and weapon.Viewmodel
+        local weaponName = view and (view.CameraModelWeapon or view.Weapon) or (weapon and weapon.Name)
+        if weaponName and skinData.SkinSelections[weaponName] then
+            XCConfig.skinGalleryMode = "Weapon"
+            XCConfig.skinEditorWeapon = weaponName
+            XCConfig.skinEditorFinish = XCConfig.weaponSkinSelections[weaponName] or "Default"
+            XCConfig.skinWear = XCConfig.weaponSkinWear[weaponName] or 0
+            refreshConfigControls("skinWear", XCConfig.skinWear)
+            refreshSkinGallery()
+        end
+    end)
+    addButton(S, "RESET CURRENT SKIN", function()
+        if XCConfig.skinGalleryMode=="Knife" then
+            XCConfig.selectedSkin="Default";applyXCKnifeChanger()
+        elseif XCConfig.skinGalleryMode=="Gloves" then
+            XCConfig.selectedGloveSkin="Default";applyXCGloves()
+        else
+            local weaponName=XCConfig.skinEditorWeapon
+            XCConfig.weaponSkinSelections[weaponName]="Default";XCConfig.weaponSkinWear[weaponName]=0
+            XCConfig.skinEditorFinish="Default";XCConfig.skinWear=0;refreshConfigControls("skinWear",0)
+            restoreXCSelectedWeaponSkin(weaponName)
+        end
+        refreshSkinGallery()
+    end)
+    addButton(S, "APPLY ALL SKINS", function()
+        applyXCSelectedWeaponSkin()
+        applyXCKnifeChanger()
+        applyXCGloves()
+    end)
+    addButton(S, "RESET ALL SKINS", function()
+        table.clear(XCConfig.weaponSkinSelections)
+        table.clear(XCConfig.weaponSkinWear)
+        XCConfig.skinEditorFinish = "Default"
+        XCConfig.skinWear = 0
+        XCConfig.selectedKnifeType = "Default"
+        XCConfig.selectedSkin = "Default"
+        XCConfig.selectedGloveModel = "Default"
+        XCConfig.selectedGloveSkin = "Default"
+        restoreXCKnifeModel()
+        restoreXCSelectedWeaponSkin()
+        refreshConfigControls("skinWear", 0)
+        refreshSkinGallery()
+    end)
+    task.wait()
+    L, R = columns("Misc", "Utilities", "Viewmodel")
+    section(L, "Session")
+    toggle(L, "Anti AFK", "antiAfkEnabled")
+    toggle(L, "Spectator list", "spectatorListEnabled")
+    section(L, "Privacy")
+    toggle(L, "Streamer mode", "streamerModeEnabled")
+    addChoice(L, "Streamer bind", "streamerKey", {"F6", "F7", "F8", "F9", "F10"})
+    section(L, "Animations")
+    toggle(L, "Animations", "animationsEnabled")
+    addSlider(L, "Animation speed", "animationSpeed", 0.1, 3, 0.1, "x")
+    toggle(L, "Animation loop", "animationLoop")
+    addButton(L, "RESTART ANIMATION", playXCAnimation)
+    section(R, "Viewmodel")
+    toggle(R, "Custom hands", "customHandsEnabled")
+    addSlider(R, "Hands X", "customHandsX", -2, 2, 0.1, "")
+    addSlider(R, "Hands Y", "customHandsY", -2, 2, 0.1, "")
+    addSlider(R, "Hands Z", "customHandsZ", -2, 2, 0.1, "")
+    addSlider(R, "Hands pitch", "customHandsPitch", -45, 45, 1, "°")
+    addSlider(R, "Hands yaw", "customHandsYaw", -45, 45, 1, "°")
+    addSlider(R, "Hands roll", "customHandsRoll", -90, 90, 1, "°")
+    section(R, "Weapon visuals")
+    toggle(R, "Weapon chams", "weaponChamsEnabled")
+    addChoice(R, "Weapon material", "weaponChamsMode", {"Glass", "ForceField", "Metal", "Highlight", "Neon"})
+    addColorPicker(R, "Weapon color", "weaponChamsColor", function() setWeaponVisuals() end)
+    section(R, "Bullet effects")
+    toggle(R, "Bullet trail", "bulletTrailEnabled")
+    toggle(R, "Bullet flash", "bulletFlashEnabled")
+    toggle(R, "Bullet impacts", "bulletImpactEnabled")
+    toggle(R, "Rainbow trail", "bulletTracerRainbow")
+    addColorPicker(R, "Trail color", "bulletTracerColor")
+    addChoice(R, "Trail style", "bulletTracerStyle", {"Beam", "Lightning", "Comet", "Pulse", "Block", "Cylinder"})
+    addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
+    addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
+    section(R, "Penetration checker")
+    toggle(R, "Cube checker", "cubeCheckerEnabled")
+    addSlider(R, "Cube distance", "cubeCheckerDistance", 1, 100, 1, "")
+
+    task.wait()
+    L, R = columns("Players", "Target filtering", "Overlay options")
+    section(L, "Target rules")
+    toggle(L, "Ignore teammates", "silentAimTeamCheck")
+    toggle(L, "Visible targets only", "silentAimVisibleCheck")
+    addChoice(L, "Priority player", "priorityPlayerName", currentPlayerChoices())
+    section(L, "Chams rules")
+    toggle(L, "Show teammates", "chamsShowTeammates")
+    toggle(L, "Chams team check", "chamsTeamCheck")
+    toggle(L, "Chams occlusion", "chamsOcclusion")
+    addSlider(L, "Chams fill", "chamsFillTransparency", 0, 1, 0.05, "")
+    addSlider(L, "Chams outline", "chamsOutlineTransparency", 0, 1, 0.05, "")
+    section(R, "Nametag details")
+    toggle(R, "Nametag distance", "espShowDistance")
+    toggle(R, "Nametag health", "espShowHealth")
+    toggle(R, "Nametag weapon", "tagShowWeapon")
+    addSlider(R, "Tag transparency", "tagTransparency", 0, 0.9, 0.05, "")
+    section(R, "ESP tuning")
+    addSlider(R, "Box thickness", "boxThickness", 1, 3, 0.1, "")
+    addSlider(R, "Grenade distance", "grenadeMaxDist", 200, 3000, 50, "")
+
+    task.wait()
+    L, R = columns("Settings", "Interface", "Advanced settings")
+    local menuPresets={
+        ["XC Lime"]={17,17,17,12,12,12,152,204,0,235,235,235},
+        ["Midnight"]={10,13,20,8,10,17,65,142,255,232,238,248},
+        ["Violet"]={16,12,21,12,9,17,166,92,255,239,232,248},
+        ["Crimson"]={19,11,13,14,8,10,232,58,78,245,232,235},
+        ["Ice"]={9,17,19,7,13,15,0,205,220,230,245,247},
+    }
+    local function applyMenuPreset(name)
+        local values=menuPresets[name]; if not values then return end
+        local keys={"menuBackgroundR","menuBackgroundG","menuBackgroundB","menuPanelR","menuPanelG","menuPanelB",
+            "menuAccentR","menuAccentG","menuAccentB","menuTextR","menuTextG","menuTextB"}
+        for index,key in ipairs(keys) do XCConfig[key]=values[index];refreshConfigControls(key,values[index]) end
+        applyMenuTheme();scheduleConfigAutoSave()
+    end
+    section(L,"menu appearance")
+    addChoice(L,"Theme preset","menuThemePreset",{"XC Lime","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
+    addSlider(L,"Interface scale","uiScale",0.65,1.25,0.05,"x",applyMenuTheme)
+    addSlider(L,"Menu transparency","menuTransparency",0,0.45,0.05,"",applyMenuTheme)
+    addToggle(L,"Link menu and ESP color","linkMenuAndEspColor",function() applyMenuTheme() end)
+    addColorPicker(L,"Menu accent","menuAccent",applyMenuTheme)
+    addColorPicker(L,"Menu background","menuBackground",applyMenuTheme)
+    addColorPicker(L,"Panel surface","menuPanel",applyMenuTheme)
+    addColorPicker(L,"Primary text","menuText",applyMenuTheme)
+    section(L,"ESP palette")
+    addColorPicker(L,"Visible enemy","espVisible",function() syncXCUserTheme();refreshESPPreview() end)
+    addColorPicker(L,"Hidden enemy","espHidden",function() syncXCUserTheme();refreshESPPreview() end)
+    addColorPicker(L,"Health high","espHealthHigh",function() syncXCUserTheme();refreshESPPreview() end)
+    addColorPicker(L,"Health medium","espHealthMid",function() syncXCUserTheme();refreshESPPreview() end)
+    addColorPicker(L,"Health low","espHealthLow",function() syncXCUserTheme();refreshESPPreview() end)
+    section(L,"grenade palette")
+    addColorPicker(L,"HE grenade","grenadeHE",function() syncXCUserTheme() end)
+    addColorPicker(L,"Smoke","grenadeSmoke",function() syncXCUserTheme() end)
+    addColorPicker(L,"Molotov / fire","grenadeMolotov",function() syncXCUserTheme() end)
+    section(L, "menu & hud")
+    toggle(L, "Notifications", "settingsShowNotifications")
+    toggle(L, "Compact mode", "settingsCompactMode")
+    toggle(L, "Autosave config", "settingsAutoSave")
+    toggle(L, "Watermark", "watermarkEnabled")
+    toggle(L, "Show FPS", "watermarkShowFPS")
+    toggle(L, "Show ping", "watermarkShowPing")
+    toggle(L, "Show name", "watermarkShowName")
+    addChoice(L, "Menu key", "menuKey", {"RightShift", "LeftControl", "RightControl", "F6", "F7", "F8", "F9", "F10"})
+    addNote(L, "STATUS: ON active  |  WAIT loading  |  FALL fallback  |  ERR failed")
+
+    section(R,"advanced module editor")
+    local refreshAdvancedEditor=function() end
+    addChoice(R,"Module category","advancedCategory",advancedCategories,function(category)
+        local keys=getAdvancedSettingKeys(category);XCConfig.advancedSettingKey=keys[1]
+        refreshConfigControls("advancedSettingKey",keys[1]);task.defer(refreshAdvancedEditor)
+    end)
+    addChoice(R,"Setting","advancedSettingKey",function() return getAdvancedSettingKeys(XCConfig.advancedCategory) end,
+        function() task.defer(refreshAdvancedEditor) end)
+    local editorParent=activeSectionByParent[R] or R
+    local editorType=Instance.new("TextLabel",editorParent)
+    editorType.Size=UDim2.new(1,0,0,17);editorType.BackgroundTransparency=1;editorType.TextColor3=C.Muted
+    editorType.Font=Enum.Font.Code;editorType.TextSize=9;editorType.TextXAlignment=Enum.TextXAlignment.Left
+    local editorValue=Instance.new("TextBox",editorParent)
+    editorValue.Size=UDim2.new(1,0,0,UserInputService.TouchEnabled and 30 or 24);editorValue.BackgroundColor3=C.Control
+    editorValue.BorderColor3=C.Black;editorValue.BorderSizePixel=1;editorValue.ClearTextOnFocus=false
+    editorValue.PlaceholderText="Value";editorValue.TextColor3=C.White;editorValue.PlaceholderColor3=C.Muted
+    editorValue.Font=Enum.Font.Code;editorValue.TextSize=10
+    local editorPadding=Instance.new("UIPadding",editorValue);editorPadding.PaddingLeft=UDim.new(0,7);editorPadding.PaddingRight=UDim.new(0,7)
+    refreshAdvancedEditor=function()
+        local key=XCConfig.advancedSettingKey;local value=XCConfig[key]
+        editorType.Text=string.format("%s  •  %s",tostring(key),type(value):upper());editorValue.Text=tostring(value)
+    end
+    refreshers.advancedCategory=refreshers.advancedCategory or {};refreshers.advancedSettingKey=refreshers.advancedSettingKey or {}
+    table.insert(refreshers.advancedCategory,refreshAdvancedEditor);table.insert(refreshers.advancedSettingKey,refreshAdvancedEditor)
+    local function commitAdvancedEditor()
+        local key=XCConfig.advancedSettingKey;local current=XCConfig[key];local valueType=type(current)
+        local raw=editorValue.Text:match("^%s*(.-)%s*$");local parsed
+        if valueType=="number" then parsed=tonumber(raw);if not parsed then editorType.Text=key.."  •  INVALID NUMBER";return end
+        elseif valueType=="boolean" then local lower=raw:lower()
+            if lower=="true" or lower=="1" or lower=="on" then parsed=true
+            elseif lower=="false" or lower=="0" or lower=="off" then parsed=false
+            else editorType.Text=key.."  •  USE TRUE / FALSE";return end
+        else parsed=raw end
+        if applyXCSettingRuntime(key,parsed) then refreshAdvancedEditor();XCNotify("Setting updated",key.." = "..tostring(XCConfig[key]),"success",1.4) end
+    end
+    editorValue.FocusLost:Connect(function(enterPressed) if enterPressed then commitAdvancedEditor() end end)
+    addButton(R,"APPLY SELECTED VALUE",commitAdvancedEditor)
+    addButton(R,"RESET SELECTED VALUE",function()
+        local key=XCConfig.advancedSettingKey;local default=XCConfigDefaults[key]
+        if default~=nil and type(default)~="table" then applyXCSettingRuntime(key,deepCopyConfigValue(default));refreshAdvancedEditor() end
+    end)
+    addNote(R,"Exact value editor: numbers, text and true/false. Palette colors are saved inside every profile.")
+    task.defer(refreshAdvancedEditor)
+    local ConfigLocal, ConfigCommunity = columns("Configs", "Local profiles", "Community library")
+    section(ConfigLocal, "profiles")
+
+    local configName = "Default"
+    local function safeName(value)
+        value = tostring(value or "Default"):gsub("[^%w%-%_ ]", ""):sub(1, 48)
+        return value ~= "" and value or "Default"
+    end
+    local nameBox = Instance.new("TextBox")
+    nameBox.Size = UDim2.new(1, 0, 0, 24)
+    nameBox.BackgroundColor3 = C.Control
+    nameBox.BorderColor3 = C.Black
+    nameBox.BorderSizePixel = 1
+    nameBox.PlaceholderText = "Config name"
+    nameBox.Text = configName
+    nameBox.TextColor3 = C.Text
+    nameBox.Font = Enum.Font.Code
+    nameBox.TextSize = 10
+    nameBox.Parent = activeSectionByParent[ConfigLocal] or ConfigLocal
+    local status = Instance.new("TextLabel")
+    status.Size = UDim2.new(1, 0, 0, 20)
+    status.BackgroundTransparency = 1
+    status.Text = "XCConfigs/Default.json"
+    status.TextColor3 = C.Muted
+    status.Font = Enum.Font.Code
+    status.TextSize = 9
+    status.TextXAlignment = Enum.TextXAlignment.Left
+    status.Parent = activeSectionByParent[ConfigLocal] or ConfigLocal
+    local function configPath() return "XCConfigs/" .. safeName(nameBox.Text) .. ".json" end
+    local autoSaveSerial = 0
+    local function saveCurrentConfig(prefix)
+        local ok = pcall(function()
+            if type(makefolder) == "function" and type(isfolder) == "function" and not isfolder("XCConfigs") then makefolder("XCConfigs") end
+            assert(type(writefile) == "function", "File API unavailable")
+            local saveData = {}
+            for key, value in pairs(XCConfig) do saveData[key] = value end
+            if XCFeatureState.streamerSnapshot then
+                for key, value in pairs(XCFeatureState.streamerSnapshot) do saveData[key] = value end
+                saveData.streamerModeEnabled = false
+            end
+            writefile(configPath(), HttpService:JSONEncode(saveData))
+        end)
+        status.Text = ok and ((prefix or "saved") .. ": " .. safeName(nameBox.Text)) or "save unavailable"
+        status.TextColor3 = ok and C.Lime or Color3.fromRGB(218, 82, 82)
+        return ok
+    end
+    scheduleConfigAutoSave = function()
+        if not XCConfig.settingsAutoSave then return end
+        autoSaveSerial = autoSaveSerial + (1)
+        local serial = autoSaveSerial
+        task.delay(0.8, function()
+            if serial == autoSaveSerial and XCConfig.settingsAutoSave and screenGui.Parent then
+                saveCurrentConfig("autosaved")
+            end
+        end)
+    end
+    nameBox.FocusLost:Connect(function()
+        status.Text = configPath()
+        status.TextColor3 = C.Muted
+        scheduleConfigAutoSave()
+    end)
+    local function refreshAll()
+        for key, keyRefreshers in pairs(refreshers) do
+            for _, refresh in ipairs(keyRefreshers) do refresh(XCConfig[key]) end
+        end
+        applyMenuTheme()
+        refreshSkinGallery()
+        setXCSoundPositionEspEnabled(XCConfig.soundPositionEspEnabled == true)
+    end
+
+    section(L, "quick actions")
+    addButton(L, "PANIC: DISABLE ACTIVE MODULES", function()
+        for _, key in ipairs({
+            "aimbotEnabled", "silentAimEnabled", "triggerbotEnabled", "rageBotEnabled",
+            "flightEnabled", "speedEnabled", "antiAimEnabled", "chamsEnabled",
+            "grenadeEspEnabled", "freecamEnabled", "freelookEnabled", "thirdPersonEnabled"
+        }) do
+            if XCConfig[key] then
+                XCConfig[key] = false
+                if UI_Bind_Registry[key] then UI_Bind_Registry[key](false) end
+                pcall(specialToggle, key, false)
+            end
+        end
+        XCNotify("Panic", "Active combat and camera modules disabled", "warning", 2)
+    end)
+    addButton(L, "RESET CAMERA", function()
+        for _, key in ipairs({"freecamEnabled", "freelookEnabled", "thirdPersonEnabled", "customFovEnabled"}) do
+            XCConfig[key] = false
+            if UI_Bind_Registry[key] then UI_Bind_Registry[key](false) end
+        end
+        stopXCCameraMode()
+        setThirdPersonEnabled(false)
+        if camera then camera.FieldOfView = 70 end
+        XCNotify("Camera", "Camera state restored", "success", 1.5)
+    end)
+    addButton(ConfigLocal, "SAVE CONFIG", function()
+        saveCurrentConfig("saved")
+    end)
+    addButton(ConfigLocal, "LOAD CONFIG", function()
+        local ok = pcall(function()
+            setXCStreamerMode(false)
+            assert(type(readfile) == "function", "File API unavailable")
+            local decoded = HttpService:JSONDecode(readfile(configPath()))
+            local data = type(decoded) == "table" and type(decoded.settings) == "table" and decoded.settings or decoded
+            assert(type(data) == "table", "Invalid config format")
+            for key, value in pairs(data) do if XCConfig[key] ~= nil then XCConfig[key] = value end end
+            lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
+            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true or XCConfig.rcsEnabled == true
+            lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
+            refreshAll()
+            updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+            if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
+            applyXCWeather()
+            applyXCSmokeState()
+            if XCConfig.freecamEnabled then setXCCameraMode("Freecam", true)
+            elseif XCConfig.freelookEnabled then setXCCameraMode("Freelook", true)
+            else stopXCCameraMode() end
+            setXCStreamerMode(XCConfig.streamerModeEnabled)
+            setAntiAfkEnabled(XCConfig.antiAfkEnabled)
+            if XCConfig.animationsEnabled then playXCAnimation() else stopXCAnimation() end
+            if XCConfig.nightModeEnabled then
+                applyNightPreset(XCConfig.nightPreset)
+            else
+                Lighting.Brightness = defaultLighting.Brightness
+                Lighting.ClockTime = defaultLighting.ClockTime
+                Lighting.GlobalShadows = defaultLighting.GlobalShadows
+                Lighting.Ambient = defaultLighting.Ambient
+                Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
+            end
+            updateWorldChanger()
+        end)
+        status.Text = ok and ("loaded: " .. safeName(nameBox.Text)) or "load failed"
+    end)
+    addButton(ConfigLocal, "RESET DEFAULTS", function()
+        setXCStreamerMode(false)
+        for key, value in pairs(XCConfigDefaults) do XCConfig[key] = deepCopyConfigValue(value) end
+        lazyFeatureRequests.fireRate = false
+        lazyFeatureRequests.recoilSpread = false
+        lazyFeatureRequests.silentFallback = false
+        refreshAll(); updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+        restoreXCMapStyle()
+        stopXCCameraMode(); destroyXCWeather(); restoreXCSmoke(); restoreLightingState()
+        setAntiAfkEnabled(XCConfig.antiAfkEnabled)
+        status.Text = "defaults restored"
+    end)
+    addButton(ConfigLocal, "DELETE CONFIG", function()
+        local ok = pcall(function() assert(type(delfile) == "function"); delfile(configPath()) end)
+        status.Text = ok and "config deleted" or "delete failed"
+    end)
+
+    section(ConfigCommunity, "publish current settings")
+    local function publicTextBox(parent, placeholder, value, height)
+        local box = Instance.new("TextBox")
+        box.Size = UDim2.new(1, 0, 0, height or 24)
+        box.BackgroundColor3 = C.Control
+        box.BorderColor3 = C.Black
+        box.BorderSizePixel = 1
+        box.ClearTextOnFocus = false
+        box.PlaceholderText = placeholder
+        box.PlaceholderColor3 = C.Muted
+        box.Text = value or ""
+        box.TextColor3 = C.Text
+        box.Font = Enum.Font.Code
+        box.TextSize = 10
+        box.TextWrapped = (height or 24) > 30
+        box.TextXAlignment = Enum.TextXAlignment.Left
+        box.TextYAlignment = Enum.TextYAlignment.Top
+        box.Parent = activeSectionByParent[parent] or parent
+        local padding = Instance.new("UIPadding")
+        padding.PaddingLeft = UDim.new(0, 7)
+        padding.PaddingRight = UDim.new(0, 7)
+        padding.PaddingTop = UDim.new(0, 5)
+        padding.Parent = box
+        return box
+    end
+
+    local publicName = publicTextBox(ConfigCommunity, "Public config name", "")
+    local publicAuthor = publicTextBox(ConfigCommunity, "Author name", player.DisplayName or player.Name)
+    local publicDescription = publicTextBox(ConfigCommunity, "Short description", "", 48)
+    local publicStatus = addNote(ConfigCommunity, "Community library is connected.")
+
+    local communityLabels = {"None"}
+    local communityByLabel = {}
+    local function setPublicStatus(message, success)
+        publicStatus.Text = tostring(message)
+        publicStatus.TextColor3 = success and C.Lime or Color3.fromRGB(218, 82, 82)
+    end
+    local function refreshCommunityCatalog()
+        setPublicStatus("Loading community configs...", true)
+        task.spawn(function()
+            local ok, result = XCPublicConfigs.List("")
+            if not ok then setPublicStatus(result, false); return end
+            communityLabels = {}
+            communityByLabel = {}
+            for _, item in ipairs(XCPublicConfigs.Items) do
+                local label = string.format("%s · %s [%s]", tostring(item.name or "Unnamed"),
+                    tostring(item.author or "Anonymous"), tostring(item.id or ""):sub(1, 8))
+                table.insert(communityLabels, label)
+                communityByLabel[label] = item.id
+            end
+            if #communityLabels == 0 then communityLabels = {"None"} end
+            XCConfig.publicConfigSelection = communityLabels[1]
+            refreshConfigControls("publicConfigSelection", communityLabels[1])
+            setPublicStatus(string.format("Loaded %d public configs", #XCPublicConfigs.Items), true)
+        end)
+    end
+
+    addButton(ConfigCommunity, "PUBLISH CURRENT CONFIG", function()
+        setPublicStatus("Publishing...", true)
+        task.spawn(function()
+            local ok, result = XCPublicConfigs.Publish(publicName.Text, publicDescription.Text, publicAuthor.Text)
+            if ok then
+                setPublicStatus("Published: " .. tostring(result.name or publicName.Text), true)
+                refreshCommunityCatalog()
+            else
+                setPublicStatus(result, false)
+            end
+        end)
+    end)
+
+    section(ConfigCommunity, "browse community")
+    addChoice(ConfigCommunity, "Public config", "publicConfigSelection", function() return communityLabels end)
+    addButton(ConfigCommunity, "REFRESH CATALOG", refreshCommunityCatalog)
+    addButton(ConfigCommunity, "LOAD SELECTED CONFIG", function()
+        local selectedId = communityByLabel[XCConfig.publicConfigSelection]
+        if not selectedId then setPublicStatus("Select a public config first", false); return end
+        setPublicStatus("Downloading config...", true)
+        task.spawn(function()
+            local ok, result = XCPublicConfigs.Get(selectedId)
+            if not ok then setPublicStatus(result, false); return end
+            if type(result.settings) ~= "table" then setPublicStatus("Server returned invalid settings", false); return end
+            setXCStreamerMode(false)
+            for key, value in pairs(result.settings) do
+                if XCConfig[key] ~= nil and key ~= "publicConfigSelection" then
+                    if type(value) == "table" and value.__type == "Color3" then
+                        XCConfig[key] = Color3.new(tonumber(value.r) or 1, tonumber(value.g) or 1, tonumber(value.b) or 1)
+                    elseif type(value) == "table" and value.__type == "UDim2" then
+                        XCConfig[key] = UDim2.new(tonumber(value.xs) or 0, tonumber(value.xo) or 0,
+                            tonumber(value.ys) or 0, tonumber(value.yo) or 0)
+                    else
+                        XCConfig[key] = deepCopyConfigValue(value)
+                    end
+                end
+            end
+            lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
+            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true or XCConfig.rcsEnabled == true
+            lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
+            refreshAll()
+            updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+            if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
+            applyXCWeather(); applyXCSmokeState(); updateWorldChanger()
+            setAntiAfkEnabled(XCConfig.antiAfkEnabled)
+            setPublicStatus("Loaded: " .. tostring(result.name or selectedId), true)
+            XCNotify("Community config", "Loaded " .. tostring(result.name or selectedId), "success", 2)
+        end)
+    end)
+    addNote(ConfigCommunity, "Choose a config from the library list; no name or link is required for loading.")
+    addNote(ConfigCommunity, "Only JSON settings are downloaded. Lua code from community entries is never executed.")
+    task.defer(refreshCommunityCatalog)
+
+    applySearch = function()
+        local query = searchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
+        local page = pages[currentPage]
+        for _, entry in ipairs(searchableControls) do
+            if page and entry.gui:IsDescendantOf(page) then
+                entry.gui.Visible = query == "" or entry.label:find(query, 1, true) ~= nil
+            else
+                entry.gui.Visible = true
+            end
+        end
+        for _, group in ipairs(sectionGroups) do
+            if page and group.outer:IsDescendantOf(page) then
+                local anyVisible = false
+                for _, child in ipairs(group.body:GetChildren()) do
+                    if child:IsA("GuiObject") and child.Visible then anyVisible = true break end
+                end
+                group.outer.Visible = query == "" or anyVisible
+                if query ~= "" then
+                    group.body.Visible = anyVisible
+                else
+                    group.body.Visible = not group.collapsed
+                end
+            else
+                group.outer.Visible = true
+                group.body.Visible = not group.collapsed
+            end
+        end
+        clearSearch.TextColor3 = query ~= "" and C.Lime or C.Muted
+    end
+    table.insert(connections, searchBox:GetPropertyChangedSignal("Text"):Connect(applySearch))
+    task.spawn(function()
+        while xcSessionActive() and screenGui.Parent do
+            task.wait(0.75)
+            for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
+        end
+    end)
+    switchPage("Rage")
+
+    local menuVisible = true
+    local function toggleMenu()
+        closeDropdown()
+        hideHelp()
+        main.Visible = not main.Visible
+        menuVisible = main.Visible
+        XCFeatureState.menuOpen = main.Visible
+    end
+    table.insert(connections, UserInputService.InputBegan:Connect(function(input, processed)
+        if processed then return end
+        local key = Enum.KeyCode[XCConfig.menuKey or "RightShift"]
+        if key and input.KeyCode == key then toggleMenu() end
+    end))
+
+    local function dragObject(handle, object, saveButtonPosition)
+        local activeInput, startInput, startPos, moved
+        handle.InputBegan:Connect(function(input)
+            if activeInput then return end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                activeInput, startInput, startPos, moved = input, input.Position, object.Position, false
+            end
+        end)
+        table.insert(connections, UserInputService.InputChanged:Connect(function(input)
+            if not activeInput then return end
+            if input == activeInput or input.UserInputType == Enum.UserInputType.MouseMovement then
+                local delta = input.Position - startInput
+                if delta.Magnitude >= 7 then moved = true end
+                if moved then
+                    object.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                    if saveButtonPosition then savedPos.OpenBtn = object.Position; if genv then genv.XCSavedPos.OpenBtn = object.Position end end
+                end
+            end
+        end))
+        table.insert(connections, UserInputService.InputEnded:Connect(function(input)
+            if input ~= activeInput then return end
+            local tap = not moved
+            activeInput = nil
+            if tap and saveButtonPosition then toggleMenu() end
+        end))
+    end
+    dragObject(dragBar, main, false)
+
+    local openBtn = Instance.new("TextButton")
+    openBtn.Name = "XCButton"
+    openBtn.Size = UDim2.fromOffset(56, 48)
+    openBtn.Position = savedPos.OpenBtn
+    openBtn.BackgroundColor3 = C.Panel
+    openBtn.BorderColor3 = C.Lime
+    openBtn.BorderSizePixel = 1
+    openBtn.RichText = true
+    openButtonThemeRefresh = function()
+        local accent, textColor = C.Lime, C.White
+        openBtn.BackgroundColor3 = C.Panel
+        openBtn.BorderColor3 = C.Lime
+        openBtn.Text = string.format(
+            '<font color="rgb(%d,%d,%d)">X</font><font color="rgb(%d,%d,%d)">C</font>',
+            math.floor(accent.R*255+0.5), math.floor(accent.G*255+0.5), math.floor(accent.B*255+0.5),
+            math.floor(textColor.R*255+0.5), math.floor(textColor.G*255+0.5), math.floor(textColor.B*255+0.5)
+        )
+    end
+    openButtonThemeRefresh()
+    openBtn.TextColor3 = C.White
+    openBtn.Font = Enum.Font.GothamBold
+    openBtn.TextSize = 23
+    openBtn.AutoButtonColor = false
+    openBtn.Active = true
+    openBtn.Parent = toggleGui
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = openBtn
+    dragObject(openBtn, openBtn, true)
+end
+--// XC-STYLE THIRD PERSON PROTECTION
+local thirdPersonCameraConnection
+local thirdPersonMetaInstalled = false
+
+function installThirdPersonProtection()
+    if thirdPersonMetaInstalled then return end
+    if sharedXCEnv and sharedXCEnv.XCThirdPersonMetaV54 then
+        thirdPersonMetaInstalled = true
+        return
+    end
+    if type(getrawmetatable) ~= "function" or type(setreadonly) ~= "function" then return end
+    if type(newcclosure) ~= "function" then return end
+
+    pcall(function()
+        local mt = getrawmetatable(game)
+        if not mt then return end
+
+        local oldNewIndex = mt.__newindex
+        if type(oldNewIndex) ~= "function" then return end
+
+        setreadonly(mt, false)
+        mt.__newindex = newcclosure(function(self, key, value)
+            if self == player and XCConfig.thirdPersonEnabled then
+                local distance = math.clamp(
+                    tonumber(XCConfig.thirdPersonDistance) or 12,
+                    5,
+                    50
+                )
+
+                if key == "CameraMode" then
+                    return oldNewIndex(self, key, Enum.CameraMode.Classic)
+                elseif key == "CameraMaxZoomDistance" then
+                    return oldNewIndex(self, key, distance)
+                elseif key == "CameraMinZoomDistance" then
+                    return oldNewIndex(self, key, distance)
+                end
+            end
+
+            return oldNewIndex(self, key, value)
+        end)
+        setreadonly(mt, true)
+        thirdPersonMetaInstalled = true
+        if sharedXCEnv then sharedXCEnv.XCThirdPersonMetaV54 = true end
+    end)
+end
+
+function reconnectThirdPersonCamera()
+    if thirdPersonCameraConnection then
+        thirdPersonCameraConnection:Disconnect()
+        thirdPersonCameraConnection = nil
+    end
+
+    if not camera then return end
+
+    thirdPersonCameraConnection = camera:GetPropertyChangedSignal("CameraType"):Connect(function()
+        if not XCConfig.thirdPersonEnabled or not camera then return end
+
+        -- XC keeps the native Custom camera pipeline.
+        if camera.CameraType ~= Enum.CameraType.Custom then
+            camera.CameraType = Enum.CameraType.Custom
+        end
+
+        local char, hum = getThirdPersonTarget()
+        if hum then
+            camera.CameraSubject = hum
+        end
+    end)
+    table.insert(connections, thirdPersonCameraConnection)
+end
+
+task.spawn(function()
+    installThirdPersonProtection()
+end)
+
+reconnectThirdPersonCamera()
+
+local currentCameraConnection = Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+    camera = Workspace.CurrentCamera or camera
+    reconnectThirdPersonCamera()
+
+    if XCConfig.thirdPersonEnabled and camera then
+        applyThirdPerson()
+    end
+end)
+table.insert(connections, currentCameraConnection)
+--// XC WEAPON MODS (ADAPTED) | XC No Recoil + No Spread + FireRate logic only. FireRate follows the source approach: discover weapon tables containing FireRate, remember their original values, and periodically write the configured interval while the XC toggle is enabled.
+local xcRecoilSpreadInstalled = false
+local xcFireRateInstalled = false
+local xcFireRateObjects = {}
+local xcFireRateOriginal = {}
+local xcFireRateReadonly = {}
+local xcFireRateScanDone = false
+local xcRecoilSpreadRetrying = false
+local xcFireRateGetWeapon = nil
+local xcFireRateWeaponRecords = setmetatable({}, {__mode = "k"})
+
+local function resolveXCFireRateGetWeapon()
+    if type(xcFireRateGetWeapon) == "function" then return true end
+    pcall(function()
+        local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+        local scriptObject = controllers and controllers:FindFirstChild("InventoryController")
+        local inventory = scriptObject and require(scriptObject)
+        if type(inventory) == "table" and type(inventory.peekCurrentEquippedForMovement) == "function" then
+            xcFireRateGetWeapon = inventory.peekCurrentEquippedForMovement
+        end
+    end)
+    return type(xcFireRateGetWeapon) == "function"
+end
+
+local function restoreXCNativeFireRate(exceptWeapon)
+    for weapon, record in pairs(xcFireRateWeaponRecords) do
+        if weapon ~= exceptWeapon then
+            pcall(function()
+                local properties = record.Properties
+                if type(properties) == "table" then
+                    if type(setreadonly) == "function" then setreadonly(properties, false) end
+                    rawset(properties, "FireRate", record.OriginalFireRate)
+                    if type(setreadonly) == "function" and record.Readonly ~= nil then
+                        setreadonly(properties, record.Readonly)
+                    end
+                end
+            end)
+            xcFireRateWeaponRecords[weapon] = nil
+        end
+    end
+end
+
+local function applyXCNativeFireRate()
+    if not resolveXCFireRateGetWeapon() then return false end
+    local okWeapon, weapon = pcall(xcFireRateGetWeapon)
+    if not okWeapon or type(weapon) ~= "table" or weapon.IsDestroyed
+        or type(weapon.Properties) ~= "table" then return false end
+
+    restoreXCNativeFireRate(weapon)
+    local record = xcFireRateWeaponRecords[weapon]
+    if record and weapon.Properties ~= record.Properties then
+        restoreXCNativeFireRate(nil)
+        record = nil
+    end
+    if not record then
+        local readonly = nil
+        if type(isreadonly) == "function" then
+            local okReadonly, value = pcall(isreadonly, weapon.Properties)
+            if okReadonly then readonly = value == true end
+        end
+        record = {
+            Properties = weapon.Properties,
+            OriginalFireRate = rawget(weapon.Properties, "FireRate"),
+            OriginalAutomatic = rawget(weapon.Properties, "Automatic"),
+            Readonly = readonly,
+        }
+        xcFireRateWeaponRecords[weapon] = record
+    end
+
+    local requested = math.max(tonumber(XCConfig.fireRate) or 0.03, 0.01)
+    local originalRate = tonumber(record.OriginalFireRate) or requested
+    local stableRate = math.max(requested, 0.03, originalRate * 0.40)
+    if UserInputService.TouchEnabled then
+        -- Mobile uses the native hold-to-fire loop below. Leave every weapon
+        -- property byte-for-byte unchanged so the game's touch HUD never
+        -- rebuilds itself as a desktop control scheme.
+        record.Rate = stableRate
+        return true
+    end
+    if record.Rate == stableRate
+        and rawget(record.Properties, "FireRate") == stableRate then
+        return true
+    end
+
+    -- Change only cooldown. Do not change Automatic: Blox Strike rebuilds its
+    -- control scheme when this property changes and can select the desktop HUD.
+    local properties = record.Properties
+    if type(setreadonly) == "function" then setreadonly(properties, false) end
+    rawset(properties, "FireRate", stableRate)
+    if type(setreadonly) == "function" and record.Readonly ~= nil then
+        setreadonly(properties, record.Readonly)
+    end
+    record.Rate = stableRate
+    return true
+end
+
+if genv then
+    genv.XCRestoreWeaponState = function()
+        restoreXCNativeFireRate(nil)
+        restoreXCFireRates()
+    end
+end
+
+function scanXCFireRateObjects()
+    if xcFireRateScanDone then return #xcFireRateObjects > 0 end
+    if type(getgc) ~= "function" then return false end
+
+    local found = false
+    pcall(function()
+        for _, obj in next, getgc(true) do
+            if type(obj) == "table" then
+                local fireRate = rawget(obj, "FireRate")
+                if type(fireRate) == "number" then
+                    local already = false
+                    for _, existing in ipairs(xcFireRateObjects) do
+                        if existing == obj then
+                            already = true
+                            break
+                        end
+                    end
+                    if not already then
+                        table.insert(xcFireRateObjects, obj)
+                        xcFireRateOriginal[obj] = fireRate
+                        if type(isreadonly) == "function" then
+                            local okReadonly, readonly = pcall(isreadonly, obj)
+                            if okReadonly then xcFireRateReadonly[obj] = readonly == true end
+                        end
+                        found = true
+                    end
+                end
+            end
+        end
+    end)
+
+    xcFireRateScanDone = true
+    return found or #xcFireRateObjects > 0
+end
+
+function restoreXCFireRates()
+    for _, obj in ipairs(xcFireRateObjects) do
+        pcall(function()
+            if type(setreadonly) == "function" then setreadonly(obj, false) end
+            local original = xcFireRateOriginal[obj]
+            if type(original) == "number" then
+                rawset(obj, "FireRate", original)
+            end
+            -- Restore the table exactly as it was. Forcing every weapon table
+            -- readonly prevents the game from advancing its firing state.
+            if type(setreadonly) == "function" and xcFireRateReadonly[obj] ~= nil then
+                setreadonly(obj, xcFireRateReadonly[obj])
+            end
+        end)
+    end
+end
+
+function applyXCFireRate()
+    local requested = math.max(tonumber(XCConfig.fireRate) or 0.03, 0.01)
+    for _, obj in ipairs(xcFireRateObjects) do
+        pcall(function()
+            if type(setreadonly) == "function" then setreadonly(obj, false) end
+            local original = tonumber(xcFireRateOriginal[obj]) or requested
+            -- Limit acceleration to a stable interval. Extremely small values
+            -- flood ShootWeapon and are rejected after the first few rounds.
+            local stableMinimum = math.max(0.03, original * 0.40)
+            rawset(obj, "FireRate", math.max(requested, stableMinimum))
+            if type(setreadonly) == "function" and xcFireRateReadonly[obj] ~= nil then
+                setreadonly(obj, xcFireRateReadonly[obj])
+            end
+        end)
+    end
+end
+
+task.spawn(function()
+    local wasEnabled = false
+    while xcSessionActive() and task.wait(0.1) do
+        pcall(function()
+            if XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate then
+                local nativeApplied = applyXCNativeFireRate()
+                if nativeApplied then
+                    -- Undo the broad legacy getgc writer once the equipped
+                    -- weapon can be modified through its native Properties.
+                    if #xcFireRateObjects > 0 then restoreXCFireRates() end
+                elseif not UserInputService.TouchEnabled then
+                    if not xcFireRateScanDone then scanXCFireRateObjects() end
+                    if #xcFireRateObjects == 0 then
+                        -- The game can create weapon data after injection/respawn.
+                        xcFireRateScanDone = false
+                        scanXCFireRateObjects()
+                    end
+                    applyXCFireRate()
+                else
+                    -- Never use broad getgc property writes on mobile.
+                    restoreXCFireRates()
+                end
+            elseif wasEnabled then
+                restoreXCNativeFireRate(nil)
+                restoreXCFireRates()
+            end
+            wasEnabled = XCConfig.fireRateEnabled
+        end)
+    end
+end)
+
+-- Native hold-to-fire for semi-automatic weapons. This replaces the old
+-- 10 ms polling loop with the engine heartbeat, avoiding ~100 wakeups/sec.
+-- The supported fire-rate floor is 30 ms, so one heartbeat check is precise
+-- enough while also being automatically cleaned up with the other connections.
+do
+    local heldLast = false
+    local heldWeapon = nil
+    local nextShot = 0
+    table.insert(connections, RunService.Heartbeat:Connect(function()
+        if not xcSessionActive() then return end
+        if not (XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate)
+            or not resolveXCFireRateGetWeapon() then
+            heldLast, heldWeapon, nextShot = false, nil, 0
+            return
+        end
+
+        local okWeapon, weapon = pcall(xcFireRateGetWeapon)
+        local record = okWeapon and weapon and xcFireRateWeaponRecords[weapon] or nil
+        local held = record and record.OriginalAutomatic ~= true and weapon.IsFireHeld == true
+        if not held then
+            heldLast, heldWeapon, nextShot = false, weapon, 0
+            return
+        end
+        if weapon ~= heldWeapon or not heldLast then
+            heldWeapon, heldLast = weapon, true
+            nextShot = os.clock() + math.max(tonumber(record.Rate) or 0.08, 0.03)
+            return
+        end
+
+        local now = os.clock()
+        if now >= nextShot and type(weapon.shoot) == "function"
+            and not weapon.IsShooting and not weapon.IsBurstShooting then
+            nextShot = now + math.max(tonumber(record.Rate) or 0.08, 0.03)
+            pcall(function() weapon:shoot() end)
+        end
+    end))
+end
+
+function installXCRecoilSpread()
+    if xcRecoilSpreadInstalled then return true end
+    if sharedXCEnv and sharedXCEnv.XCRecoilSpreadInstalledV54 then
+        xcRecoilSpreadInstalled = true
+        return true
+    end
+    if type(getgc) ~= "function" or type(hookfunction) ~= "function" then
+        return false
+    end
+    if type(debug) ~= "table" or type(debug.getinfo) ~= "function" then
+        return false
+    end
+
+    local hookedSomething = false
+
+    pcall(function()
+        for _, obj in next, getgc(true) do
+            -- XC: setWeaponRecoil -> suppress the recoil setter.
+            if type(obj) == "table" then
+                local setRecoil = rawget(obj, "setWeaponRecoil")
+                if typeof(setRecoil) == "function" then
+                    pcall(function()
+                        local oldSetRecoil
+                        oldSetRecoil = hookfunction(setRecoil, function(...)
+                            if XCConfig.noRecoilEnabled then
+                                return
+                            end
+                            return oldSetRecoil(...)
+                        end)
+                        hookedSomething = true
+                    end)
+                end
+
+                -- XC: weaponKick -> suppress the camera/weapon kick.
+                local weaponKick = rawget(obj, "weaponKick")
+                if typeof(weaponKick) == "function" then
+                    pcall(function()
+                        local oldKick
+                        oldKick = hookfunction(weaponKick, function(...)
+                            if XCConfig.noRecoilEnabled then
+                                return
+                            end
+                            return oldKick(...)
+                        end)
+                        hookedSomething = true
+                    end)
+                end
+
+                -- XC: getTrueSpread -> zero the calculated spread.
+                local getSpread = rawget(obj, "getTrueSpread")
+                if typeof(getSpread) == "function" then
+                    pcall(function()
+                        local oldSpread
+                        oldSpread = hookfunction(getSpread, function(...)
+                            if XCConfig.noSpreadEnabled then
+                                return 0
+                            end
+                            return oldSpread(...)
+                        end)
+                        hookedSomething = true
+                    end)
+                end
+            end
+
+            -- XC: calculateRecoilOffset -> return a neutral UDim2.
+            if type(obj) == "function" then
+                local info
+                pcall(function() info = debug.getinfo(obj) end)
+                if type(info) == "table" and info.name == "calculateRecoilOffset" then
+                    pcall(function()
+                        local oldCalc
+                        oldCalc = hookfunction(obj, function(...)
+                            local results = table.pack(oldCalc(...))
+                            local result = results[1]
+                            if XCConfig.noRecoilEnabled then
+                                results[1] = UDim2.new()
+                                return table.unpack(results, 1, results.n)
+                            end
+                            if XCConfig.rcsEnabled and typeof(result) == "UDim2" then
+                                local strength = math.clamp((tonumber(XCConfig.rcsStrength) or 100) / 100, 0, 1)
+                                local yawKeep = 1 - math.clamp(strength * (tonumber(XCConfig.rcsYawFactor) or 1), 0, 1)
+                                local pitchKeep = 1 - math.clamp(strength * (tonumber(XCConfig.rcsPitchFactor) or 1), 0, 1)
+                                results[1] = UDim2.new(
+                                    result.X.Scale * yawKeep, result.X.Offset * yawKeep,
+                                    result.Y.Scale * pitchKeep, result.Y.Offset * pitchKeep
+                                )
+                            end
+                            return table.unpack(results, 1, results.n)
+                        end)
+                        hookedSomething = true
+                    end)
+                end
+            end
+        end
+    end)
+
+    if hookedSomething then
+        xcRecoilSpreadInstalled = true
+        if sharedXCEnv then sharedXCEnv.XCRecoilSpreadInstalledV54 = true end
+        return true
+    end
+    return false
+end
+
+-- Delay GC scanning until XC UI has finished building. This is intentionally
+-- separate from the launch path so unsupported executors don't block injection.
+task.spawn(function()
+    if xcRecoilSpreadRetrying then return end
+    xcRecoilSpreadRetrying = true
+
+    local attempts = 0
+    while xcSessionActive() and not xcRecoilSpreadInstalled and attempts < 20 do
+        if lazyFeatureRequests.recoilSpread
+            and (XCConfig.noRecoilEnabled or XCConfig.noSpreadEnabled or XCConfig.rcsEnabled) then
+            attempts = attempts + (1)
+            if installXCRecoilSpread() then break end
+            task.wait(0.75)
+        else
+            task.wait(0.25)
+        end
+    end
+
+    xcRecoilSpreadRetrying = false
+end)
+--// XC-STYLE SEND HOOK FALLBACK FOR SILENT AIM
+local xcSilentSendHooked = false
+
+-- Shotguns and some burst weapons do not obtain their direction from a Camera
+-- ray. Adjust their already game-built payload only while Send() serializes it,
+-- then restore every field so automatic fire never inherits a modified shot.
+local function beginXCSilentPayloadTransactionV31(data)
+    if xcNativeSilentHooked or not UserInputService.TouchEnabled or not isXCSilentAimRequested()
+        or type(data) ~= "table" or type(data.Bullets) ~= "table" then return nil end
+
+    local context = getXCSilentShotContextV31(false)
+    if context and context.CameraUsed then return nil end
+
+    local targetPart = context and context.Target or (getSilentAimTarget and getSilentAimTarget() or silentAimResolved)
+    local allowed = context and context.Allowed
+    if not context then
+        local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+        allowed = targetPart ~= nil and targetPart.Parent ~= nil
+            and (chance >= 100 or math.random(1, 100) <= chance)
+    end
+    if not allowed or not targetPart or not targetPart.Parent then return nil end
+
+    local aimPos = targetPart.Position
+    local activeCamera = Workspace.CurrentCamera or camera
+    local fallbackOrigin = activeCamera and activeCamera.CFrame.Position or nil
+    local undo = {}
+
+    local function remember(tbl, key, value)
+        table.insert(undo, {Table = tbl, Key = key, Value = value})
+    end
+
+    for _, bullet in pairs(data.Bullets) do
+        if type(bullet) == "table" then
+            local origin = bullet.Origin or bullet.StartingPoint or bullet.Position or fallbackOrigin
+            if typeof(origin) == "CFrame" then origin = origin.Position end
+            if typeof(origin) == "Vector3" then
+                local delta = aimPos - origin
+                if delta.Magnitude > 0.001 then
+                    if typeof(bullet.Direction) == "Vector3" then
+                        remember(bullet, "Direction", bullet.Direction)
+                        local magnitude = bullet.Direction.Magnitude
+                        bullet.Direction = delta.Unit * (magnitude > 0.001 and magnitude or 1)
+                    end
+                    if typeof(bullet.Ray) == "Ray" then
+                        remember(bullet, "Ray", bullet.Ray)
+                        bullet.Ray = Ray.new(bullet.Ray.Origin, delta.Unit * bullet.Ray.Direction.Magnitude)
+                    end
+                end
+            end
+
+            if type(bullet.Hits) == "table" then
+                for _, hitData in pairs(bullet.Hits) do
+                    if type(hitData) == "table" then
+                        remember(hitData, "Instance", hitData.Instance)
+                        remember(hitData, "Position", hitData.Position)
+                        hitData.Instance = targetPart
+                        hitData.Position = targetPart.Position
+                    end
+                end
+            end
+        end
+    end
+
+    if #undo == 0 then return nil end
+    if context then context.PayloadUsed = true end
+    silentAimResolved = targetPart
+    if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
+
+    return function()
+        for index = #undo, 1, -1 do
+            local item = undo[index]
+            item.Table[item.Key] = item.Value
+        end
+    end
+end
+
+if sharedXCEnv then sharedXCEnv.XCBeginSilentPayloadTransactionV31 = beginXCSilentPayloadTransactionV31 end
+
+-- Extreme Wallbang V37: Memesense-style final Send rewrite. The game is allowed
+-- to build its normal bullet payload first; immediately before Send(), XC points
+-- every existing hit record at the selected Silent Aim part, then restores the
+-- original tables after the synchronous call. This avoids poisoning automatic
+-- fire while making Extreme fundamentally different from forced penetration.
+local function beginXCExtremePayloadTransactionV37(data)
+    if not XCConfig.extremeWallbangEnabled or not isXCSilentAimRequested()
+        or type(data) ~= "table" or type(data.Bullets) ~= "table" then return nil end
+
+    local targetPart = getSilentAimTarget and getSilentAimTarget() or silentAimResolved
+    if not targetPart or not targetPart.Parent then return nil end
+    local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
+    if chance < 100 and math.random(1, 100) > chance then return nil end
+    local aimPos = targetPart.Position
+    local activeCamera = Workspace.CurrentCamera or camera
+    local fallbackOrigin = activeCamera and activeCamera.CFrame.Position or nil
+    local undo = {}
+
+    local function remember(tbl, key, value)
+        undo[#undo + 1] = {Table = tbl, Key = key, Value = value}
+    end
+
+    for _, bullet in pairs(data.Bullets) do
+        if type(bullet) == "table" then
+            local origin = bullet.Origin or bullet.StartingPoint or bullet.Position or fallbackOrigin
+            if typeof(origin) == "CFrame" then origin = origin.Position end
+            if typeof(origin) == "Vector3" then
+                local delta = aimPos - origin
+                if delta.Magnitude > 0.001 then
+                    if typeof(bullet.Direction) == "Vector3" then
+                        remember(bullet, "Direction", bullet.Direction)
+                        local magnitude = bullet.Direction.Magnitude
+                        bullet.Direction = delta.Unit * (magnitude > 0.001 and magnitude or 1)
+                    end
+                    if typeof(bullet.Ray) == "Ray" then
+                        remember(bullet, "Ray", bullet.Ray)
+                        bullet.Ray = Ray.new(bullet.Ray.Origin, delta.Unit * bullet.Ray.Direction.Magnitude)
+                    end
+                end
+            end
+
+            -- Match the reference script: do not invent a foreign packet shape;
+            -- rewrite the hit records the game itself created for this shot.
+            if type(bullet.Hits) == "table" then
+                for _, hitData in pairs(bullet.Hits) do
+                    if type(hitData) == "table" then
+                        remember(hitData, "Instance", hitData.Instance)
+                        remember(hitData, "Position", hitData.Position)
+                        hitData.Instance = targetPart
+                        hitData.Position = aimPos
+                    end
+                end
+            end
+        end
+    end
+
+    if #undo == 0 then return nil end
+    silentAimResolved = targetPart
+    if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
+
+    return function()
+        for index = #undo, 1, -1 do
+            local item = undo[index]
+            item.Table[item.Key] = item.Value
+        end
+    end
+end
+
+if sharedXCEnv then sharedXCEnv.XCBeginExtremePayloadTransactionV37 = beginXCExtremePayloadTransactionV37 end
+
+function setupXCSilentSendHook()
+    if xcSilentSendHooked then return end
+    -- Keep the Send hook available on desktop as well: normal Silent Aim still
+    -- prefers the native/InventoryController path, but Extreme Wallbang needs a
+    -- final payload rewrite just before serialization.
+    if type(getgc) ~= "function" or type(hookfunction) ~= "function" then return end
+
+    local sendFunc = nil
+    local shootContainer = nil
+    pcall(function()
+        for _, obj in next, getgc(true) do
+            if type(obj) == "table" and rawget(obj, "shoot") and typeof(obj.shoot) == "function" then
+                for _, uv in pairs(debug.getupvalues(obj.shoot)) do
+                    if type(uv) == "table" then
+                        local inventory = rawget(uv, "Inventory")
+                        local shootWeapon = inventory and rawget(inventory, "ShootWeapon")
+                        if type(shootWeapon) == "table" and typeof(shootWeapon.Send) == "function" then
+                            sendFunc = shootWeapon.Send
+                            shootContainer = shootWeapon
+                            break
+                        end
+                    end
+                end
+            end
+            if sendFunc then break end
+        end
+    end)
+
+    if type(sendFunc) ~= "function" then return end
+    if shootContainer and rawget(shootContainer, "__XCSilentSendHookV37") then
+        xcSilentSendHooked = true
+        return
+    end
+
+    local oldSend
+    oldSend = hookfunction(sendFunc, function(...)
+        local args = {...}
+        local restorePayload = nil
+
+        -- Always consult the shared V37 transaction first. This keeps an old
+        -- persistent hook usable after reinjection because the current script
+        -- replaces the shared callback even though the hook closure survives.
+        if type(args[1]) == "table" then
+            local beginExtreme = sharedXCEnv and sharedXCEnv.XCBeginExtremePayloadTransactionV37
+                or beginXCExtremePayloadTransactionV37
+            local okTransaction, restore = pcall(beginExtreme, args[1])
+            if okTransaction and type(restore) == "function" then restorePayload = restore end
+        end
+
+        if not restorePayload and UserInputService.TouchEnabled and type(args[1]) == "table" then
+            local beginTransaction = sharedXCEnv and sharedXCEnv.XCBeginSilentPayloadTransactionV31
+                or beginXCSilentPayloadTransactionV31
+            local okTransaction, restore = pcall(beginTransaction, args[1])
+            if okTransaction and type(restore) == "function" then restorePayload = restore end
+        elseif not restorePayload and type(args[1]) == "table" and not xcNativeSilentHooked and not bloxStrikeShootHooked then
+            local prepare = sharedXCEnv and sharedXCEnv.XCPrepareSilentSendPayloadV28
+            local okPrepare, prepared = pcall(function()
+                if type(prepare) == "function" then return prepare(args[1]) end
+                return prepareXCSilentShotPayload(args[1], true)
+            end)
+            if okPrepare and type(prepared) == "table" then args[1] = prepared end
+        end
+
+        -- Suppress a persistent pre-v23 Send hook while it forwards our copied
+        -- payload. This prevents double hit-chance rolls and in-place rewrites.
+        local silentWasEnabled = XCConfig.silentAimEnabled
+        XCConfig.silentAimEnabled = false
+        local results = table.pack(pcall(oldSend, unpack(args)))
+        XCConfig.silentAimEnabled = silentWasEnabled
+        if restorePayload then pcall(restorePayload) end
+        if not results[1] then error(results[2], 0) end
+        return table.unpack(results, 2, results.n)
+    end)
+
+    if shootContainer then rawset(shootContainer, "__XCSilentSendHooked", true) end
+    if shootContainer then rawset(shootContainer, "__XCSilentSendHookV23", true) end
+    if shootContainer then rawset(shootContainer, "__XCSilentSendHookV28", true) end
+    if shootContainer then rawset(shootContainer, "__XCSilentSendHookV31", true) end
+    if shootContainer then rawset(shootContainer, "__XCSilentSendHookV37", true) end
+    xcSilentSendHooked = true
+end
+--// ENGINE LAUNCH / XC VISUAL EXTENSION
+pcall(setupXCNativeSilentHook)
+pcall(setupBloxStrikeShootHook)
+pcall(setupXCSilentSendHook)
+pcall(setupXCCharacterInputHook)
+task.spawn(function()
+    while xcSessionActive() and not xcSilentSendHooked do
+        if XCConfig.extremeWallbangEnabled then
+            pcall(setupXCSilentSendHook)
+            if not xcSilentSendHooked then task.wait(1.0) end
+        else
+            task.wait(0.5)
+        end
+    end
+end)
+pcall(setupXCCustomHandsHook)
+task.spawn(function()
+    while xcSessionActive() do
+        if not xcCharacterInputHook.Ready and (XCConfig.antiAimEnabled or XCConfig.bunnyHopEnabled) then
+            setupXCCharacterInputHook()
+            task.wait(1.5)
+        else
+            task.wait(0.5)
+        end
+    end
+end)
+task.spawn(function()
+    while xcSessionActive() and not xcNativeSilentHooked do
+        if XCConfig.silentAimEnabled then
+            setupXCNativeSilentHook()
+            if not xcNativeSilentHooked then task.wait(1.0) end
+        else
+            task.wait(0.5)
+        end
+    end
+end)
+XCFeatureState.uiBuildOK, XCFeatureState.uiBuildError = pcall(buildXCUI)
+if not XCFeatureState.uiBuildOK then
+    warn("[XC] UI startup failed: " .. tostring(XCFeatureState.uiBuildError))
+    pcall(function()
+        if targetGui:FindFirstChild("XCScreenGui") then targetGui.XCScreenGui:Destroy() end
+        if targetGui:FindFirstChild("XCToggleGui") then targetGui.XCToggleGui:Destroy() end
+        XCFeatureState.fallbackGui = Instance.new("ScreenGui")
+        XCFeatureState.fallbackGui.Name = "XCFallbackGui"
+        XCFeatureState.fallbackGui.ResetOnSpawn = false
+        XCFeatureState.fallbackGui.IgnoreGuiInset = true
+        XCFeatureState.fallbackGui.DisplayOrder = 999
+        XCFeatureState.fallbackGui.Parent = targetGui
+        XCFeatureState.fallbackCard = Instance.new("TextLabel")
+        XCFeatureState.fallbackCard.Size = UDim2.fromOffset(340, 82)
+        XCFeatureState.fallbackCard.Position = UDim2.new(0.5, -170, 0, 22)
+        XCFeatureState.fallbackCard.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        XCFeatureState.fallbackCard.BorderColor3 = Color3.fromRGB(152, 204, 0)
+        XCFeatureState.fallbackCard.BorderSizePixel = 1
+        XCFeatureState.fallbackCard.TextColor3 = Color3.fromRGB(235, 235, 235)
+        XCFeatureState.fallbackCard.Font = Enum.Font.Code
+        XCFeatureState.fallbackCard.TextSize = 12
+        XCFeatureState.fallbackCard.TextWrapped = true
+        XCFeatureState.fallbackCard.Text = "XC STARTUP ERROR\n" .. tostring(XCFeatureState.uiBuildError):sub(1, 220)
+        XCFeatureState.fallbackCard.Parent = XCFeatureState.fallbackGui
+    end)
+end
+
+-- XC-style active navigation accent.
+function XCApplyXCTabAccent(button, active)
+    pcall(function()
+        local accent = button:FindFirstChild("XCActiveAccent")
+        if active then
+            if not accent then
+                accent = Instance.new("Frame")
+                accent.Name = "XCActiveAccent"
+                accent.BorderSizePixel = 0
+                accent.AnchorPoint = Vector2.new(0, 0.5)
+                accent.Position = UDim2.new(0, 0, 0.5, 0)
+                accent.Size = UDim2.new(0, 2, 0, 22)
+                accent.BackgroundColor3 = Color3.fromRGB(152, 204, 0)
+                accent.Parent = button
+            end
+            accent.Visible = true
+        elseif accent then
+            accent.Visible = false
+        end
+    end)
+end
+--// XC CONFIG SYSTEM v2 | Named profiles, save/load/delete/reset, export/import. Uses executor file APIs when available.
+local XCConfigSystem = {}
+XCConfigSystem.Folder = "XCConfigs"
+XCConfigSystem.ActiveName = "Default"
+
+function cfgFileAPI()
+    return type(isfile)=="function" and type(readfile)=="function" and type(writefile)=="function"
+end
+
+function cfgSafeName(name)
+    name=tostring(name or "Default"):gsub("[^%w%-%_ ]",""):sub(1,48)
+    return name~="" and name or "Default"
+end
+
+function cfgPath(name)
+    return XCConfigSystem.Folder.."/"..cfgSafeName(name)..".json"
+end
+
+function cfgJSONEncode(v)
+    local ok,res=pcall(function() return game:GetService("HttpService"):JSONEncode(v) end)
+    return ok and res or nil
+end
+
+function cfgJSONDecode(v)
+    local ok,res=pcall(function() return game:GetService("HttpService"):JSONDecode(v) end)
+    return ok and res or nil
+end
+
+function cfgEnsureFolder()
+    if type(makefolder)=="function" and type(isfolder)=="function" then
+        pcall(function() if not isfolder(XCConfigSystem.Folder) then makefolder(XCConfigSystem.Folder) end end)
+    end
+end
+
+function cfgSerialize()
+    local out={}
+    for k,v in pairs(XCConfig) do
+        local t=typeof(v)
+        if t=="boolean" or t=="number" or t=="string" then
+            out[k]=v
+        elseif t=="Color3" then
+            out[k]={__type="Color3",r=v.R,g=v.G,b=v.B}
+        elseif t=="UDim2" then
+            out[k]={__type="UDim2",xs=v.X.Scale,xo=v.X.Offset,ys=v.Y.Scale,yo=v.Y.Offset}
+        end
+    end
+    if XCFeatureState.streamerSnapshot then
+        for key,value in pairs(XCFeatureState.streamerSnapshot) do out[key]=value end
+        out.streamerModeEnabled=false
+    end
+    return out
+end
+
+function cfgApply(data)
+    if type(data)~="table" then return false end
+    setXCStreamerMode(false)
+    local requestedStreamerMode=data.streamerModeEnabled==true
+    for k,v in pairs(data) do
+        if XCConfig[k]~=nil then
+            pcall(function()
+                if type(v)=="table" and v.__type=="Color3" then
+                    XCConfig[k]=Color3.new(tonumber(v.r) or 1,tonumber(v.g) or 1,tonumber(v.b) or 1)
+                elseif type(v)=="table" and v.__type=="UDim2" then
+                    XCConfig[k]=UDim2.new(tonumber(v.xs) or 0,tonumber(v.xo) or 0,tonumber(v.ys) or 0,tonumber(v.yo) or 0)
+                else XCConfig[k]=v end
+            end)
+        end
+    end
+    setXCStreamerMode(requestedStreamerMode)
+    return true
+end
+
+function XCConfigSystem.Save(name)
+    if not cfgFileAPI() then return false,"File API unavailable" end
+    name=cfgSafeName(name or XCConfigSystem.ActiveName)
+    cfgEnsureFolder()
+    local raw=cfgJSONEncode({schema=2,product="XC",name=name,savedAt=os.time(),settings=cfgSerialize()})
+    if not raw then return false,"JSON encode failed" end
+    local ok,err=pcall(function() writefile(cfgPath(name),raw) end)
+    if ok then XCConfigSystem.ActiveName=name end
+    return ok,ok and "Saved" or tostring(err)
+end
+
+function XCConfigSystem.Load(name)
+    if not cfgFileAPI() then return false,"File API unavailable" end
+    name=cfgSafeName(name or XCConfigSystem.ActiveName)
+    local path=cfgPath(name)
+    if not isfile(path) then return false,"Config not found" end
+    local ok,raw=pcall(readfile,path)
+    if not ok then return false,"Read failed" end
+    local data=cfgJSONDecode(raw)
+    if type(data)~="table" then return false,"Invalid config" end
+    local settings=type(data.settings)=="table" and data.settings or data
+    cfgApply(settings)
+    XCConfigSystem.ActiveName=name
+    return true,"Loaded"
+end
+
+function XCConfigSystem.Delete(name)
+    if type(delfile)~="function" then return false,"Delete API unavailable" end
+    name=cfgSafeName(name or XCConfigSystem.ActiveName)
+    local path=cfgPath(name)
+    if not isfile(path) then return false,"Config not found" end
+    local ok,err=pcall(delfile,path)
+    return ok,ok and "Deleted" or tostring(err)
+end
+
+function XCConfigSystem.List()
+    local out={}
+    if type(listfiles)~="function" then return out end
+    cfgEnsureFolder()
+    local ok,files=pcall(listfiles,XCConfigSystem.Folder)
+    if ok and type(files)=="table" then
+        for _,path in ipairs(files) do
+            local n=tostring(path):match("([^/\\]+)%.json$")
+            if n then table.insert(out,n) end
+        end
+    end
+    table.sort(out)
+    return out
+end
+
+function XCConfigSystem.Reset()
+    setXCStreamerMode(false)
+    for k,v in pairs(XCConfigDefaults or {}) do pcall(function() XCConfig[k]=v end) end
+    return true,"Reset"
+end
+
+function XCConfigSystem.Export()
+    return cfgJSONEncode({schema=2,product="XC",name=XCConfigSystem.ActiveName,settings=cfgSerialize()})
+end
+
+function XCConfigSystem.Import(raw,name)
+    local data=cfgJSONDecode(raw)
+    if type(data)~="table" then return false,"Invalid import" end
+    local settings=type(data.settings)=="table" and data.settings or data
+    cfgApply(settings)
+    XCConfigSystem.ActiveName=cfgSafeName(name or data.name or "Imported")
+    return true,"Imported"
+end
+
+if type(getgenv) == "function" then
+    pcall(function() getgenv().XCConfigSystem = XCConfigSystem end)
+end
+end
+
+XCInitStage2()
+XCInitStage2 = nil
+
+end -- XCInitStage1
+
+XCInitStage1()
+XCInitStage1 = nil
