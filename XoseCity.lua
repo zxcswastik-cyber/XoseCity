@@ -416,6 +416,8 @@ local XCConfig = {
     soundPositionEspEnabled = false,
     weaponEspEnabled = false,
     jumpCircleEnabled = false,
+    motionTrailEnabled = false,
+    motionGhostEnabled = true,
     antiFlashEnabled = false,
     noSmokeEnabled = false,
     fullBrightEnabled = false,
@@ -534,6 +536,19 @@ local XCConfig = {
     killEffectColorR = 152,
     killEffectColorG = 204,
     killEffectColorB = 0,
+
+    -- Local movement trail / afterimages.
+    motionTrailLifetime = 1.15,
+    motionTrailWidth = 0.11,
+    motionTrailColorR = 245,
+    motionTrailColorG = 245,
+    motionTrailColorB = 255,
+    motionGhostInterval = 0.12,
+    motionGhostFade = 0.48,
+    motionGhostTransparency = 0.62,
+    motionGhostColorR = 120,
+    motionGhostColorG = 185,
+    motionGhostColorB = 255,
 
     spinSpeed = 50,
     antiAimYaw = 180,
@@ -698,7 +713,9 @@ for _, colorKey in ipairs({
     "espHealthLowR", "espHealthLowG", "espHealthLowB",
     "grenadeHER", "grenadeHEG", "grenadeHEB", "grenadeSmokeR", "grenadeSmokeG", "grenadeSmokeB",
     "grenadeMolotovR", "grenadeMolotovG", "grenadeMolotovB",
-    "killEffectColorR", "killEffectColorG", "killEffectColorB"
+    "killEffectColorR", "killEffectColorG", "killEffectColorB",
+    "motionTrailColorR", "motionTrailColorG", "motionTrailColorB",
+    "motionGhostColorR", "motionGhostColorG", "motionGhostColorB"
 }) do
     XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
 end
@@ -727,6 +744,7 @@ local Stats = game:GetService("Stats")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local ContentProvider = game:GetService("ContentProvider")
+local Debris = game:GetService("Debris")
 local VirtualInputManager = nil
 -- A synthetic mouse event changes Roblox's preferred input to desktop and
 -- makes Blox Strike remove its mobile buttons. Never create that path on a
@@ -6502,6 +6520,241 @@ if player.Character then
     end)
 end
 
+
+-- ==========================================
+-- XC LOCAL MOTION TRAIL + GHOST AFTERIMAGES
+-- Lightweight recreation of the ribbon/ghost movement look from the reference.
+-- ==========================================
+local XCMotionState = {
+    Character = nil,
+    Root = nil,
+    Attachment0 = nil,
+    Attachment1 = nil,
+    Trail = nil,
+    LastGhost = 0,
+    LastGhostPosition = nil,
+}
+
+local function getXCMotionColor(prefix, fallback)
+    local r = tonumber(XCConfig[prefix .. "R"])
+    local g = tonumber(XCConfig[prefix .. "G"])
+    local b = tonumber(XCConfig[prefix .. "B"])
+    if not r or not g or not b then return fallback end
+    return Color3.fromRGB(
+        math.clamp(math.floor(r + 0.5), 0, 255),
+        math.clamp(math.floor(g + 0.5), 0, 255),
+        math.clamp(math.floor(b + 0.5), 0, 255)
+    )
+end
+
+local function clearXCMotionTrail()
+    if XCMotionState.Trail then
+        pcall(function() XCMotionState.Trail:Destroy() end)
+    end
+    if XCMotionState.Attachment0 then
+        pcall(function() XCMotionState.Attachment0:Destroy() end)
+    end
+    if XCMotionState.Attachment1 then
+        pcall(function() XCMotionState.Attachment1:Destroy() end)
+    end
+    XCMotionState.Character = nil
+    XCMotionState.Root = nil
+    XCMotionState.Attachment0 = nil
+    XCMotionState.Attachment1 = nil
+    XCMotionState.Trail = nil
+    XCMotionState.LastGhostPosition = nil
+end
+
+local function ensureXCMotionTrail(character, root)
+    if not XCConfig.motionTrailEnabled then
+        if XCMotionState.Trail then clearXCMotionTrail() end
+        return nil
+    end
+
+    if XCMotionState.Character ~= character
+        or XCMotionState.Root ~= root
+        or not XCMotionState.Trail
+        or not XCMotionState.Trail.Parent then
+
+        clearXCMotionTrail()
+
+        local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
+
+        local a0 = Instance.new("Attachment")
+        a0.Name = "XC_MotionTrail_A0"
+        a0.Position = Vector3.new(-width * 0.5, -2.15, 0)
+        a0.Parent = root
+
+        local a1 = Instance.new("Attachment")
+        a1.Name = "XC_MotionTrail_A1"
+        a1.Position = Vector3.new(width * 0.5, -2.15, 0)
+        a1.Parent = root
+
+        local trail = Instance.new("Trail")
+        trail.Name = "XC_MotionRibbon"
+        trail.Attachment0 = a0
+        trail.Attachment1 = a1
+        trail.FaceCamera = true
+        trail.LightEmission = 0.75
+        trail.LightInfluence = 0
+        trail.MinLength = 0.025
+        trail.Lifetime = math.clamp(tonumber(XCConfig.motionTrailLifetime) or 1.15, 0.15, 3)
+        trail.Color = ColorSequence.new(getXCMotionColor("motionTrailColor", Color3.new(1, 1, 1)))
+        trail.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.04),
+            NumberSequenceKeypoint.new(0.7, 0.22),
+            NumberSequenceKeypoint.new(1, 1),
+        })
+        trail.WidthScale = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1),
+            NumberSequenceKeypoint.new(0.82, 0.72),
+            NumberSequenceKeypoint.new(1, 0),
+        })
+        trail.Parent = root
+
+        XCMotionState.Character = character
+        XCMotionState.Root = root
+        XCMotionState.Attachment0 = a0
+        XCMotionState.Attachment1 = a1
+        XCMotionState.Trail = trail
+        XCMotionState.LastGhostPosition = root.Position
+    end
+
+    local trail = XCMotionState.Trail
+    if trail then
+        local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
+        XCMotionState.Attachment0.Position = Vector3.new(-width * 0.5, -2.15, 0)
+        XCMotionState.Attachment1.Position = Vector3.new(width * 0.5, -2.15, 0)
+        trail.Lifetime = math.clamp(tonumber(XCConfig.motionTrailLifetime) or 1.15, 0.15, 3)
+        trail.Color = ColorSequence.new(getXCMotionColor("motionTrailColor", Color3.new(1, 1, 1)))
+        trail.Enabled = XCConfig.motionTrailEnabled
+    end
+    return trail
+end
+
+local function spawnXCMotionGhost(character)
+    if not XCConfig.motionGhostEnabled then return end
+    if not character or not character.Parent then return end
+
+    local ghostModel = Instance.new("Model")
+    ghostModel.Name = "XC_MotionGhost"
+    ghostModel.Parent = Workspace
+
+    local ghostColor = getXCMotionColor("motionGhostColor", Color3.fromRGB(120, 185, 255))
+    local startTransparency = math.clamp(tonumber(XCConfig.motionGhostTransparency) or 0.62, 0.25, 0.92)
+    local fadeTime = math.clamp(tonumber(XCConfig.motionGhostFade) or 0.48, 0.12, 1.5)
+    local created = 0
+
+    for _, source in ipairs(character:GetDescendants()) do
+        if source:IsA("BasePart")
+            and source.Name ~= "HumanoidRootPart"
+            and source.Transparency < 0.96
+            and created < 28 then
+
+            local ok, ghost = pcall(function() return source:Clone() end)
+            if ok and ghost and ghost:IsA("BasePart") then
+                created += 1
+                ghost.Name = "Ghost_" .. source.Name
+                ghost.Anchored = true
+                ghost.CanCollide = false
+                ghost.CanTouch = false
+                ghost.CanQuery = false
+                ghost.CastShadow = false
+                ghost.Massless = true
+                ghost.CFrame = source.CFrame
+                ghost.Color = ghostColor
+                ghost.Material = Enum.Material.ForceField
+                ghost.Transparency = startTransparency
+
+                pcall(function()
+                    if ghost:IsA("MeshPart") then ghost.TextureID = "" end
+                end)
+
+                for _, child in ipairs(ghost:GetDescendants()) do
+                    if child:IsA("Weld")
+                        or child:IsA("Motor6D")
+                        or child:IsA("WeldConstraint")
+                        or child:IsA("Attachment")
+                        or child:IsA("Decal")
+                        or child:IsA("Texture")
+                        or child:IsA("ParticleEmitter")
+                        or child:IsA("Trail")
+                        or child:IsA("Beam")
+                        or child:IsA("Script")
+                        or child:IsA("LocalScript") then
+                        pcall(function() child:Destroy() end)
+                    elseif child:IsA("SpecialMesh") then
+                        pcall(function()
+                            child.TextureId = ""
+                            child.VertexColor = Vector3.new(
+                                ghostColor.R * 2,
+                                ghostColor.G * 2,
+                                ghostColor.B * 2
+                            )
+                        end)
+                    end
+                end
+
+                ghost.Parent = ghostModel
+                TweenService:Create(
+                    ghost,
+                    TweenInfo.new(fadeTime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                    {Transparency = 1}
+                ):Play()
+            end
+        end
+    end
+
+    if created == 0 then
+        ghostModel:Destroy()
+        return
+    end
+    Debris:AddItem(ghostModel, fadeTime + 0.08)
+end
+
+table.insert(connections, RunService.Heartbeat:Connect(function()
+    if not xcSessionActive() then
+        clearXCMotionTrail()
+        return
+    end
+
+    if not XCConfig.motionTrailEnabled then
+        if XCMotionState.Trail then clearXCMotionTrail() end
+        return
+    end
+
+    local character = player and player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+    if not character or not humanoid or humanoid.Health <= 0 or not root then
+        if XCMotionState.Trail then clearXCMotionTrail() end
+        return
+    end
+
+    ensureXCMotionTrail(character, root)
+
+    if not XCConfig.motionGhostEnabled then return end
+    local velocity = root.AssemblyLinearVelocity
+    local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
+    if horizontalSpeed < 3 then return end
+
+    local now = os.clock()
+    local interval = math.clamp(tonumber(XCConfig.motionGhostInterval) or 0.12, 0.06, 0.5)
+    if now - XCMotionState.LastGhost < interval then return end
+
+    local currentPosition = root.Position
+    local lastPosition = XCMotionState.LastGhostPosition
+    if lastPosition and (currentPosition - lastPosition).Magnitude < 0.65 then return end
+
+    XCMotionState.LastGhost = now
+    XCMotionState.LastGhostPosition = currentPosition
+    spawnXCMotionGhost(character)
+end))
+
+table.insert(connections, player.CharacterRemoving:Connect(function()
+    clearXCMotionTrail()
+end))
+
 -- ==========================================
 -- XC WORLD WEATHER + CAMERA DIRECTOR
 -- Inspired by the useful visual/camera ideas shown in the GameSense review.
@@ -6566,7 +6819,7 @@ XCFeatureState = {
         "watermarkEnabled", "spectatorListEnabled", "nametagsEnabled", "boxEspEnabled",
         "cornerBoxEnabled", "healthBarEnabled", "headDotEnabled", "tracersEnabled",
         "grenadeEspEnabled", "grenadeDangerZonesEnabled", "soundPositionEspEnabled", "weaponEspEnabled",
-        "jumpCircleEnabled", "hitmarkerEnabled", "chamsEnabled", "skeletonEspEnabled",
+        "jumpCircleEnabled", "motionTrailEnabled", "hitmarkerEnabled", "chamsEnabled", "skeletonEspEnabled",
         "showFovCircle", "showSilentFovCircle",
     },
 }
@@ -12857,8 +13110,8 @@ function buildXCUI()
     end
 
     local tabs = {
-        {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"World", "world"},
-        {"Misc", "misc"}, {"Skins", "skins"}, {"Players", "players"},
+        {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"Players", "players"},
+        {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"},
         {"Settings", "misc"}, {"Configs", "configs"},
     }
     local function switchPage(name)
@@ -12921,98 +13174,100 @@ function buildXCUI()
         return values
     end
 
-    local L, R = columns("Rage", "Aim assistance", "Combat mechanics")
-    section(L, "Aimbot")
-    toggle(L, "Tracking", "aimbotEnabled")
-    addSlider(L, "Aim FOV", "aimFov", 10, 360, 1, "°")
-    addSlider(L, "Aim speed", "aimbotSpeed", 1, 100, 1, "%")
-    addSlider(L, "Smoothness", "aimbotSmoothness", 0.01, 1, 0.01, "")
-    toggle(L, "Visible check", "visibleCheck")
+    local L, R = columns("Rage", "Rage & silent", "Aim & weapon")
+    section(L, "Ragebot")
+    toggle(L, "Ragebot", "rageBotEnabled")
+    addSlider(L, "Rage FOV", "rageFov", 30, 360, 1, "°")
+    addChoice(L, "Target priority", "rageTargetMode", {"Distance", "Health", "FOV", "Priority"})
+    toggle(L, "Rage auto fire", "rageAutoFire")
 
     section(L, "Silent aim")
     toggle(L, "Silent aim", "silentAimEnabled")
     addSlider(L, "Silent FOV", "silentAimFov", 10, 360, 1, "px")
     addSlider(L, "Hit chance", "silentAimHitChance", 1, 100, 1, "%")
-    toggle(L, "Team check", "silentAimTeamCheck")
-    toggle(L, "Visible check", "silentAimVisibleCheck")
     toggle(L, "Aim at head", "silentAimAimHead")
     toggle(L, "Multipoint", "multipointEnabled")
     addSlider(L, "Multipoint scale", "multipointScale", 0.10, 0.95, 0.05, "x")
     toggle(L, "Perfect silent", "pSilentEnabled")
+    toggle(L, "Team check", "silentAimTeamCheck")
+    toggle(L, "Visible check", "silentAimVisibleCheck")
     toggle(L, "Auto wall", "silentAimAutoWallEnabled")
     toggle(L, "Wallbang", "wallbangEnabled")
     toggle(L, "Extreme wallbang", "extremeWallbangEnabled")
 
-    section(L, "Triggerbot")
-    toggle(L, "Triggerbot", "triggerbotEnabled")
-    addChoice(L, "Trigger mode", "triggerbotMode", {"Crosshair", "Trigger FOV", "Silent FOV"})
-    addSlider(L, "Trigger delay", "triggerbotDelay", 0.01, 0.5, 0.005, "s")
-    addSlider(L, "Trigger FOV", "triggerbotFov", 10, 360, 1, "px")
-    toggle(L, "Scoped only", "triggerbotScopedOnly")
-    toggle(L, "Head only", "triggerbotHeadOnly")
-    toggle(L, "Minimum damage", "minimumDamageEnabled")
-    addSlider(L, "Visible min damage", "minimumDamage", 1, 100, 1, " HP")
-    addSlider(L, "Wall min damage", "minimumDamageWall", 1, 100, 1, " HP")
+    section(R, "Aimbot")
+    toggle(R, "Tracking", "aimbotEnabled")
+    addSlider(R, "Aim FOV", "aimFov", 10, 360, 1, "°")
+    addSlider(R, "Aim speed", "aimbotSpeed", 1, 100, 1, "%")
+    addSlider(R, "Smoothness", "aimbotSmoothness", 0.01, 1, 0.01, "")
+    toggle(R, "Visible check", "visibleCheck")
 
-    section(R, "Weapon")
-    toggle(R, "Recoil control", "rcsEnabled")
+    section(R, "Triggerbot")
+    toggle(R, "Triggerbot", "triggerbotEnabled")
+    addChoice(R, "Trigger mode", "triggerbotMode", {"Crosshair", "Trigger FOV", "Silent FOV"})
+    addSlider(R, "Trigger FOV", "triggerbotFov", 10, 360, 1, "px")
+    addSlider(R, "Trigger delay", "triggerbotDelay", 0.01, 0.5, 0.005, "s")
+    toggle(R, "Scoped only", "triggerbotScopedOnly")
+    toggle(R, "Head only", "triggerbotHeadOnly")
+    toggle(R, "Minimum damage", "minimumDamageEnabled")
+    addSlider(R, "Visible min damage", "minimumDamage", 1, 100, 1, " HP")
+    addSlider(R, "Wall min damage", "minimumDamageWall", 1, 100, 1, " HP")
+
+    section(R, "Weapon assistance")
     toggle(R, "No recoil", "noRecoilEnabled")
     toggle(R, "No spread", "noSpreadEnabled")
-    toggle(R, "Fire rate", "fireRateEnabled")
-    addSlider(R, "Fire interval", "fireRate", 0.01, 0.2, 0.01, "s")
+    toggle(R, "Recoil control", "rcsEnabled")
     addSlider(R, "RCS strength", "rcsStrength", 10, 100, 1, "%")
     addSlider(R, "RCS pitch", "rcsPitchFactor", 0.1, 2, 0.1, "x")
     addSlider(R, "RCS yaw", "rcsYawFactor", 0.1, 2, 0.1, "x")
-    section(R, "Ragebot")
-    toggle(R, "Ragebot", "rageBotEnabled")
-    addSlider(R, "Rage FOV", "rageFov", 30, 360, 1, "°")
-    addChoice(R, "Target priority", "rageTargetMode", {"Distance", "Health", "FOV", "Priority"})
-    toggle(R, "Rage auto fire", "rageAutoFire")
+    toggle(R, "Fire rate", "fireRateEnabled")
+    addSlider(R, "Fire interval", "fireRate", 0.01, 0.2, 0.01, "s")
 
     task.wait()
-    L, R = columns("AntiAim", "Anti-aim", "Movement")
-    section(L, "Anti-aim")
-    toggle(L, "Anti-aim", "antiAimEnabled")
-    addChoice(L, "Anti-aim mode", "antiAimMode", {
+    L, R = columns("AntiAim", "Movement", "Anti-aim & camera")
+    section(L, "Bunny hop")
+    toggle(L, "Bhop engine", "bunnyHopEnabled")
+    addChoice(L, "Bhop mode", "bhopMode", {"Hold", "Automatic"})
+    toggle(L, "Moving only", "bhopMovingOnly")
+    toggle(L, "Pause with menu", "bhopPauseWithMenu")
+    addSlider(L, "Bhop power", "bhopJumpPower", 30, 100, 1, "")
+    addSlider(L, "Bhop speed", "bhopSpeedBoost", 1, 3, 0.1, "x")
+    addSlider(L, "Ground delay", "bhopGroundDelay", 0, 0.25, 0.01, "s")
+    addSlider(L, "Acceleration", "bhopAcceleration", 2, 30, 1, "")
+    toggle(L, "Air strafe", "bhopAirStrafe")
+    toggle(L, "Strong auto strafe", "bhopStrongAutoStrafe")
+    addSlider(L, "Strafe strength", "bhopStrafeStrength", 1, 5, 0.1, "x")
+
+    section(L, "Movement")
+    toggle(L, "Speed boost", "speedEnabled")
+    addSlider(L, "Walk multiplier", "walkMultiplier", 1, 5, 0.1, "x")
+    toggle(L, "Slide", "slideEnabled")
+    addSlider(L, "Slide boost", "slideSpeedBoost", 1.2, 3, 0.1, "x")
+    toggle(L, "Flight", "flightEnabled")
+    addSlider(L, "Flight speed", "flightSpeed", 10, 150, 1, "")
+    toggle(L, "No fall damage", "noFallDamageEnabled")
+
+    section(R, "Anti-aim")
+    toggle(R, "Anti-aim", "antiAimEnabled")
+    addChoice(R, "Anti-aim mode", "antiAimMode", {
         "Static", "Backwards", "Jitter", "Spin", "Random",
         "Gamesense Center Jitter", "Gamesense 3-Way", "Gamesense Sway",
         "NeverLose Adaptive", "NeverLose Defensive",
         "NixWare Sideways", "NixWare Spin Jitter",
         "Memesense Legit", "Memesense Low Delta"
     })
-    addSlider(L, "Spin speed", "spinSpeed", 10, 150, 1, "")
-    addSlider(L, "Base yaw", "antiAimYaw", -180, 180, 1, "°")
-    addSlider(L, "Jitter range", "antiAimJitter", 0, 180, 1, "°")
-    addSlider(L, "Switch interval", "antiAimInterval", 0.04, 0.5, 0.01, "s")
-    section(L, "Third person")
-    toggle(L, "Third person", "thirdPersonEnabled")
-    addSlider(L, "Third person distance", "thirdPersonDistance", 5, 25, 1, "")
-    addSlider(L, "Third person height", "thirdPersonHeight", -3, 6, 0.5, "")
-    section(R, "Bunny hop")
-    toggle(R, "Bhop engine", "bunnyHopEnabled")
-    addChoice(R, "Bhop mode", "bhopMode", {"Hold", "Automatic"})
-    toggle(R, "Moving only", "bhopMovingOnly")
-    toggle(R, "Pause with menu", "bhopPauseWithMenu")
-    addSlider(R, "Bhop power", "bhopJumpPower", 30, 100, 1, "")
-    addSlider(R, "Bhop speed", "bhopSpeedBoost", 1, 3, 0.1, "x")
-    addSlider(R, "Ground delay", "bhopGroundDelay", 0, 0.25, 0.01, "s")
-    addSlider(R, "Acceleration", "bhopAcceleration", 2, 30, 1, "")
-    toggle(R, "Air strafe", "bhopAirStrafe")
-    toggle(R, "Strong auto strafe", "bhopStrongAutoStrafe")
-    addSlider(R, "Strafe strength", "bhopStrafeStrength", 1, 5, 0.1, "x")
-    section(R, "Movement")
-    toggle(R, "Slide", "slideEnabled")
-    toggle(R, "Flight", "flightEnabled")
-    toggle(R, "Speed boost", "speedEnabled")
-    toggle(R, "No fall damage", "noFallDamageEnabled")
-    addSlider(R, "Slide boost", "slideSpeedBoost", 1.2, 3, 0.1, "x")
-    addSlider(R, "Flight speed", "flightSpeed", 10, 150, 1, "")
-    addSlider(R, "Walk multiplier", "walkMultiplier", 1, 5, 0.1, "x")
+    addSlider(R, "Base yaw", "antiAimYaw", -180, 180, 1, "°")
+    addSlider(R, "Jitter range", "antiAimJitter", 0, 180, 1, "°")
+    addSlider(R, "Spin speed", "spinSpeed", 10, 150, 1, "")
+    addSlider(R, "Switch interval", "antiAimInterval", 0.04, 0.5, 0.01, "s")
+
+    section(R, "Third person")
+    toggle(R, "Third person", "thirdPersonEnabled")
+    addSlider(R, "Third person distance", "thirdPersonDistance", 5, 25, 1, "")
+    addSlider(R, "Third person height", "thirdPersonHeight", -3, 6, 0.5, "")
 
     task.wait()
-    L, R = columns("Visuals", "Player ESP", "Indicators")
-    section(L, "Chams")
-    toggle(L, "Chams", "chamsEnabled")
+    L, R = columns("Visuals", "Player ESP", "Indicators & feedback")
     section(L, "Box ESP")
     toggle(L, "Box overlay", "boxEspEnabled")
     toggle(L, "Corner box", "cornerBoxEnabled")
@@ -13022,12 +13277,14 @@ function buildXCUI()
     addSlider(L, "Box stability", "espBoxSmoothing", 0, 0.9, 0.05, "")
     addSlider(L, "ESP scale", "espPerspectiveScale", 0.65, 1.5, 0.05, "x")
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
-    section(L, "Weapon ESP")
-    toggle(L, "Weapon image", "weaponEspEnabled")
+    section(L, "Chams")
+    toggle(L, "Chams", "chamsEnabled")
     section(L, "Skeleton")
     toggle(L, "Skeleton ESP", "skeletonEspEnabled")
     toggle(L, "Distance fade", "skeletonDistanceFade")
     addSlider(L, "Skeleton thickness", "skeletonThickness", 1, 4, 0.5, "px")
+    section(L, "Weapon ESP")
+    toggle(L, "Weapon image", "weaponEspEnabled")
     section(L, "Nametags")
     toggle(L, "Nametags", "nametagsEnabled")
     addSlider(L, "Text size", "espTextSize", 8, 20, 1, "")
@@ -13076,6 +13333,17 @@ function buildXCUI()
     toggle(R, "Jump circle", "jumpCircleEnabled")
     addSlider(R, "Jump radius", "jumpCircleRadius", 1.5, 8, 0.5, "")
     addChoice(R, "Jump style", "jumpCircleStyle", {"GradientWave", "ChromaPulse", "StaticNeon"})
+
+    section(R, "Motion trail")
+    toggle(R, "Movement ribbon", "motionTrailEnabled")
+    addColorPicker(R, "Trail color", "motionTrailColor")
+    addSlider(R, "Trail lifetime", "motionTrailLifetime", 0.15, 3, 0.05, "s")
+    addSlider(R, "Trail width", "motionTrailWidth", 0.02, 0.55, 0.01, "")
+    toggle(R, "Ghost afterimages", "motionGhostEnabled")
+    addColorPicker(R, "Ghost color", "motionGhostColor")
+    addSlider(R, "Ghost interval", "motionGhostInterval", 0.06, 0.5, 0.01, "s")
+    addSlider(R, "Ghost fade", "motionGhostFade", 0.12, 1.5, 0.03, "s")
+    addSlider(R, "Ghost opacity", "motionGhostTransparency", 0.25, 0.92, 0.01, "")
 
     task.wait()
     L, R = columns("World", "Environment", "Scope & camera")
@@ -13202,14 +13470,14 @@ function buildXCUI()
     section(L, "Session")
     toggle(L, "Anti AFK", "antiAfkEnabled")
     toggle(L, "Spectator list", "spectatorListEnabled")
+    section(L, "Privacy")
+    toggle(L, "Streamer mode", "streamerModeEnabled")
+    addChoice(L, "Streamer bind", "streamerKey", {"F6", "F7", "F8", "F9", "F10"})
     section(L, "Animations")
     toggle(L, "Animations", "animationsEnabled")
     addSlider(L, "Animation speed", "animationSpeed", 0.1, 3, 0.1, "x")
     toggle(L, "Animation loop", "animationLoop")
     addButton(L, "RESTART ANIMATION", playXCAnimation)
-    section(L, "Privacy")
-    toggle(L, "Streamer mode", "streamerModeEnabled")
-    addChoice(L, "Streamer bind", "streamerKey", {"F6", "F7", "F8", "F9", "F10"})
     section(R, "Viewmodel")
     toggle(R, "Custom hands", "customHandsEnabled")
     addSlider(R, "Hands X", "customHandsX", -2, 2, 0.1, "")
