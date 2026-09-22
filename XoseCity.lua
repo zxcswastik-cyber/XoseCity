@@ -876,8 +876,8 @@ local function XCEmitConsoleUpdate()
         if type(listener) ~= "function" then
             dead[#dead + 1] = index
         else
-            local ok = pcall(listener)
-            if not ok then dead[#dead + 1] = index end
+            local ok, keep = pcall(listener)
+            if not ok or keep == false then dead[#dead + 1] = index end
         end
     end
     for index = #dead, 1, -1 do table.remove(XCConsoleShared.Listeners, dead[index]) end
@@ -1746,8 +1746,9 @@ table.insert(connections, fireEndConn)
 -- ==========================================
 function isAlly(plr)
     if not plr or plr == player then return true end
-    if not XCConfig.chamsTeamCheck then return false end
-    
+
+    -- Team identity must never depend on a visual-module toggle. Individual
+    -- modules decide for themselves whether they want to filter teammates.
     if plr.Team and player.Team then
         return plr.Team == player.Team
     end
@@ -3842,9 +3843,30 @@ function scanAndMorphKnives(root)
     end
 end
 
+function restoreXCGloves()
+    local cache = skinData.GloveCache
+    local originals = skinData.GloveOriginals
+    if type(originals) == "table" then
+        for glove, savedList in pairs(originals) do
+            if glove and glove.Parent and type(savedList) == "table" then
+                pcall(function()
+                    for _, child in ipairs(glove:GetChildren()) do
+                        if child:IsA("SurfaceAppearance") then child:Destroy() end
+                    end
+                    for _, saved in ipairs(savedList) do
+                        if saved and saved:IsA("SurfaceAppearance") then saved:Clone().Parent = glove end
+                    end
+                end)
+            end
+            originals[glove] = nil
+        end
+    end
+    if cache then cache.Signature = nil end
+end
+
 function applyXCGloves()
     if not XCConfig.skinChangerEnabled or XCConfig.selectedGloveModel == "Default" then
-        if skinData.GloveCache then skinData.GloveCache.Signature = nil end
+        restoreXCGloves()
         return
     end
     refreshXCSkinData()
@@ -3854,6 +3876,9 @@ function applyXCGloves()
     if not cam then return end
 
     local cache = skinData.GloveCache
+    if not skinData.GloveOriginals then
+        skinData.GloveOriginals = setmetatable({}, {__mode = "k"})
+    end
     if not cache then
         cache = {Camera = nil, Arms = nil, Left = nil, Right = nil, Signature = nil}
         skinData.GloveCache = cache
@@ -3936,6 +3961,13 @@ function applyXCGloves()
     end
 
     for _, glove in ipairs({leftGlove, rightGlove}) do
+        if not skinData.GloveOriginals[glove] then
+            local saved = {}
+            for _, child in ipairs(glove:GetChildren()) do
+                if child:IsA("SurfaceAppearance") then saved[#saved + 1] = child:Clone() end
+            end
+            skinData.GloveOriginals[glove] = saved
+        end
         for _, old in ipairs(glove:GetChildren()) do
             if old:IsA("SurfaceAppearance") then old:Destroy() end
         end
@@ -3959,6 +3991,8 @@ task.spawn(function()
             end
             if XCConfig.skinChangerEnabled and XCConfig.selectedGloveModel ~= "Default" then
                 applyXCGloves()
+            elseif skinData.GloveOriginals and next(skinData.GloveOriginals) ~= nil then
+                restoreXCGloves()
             end
         end)
     end
@@ -3978,6 +4012,7 @@ function XCInitStage1()
 -- ==========================================
 
 local noFallLastCharacter = nil
+local noFallSavedStates = setmetatable({}, {__mode = "k"})
 local animationTrack = nil
 local animationObject = nil
 local spectatorGui = nil
@@ -3989,14 +4024,32 @@ local handsLastPivot = nil
 local handsNativeHooked = false
 
 function setNoFallDamage(enabled)
-    if not enabled then return end
     local char = player and player.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
-    pcall(function()
-        hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
-        hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-    end)
+
+    if enabled then
+        if not noFallSavedStates[hum] then
+            noFallSavedStates[hum] = {
+                FallingDown = hum:GetStateEnabled(Enum.HumanoidStateType.FallingDown),
+                Ragdoll = hum:GetStateEnabled(Enum.HumanoidStateType.Ragdoll),
+            }
+        end
+        pcall(function()
+            hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+            hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+        end)
+    else
+        local saved = noFallSavedStates[hum]
+        if saved then
+            pcall(function()
+                hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, saved.FallingDown ~= false)
+                hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, saved.Ragdoll ~= false)
+            end)
+            noFallSavedStates[hum] = nil
+        end
+        noFallLastCharacter = nil
+    end
 end
 
 function stopXCAnimation()
@@ -4187,6 +4240,9 @@ local spectatorUpdateAccumulator = 0
 local animationUpdateAccumulator = 0
 local animationRetryAccumulator = 0
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    if not XCConfig.noFallDamageEnabled and noFallLastCharacter ~= nil then
+        setNoFallDamage(false)
+    end
     if not XCConfig.noFallDamageEnabled
         and not XCConfig.spectatorListEnabled
         and not XCConfig.customHandsEnabled
@@ -5605,6 +5661,9 @@ function restoreThirdPerson()
         camera.CameraType = Enum.CameraType.Custom
         if hum then
             camera.CameraSubject = hum
+            if thirdPersonSaved and typeof(thirdPersonSaved.cameraOffset) == "Vector3" then
+                hum.CameraOffset = thirdPersonSaved.cameraOffset
+            end
         end
     end
 
@@ -5634,7 +5693,8 @@ function applyThirdPerson()
         thirdPersonSaved = {
             cameraMode = player.CameraMode,
             minZoom = camera.CameraMinZoomDistance,
-            maxZoom = camera.CameraMaxZoomDistance
+            maxZoom = camera.CameraMaxZoomDistance,
+            cameraOffset = hum.CameraOffset,
         }
         isThirdPersonActive = true
     end
@@ -5657,6 +5717,7 @@ function applyThirdPerson()
     camera.CameraMaxZoomDistance = distance
     camera.CameraType = Enum.CameraType.Custom
     camera.CameraSubject = hum
+    hum.CameraOffset = Vector3.new(0, math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6), 0)
 end
 
 function setThirdPersonEnabled(enabled)
@@ -5667,6 +5728,7 @@ function setThirdPersonEnabled(enabled)
     else
         isThirdPersonActive = false
         thirdPersonSaved = nil
+        applyThirdPerson()
     end
 end
 
@@ -7483,7 +7545,13 @@ function cleanup()
     end
     savedAutoRotate = nil
     hitmarkerSerial += 1
+    for healthKey, pending in pairs(hitmarkerPendingHits) do
+        pcall(XCClearPendingLocalHit, healthKey, pending)
+    end
     hitmarkerPendingHits = {}
+    pcall(function() setNoFallDamage(false) end)
+    pcall(restoreXCGloves)
+    pcall(function() updateXCAntiFlashState(false) end)
     restoreXCCharacterInputHook()
 
     for _, c in pairs(connections) do 
@@ -8513,7 +8581,7 @@ visRayParams.FilterType = Enum.RaycastFilterType.Exclude
 visRayParams.IgnoreWater = true
 
 function isTargetVisible(originPos, targetPart, targetChar)
-    if not XCConfig.visibleCheck or XCConfig.wallbangEnabled then return true end
+    if not XCConfig.visibleCheck then return true end
     local myChar = player.Character
     visRayParams.FilterDescendantsInstances = {myChar, camera}
     local dir = targetPart.Position - originPos
@@ -8576,7 +8644,8 @@ function getClosestTarget()
             local toTarget = (predPos - camPos).Unit
             local angle = math.acos(math.clamp(camLook:Dot(toTarget), -1, 1))
             
-            if priorityAllowsSticky and angle <= (maxAngleRad * 1.15) then
+            if priorityAllowsSticky and angle <= (maxAngleRad * 1.15)
+                and isTargetVisible(camPos, cPart, cChar) then
                 currentAimTarget.AimPosition = predPos
                 return currentAimTarget
             end
@@ -8599,7 +8668,7 @@ function getClosestTarget()
                     local toTarget = (aimPos - camPos).Unit
                     local angle = math.acos(math.clamp(camLook:Dot(toTarget), -1, 1))
 
-                    if angle <= maxAngleRad then
+                    if angle <= maxAngleRad and isTargetVisible(camPos, hitPart, char) then
                         local dist = (aimPos - camPos).Magnitude
                         local score = (angle * 0.7) + ((dist / 1000) * 0.3)
                         local priorityName = tostring(XCConfig.priorityPlayerName or "None")
@@ -10050,21 +10119,17 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     end
 
     if XCConfig.silentAimEnabled then
-        setXCSilentAimRequested(true)
-        -- Cache only the current target for legacy camera/mouse hooks.
-        -- The native bullet ray hook resolves again at fire time and performs
-        -- Hit Chance exactly once for each real shot.
-        silentAimResolved = getSilentAimTarget()
+        -- Perfect Silent is intentionally native-only. If the real Bullet
+        -- ray hook is unavailable, do not fall back to broad camera/workspace
+        -- interception that could redirect unrelated raycasts.
+        local silentRequested = (not XCConfig.pSilentEnabled) or xcNativeSilentHooked
+        setXCSilentAimRequested(silentRequested)
+        silentAimResolved = silentRequested and getSilentAimTarget() or nil
     else
         setXCSilentAimRequested(false)
         silentAimResolved = nil
         xcSilentShotContextV31 = nil
         if sharedXCEnv then sharedXCEnv.XCSilentShotContextV31 = nil end
-    end
-
-    if (XCConfig.rcsEnabled or XCConfig.noRecoilEnabled) and noRecoil.isShooting then
-        local comp = (XCConfig.noRecoilEnabled and (XCConfig.recoilStrength * 0.0035) or 0) + (XCConfig.rcsEnabled and ((XCConfig.rcsStrength / 100) * 0.004 * XCConfig.rcsPitchFactor) or 0)
-        camera.CFrame = camera.CFrame * CFrame.Angles(-comp, 0, 0)
     end
 
     -- RAGEBOT & AIMBOT EXECUTION
@@ -10225,14 +10290,29 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     else
         Lighting.FogEnd = defaultLighting.FogEnd
     end
-    if XCConfig.antiFlashEnabled then
-        pcall(function()
-            for _, v in pairs(Lighting:GetChildren()) do
-                if v:IsA("ColorCorrectionEffect") and v.Saturation < -0.5 then v.Enabled = false end
-            end
-        end)
-    end
+    updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
+
+-- Stateful anti-flash: preserve the game's original Enabled values instead
+-- of permanently disabling ColorCorrectionEffect objects.
+local xcAntiFlashSaved = setmetatable({}, {__mode = "k"})
+function updateXCAntiFlashState(enabled)
+    if enabled then
+        for _, effect in ipairs(Lighting:GetChildren()) do
+            if effect:IsA("ColorCorrectionEffect") and effect.Saturation < -0.5 then
+                if xcAntiFlashSaved[effect] == nil then xcAntiFlashSaved[effect] = effect.Enabled end
+                if effect.Enabled then effect.Enabled = false end
+            end
+        end
+    else
+        for effect, originalEnabled in pairs(xcAntiFlashSaved) do
+            if effect and effect.Parent then
+                pcall(function() effect.Enabled = originalEnabled == true end)
+            end
+            xcAntiFlashSaved[effect] = nil
+        end
+    end
+end
 
 -- ==========================================
 -- ANTI-AIM ROTATION SHLAK
@@ -10268,8 +10348,9 @@ end
 local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart)
     local baseDegrees = tonumber(XCConfig.antiAimYaw) or 180
     local rangeDegrees = math.clamp(tonumber(XCConfig.antiAimJitter) or 60, 0, 180)
-    local patternRate = math.max(10, tonumber(XCConfig.spinSpeed) or 50)
-    local interval = math.max(0.04, tonumber(XCConfig.antiAimInterval) or 0.15)
+    local patternRate = math.clamp(tonumber(XCConfig.spinSpeed) or 50, 10, 150)
+    local rateScale = patternRate / 50
+    local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
     local side = step % 2 == 0 and -1 or 1
     local baseYaw = originalYaw + math.rad(baseDegrees)
 
@@ -10459,7 +10540,8 @@ function setupXCCharacterInputHook()
                         xcCharacterInputHook.RandomYaw = nil
                     end
                     local elapsed = math.max(0, now - xcCharacterInputHook.AntiStarted)
-                    local interval = math.max(0.04, tonumber(XCConfig.antiAimInterval) or 0.15)
+                    local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
+                    local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
                     local step = math.floor(elapsed / interval)
                     local originalYaw = tonumber(result.LookYaw) or 0
                     local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
@@ -10536,7 +10618,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local now = os.clock()
     XCFeatureState.antiAimStarted = XCFeatureState.antiAimStarted or now
     local elapsed = now - XCFeatureState.antiAimStarted
-    local interval = math.max(0.04, tonumber(XCConfig.antiAimInterval) or 0.15)
+    local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
+    local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
     local step = math.floor(elapsed / interval)
     local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
     local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp)
@@ -13144,7 +13227,7 @@ function buildXCUI()
     local function specialToggle(key, value)
         if value then
             if key == "fireRateEnabled" then lazyFeatureRequests.fireRate = true end
-            if key == "noRecoilEnabled" or key == "noSpreadEnabled" then lazyFeatureRequests.recoilSpread = true end
+            if key == "noRecoilEnabled" or key == "noSpreadEnabled" or key == "rcsEnabled" then lazyFeatureRequests.recoilSpread = true end
             if key == "silentAimEnabled" then lazyFeatureRequests.silentFallback = true end
         end
         if key == "slideEnabled" then updateMobileSlideVisibility()
@@ -13160,8 +13243,14 @@ function buildXCUI()
             else
                 restoreXCKnifeModel()
                 restoreXCSelectedWeaponSkin()
+                restoreXCGloves()
             end
-        elseif key == "gloveChangerEnabled" and value then applyXCGloves()
+        elseif key == "gloveChangerEnabled" then
+            if value then applyXCGloves() else restoreXCGloves() end
+        elseif key == "noFallDamageEnabled" then
+            setNoFallDamage(value)
+        elseif key == "thirdPersonDistance" or key == "thirdPersonHeight" then
+            refreshThirdPerson()
         elseif key == "nightModeEnabled" then
             if value then
                 applyNightPreset(XCConfig.nightPreset)
@@ -13547,8 +13636,8 @@ function buildXCUI()
 
     section(R, "Third person")
     toggle(R, "Third person", "thirdPersonEnabled")
-    addSlider(R, "Third person distance", "thirdPersonDistance", 5, 25, 1, "")
-    addSlider(R, "Third person height", "thirdPersonHeight", -3, 6, 0.5, "")
+    addSlider(R, "Third person distance", "thirdPersonDistance", 5, 25, 1, "", refreshThirdPerson)
+    addSlider(R, "Third person height", "thirdPersonHeight", -3, 6, 0.5, "", refreshThirdPerson)
 
     task.wait()
     L, R = columns("Visuals", "Player ESP", "Indicators & feedback")
@@ -13998,10 +14087,12 @@ function buildXCUI()
         local ok = pcall(function()
             setXCStreamerMode(false)
             assert(type(readfile) == "function", "File API unavailable")
-            local data = HttpService:JSONDecode(readfile(configPath()))
+            local decoded = HttpService:JSONDecode(readfile(configPath()))
+            local data = type(decoded) == "table" and type(decoded.settings) == "table" and decoded.settings or decoded
+            assert(type(data) == "table", "Invalid config format")
             for key, value in pairs(data) do if XCConfig[key] ~= nil then XCConfig[key] = value end end
             lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
-            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true
+            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true or XCConfig.rcsEnabled == true
             lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
             refreshAll()
             updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
@@ -14137,7 +14228,7 @@ function buildXCUI()
                 end
             end
             lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
-            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true
+            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true or XCConfig.rcsEnabled == true
             lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
             refreshAll()
             updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
@@ -14308,6 +14399,7 @@ function buildXCUI()
                 clearStroke.Parent = clear
 
                 local function refreshConsoleCard()
+                    if not card.Parent or not scroller.Parent then return false end
                     for _, child in ipairs(scroller:GetChildren()) do
                         if child:IsA("TextLabel") and child ~= empty then child:Destroy() end
                     end
@@ -14341,6 +14433,7 @@ function buildXCUI()
                             scroller.CanvasPosition = Vector2.new(0, math.max(0, scroller.AbsoluteCanvasSize.Y - scroller.AbsoluteWindowSize.Y))
                         end
                     end)
+                    return true
                 end
 
                 searchBoxInner:GetPropertyChangedSignal("Text"):Connect(refreshConsoleCard)
@@ -14475,6 +14568,10 @@ local thirdPersonMetaInstalled = false
 
 function installThirdPersonProtection()
     if thirdPersonMetaInstalled then return end
+    if sharedXCEnv and sharedXCEnv.XCThirdPersonMetaV54 then
+        thirdPersonMetaInstalled = true
+        return
+    end
     if type(getrawmetatable) ~= "function" or type(setreadonly) ~= "function" then return end
     if type(newcclosure) ~= "function" then return end
 
@@ -14507,6 +14604,7 @@ function installThirdPersonProtection()
         end)
         setreadonly(mt, true)
         thirdPersonMetaInstalled = true
+        if sharedXCEnv then sharedXCEnv.XCThirdPersonMetaV54 = true end
     end)
 end
 
@@ -14799,6 +14897,10 @@ end
 
 function installXCRecoilSpread()
     if xcRecoilSpreadInstalled then return true end
+    if sharedXCEnv and sharedXCEnv.XCRecoilSpreadInstalledV54 then
+        xcRecoilSpreadInstalled = true
+        return true
+    end
     if type(getgc) ~= "function" or type(hookfunction) ~= "function" then
         return false
     end
@@ -14865,10 +14967,22 @@ function installXCRecoilSpread()
                     pcall(function()
                         local oldCalc
                         oldCalc = hookfunction(obj, function(...)
+                            local results = table.pack(oldCalc(...))
+                            local result = results[1]
                             if XCConfig.noRecoilEnabled then
-                                return UDim2.new()
+                                results[1] = UDim2.new()
+                                return table.unpack(results, 1, results.n)
                             end
-                            return oldCalc(...)
+                            if XCConfig.rcsEnabled and typeof(result) == "UDim2" then
+                                local strength = math.clamp((tonumber(XCConfig.rcsStrength) or 100) / 100, 0, 1)
+                                local yawKeep = 1 - math.clamp(strength * (tonumber(XCConfig.rcsYawFactor) or 1), 0, 1)
+                                local pitchKeep = 1 - math.clamp(strength * (tonumber(XCConfig.rcsPitchFactor) or 1), 0, 1)
+                                results[1] = UDim2.new(
+                                    result.X.Scale * yawKeep, result.X.Offset * yawKeep,
+                                    result.Y.Scale * pitchKeep, result.Y.Offset * pitchKeep
+                                )
+                            end
+                            return table.unpack(results, 1, results.n)
                         end)
                         hookedSomething = true
                     end)
@@ -14879,6 +14993,7 @@ function installXCRecoilSpread()
 
     if hookedSomething then
         xcRecoilSpreadInstalled = true
+        if sharedXCEnv then sharedXCEnv.XCRecoilSpreadInstalledV54 = true end
         return true
     end
     return false
@@ -14893,7 +15008,7 @@ task.spawn(function()
     local attempts = 0
     while xcSessionActive() and not xcRecoilSpreadInstalled and attempts < 20 do
         if lazyFeatureRequests.recoilSpread
-            and (XCConfig.noRecoilEnabled or XCConfig.noSpreadEnabled) then
+            and (XCConfig.noRecoilEnabled or XCConfig.noSpreadEnabled or XCConfig.rcsEnabled) then
             attempts += 1
             if installXCRecoilSpread() then break end
             task.wait(0.75)
@@ -15319,8 +15434,9 @@ function XCConfigSystem.Load(name)
     local ok,raw=pcall(readfile,path)
     if not ok then return false,"Read failed" end
     local data=cfgJSONDecode(raw)
-    if type(data)~="table" or type(data.settings)~="table" then return false,"Invalid config" end
-    cfgApply(data.settings)
+    if type(data)~="table" then return false,"Invalid config" end
+    local settings=type(data.settings)=="table" and data.settings or data
+    cfgApply(settings)
     XCConfigSystem.ActiveName=name
     return true,"Loaded"
 end
@@ -15361,8 +15477,9 @@ end
 
 function XCConfigSystem.Import(raw,name)
     local data=cfgJSONDecode(raw)
-    if type(data)~="table" or type(data.settings)~="table" then return false,"Invalid import" end
-    cfgApply(data.settings)
+    if type(data)~="table" then return false,"Invalid import" end
+    local settings=type(data.settings)=="table" and data.settings or data
+    cfgApply(settings)
     XCConfigSystem.ActiveName=cfgSafeName(name or data.name or "Imported")
     return true,"Imported"
 end
