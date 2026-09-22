@@ -8041,10 +8041,13 @@ function createXCGrenadeDanger(object)
         Center = nil,
         NextPhysics = 0,
         Segments = {},
+        InnerSegments = {},
+        Spokes = {},
+        Ticks = {},
     }
-    for index = 1, 24 do
+    for index = 1, 28 do
         local line = Instance.new("Frame", grenadeContainer)
-        line.Name = "Danger_" .. kind .. "_" .. index
+        line.Name = "DangerOuter_" .. kind .. "_" .. index
         line.AnchorPoint = Vector2.new(0.5, 0.5)
         line.BorderSizePixel = 0
         line.BackgroundColor3 = color
@@ -8052,36 +8055,78 @@ function createXCGrenadeDanger(object)
         line.ZIndex = 5
         data.Segments[index] = line
     end
+    for index = 1, 16 do
+        local line = Instance.new("Frame", grenadeContainer)
+        line.Name = "DangerInner_" .. kind .. "_" .. index
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.BorderSizePixel = 0
+        line.BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.22)
+        line.Visible = false
+        line.ZIndex = 4
+        data.InnerSegments[index] = line
+    end
+    for index = 1, 6 do
+        local line = Instance.new("Frame", grenadeContainer)
+        line.Name = "DangerSpoke_" .. kind .. "_" .. index
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.BorderSizePixel = 0
+        line.BackgroundColor3 = color
+        line.Visible = false
+        line.ZIndex = 3
+        data.Spokes[index] = line
+    end
+    for index = 1, 8 do
+        local line = Instance.new("Frame", grenadeContainer)
+        line.Name = "DangerTick_" .. kind .. "_" .. index
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        line.BorderSizePixel = 0
+        line.BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.35)
+        line.Visible = false
+        line.ZIndex = 6
+        data.Ticks[index] = line
+    end
 
     local label = Instance.new("TextLabel", grenadeContainer)
     label.Name = "DangerLabel_" .. kind
     label.AnchorPoint = Vector2.new(0.5, 1)
-    label.Size = UDim2.fromOffset(90, 20)
+    label.Size = UDim2.fromOffset(112, 22)
     label.BackgroundColor3 = Color3.fromRGB(8, 10, 12)
-    label.BackgroundTransparency = 0.12
+    label.BackgroundTransparency = 0.14
     label.BorderSizePixel = 0
-    label.Text = "! " .. kind
+    label.Text = "[ " .. kind .. " ]"
     label.TextColor3 = color
-    label.TextSize = 9.5
+    label.TextSize = 10
     label.Font = Enum.Font.GothamBold
     label.Visible = false
-    label.ZIndex = 6
-    Instance.new("UICorner", label).CornerRadius = UDim.new(0, 4)
+    label.ZIndex = 7
+    Instance.new("UICorner", label).CornerRadius = UDim.new(0, 5)
     local labelStroke = Instance.new("UIStroke", label)
     labelStroke.Color = color
     labelStroke.Thickness = 1
-    labelStroke.Transparency = 0.25
+    labelStroke.Transparency = 0.22
     local centerGlow = Instance.new("Frame", grenadeContainer)
     centerGlow.Name = "DangerCenterGlow_" .. kind
     centerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-    centerGlow.Size = UDim2.fromOffset(18, 18)
+    centerGlow.Size = UDim2.fromOffset(22, 22)
     centerGlow.BackgroundColor3 = color
-    centerGlow.BackgroundTransparency = 0.76
+    centerGlow.BackgroundTransparency = 0.82
     centerGlow.BorderSizePixel = 0
     centerGlow.Rotation = 45
     centerGlow.Visible = false
-    centerGlow.ZIndex = 4
-    Instance.new("UICorner", centerGlow).CornerRadius = UDim.new(0, 4)
+    centerGlow.ZIndex = 2
+    Instance.new("UICorner", centerGlow).CornerRadius = UDim.new(0, 5)
+    local pulseRing = Instance.new("Frame", grenadeContainer)
+    pulseRing.Name = "DangerPulse_" .. kind
+    pulseRing.AnchorPoint = Vector2.new(0.5, 0.5)
+    pulseRing.Size = UDim2.fromOffset(28, 28)
+    pulseRing.BackgroundTransparency = 1
+    pulseRing.Visible = false
+    pulseRing.ZIndex = 2
+    local pulseStroke = Instance.new("UIStroke", pulseRing)
+    pulseStroke.Color = color
+    pulseStroke.Thickness = 1.25
+    pulseStroke.Transparency = 0.55
+    Instance.new("UICorner", pulseRing).CornerRadius = UDim.new(1, 0)
     local centerDot = Instance.new("Frame", grenadeContainer)
     centerDot.Name = "DangerCenter_" .. kind
     centerDot.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -8090,29 +8135,37 @@ function createXCGrenadeDanger(object)
     centerDot.BorderSizePixel = 0
     centerDot.Rotation = 45
     centerDot.Visible = false
-    centerDot.ZIndex = 7
+    centerDot.ZIndex = 8
     Instance.new("UICorner", centerDot).CornerRadius = UDim.new(0, 2)
     data.Label = label
     data.LabelStroke = labelStroke
     data.CenterGlow = centerGlow
     data.CenterDot = centerDot
+    data.PulseRing = pulseRing
+    data.PulseStroke = pulseStroke
     grenadeDangerPool[object] = data
     return data
 end
 
 function destroyXCGrenadeDanger(data)
     if not data then return end
-    for _, line in ipairs(data.Segments or {}) do pcall(function() line:Destroy() end) end
+    for _, collection in ipairs({data.Segments or {}, data.InnerSegments or {}, data.Spokes or {}, data.Ticks or {}}) do
+        for _, line in ipairs(collection) do pcall(function() line:Destroy() end) end
+    end
     pcall(function() data.Label:Destroy() end)
     pcall(function() data.CenterGlow:Destroy() end)
     pcall(function() data.CenterDot:Destroy() end)
+    pcall(function() data.PulseRing:Destroy() end)
 end
 
 function hideXCGrenadeDanger(data)
-    for _, line in ipairs(data.Segments) do line.Visible = false end
+    for _, collection in ipairs({data.Segments or {}, data.InnerSegments or {}, data.Spokes or {}, data.Ticks or {}}) do
+        for _, line in ipairs(collection) do line.Visible = false end
+    end
     data.Label.Visible = false
     data.CenterGlow.Visible = false
     data.CenterDot.Visible = false
+    if data.PulseRing then data.PulseRing.Visible = false end
 end
 
 function computeXCZoneBounds(object, fallbackPart, fallbackRadius)
@@ -8218,41 +8271,96 @@ function renderXCGrenadeDangerZones()
                 continue
             end
 
-            local radius = (data.RenderRadius or data.Radius) * (0.985 + math.sin(now * 4) * 0.015)
+            local pulse = 0.985 + math.sin(now * 4) * 0.015
+            local radius = (data.RenderRadius or data.Radius) * pulse
+            local innerRadius = radius * 0.78
             local opacity = math.clamp(tonumber(XCConfig.grenadeDangerOpacity) or 0.82, 0.1, 1)
-            local allPoints = {}
+            local outerPoints = {}
+            local innerPoints = {}
             for index = 1, #data.Segments do
                 local angle = math.pi * 2 * ((index - 1) / #data.Segments)
                 local worldPoint = center + Vector3.new(math.cos(angle) * radius, 0.18, math.sin(angle) * radius)
                 local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
-                allPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
+                outerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
+            end
+            for index = 1, #data.InnerSegments do
+                local angle = math.pi * 2 * ((index - 1) / #data.InnerSegments)
+                local worldPoint = center + Vector3.new(math.cos(angle) * innerRadius, 0.16, math.sin(angle) * innerRadius)
+                local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
+                innerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
             end
             for index, line in ipairs(data.Segments) do
-                local a = allPoints[index]
-                local b = allPoints[index == #data.Segments and 1 or index + 1]
+                local a = outerPoints[index]
+                local b = outerPoints[index == #data.Segments and 1 or index + 1]
                 if a and b then
-                    local gap = index % 3 == 0 and 0.13 or 0.045
+                    local major = index % 4 == 0
+                    local gap = major and 0.15 or 0.05
                     setXCGrenadeLine(line, a:Lerp(b, gap), b:Lerp(a, gap), data.Color,
-                        index % 3 == 0 and 2.2 or 1.55,
-                        math.clamp(1 - opacity + (index % 3 == 0 and 0.08 or 0), 0, 0.9))
+                        major and 2.35 or 1.7,
+                        math.clamp(1 - opacity + (major and 0.04 or 0.12), 0, 0.92))
+                else
+                    line.Visible = false
+                end
+            end
+            for index, line in ipairs(data.InnerSegments or {}) do
+                local a = innerPoints[index]
+                local b = innerPoints[index == #data.InnerSegments and 1 or index + 1]
+                if a and b then
+                    setXCGrenadeLine(line, a:Lerp(b, 0.06), b:Lerp(a, 0.06), data.Color:Lerp(Color3.new(1, 1, 1), 0.22),
+                        1.1,
+                        math.clamp(1 - opacity + 0.30, 0.1, 0.95))
                 else
                     line.Visible = false
                 end
             end
             local centerScreen, centerVisible = camera:WorldToViewportPoint(center + Vector3.new(0, 0.35, 0))
+            local center2D = centerVisible and centerScreen.Z > 0 and Vector2.new(centerScreen.X, centerScreen.Y) or nil
+            for index, line in ipairs(data.Spokes or {}) do
+                local pointIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, #data.Spokes))) + 1
+                local point = innerPoints[pointIndex]
+                if point and center2D then
+                    setXCGrenadeLine(line, center2D, point, data.Color, 0.9,
+                        math.clamp(1 - opacity + 0.46, 0.15, 0.96))
+                else
+                    line.Visible = false
+                end
+            end
+            for index, line in ipairs(data.Ticks or {}) do
+                local pointIndex = math.floor((index - 1) * (#data.Segments / math.max(1, #data.Ticks))) + 1
+                local outer = outerPoints[pointIndex]
+                local inner = innerPoints[math.floor((index - 1) * (#data.InnerSegments / math.max(1, #data.Ticks))) + 1]
+                if outer and inner then
+                    local startPoint = inner:Lerp(outer, 0.72)
+                    local endPoint = inner:Lerp(outer, 0.96)
+                    setXCGrenadeLine(line, startPoint, endPoint, data.Color:Lerp(Color3.new(1, 1, 1), 0.35), 2.1,
+                        math.clamp(1 - opacity + 0.02, 0, 0.9))
+                else
+                    line.Visible = false
+                end
+            end
             data.Label.TextColor3 = data.Color
             data.LabelStroke.Color = data.Color
-            data.Label.Text = string.format("!  %s  ·  %dm", data.Kind,
+            data.Label.Text = string.format("[ %s ]  •  %dm", data.Kind,
                 math.floor((center - camPosition).Magnitude + 0.5))
-            data.Label.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y - 4)
+            data.Label.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y - 6)
             data.Label.Visible = centerVisible and centerScreen.Z > 0
             data.CenterDot.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y)
             data.CenterDot.BackgroundColor3 = data.Color
             data.CenterDot.Visible = centerVisible and centerScreen.Z > 0
             data.CenterGlow.Position = data.CenterDot.Position
             data.CenterGlow.BackgroundColor3 = data.Color
-            data.CenterGlow.BackgroundTransparency = 0.72 + math.sin(now * 5) * 0.1
+            data.CenterGlow.BackgroundTransparency = 0.76 + math.sin(now * 5.6) * 0.08
             data.CenterGlow.Visible = data.CenterDot.Visible
+            if data.PulseRing then
+                local ringSize = 24 + math.sin(now * 4.8) * 4
+                data.PulseRing.Size = UDim2.fromOffset(ringSize, ringSize)
+                data.PulseRing.Position = data.CenterDot.Position
+                data.PulseRing.Visible = data.CenterDot.Visible
+            end
+            if data.PulseStroke then
+                data.PulseStroke.Color = data.Color
+                data.PulseStroke.Transparency = math.clamp(1 - opacity + 0.24 + math.sin(now * 4.8) * 0.08, 0.12, 0.92)
+            end
         end
     end
 end
