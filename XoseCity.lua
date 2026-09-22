@@ -776,7 +776,6 @@ local Workspace = game:GetService("Workspace")
 local Stats = game:GetService("Stats")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
-local ContentProvider = game:GetService("ContentProvider")
 local Debris = game:GetService("Debris")
 local VirtualInputManager = nil
 -- A synthetic mouse event changes Roblox's preferred input to desktop and
@@ -877,6 +876,17 @@ local savedPos = (genv and genv.XCSavedPos) or {
     OpenBtn = UDim2.new(0.5, -45, 0, 15),
     MainFrame = UDim2.new(0.5, 0, 0.5, 0)
 }
+
+-- Clean only XC-owned audio left behind by an older reinjection. Never touch
+-- game sounds or other executor/application sounds.
+pcall(function()
+    for _, sound in ipairs(SoundService:GetChildren()) do
+        if sound:IsA("Sound") and sound.Name == "XCHitSound" then
+            pcall(function() sound:Stop() end)
+            sound:Destroy()
+        end
+    end
+end)
 
 -- ==========================================
 -- EXTENDED THEME & PALETTE SYSTEM
@@ -4348,6 +4358,8 @@ local grenadeDangerPool = setmetatable({}, {__mode = "k"})
 local grenadeDangerScanStarted = false
 local soundEspTracked = setmetatable({}, {__mode = "k"})
 local soundEspPulses = {}
+local soundEspConnections = {}
+local soundEspHooked = false
 local mobileSlideBtn = nil
 
 -- ==========================================
@@ -6203,11 +6215,13 @@ end
 local function XCMapOptimizerProfile()
     local mode = tostring(XCConfig.mapOptimizerMode or "Balanced")
     if mode == "Safe" then
-        return {Detail=0.72, Flat=false, Effects=false, Lights=false, Terrain=false}
+        return {Detail=1.0, Effects=false, Lights=false, Terrain=false, ClearTextures=false}
     elseif mode == "Aggressive" then
-        return {Detail=0.0, Flat=true, Effects=true, Lights=true, Terrain=true}
+        return {Detail=0.35, Effects=true, Lights=true, Terrain=true, ClearTextures=true}
     end
-    return {Detail=0.28, Flat=true, Effects=true, Lights=false, Terrain=true}
+    -- Balanced avoids asset-id churn. The useful wins here are shadows,
+    -- decorative emitters, terrain decoration and lower mesh fidelity.
+    return {Detail=1.0, Effects=true, Lights=false, Terrain=true, ClearTextures=false}
 end
 
 local function XCEffectiveMapDetail()
@@ -6219,8 +6233,14 @@ local function XCEffectiveMapDetail()
 end
 
 local function XCMapShouldFlatMaterial()
-    if XCConfig.mapStyleEnabled and XCConfig.mapStyleFlatMaterials then return true end
-    return XCConfig.mapOptimizerEnabled and XCMapOptimizerProfile().Flat
+    -- Material swaps can force expensive renderer rebuilds on mobile. Keep
+    -- this a visual-style option only; the FPS optimizer never needs it.
+    return XCConfig.mapStyleEnabled and XCConfig.mapStyleFlatMaterials == true
+end
+
+local function XCMapShouldClearTextures(detail)
+    if XCConfig.mapOptimizerEnabled and XCMapOptimizerProfile().ClearTextures then return true end
+    return XCConfig.mapStyleEnabled and (tonumber(detail) or 1) <= 0.08
 end
 
 local function XCCaptureMapGlobalState()
@@ -6302,37 +6322,58 @@ local function XCApplyMapPart(part)
     if not XCMapStyleEligible(part) then return false end
     local state = XCMapPartState[part]
     if not state then
-        state = {Color=part.Color, Material=part.Material, Reflectance=part.Reflectance, CastShadow=part.CastShadow}
-        pcall(function() state.MaterialVariant = part.MaterialVariant end)
-        if part:IsA("MeshPart") then
-            pcall(function() state.TextureID = part.TextureID end)
-            pcall(function() state.RenderFidelity = part.RenderFidelity end)
-        end
-        if part:IsA("UnionOperation") then pcall(function() state.UsePartColor = part.UsePartColor end) end
+        state = {}
         XCMapPartState[part] = state
     end
+    -- Capture only properties that can actually be changed. This avoids a
+    -- large table of unused style data when the user enables optimizer only.
+    if state.CastShadow == nil then state.CastShadow = part.CastShadow end
+    if XCConfig.mapStyleEnabled or state.Color ~= nil then
+        if state.Color == nil then
+            state.Color=part.Color; state.Material=part.Material; state.Reflectance=part.Reflectance
+            pcall(function() state.MaterialVariant = part.MaterialVariant end)
+            if part:IsA("UnionOperation") then pcall(function() state.UsePartColor = part.UsePartColor end) end
+        end
+    end
+    if part:IsA("MeshPart") and (XCConfig.mapOptimizerLowMesh or XCConfig.mapStyleEnabled or XCMapOptimizerProfile().ClearTextures or state.TextureID ~= nil) then
+        if state.TextureID == nil then pcall(function() state.TextureID = part.TextureID end) end
+        if state.RenderFidelity == nil then pcall(function() state.RenderFidelity = part.RenderFidelity end) end
+    end
+
     local styleStrength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
     local detail = XCEffectiveMapDetail()
     pcall(function()
-        part.Color = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), styleStrength) or state.Color
-        if part:IsA("UnionOperation") and state.UsePartColor ~= nil then
-            part.UsePartColor = XCConfig.mapStyleEnabled and true or state.UsePartColor
+        if state.Color ~= nil then
+            local desiredColor = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), styleStrength) or state.Color
+            if part.Color ~= desiredColor then part.Color = desiredColor end
+            if part:IsA("UnionOperation") and state.UsePartColor ~= nil then
+                local desiredUsePartColor = XCConfig.mapStyleEnabled and true or state.UsePartColor
+                if part.UsePartColor ~= desiredUsePartColor then part.UsePartColor = desiredUsePartColor end
+            end
+            if XCMapShouldFlatMaterial() then
+                if part.Material ~= Enum.Material.SmoothPlastic then part.Material = Enum.Material.SmoothPlastic end
+                if part.MaterialVariant ~= "" then part.MaterialVariant = "" end
+                if part.Reflectance ~= 0 then part.Reflectance = 0 end
+            else
+                if part.Material ~= state.Material then part.Material = state.Material end
+                if state.MaterialVariant ~= nil and part.MaterialVariant ~= state.MaterialVariant then part.MaterialVariant = state.MaterialVariant end
+                if part.Reflectance ~= state.Reflectance then part.Reflectance = state.Reflectance end
+            end
         end
-        if XCMapShouldFlatMaterial() then
-            part.Material = Enum.Material.SmoothPlastic
-            part.MaterialVariant = ""
-            part.Reflectance = 0
-        else
-            part.Material = state.Material
-            if state.MaterialVariant ~= nil then part.MaterialVariant = state.MaterialVariant end
-            part.Reflectance = state.Reflectance
-        end
-        part.CastShadow = XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerDisableShadows and false or state.CastShadow
+
+        local desiredShadow = XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerDisableShadows and false or state.CastShadow
+        if part.CastShadow ~= desiredShadow then part.CastShadow = desiredShadow end
+
         if part:IsA("MeshPart") then
-            if state.TextureID ~= nil then part.TextureID = detail < 0.48 and "" or state.TextureID end
+            if state.TextureID ~= nil then
+                local desiredTexture = XCMapShouldClearTextures(detail) and "" or state.TextureID
+                if part.TextureID ~= desiredTexture then part.TextureID = desiredTexture end
+            end
             if XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerLowMesh then
-                pcall(function() part.RenderFidelity = Enum.RenderFidelity.Performance end)
-            elseif state.RenderFidelity ~= nil then
+                if part.RenderFidelity ~= Enum.RenderFidelity.Performance then
+                    pcall(function() part.RenderFidelity = Enum.RenderFidelity.Performance end)
+                end
+            elseif state.RenderFidelity ~= nil and part.RenderFidelity ~= state.RenderFidelity then
                 pcall(function() part.RenderFidelity = state.RenderFidelity end)
             end
         end
@@ -6343,6 +6384,11 @@ end
 local function XCApplyMapTexture(object)
     if not XCMapStyleEligible(object) then return false end
     local detail = XCEffectiveMapDetail()
+    if not XCConfig.mapStyleEnabled and not XCMapShouldClearTextures(detail) and detail >= 0.999 then
+        local needsRestore = ((object:IsA("Decal") or object:IsA("Texture")) and XCMapTextureState[object] ~= nil)
+            or (object:IsA("SpecialMesh") and XCMapMeshState[object] ~= nil)
+        if not needsRestore then return false end
+    end
     if object:IsA("Decal") or object:IsA("Texture") then
         local state = XCMapTextureState[object]
         if not state then
@@ -6354,25 +6400,21 @@ local function XCApplyMapTexture(object)
                 and state.Color3:Lerp(XCMapToneFromColor(state.Color3), math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1))
                 or state.Color3
             object.Transparency = 1 - ((1 - state.Transparency) * detail)
-            object.Texture = detail < 0.48 and "" or state.Texture
+            object.Texture = XCMapShouldClearTextures(detail) and "" or state.Texture
         end)
         return true
     elseif object:IsA("SpecialMesh") then
         local state = XCMapMeshState[object]
         if not state then state={TextureId=object.TextureId}; XCMapMeshState[object]=state end
-        pcall(function() object.TextureId = detail < 0.48 and "" or state.TextureId end)
+        pcall(function() object.TextureId = XCMapShouldClearTextures(detail) and "" or state.TextureId end)
         return true
     elseif object:IsA("SurfaceAppearance") then
-        local state = XCMapSurfaceState[object]
-        if not state then state={Parent=object.Parent}; XCMapSurfaceState[object]=state end
-        pcall(function()
-            if detail < 0.48 then
-                object.Parent = nil
-            elseif state.Parent and state.Parent.Parent then
-                object.Parent = state.Parent
-            end
-        end)
-        return true
+        -- Do not detach SurfaceAppearance from the hierarchy. Reparenting many
+        -- of them creates DescendantAdded/renderer churn and was one source of
+        -- mobile freezes in v59. Mesh fidelity/shadows/effects provide safer
+        -- FPS gains. Keep the object untouched and let part color/style handle
+        -- the minimal look.
+        return false
     end
     return false
 end
@@ -6411,14 +6453,12 @@ local function XCApplyMapEffect(object)
 end
 
 local function XCRefreshMapSurfaceAppearance(object, state)
+    -- SurfaceAppearance is intentionally not moved or rewritten in the mobile
+    -- safe optimizer. This function remains for compatibility with configs
+    -- created by older versions and simply restores a legacy detached object.
     if not object or not state then return end
-    local detail = XCEffectiveMapDetail()
     pcall(function()
-        if detail < 0.48 then
-            if state.Parent and state.Parent.Parent and XCMapStyleEligible(state.Parent) then object.Parent = nil end
-        elseif state.Parent and state.Parent.Parent then
-            object.Parent = state.Parent
-        end
+        if not object.Parent and state.Parent and state.Parent.Parent then object.Parent = state.Parent end
     end)
 end
 
@@ -6431,94 +6471,174 @@ local function XCApplyMapObject(object)
     return partApplied, textureApplied, effectApplied
 end
 
-function restoreXCMapStyle()
-    XCMapStyleScanSerial += 1
-    for part, state in pairs(XCMapPartState) do
-        if part and part.Parent then
-            pcall(function()
-                part.Color=state.Color; part.Material=state.Material; part.Reflectance=state.Reflectance; part.CastShadow=state.CastShadow
-                if state.MaterialVariant ~= nil then part.MaterialVariant=state.MaterialVariant end
-                if part:IsA("UnionOperation") and state.UsePartColor ~= nil then part.UsePartColor=state.UsePartColor end
-                if part:IsA("MeshPart") then
-                    if state.TextureID ~= nil then part.TextureID=state.TextureID end
-                    if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity=state.RenderFidelity end) end
-                end
-            end)
+local function XCRestoreMapPartEntry(part, state)
+    if not part or not part.Parent or not state then return end
+    pcall(function()
+        if state.Color ~= nil then part.Color=state.Color end
+        if state.Material ~= nil then part.Material=state.Material end
+        if state.Reflectance ~= nil then part.Reflectance=state.Reflectance end
+        if state.CastShadow ~= nil then part.CastShadow=state.CastShadow end
+        if state.MaterialVariant ~= nil then part.MaterialVariant=state.MaterialVariant end
+        if part:IsA("UnionOperation") and state.UsePartColor ~= nil then part.UsePartColor=state.UsePartColor end
+        if part:IsA("MeshPart") then
+            if state.TextureID ~= nil then part.TextureID=state.TextureID end
+            if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity=state.RenderFidelity end) end
         end
-    end
-    for object, state in pairs(XCMapTextureState) do
-        if object and object.Parent then pcall(function()
-            object.Transparency=state.Transparency; object.Color3=state.Color3; object.Texture=state.Texture
-        end) end
-    end
-    for object, state in pairs(XCMapMeshState) do
-        if object and object.Parent then pcall(function() object.TextureId=state.TextureId end) end
-    end
-    for object, state in pairs(XCMapSurfaceState) do
-        pcall(function()
-            if object and state.Parent and state.Parent.Parent then object.Parent=state.Parent
-            elseif object then object:Destroy() end
-        end)
-    end
-    for object, state in pairs(XCMapEffectState) do
-        if object and object.Parent then pcall(function() object.Enabled=state.Enabled end) end
-    end
-    XCMapPartState=setmetatable({}, {__mode="k"})
-    XCMapTextureState=setmetatable({}, {__mode="k"})
-    XCMapMeshState=setmetatable({}, {__mode="k"})
-    XCMapEffectState=setmetatable({}, {__mode="k"})
-    XCMapSurfaceState={}
-    XCRestoreMapGlobalState()
+    end)
 end
 
-local function XCReapplyTrackedMapStyle()
-    if not XCMapVisualActive() then restoreXCMapStyle(); return end
-    XCApplyMapGlobalOptimizer()
-    for part in pairs(XCMapPartState) do if part and part.Parent then XCApplyMapPart(part) end end
-    for object in pairs(XCMapTextureState) do if object and object.Parent then XCApplyMapTexture(object) end end
-    for object in pairs(XCMapMeshState) do if object and object.Parent then XCApplyMapTexture(object) end end
-    for object, state in pairs(XCMapSurfaceState) do XCRefreshMapSurfaceAppearance(object, state) end
-    for object, state in pairs(XCMapEffectState) do
-        if object and object.Parent then
-            if XCConfig.mapOptimizerEnabled then XCApplyMapEffect(object) else pcall(function() object.Enabled=state.Enabled end) end
-        end
+local function XCRestoreMapTextureEntry(object, state)
+    if not object or not object.Parent or not state then return end
+    pcall(function()
+        object.Transparency=state.Transparency
+        object.Color3=state.Color3
+        object.Texture=state.Texture
+    end)
+end
+
+local function XCRestoreMapMeshEntry(object, state)
+    if object and object.Parent and state then pcall(function() object.TextureId=state.TextureId end) end
+end
+
+local function XCRestoreMapEffectEntry(object, state)
+    if object and object.Parent and state then pcall(function() object.Enabled=state.Enabled end) end
+end
+
+function restoreXCMapStyle(immediate)
+    XCMapStyleScanSerial += 1
+    local serial=XCMapStyleScanSerial
+    -- Global settings are cheap to restore and should react instantly even on
+    -- mobile. Per-instance restoration can be spread over frames.
+    XCRestoreMapGlobalState()
+
+    local function finishRestore()
+        if serial ~= XCMapStyleScanSerial then return end
+        XCMapPartState=setmetatable({}, {__mode="k"})
+        XCMapTextureState=setmetatable({}, {__mode="k"})
+        XCMapMeshState=setmetatable({}, {__mode="k"})
+        XCMapEffectState=setmetatable({}, {__mode="k"})
+        XCMapSurfaceState={}
     end
+
+    local function restoreAll(yielding)
+        local budget=UserInputService.TouchEnabled and 22 or 100
+        local count=0
+        local function maybeYield()
+            if not yielding then return true end
+            count += 1
+            if count >= budget then
+                count=0
+                RunService.Heartbeat:Wait()
+                if serial ~= XCMapStyleScanSerial then return false end
+            end
+            return true
+        end
+        for part,state in pairs(XCMapPartState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapPartEntry(part,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapTextureState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapTextureEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapMeshState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapMeshEntry(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapSurfaceState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRefreshMapSurfaceAppearance(object,state)
+            if not maybeYield() then return end
+        end
+        for object,state in pairs(XCMapEffectState) do
+            if serial ~= XCMapStyleScanSerial then return end
+            XCRestoreMapEffectEntry(object,state)
+            if not maybeYield() then return end
+        end
+        finishRestore()
+    end
+
+    if immediate == true or not UserInputService.TouchEnabled then
+        restoreAll(false)
+    else
+        task.spawn(function() restoreAll(true) end)
+    end
+end
+
+local function XCMapScanBudget()
+    if UserInputService.TouchEnabled then
+        return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 8 or 16
+    end
+    return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 44 or 80
+end
+
+local function XCMapCanDescend(object)
+    if not object then return false end
+    if camera and object == camera then return false end
+    if object:IsA("Tool") then return false end
+    if object:IsA("Model") and object:FindFirstChildOfClass("Humanoid") then return false end
+    return true
 end
 
 function applyXCMapStyle(rescan)
     if not XCMapVisualActive() then restoreXCMapStyle(); return end
-    XCReapplyTrackedMapStyle()
-    if rescan == false then return end
+    XCApplyMapGlobalOptimizer()
     XCMapStyleScanSerial += 1
     local serial = XCMapStyleScanSerial
+    local shouldNotify = rescan ~= false
+
     task.spawn(function()
         local stats={Parts=0, Textures=0, Effects=0}
-        local descendants=Workspace:GetDescendants()
-        local lightingDescendants=XCConfig.mapOptimizerEnabled and Lighting:GetDescendants() or {}
-        local total=#descendants + #lightingDescendants
-        local processed=0
-        local function process(object)
-            local p,t,e=XCApplyMapObject(object)
-            if p then stats.Parts += 1 end
-            if t then stats.Textures += 1 end
-            if e then stats.Effects += 1 end
-            processed += 1
-            if processed % 220 == 0 then task.wait() end
-        end
-        for _,object in ipairs(descendants) do
+        -- Depth-first stack: unlike GetDescendants() or a growing BFS queue it
+        -- does not retain a reference slot for every object already visited.
+        local stack={Workspace}
+        if XCConfig.mapOptimizerEnabled then stack[#stack+1]=Lighting end
+        local processedThisSlice=0
+        local sliceStarted=os.clock()
+        local budget=XCMapScanBudget()
+        local maxSlice=UserInputService.TouchEnabled and 0.0022 or 0.0045
+
+        while #stack > 0 do
             if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
-            process(object)
+            local top=#stack
+            local object=stack[top]
+            stack[top]=nil
+
+            if (object and object.Parent) or object == Workspace or object == Lighting then
+                local p,t,e=XCApplyMapObject(object)
+                if p then stats.Parts += 1 end
+                if t then stats.Textures += 1 end
+                if e then stats.Effects += 1 end
+
+                if XCMapCanDescend(object) then
+                    local ok, children=pcall(function() return object:GetChildren() end)
+                    if ok and children then
+                        for index=#children,1,-1 do stack[#stack+1]=children[index] end
+                    end
+                end
+            end
+
+            processedThisSlice += 1
+            if processedThisSlice >= budget or (os.clock()-sliceStarted) >= maxSlice then
+                processedThisSlice=0
+                sliceStarted=os.clock()
+                RunService.Heartbeat:Wait()
+                budget=XCMapScanBudget()
+            end
         end
-        for _,object in ipairs(lightingDescendants) do
-            if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
-            process(object)
-        end
+
+        if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() then return end
         XCMapLastScanStats=stats
         XCApplyMapGlobalOptimizer()
-        if XCConfig.mapOptimizerEnabled then
-            XCNotify("Map optimizer", string.format("Processed %d parts, %d textures, %d effects", stats.Parts, stats.Textures, stats.Effects), "success", 2)
-        elseif XCConfig.mapStyleEnabled then
-            XCNotify("Map style", string.format("Styled %d parts and %d textures", stats.Parts, stats.Textures), "success", 1.8)
+        if shouldNotify then
+            if XCConfig.mapOptimizerEnabled then
+                XCNotify("Map optimizer", string.format("Optimized gradually: %d parts, %d textures, %d effects", stats.Parts, stats.Textures, stats.Effects), "success", 2)
+            elseif XCConfig.mapStyleEnabled then
+                XCNotify("Map style", string.format("Styled gradually: %d parts and %d textures", stats.Parts, stats.Textures), "success", 1.8)
+            end
         end
     end)
 end
@@ -6533,18 +6653,44 @@ function setXCMapOptimizerEnabled(enabled)
     if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
 end
 
-table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
-    if not XCMapVisualActive() then return end
-    task.defer(function()
-        if XCMapVisualActive() and object and object.Parent then XCApplyMapObject(object) end
+local XCMapStreamQueue = {}
+local XCMapStreamHead = 1
+local XCMapStreamWorker = false
+local XCMapStreamQueued = setmetatable({}, {__mode="k"})
+
+local function XCQueueStreamMapObject(object)
+    if not object or XCMapStreamQueued[object] then return end
+    XCMapStreamQueued[object]=true
+    XCMapStreamQueue[#XCMapStreamQueue+1]=object
+    if XCMapStreamWorker then return end
+    XCMapStreamWorker=true
+    task.spawn(function()
+        while XCMapStreamHead <= #XCMapStreamQueue and xcSessionActive() do
+            local budget=UserInputService.TouchEnabled and 8 or 28
+            for _=1,budget do
+                if XCMapStreamHead > #XCMapStreamQueue then break end
+                local queued=XCMapStreamQueue[XCMapStreamHead]
+                XCMapStreamQueue[XCMapStreamHead]=false
+                XCMapStreamHead += 1
+                if queued then
+                    XCMapStreamQueued[queued]=nil
+                    if XCMapVisualActive() and queued.Parent then XCApplyMapObject(queued) end
+                end
+            end
+            RunService.Heartbeat:Wait()
+        end
+        XCMapStreamQueue={}
+        XCMapStreamHead=1
+        XCMapStreamWorker=false
     end)
+end
+
+table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
+    if XCMapVisualActive() then XCQueueStreamMapObject(object) end
 end))
 
 table.insert(connections, Lighting.DescendantAdded:Connect(function(object)
-    if not XCConfig.mapOptimizerEnabled then return end
-    task.defer(function()
-        if XCConfig.mapOptimizerEnabled and object and object.Parent then XCApplyMapEffect(object) end
-    end)
+    if XCConfig.mapOptimizerEnabled then XCQueueStreamMapObject(object) end
 end))
 
 -- ==========================================================================
@@ -7548,26 +7694,25 @@ function applyXCSmokeState()
     end)
 end
 
-local xcHitSoundPreloaded = {}
 function playXCHitSound(force)
     if not force and not XCConfig.hitSoundEnabled then return end
     task.spawn(function()
-        local ok = pcall(function()
+        pcall(function()
             local sound = Instance.new("Sound")
             sound.Name = "XCHitSound"
             sound.SoundId = XCFeatureState.hitSounds[XCConfig.hitSoundPreset] or XCFeatureState.hitSounds.Skeet
             sound.Volume = math.clamp(tonumber(XCConfig.hitSoundVolume) or 1, 0.1, 3)
             sound.PlaybackSpeed = 1
+            sound.Looped = false
+            sound.PlayOnRemove = false
             sound.Parent = SoundService
-            if not xcHitSoundPreloaded[sound.SoundId] then
-                xcHitSoundPreloaded[sound.SoundId] = true
-                pcall(function() ContentProvider:PreloadAsync({sound}) end)
-            end
+            -- Do not preload on mobile/injection. Some mobile clients wake the
+            -- audio route while PreloadAsync touches Sound assets. The asset is
+            -- requested only when an actual hit sound is intentionally played.
             local played = pcall(function() SoundService:PlayLocalSound(sound) end)
             if not played then sound:Play() end
-            game:GetService("Debris"):AddItem(sound, 5)
+            Debris:AddItem(sound, 5)
         end)
-        if not ok then return end
     end)
 end
 
@@ -7976,9 +8121,15 @@ function cleanup()
     for _, danger in pairs(grenadeDangerPool) do
         pcall(function() destroyXCGrenadeDanger(danger) end)
     end
-    for _, pulse in ipairs(soundEspPulses) do
-        pcall(function() destroyXCSoundPulse(pulse) end)
-    end
+    pcall(disconnectXCSoundPositionEsp)
+    pcall(function()
+        for _, sound in ipairs(SoundService:GetChildren()) do
+            if sound:IsA("Sound") and sound.Name == "XCHitSound" then
+                pcall(function() sound:Stop() end)
+                sound:Destroy()
+            end
+        end
+    end)
     clearActiveJumpCircle()
     pcall(function() jumpCircleFolder:Destroy() end)
     pcall(function() hitmarkerGui:Destroy() end)
@@ -8007,7 +8158,7 @@ function cleanup()
     grenadeDangerScanStarted = false
     soundEspTracked = setmetatable({}, {__mode = "k"})
     soundEspPulses = {}
-    pcall(restoreXCMapStyle)
+    pcall(function() restoreXCMapStyle(true) end)
     
     restoreLightingState()
     restoreXCSmoke()
@@ -9075,38 +9226,70 @@ function triggerXCSoundPosition(sound)
 end
 
 function trackXCSound(sound)
-    if not sound:IsA("Sound") then return end
+    if not XCConfig.soundPositionEspEnabled or not sound or not sound:IsA("Sound") then return end
     local record = soundEspTracked[sound]
     if record and record.Hooked then return end
     record = record or {}
     record.Hooked = true
     soundEspTracked[sound] = record
     pcall(function()
-        table.insert(connections, sound.Played:Connect(function()
+        soundEspConnections[#soundEspConnections+1] = sound.Played:Connect(function()
             triggerXCSoundPosition(sound)
-        end))
+        end)
     end)
-    table.insert(connections, sound:GetPropertyChangedSignal("Playing"):Connect(function()
-        if sound.Playing then triggerXCSoundPosition(sound) end
-    end))
+    pcall(function()
+        soundEspConnections[#soundEspConnections+1] = sound:GetPropertyChangedSignal("Playing"):Connect(function()
+            if sound.Playing then triggerXCSoundPosition(sound) end
+        end)
+    end)
 end
 
 function hookXCSoundCharacter(plr, character)
-    if plr == player or not character then return end
+    if not XCConfig.soundPositionEspEnabled or plr == player or not character then return end
     for _, object in ipairs(character:GetDescendants()) do
         if object:IsA("Sound") then trackXCSound(object) end
     end
-    table.insert(connections, character.DescendantAdded:Connect(function(object)
-        if object:IsA("Sound") then trackXCSound(object) end
-    end))
+    soundEspConnections[#soundEspConnections+1] = character.DescendantAdded:Connect(function(object)
+        if XCConfig.soundPositionEspEnabled and object:IsA("Sound") then trackXCSound(object) end
+    end)
 end
 
 function hookXCSoundPlayer(plr)
-    if plr == player then return end
+    if not XCConfig.soundPositionEspEnabled or plr == player then return end
     if plr.Character then hookXCSoundCharacter(plr, plr.Character) end
-    table.insert(connections, plr.CharacterAdded:Connect(function(character)
-        hookXCSoundCharacter(plr, character)
-    end))
+    soundEspConnections[#soundEspConnections+1] = plr.CharacterAdded:Connect(function(character)
+        if XCConfig.soundPositionEspEnabled then hookXCSoundCharacter(plr, character) end
+    end)
+end
+
+function disconnectXCSoundPositionEsp()
+    for _, connection in ipairs(soundEspConnections) do
+        pcall(function() connection:Disconnect() end)
+    end
+    soundEspConnections = {}
+    soundEspHooked = false
+    soundEspTracked = setmetatable({}, {__mode = "k"})
+    for index = #soundEspPulses, 1, -1 do
+        pcall(function() destroyXCSoundPulse(soundEspPulses[index]) end)
+        table.remove(soundEspPulses, index)
+    end
+end
+
+function setXCSoundPositionEspEnabled(enabled)
+    XCConfig.soundPositionEspEnabled = enabled == true
+    if not XCConfig.soundPositionEspEnabled then
+        disconnectXCSoundPositionEsp()
+        return
+    end
+    if soundEspHooked then return end
+    soundEspHooked = true
+    for _, otherPlayer in ipairs(Players:GetPlayers()) do hookXCSoundPlayer(otherPlayer) end
+    soundEspConnections[#soundEspConnections+1] = Players.PlayerAdded:Connect(function(plr)
+        if XCConfig.soundPositionEspEnabled then hookXCSoundPlayer(plr) end
+    end)
+    soundEspConnections[#soundEspConnections+1] = Workspace.DescendantAdded:Connect(function(object)
+        if XCConfig.soundPositionEspEnabled and object:IsA("Sound") then trackXCSound(object) end
+    end)
 end
 
 function renderXCSoundPositionEsp()
@@ -9137,12 +9320,6 @@ function renderXCSoundPositionEsp()
         end
     end
 end
-
-for _, otherPlayer in ipairs(Players:GetPlayers()) do hookXCSoundPlayer(otherPlayer) end
-table.insert(connections, Players.PlayerAdded:Connect(hookXCSoundPlayer))
-table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
-    if object:IsA("Sound") then trackXCSound(object) end
-end))
 
 -- ==========================================
 --  AIM ENGINE SHLAK
@@ -12254,8 +12431,8 @@ function buildXCUI()
         worldSkyboxEnabled = "Applies the selected custom skybox locally.",
         worldPostFXEnabled = "Enables local color correction and post-processing.",
         mapStyleEnabled = "Restyles map geometry locally using a soft minimal palette while preserving characters, weapons and gameplay objects.",
-        mapOptimizerEnabled = "FPS-oriented local map optimizer: reduces texture cost, shadows and optional decorative effects without touching characters or weapons.",
-        mapOptimizerMode = "Safe keeps more detail, Balanced removes expensive map detail, Aggressive additionally disables decorative map effects and lights.",
+        mapOptimizerEnabled = "Mobile-safe FPS optimizer: processes the map gradually and reduces shadows, decorative effects and mesh cost without touching characters or weapons.",
+        mapOptimizerMode = "Safe changes only low-risk rendering settings. Balanced is recommended for phones. Aggressive also clears map texture IDs gradually and disables decorative lights.",
         mapOptimizerDisableShadows = "Disables map/global shadow rendering while the optimizer is active.",
         mapOptimizerDisableEffects = "Balanced removes eligible decorative particles/beams/post effects; Aggressive also removes eligible decorative lights.",
         mapOptimizerLowMesh = "Requests Performance render fidelity for eligible MeshParts where Roblox allows it.",
@@ -13865,6 +14042,7 @@ function buildXCUI()
             handsLastPivot = nil
             if value then setupXCCustomHandsHook() end
         elseif key == "weaponChamsEnabled" then setWeaponVisuals()
+        elseif key == "soundPositionEspEnabled" then setXCSoundPositionEspEnabled(value)
         elseif key == "customScopeEnabled" then updateCustomScope()
         elseif key == "customFovEnabled" and not value then
             local cam = Workspace.CurrentCamera or camera
@@ -13875,7 +14053,7 @@ function buildXCUI()
         elseif key == "mapOptimizerEnabled" then setXCMapOptimizerEnabled(value)
         elseif key == "mapStyleFlatMaterials" or key == "mapStylePreserveSigns" or key == "mapStyleAffectTransparent"
             or key == "mapOptimizerDisableShadows" or key == "mapOptimizerDisableEffects" or key == "mapOptimizerLowMesh" then
-            if XCMapVisualActive() then restoreXCMapStyle(); task.defer(function() if XCMapVisualActive() then applyXCMapStyle(true) end end) end
+            if XCMapVisualActive() then applyXCMapStyle(true) end
         elseif key == "worldSkyboxEnabled" or key == "worldSkyCelestial" or key == "worldPostFXEnabled"
             or key == "worldAtmosphereEnabled" or key == "worldBloomEnabled" then updateWorldChanger()
         elseif key == "freecamEnabled" then setXCCameraMode("Freecam", value)
@@ -14308,7 +14486,7 @@ function buildXCUI()
     section(L, "map optimizer")
     toggle(L, "FPS map optimizer", "mapOptimizerEnabled")
     addChoice(L, "Optimizer mode", "mapOptimizerMode", {"Safe", "Balanced", "Aggressive"}, function()
-        if XCMapVisualActive() then restoreXCMapStyle(); task.defer(function() if XCMapVisualActive() then applyXCMapStyle(true) end end) end
+        if XCMapVisualActive() then applyXCMapStyle(true) end
     end)
     toggle(L, "Disable shadows", "mapOptimizerDisableShadows")
     toggle(L, "Disable decorative FX", "mapOptimizerDisableEffects")
@@ -14665,6 +14843,7 @@ function buildXCUI()
         end
         applyMenuTheme()
         refreshSkinGallery()
+        setXCSoundPositionEspEnabled(XCConfig.soundPositionEspEnabled == true)
     end
 
     section(L, "quick actions")
