@@ -6307,19 +6307,69 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 end))
 
 -- ==========================================
--- JUMP CIRCLE NO WORK BLOXSTRIKE
+-- XC BLOXSTRIKE-SAFE JUMP CIRCLE + MOTION TRAIL
+-- Does not rely on Humanoid.StateChanged and does not attach visual objects
+-- directly to the game character. This is more robust with custom controllers.
 -- ==========================================
 local jumpRayParams = RaycastParams.new()
 jumpRayParams.FilterType = Enum.RaycastFilterType.Exclude
 jumpRayParams.IgnoreWater = true
 
-function getGroundY(originPos, char)
-    jumpRayParams.FilterDescendantsInstances = {char, jumpCircleFolder, camera}
-    local cast = Workspace:Raycast(originPos + Vector3.new(0, 2, 0), Vector3.new(0, -15, 0), jumpRayParams)
-    if cast then
-        return cast.Position.Y + 0.04
+local function XCResolveVisualRoot(char)
+    if not char or not char.Parent then return nil end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+        or (hum and hum.RootPart)
+        or char.PrimaryPart
+        or char:FindFirstChild("LowerTorso")
+        or char:FindFirstChild("Torso")
+        or char:FindFirstChild("UpperTorso")
+    if root and root:IsA("BasePart") then return root end
+    for _, obj in ipairs(char:GetDescendants()) do
+        if obj:IsA("BasePart") and obj.Name ~= "Head" then
+            return obj
+        end
     end
-    return originPos.Y - 2.8
+    return nil
+end
+
+local function XCResolveVisualCharacter()
+    local char = player and player.Character
+    if char and char:IsA("Model") and char.Parent then
+        return char, XCResolveVisualRoot(char)
+    end
+    return nil, nil
+end
+
+local function XCGetRootVelocity(root, previousPosition, dt)
+    if not root then return Vector3.zero end
+    local ok, v = pcall(function() return root.AssemblyLinearVelocity end)
+    if ok and typeof(v) == "Vector3" and v.Magnitude > 0.05 then
+        return v
+    end
+    if previousPosition and dt and dt > 0 then
+        return (root.Position - previousPosition) / dt
+    end
+    return Vector3.zero
+end
+
+local function XCGetGroundHit(originPos, char, maxDistance)
+    local cam = Workspace.CurrentCamera or camera
+    local ignore = {jumpCircleFolder}
+    if char then table.insert(ignore, char) end
+    if cam then table.insert(ignore, cam) end
+    jumpRayParams.FilterDescendantsInstances = ignore
+    return Workspace:Raycast(
+        originPos + Vector3.new(0, 1.25, 0),
+        Vector3.new(0, -(maxDistance or 12), 0),
+        jumpRayParams
+    )
+end
+
+function getGroundY(originPos, char)
+    local cast = XCGetGroundHit(originPos, char, 18)
+    if cast then return cast.Position.Y + 0.045 end
+    return originPos.Y - 3
 end
 
 function buildJumpRing(segmentCount, radius, thickness, height)
@@ -6327,6 +6377,8 @@ function buildJumpRing(segmentCount, radius, thickness, height)
     container.Name = "JumpCircleContainer"
 
     local segments = {}
+    segmentCount = math.clamp(math.floor(tonumber(segmentCount) or 48), 16, 96)
+    radius = math.max(0.5, tonumber(radius) or 3.5)
     local angleStep = (math.pi * 2) / segmentCount
     local chordLength = 2 * radius * math.sin(angleStep / 2) + 0.03
     local lineH = height or 0.03
@@ -6346,70 +6398,76 @@ function buildJumpRing(segmentCount, radius, thickness, height)
         part.Color = currentTheme.Accent
         part.Transparency = 0
         part.Parent = container
-
         segments[i] = {
             Part = part,
             Angle = angle,
             BaseChord = chordLength,
             BaseThick = lineThick,
-            BaseHeight = lineH
+            BaseHeight = lineH,
         }
     end
-
     return container, segments
 end
 
 function updateJumpRingLayout(segments, centerPosition, radius, thicknessMult)
     local n = #segments
-    local tMult = thicknessMult or 1.0
-    for i, seg in ipairs(segments) do
+    if n == 0 then return end
+    local tMult = thicknessMult or 1
+    for _, seg in ipairs(segments) do
         local angle = seg.Angle
         local nextAngle = angle + (math.pi * 2 / n)
         local p1 = centerPosition + Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
         local p2 = centerPosition + Vector3.new(math.cos(nextAngle) * radius, 0, math.sin(nextAngle) * radius)
         local mid = (p1 + p2) * 0.5
         local length = (p2 - p1).Magnitude + 0.02
-
-        if seg.Part and seg.Part.Parent then
-            seg.Part.Size = Vector3.new(seg.BaseThick * tMult, seg.BaseHeight, length)
-            seg.Part.CFrame = CFrame.lookAt(mid, p2)
+        local part = seg.Part
+        if part and part.Parent then
+            part.Size = Vector3.new(seg.BaseThick * tMult, seg.BaseHeight, length)
+            part.CFrame = CFrame.lookAt(mid, p2)
         end
     end
 end
 
 function spawnJumpRipple(position)
-    if not XCConfig.jumpCircleEnabled then return end
-    task.spawn(function()
-        local rippleFolder, segments = buildJumpRing(XCConfig.jumpCircleSegmentCount, XCConfig.jumpCircleRadius, 0.08, 0.04)
-        rippleFolder.Parent = jumpCircleFolder
+    if not XCConfig.jumpCircleEnabled or typeof(position) ~= "Vector3" then return end
+    local rippleFolder, segments = buildJumpRing(
+        XCConfig.jumpCircleSegmentCount,
+        XCConfig.jumpCircleRadius,
+        0.09,
+        0.045
+    )
+    rippleFolder.Parent = jumpCircleFolder
+    Debris:AddItem(rippleFolder, 0.75)
 
-        local startT = os.clock()
-        local duration = 0.55
-        local maxR = XCConfig.jumpCircleRadius * 2.2
-        local col1 = currentTheme.Accent
-        local col2 = Color3.fromRGB(255, 255, 255)
+    local startT = os.clock()
+    local duration = 0.58
+    local baseRadius = math.max(1, tonumber(XCConfig.jumpCircleRadius) or 3.5)
+    local maxR = baseRadius * 2.25
+    local col1 = currentTheme.Accent
+    local col2 = Color3.fromRGB(255, 255, 255)
 
-        local rippleConn
-        rippleConn = RunService.RenderStepped:Connect(function()
-            local elapsed = os.clock() - startT
-            local alpha = elapsed / duration
-            if alpha >= 1 or not XCConfig.jumpCircleEnabled then
-                if rippleConn then rippleConn:Disconnect() end
-                if rippleFolder then rippleFolder:Destroy() end
-                return
+    local rippleConn
+    rippleConn = RunService.RenderStepped:Connect(function()
+        if not rippleFolder.Parent then
+            if rippleConn then rippleConn:Disconnect() end
+            return
+        end
+        local alpha = (os.clock() - startT) / duration
+        if alpha >= 1 or not XCConfig.jumpCircleEnabled then
+            if rippleConn then rippleConn:Disconnect() end
+            pcall(function() rippleFolder:Destroy() end)
+            return
+        end
+        local eased = 1 - math.pow(1 - alpha, 3)
+        local curR = baseRadius + (maxR - baseRadius) * eased
+        updateJumpRingLayout(segments, position, curR, 1 - alpha * 0.55)
+        for _, seg in ipairs(segments) do
+            local part = seg.Part
+            if part and part.Parent then
+                part.Transparency = math.clamp(alpha, 0, 1)
+                part.Color = col1:Lerp(col2, alpha)
             end
-
-            local eased = 1 - math.pow(1 - alpha, 3)
-            local curR = XCConfig.jumpCircleRadius + (maxR - XCConfig.jumpCircleRadius) * eased
-            updateJumpRingLayout(segments, position, curR, 1.0 - (alpha * 0.5))
-
-            for _, seg in ipairs(segments) do
-                if seg.Part and seg.Part.Parent then
-                    seg.Part.Transparency = alpha
-                    seg.Part.Color = col1:Lerp(col2, alpha)
-                end
-            end
-        end)
+        end
     end)
 end
 
@@ -6428,111 +6486,149 @@ end
 
 function initJumpCircleForCharacter(char)
     clearActiveJumpCircle()
-    if not XCConfig.jumpCircleEnabled or not char then return end
+    if not XCConfig.jumpCircleEnabled then return end
+    char = char or (player and player.Character)
+    if not char then return end
+    local root = XCResolveVisualRoot(char)
+    if not root then return end
 
-    local hrp = char:WaitForChild("HumanoidRootPart", 4)
-    local hum = char:WaitForChild("Humanoid", 4)
-    if not hrp or not hum then return end
-
-    local container, segments = buildJumpRing(XCConfig.jumpCircleSegmentCount, XCConfig.jumpCircleRadius, 0.06, 0.03)
+    local container, segments = buildJumpRing(
+        XCConfig.jumpCircleSegmentCount,
+        XCConfig.jumpCircleRadius,
+        0.065,
+        0.035
+    )
     container.Parent = jumpCircleFolder
 
+    local initialHit = XCGetGroundHit(root.Position, char, 10)
     local circleData = {
         Container = container,
         Segments = segments,
-        HRP = hrp,
-        Humanoid = hum,
-        Connections = {}
+        Root = root,
+        Character = char,
+        Connections = {},
+        PreviousPosition = root.Position,
+        WasGrounded = initialHit ~= nil,
+        LastGroundPosition = initialHit and initialHit.Position or nil,
+        LastRipple = 0,
     }
     activeJumpCircleData = circleData
 
     local startClock = os.clock()
-    local pulse = 0
-    local pulseDir = 1
-
-    local loopConn = RunService.RenderStepped:Connect(function(dt)
-        if not XCConfig.jumpCircleEnabled or not hrp or not hrp.Parent or not hum or not hum.Parent or hum.Health <= 0 then
+    local loopConn
+    loopConn = RunService.RenderStepped:Connect(function(dt)
+        if not XCConfig.jumpCircleEnabled then
             clearActiveJumpCircle()
             return
         end
 
+        local currentChar, currentRoot = XCResolveVisualCharacter()
+        if not currentChar or not currentRoot then
+            return
+        end
+        if currentChar ~= circleData.Character or currentRoot ~= circleData.Root then
+            task.defer(function()
+                if XCConfig.jumpCircleEnabled then initJumpCircleForCharacter(currentChar) end
+            end)
+            clearActiveJumpCircle()
+            return
+        end
+
+        local rootPos = currentRoot.Position
+        local velocity = XCGetRootVelocity(currentRoot, circleData.PreviousPosition, dt)
+        local groundHit = XCGetGroundHit(rootPos, currentChar, 7.5)
+        local grounded = false
+        if groundHit then
+            local verticalGap = rootPos.Y - groundHit.Position.Y
+            grounded = verticalGap <= 4.4 and velocity.Y <= 7.5
+            circleData.LastGroundPosition = groundHit.Position + Vector3.new(0, 0.045, 0)
+        end
+
+        -- Detect take-off from actual movement instead of Humanoid state.
+        if circleData.WasGrounded and not grounded and velocity.Y > 1.2 then
+            local now = os.clock()
+            if now - circleData.LastRipple > 0.16 then
+                local ripplePos = circleData.LastGroundPosition
+                    or Vector3.new(rootPos.X, getGroundY(rootPos, currentChar), rootPos.Z)
+                spawnJumpRipple(ripplePos)
+                circleData.LastRipple = now
+            end
+        end
+        circleData.WasGrounded = grounded
+        circleData.PreviousPosition = rootPos
+
+        local center
+        if groundHit then
+            center = groundHit.Position + Vector3.new(0, 0.045, 0)
+        elseif circleData.LastGroundPosition then
+            center = Vector3.new(rootPos.X, circleData.LastGroundPosition.Y, rootPos.Z)
+        else
+            center = Vector3.new(rootPos.X, getGroundY(rootPos, currentChar), rootPos.Z)
+        end
+
         local elapsed = os.clock() - startClock
-
-        pulse = pulse + dt * 3.5 * pulseDir
-        if pulse > 1 then pulse = 1; pulseDir = -1 end
-        if pulse < 0 then pulse = 0; pulseDir = 1 end
-
-        local groundY = getGroundY(hrp.Position, char)
-        local groundCenter = Vector3.new(hrp.Position.X, groundY, hrp.Position.Z)
-
-        local pulseThickMult = 1.0 + (pulse * 0.45)
-        updateJumpRingLayout(segments, groundCenter, XCConfig.jumpCircleRadius, pulseThickMult)
+        local pulse = (math.sin(elapsed * 7) + 1) * 0.5
+        updateJumpRingLayout(segments, center, XCConfig.jumpCircleRadius, 1 + pulse * 0.38)
 
         if XCConfig.jumpCircleStyle == "GradientWave" then
             local n = #segments
-            local spin = (elapsed * 3) % (math.pi * 2)
+            local spin = (elapsed * 0.48) % 1
             local c1 = currentTheme.Accent
             local c2 = Color3.fromRGB(0, 230, 255)
             for i, seg in ipairs(segments) do
-                local ratio = ((i / n) + spin) % 1
-                local wave = (math.sin(ratio * math.pi * 2) + 1) * 0.5
+                local wave = (math.sin((((i / n) + spin) % 1) * math.pi * 2) + 1) * 0.5
                 if seg.Part and seg.Part.Parent then
                     seg.Part.Color = c1:Lerp(c2, wave)
-                    seg.Part.Transparency = 0.05 + (pulse * 0.25)
+                    seg.Part.Transparency = 0.05 + pulse * 0.18
                 end
             end
         elseif XCConfig.jumpCircleStyle == "ChromaPulse" then
-            local hue = (elapsed * 0.35) % 1
-            local col = Color3.fromHSV(hue, 0.85, 1)
+            local col = Color3.fromHSV((elapsed * 0.35) % 1, 0.85, 1)
             for _, seg in ipairs(segments) do
                 if seg.Part and seg.Part.Parent then
                     seg.Part.Color = col
-                    seg.Part.Transparency = 0.1 + (pulse * 0.3)
+                    seg.Part.Transparency = 0.08 + pulse * 0.2
                 end
             end
-        elseif XCConfig.jumpCircleStyle == "StaticNeon" then
+        else
             for _, seg in ipairs(segments) do
                 if seg.Part and seg.Part.Parent then
                     seg.Part.Color = currentTheme.Accent
-                    seg.Part.Transparency = 0.05 + (pulse * 0.25)
+                    seg.Part.Transparency = 0.05 + pulse * 0.18
                 end
             end
         end
     end)
     table.insert(circleData.Connections, loopConn)
-
-    local stateConn = hum.StateChanged:Connect(function(_, newState)
-        if newState == Enum.HumanoidStateType.Jumping then
-            local groundY = getGroundY(hrp.Position, char)
-            local footPos = Vector3.new(hrp.Position.X, groundY, hrp.Position.Z)
-            spawnJumpRipple(footPos)
-        end
-    end)
-    table.insert(circleData.Connections, stateConn)
 end
 
-table.insert(connections, player.CharacterAdded:Connect(initJumpCircleForCharacter))
+table.insert(connections, player.CharacterAdded:Connect(function(char)
+    task.defer(function()
+        if XCConfig.jumpCircleEnabled then initJumpCircleForCharacter(char) end
+    end)
+end))
 table.insert(connections, player.CharacterRemoving:Connect(clearActiveJumpCircle))
 
-if player.Character then
-    task.spawn(function()
-        initJumpCircleForCharacter(player.Character)
-    end)
+if player.Character and XCConfig.jumpCircleEnabled then
+    task.defer(function() initJumpCircleForCharacter(player.Character) end)
 end
-
 
 -- ==========================================
 -- XC LOCAL MOTION TRAIL + GHOST AFTERIMAGES
--- Lightweight recreation of the ribbon/ghost movement look from the reference.
+-- World-space anchors are independent of Bloxstrike's character descendants.
 -- ==========================================
 local XCMotionState = {
     Character = nil,
     Root = nil,
+    Rig = nil,
+    Anchor0 = nil,
+    Anchor1 = nil,
     Attachment0 = nil,
     Attachment1 = nil,
     Trail = nil,
     LastGhost = 0,
     LastGhostPosition = nil,
+    PreviousRootPosition = nil,
 }
 
 local function getXCMotionColor(prefix, fallback)
@@ -6548,21 +6644,40 @@ local function getXCMotionColor(prefix, fallback)
 end
 
 local function clearXCMotionTrail()
-    if XCMotionState.Trail then
-        pcall(function() XCMotionState.Trail:Destroy() end)
-    end
-    if XCMotionState.Attachment0 then
-        pcall(function() XCMotionState.Attachment0:Destroy() end)
-    end
-    if XCMotionState.Attachment1 then
-        pcall(function() XCMotionState.Attachment1:Destroy() end)
+    if XCMotionState.Rig then
+        pcall(function() XCMotionState.Rig:Destroy() end)
+    else
+        if XCMotionState.Trail then pcall(function() XCMotionState.Trail:Destroy() end) end
+        if XCMotionState.Anchor0 then pcall(function() XCMotionState.Anchor0:Destroy() end) end
+        if XCMotionState.Anchor1 then pcall(function() XCMotionState.Anchor1:Destroy() end) end
     end
     XCMotionState.Character = nil
     XCMotionState.Root = nil
+    XCMotionState.Rig = nil
+    XCMotionState.Anchor0 = nil
+    XCMotionState.Anchor1 = nil
     XCMotionState.Attachment0 = nil
     XCMotionState.Attachment1 = nil
     XCMotionState.Trail = nil
     XCMotionState.LastGhostPosition = nil
+    XCMotionState.PreviousRootPosition = nil
+end
+
+local function XCMakeTrailAnchor(name, parent)
+    local part = Instance.new("Part")
+    part.Name = name
+    part.Size = Vector3.new(0.05, 0.05, 0.05)
+    part.Transparency = 1
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.CastShadow = false
+    part.Parent = parent
+    local attachment = Instance.new("Attachment")
+    attachment.Name = name .. "_Attachment"
+    attachment.Parent = part
+    return part, attachment
 end
 
 local function ensureXCMotionTrail(character, root)
@@ -6578,31 +6693,26 @@ local function ensureXCMotionTrail(character, root)
 
         clearXCMotionTrail()
 
-        local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
+        local rig = Instance.new("Folder")
+        rig.Name = "XC_MotionTrailWorldRig"
+        rig.Parent = Workspace
 
-        local a0 = Instance.new("Attachment")
-        a0.Name = "XC_MotionTrail_A0"
-        a0.Position = Vector3.new(-width * 0.5, -2.15, 0)
-        a0.Parent = root
-
-        local a1 = Instance.new("Attachment")
-        a1.Name = "XC_MotionTrail_A1"
-        a1.Position = Vector3.new(width * 0.5, -2.15, 0)
-        a1.Parent = root
+        local anchor0, a0 = XCMakeTrailAnchor("XC_MotionTrail_Left", rig)
+        local anchor1, a1 = XCMakeTrailAnchor("XC_MotionTrail_Right", rig)
 
         local trail = Instance.new("Trail")
         trail.Name = "XC_MotionRibbon"
         trail.Attachment0 = a0
         trail.Attachment1 = a1
         trail.FaceCamera = true
-        trail.LightEmission = 0.75
+        trail.LightEmission = 0.9
         trail.LightInfluence = 0
-        trail.MinLength = 0.025
+        trail.MinLength = 0.01
         trail.Lifetime = math.clamp(tonumber(XCConfig.motionTrailLifetime) or 1.15, 0.15, 3)
         trail.Color = ColorSequence.new(getXCMotionColor("motionTrailColor", Color3.new(1, 1, 1)))
         trail.Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0.04),
-            NumberSequenceKeypoint.new(0.7, 0.22),
+            NumberSequenceKeypoint.new(0, 0.02),
+            NumberSequenceKeypoint.new(0.7, 0.18),
             NumberSequenceKeypoint.new(1, 1),
         })
         trail.WidthScale = NumberSequence.new({
@@ -6610,21 +6720,22 @@ local function ensureXCMotionTrail(character, root)
             NumberSequenceKeypoint.new(0.82, 0.72),
             NumberSequenceKeypoint.new(1, 0),
         })
-        trail.Parent = root
+        trail.Parent = rig
 
         XCMotionState.Character = character
         XCMotionState.Root = root
+        XCMotionState.Rig = rig
+        XCMotionState.Anchor0 = anchor0
+        XCMotionState.Anchor1 = anchor1
         XCMotionState.Attachment0 = a0
         XCMotionState.Attachment1 = a1
         XCMotionState.Trail = trail
         XCMotionState.LastGhostPosition = root.Position
+        XCMotionState.PreviousRootPosition = root.Position
     end
 
     local trail = XCMotionState.Trail
     if trail then
-        local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
-        XCMotionState.Attachment0.Position = Vector3.new(-width * 0.5, -2.15, 0)
-        XCMotionState.Attachment1.Position = Vector3.new(width * 0.5, -2.15, 0)
         trail.Lifetime = math.clamp(tonumber(XCConfig.motionTrailLifetime) or 1.15, 0.15, 3)
         trail.Color = ColorSequence.new(getXCMotionColor("motionTrailColor", Color3.new(1, 1, 1)))
         trail.Enabled = XCConfig.motionTrailEnabled
@@ -6632,10 +6743,20 @@ local function ensureXCMotionTrail(character, root)
     return trail
 end
 
-local function spawnXCMotionGhost(character)
-    if not XCConfig.motionGhostEnabled then return end
-    if not character or not character.Parent then return end
+local function XCUpdateMotionAnchors(root)
+    if not root or not XCMotionState.Anchor0 or not XCMotionState.Anchor1 then return end
+    local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
+    local rootCF = root.CFrame
+    local right = rootCF.RightVector
+    local upOffset = Vector3.new(0, -2.0, 0)
+    local center = root.Position + upOffset
+    local half = math.max(0.04, width * 0.5)
+    XCMotionState.Anchor0.CFrame = CFrame.new(center - right * half)
+    XCMotionState.Anchor1.CFrame = CFrame.new(center + right * half)
+end
 
+local function spawnXCMotionGhost(character)
+    if not XCConfig.motionGhostEnabled or not character or not character.Parent then return end
     local ghostModel = Instance.new("Model")
     ghostModel.Name = "XC_MotionGhost"
     ghostModel.Parent = Workspace
@@ -6650,7 +6771,6 @@ local function spawnXCMotionGhost(character)
             and source.Name ~= "HumanoidRootPart"
             and source.Transparency < 0.96
             and created < 28 then
-
             local ok, ghost = pcall(function() return source:Clone() end)
             if ok and ghost and ghost:IsA("BasePart") then
                 created += 1
@@ -6665,23 +6785,14 @@ local function spawnXCMotionGhost(character)
                 ghost.Color = ghostColor
                 ghost.Material = Enum.Material.ForceField
                 ghost.Transparency = startTransparency
-
                 pcall(function()
                     if ghost:IsA("MeshPart") then ghost.TextureID = "" end
                 end)
-
                 for _, child in ipairs(ghost:GetDescendants()) do
-                    if child:IsA("Weld")
-                        or child:IsA("Motor6D")
-                        or child:IsA("WeldConstraint")
-                        or child:IsA("Attachment")
-                        or child:IsA("Decal")
-                        or child:IsA("Texture")
-                        or child:IsA("ParticleEmitter")
-                        or child:IsA("Trail")
-                        or child:IsA("Beam")
-                        or child:IsA("Script")
-                        or child:IsA("LocalScript") then
+                    if child:IsA("Weld") or child:IsA("Motor6D") or child:IsA("WeldConstraint")
+                        or child:IsA("Attachment") or child:IsA("Decal") or child:IsA("Texture")
+                        or child:IsA("ParticleEmitter") or child:IsA("Trail") or child:IsA("Beam")
+                        or child:IsA("Script") or child:IsA("LocalScript") then
                         pcall(function() child:Destroy() end)
                     elseif child:IsA("SpecialMesh") then
                         pcall(function()
@@ -6694,7 +6805,6 @@ local function spawnXCMotionGhost(character)
                         end)
                     end
                 end
-
                 ghost.Parent = ghostModel
                 TweenService:Create(
                     ghost,
@@ -6712,31 +6822,32 @@ local function spawnXCMotionGhost(character)
     Debris:AddItem(ghostModel, fadeTime + 0.08)
 end
 
-table.insert(connections, RunService.Heartbeat:Connect(function()
+table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if not xcSessionActive() then
         clearXCMotionTrail()
         return
     end
-
     if not XCConfig.motionTrailEnabled then
         if XCMotionState.Trail then clearXCMotionTrail() end
         return
     end
 
-    local character = player and player.Character
-    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-    if not character or not humanoid or humanoid.Health <= 0 or not root then
+    local character, root = XCResolveVisualCharacter()
+    if not character or not root then
         if XCMotionState.Trail then clearXCMotionTrail() end
         return
     end
 
     ensureXCMotionTrail(character, root)
+    XCUpdateMotionAnchors(root)
+
+    local previousPosition = XCMotionState.PreviousRootPosition
+    local velocity = XCGetRootVelocity(root, previousPosition, dt)
+    XCMotionState.PreviousRootPosition = root.Position
 
     if not XCConfig.motionGhostEnabled then return end
-    local velocity = root.AssemblyLinearVelocity
     local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-    if horizontalSpeed < 3 then return end
+    if horizontalSpeed < 2.0 then return end
 
     local now = os.clock()
     local interval = math.clamp(tonumber(XCConfig.motionGhostInterval) or 0.12, 0.06, 0.5)
@@ -6744,7 +6855,7 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
 
     local currentPosition = root.Position
     local lastPosition = XCMotionState.LastGhostPosition
-    if lastPosition and (currentPosition - lastPosition).Magnitude < 0.65 then return end
+    if lastPosition and (currentPosition - lastPosition).Magnitude < 0.45 then return end
 
     XCMotionState.LastGhost = now
     XCMotionState.LastGhostPosition = currentPosition
