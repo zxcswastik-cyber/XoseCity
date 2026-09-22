@@ -398,7 +398,7 @@ local XCConfig = {
     triggerbotEnabled = false,
     triggerbotMode = "Crosshair",
     antiAimEnabled = false,
-    antiAimMode = "Spin",
+    antiAimMode = "Vector Shift",
     bunnyHopEnabled = false,
     slideEnabled = false,
     speedEnabled = false,
@@ -719,6 +719,19 @@ for _, colorKey in ipairs({
 }) do
     XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
 end
+local XC_NEW_ANTIAIM_MODES = {
+    ["Vector Shift"] = true,
+    ["Pendulum Snap"] = true,
+    ["Crosswind"] = true,
+    ["Golden Flick"] = true,
+    ["Phase Lattice"] = true,
+    ["Velocity Brake"] = true,
+    ["Double Pulse"] = true,
+    ["Reverse Step"] = true,
+}
+if not XC_NEW_ANTIAIM_MODES[tostring(XCConfig.antiAimMode or "")] then
+    XCConfig.antiAimMode = "Vector Shift"
+end
 
 local UI_Bind_Registry = {}
 -- Expensive executor scans are opt-in for the current session. Persisted
@@ -745,6 +758,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local ContentProvider = game:GetService("ContentProvider")
 local Debris = game:GetService("Debris")
+local LogService = game:GetService("LogService")
 local VirtualInputManager = nil
 -- A synthetic mouse event changes Roblox's preferred input to desktop and
 -- makes Blox Strike remove its mobile buttons. Never create that path on a
@@ -831,6 +845,102 @@ local savedPos = (genv and genv.XCSavedPos) or {
     OpenBtn = UDim2.new(0.5, -45, 0, 15),
     MainFrame = UDim2.new(0.5, 0, 0.5, 0)
 }
+
+-- ==========================================
+-- SHARED XC CONSOLE CAPTURE
+-- ==========================================
+local XCConsoleShared = (sharedXCEnv and type(sharedXCEnv.XCConsoleShared) == "table")
+    and sharedXCEnv.XCConsoleShared or nil
+if not XCConsoleShared then
+    XCConsoleShared = {
+        RobloxEntries = {},
+        DeltaEntries = {},
+        MaxEntries = 260,
+        Listeners = {},
+        Hooked = false,
+        MessageConnection = nil,
+    }
+    if sharedXCEnv then sharedXCEnv.XCConsoleShared = XCConsoleShared end
+end
+
+local function XCNormalizeConsoleLevel(level)
+    level = tostring(level or "info"):lower()
+    if level == "warn" then level = "warning" end
+    if level ~= "error" and level ~= "warning" then level = "info" end
+    return level
+end
+
+local function XCEmitConsoleUpdate()
+    local dead = {}
+    for index, listener in ipairs(XCConsoleShared.Listeners) do
+        if type(listener) ~= "function" then
+            dead[#dead + 1] = index
+        else
+            local ok = pcall(listener)
+            if not ok then dead[#dead + 1] = index end
+        end
+    end
+    for index = #dead, 1, -1 do table.remove(XCConsoleShared.Listeners, dead[index]) end
+end
+
+function XCAppendConsoleMessage(targetList, message, level)
+    targetList = (targetList == "DeltaEntries") and "DeltaEntries" or "RobloxEntries"
+    message = tostring(message or "")
+    if message == "" then return end
+    local entries = XCConsoleShared[targetList]
+    if type(entries) ~= "table" then
+        entries = {}
+        XCConsoleShared[targetList] = entries
+    end
+    table.insert(entries, {
+        Time = os.date("%H:%M:%S"),
+        Text = message,
+        Level = XCNormalizeConsoleLevel(level),
+    })
+    while #entries > (tonumber(XCConsoleShared.MaxEntries) or 260) do
+        table.remove(entries, 1)
+    end
+    XCEmitConsoleUpdate()
+end
+
+function XCAppendDeltaConsoleMessage(message, level)
+    XCAppendConsoleMessage("DeltaEntries", message, level)
+end
+
+function XCGetConsoleEntries(targetList)
+    targetList = (targetList == "DeltaEntries") and "DeltaEntries" or "RobloxEntries"
+    local entries = XCConsoleShared[targetList]
+    return type(entries) == "table" and entries or {}
+end
+
+function XCClearConsoleEntries(targetList)
+    targetList = (targetList == "DeltaEntries") and "DeltaEntries" or "RobloxEntries"
+    XCConsoleShared[targetList] = {}
+    XCEmitConsoleUpdate()
+end
+
+local function ensureXCConsoleHooks()
+    if XCConsoleShared.Hooked then return end
+    XCConsoleShared.Hooked = true
+    if #XCGetConsoleEntries("DeltaEntries") == 0 then
+        XCAppendDeltaConsoleMessage("XC console bridge ready.", "info")
+        XCAppendDeltaConsoleMessage("Use getgenv().XCDeltaConsolePrint(\"message\") to send custom executor/API logs here.", "info")
+    end
+    pcall(function()
+        XCConsoleShared.MessageConnection = LogService.MessageOut:Connect(function(message, messageType)
+            local level = "info"
+            if messageType == Enum.MessageType.MessageError then
+                level = "error"
+            elseif messageType == Enum.MessageType.MessageWarning then
+                level = "warning"
+            end
+            XCAppendConsoleMessage("RobloxEntries", message, level)
+        end)
+    end)
+end
+
+ensureXCConsoleHooks()
+if genv then genv.XCDeltaConsolePrint = XCAppendDeltaConsoleMessage end
 
 -- ==========================================
 -- EXTENDED THEME & PALETTE SYSTEM
@@ -952,6 +1062,9 @@ function XCNotify(title, message, kind, duration)
     title = tostring(title or "XC")
     message = tostring(message or "")
     duration = tonumber(duration) or 2.5
+    pcall(function()
+        XCAppendDeltaConsoleMessage(string.format("[%s] %s", title, message), kind)
+    end)
 
     local accent = currentTheme.Accent
     if kind == "success" then
@@ -10154,50 +10267,99 @@ end
 -- avoids running a second anti-aim engine.
 local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart)
     local baseDegrees = tonumber(XCConfig.antiAimYaw) or 180
-    local jitterDegrees = math.clamp(tonumber(XCConfig.antiAimJitter) or 60, 0, 180)
-    local spinDegrees = (elapsed * math.max(10, tonumber(XCConfig.spinSpeed) or 50) * 6) % 360
+    local rangeDegrees = math.clamp(tonumber(XCConfig.antiAimJitter) or 60, 0, 180)
+    local patternRate = math.max(10, tonumber(XCConfig.spinSpeed) or 50)
+    local interval = math.max(0.04, tonumber(XCConfig.antiAimInterval) or 0.15)
     local side = step % 2 == 0 and -1 or 1
     local baseYaw = originalYaw + math.rad(baseDegrees)
 
-    if mode == "Backwards" then
-        return originalYaw + math.pi
-    elseif mode == "Jitter" then
-        return baseYaw + math.rad(jitterDegrees * side)
-    elseif mode == "Spin" then
-        return baseYaw + math.rad(spinDegrees)
-    elseif mode == "Random" then
-        if state.AntiComputedStep ~= step or state.AntiComputedRandomYaw == nil then
-            state.AntiComputedStep = step
-            state.AntiComputedRandomYaw = math.random(-180, 180)
-        end
-        return baseYaw + math.rad(state.AntiComputedRandomYaw)
-    elseif mode == "Gamesense Center Jitter" then
-        return baseYaw + math.rad(jitterDegrees * 0.5 * side)
-    elseif mode == "Gamesense 3-Way" then
-        local phase = step % 3
-        local offset = phase == 0 and -jitterDegrees or (phase == 1 and 0 or jitterDegrees)
-        return baseYaw + math.rad(offset)
-    elseif mode == "Gamesense Sway" then
-        local interval = math.max(0.04, tonumber(XCConfig.antiAimInterval) or 0.15)
-        return baseYaw + math.rad(math.sin(elapsed * math.pi / interval) * jitterDegrees)
-    elseif mode == "NeverLose Adaptive" then
-        local velocity = rootPart and rootPart:IsA("BasePart") and rootPart.AssemblyLinearVelocity or Vector3.zero
-        local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-        local scale = horizontalSpeed > 3 and 1 or 0.35
-        return baseYaw + math.rad(jitterDegrees * scale * side)
-    elseif mode == "NeverLose Defensive" then
-        local flick = step % 4 == 0 and math.min(110, math.max(45, jitterDegrees)) * side or 0
-        return baseYaw + math.rad(flick)
-    elseif mode == "NixWare Sideways" then
-        return baseYaw + math.rad(90 * side)
-    elseif mode == "NixWare Spin Jitter" then
-        return baseYaw + math.rad(spinDegrees + jitterDegrees * 0.5 * side)
-    elseif mode == "Memesense Legit" then
-        local subtleBase = math.clamp(baseDegrees, -35, 35)
-        return originalYaw + math.rad(subtleBase + math.min(jitterDegrees, 12) * side)
-    elseif mode == "Memesense Low Delta" then
-        return originalYaw + math.pi + math.rad(math.min(jitterDegrees, 35) * side)
+    local velocity = Vector3.zero
+    if rootPart and rootPart:IsA("BasePart") then
+        velocity = rootPart.AssemblyLinearVelocity
     end
+    local horizontalVelocity = Vector3.new(velocity.X, 0, velocity.Z)
+    local speed = horizontalVelocity.Magnitude
+
+    local function velocityYaw()
+        if speed < 0.2 then return originalYaw end
+        -- CFrame yaw=0 looks toward -Z, hence the negated X/Z pair.
+        return math.atan2(-horizontalVelocity.X, -horizontalVelocity.Z)
+    end
+
+    if mode == "Vector Shift" then
+        -- Movement-aware: face against travel while continually crossing the
+        -- movement vector. At low speed it becomes a compact alternating hold.
+        if speed > 1.5 then
+            local speedScale = math.clamp(speed / 22, 0.25, 1)
+            return velocityYaw() + math.pi + math.rad(baseDegrees * 0.25)
+                + math.rad(rangeDegrees * (0.28 + 0.22 * speedScale) * side)
+        end
+        return baseYaw + math.rad(rangeDegrees * 0.32 * side)
+
+    elseif mode == "Pendulum Snap" then
+        -- Triangle-wave travel with a hard endpoint snap every fourth phase.
+        local phase = (elapsed / interval) % 4
+        local triangle
+        if phase < 1 then triangle = phase
+        elseif phase < 3 then triangle = 2 - phase
+        else triangle = phase - 4 end
+        local snap = (step % 8 == 0 or step % 8 == 4) and 0.35 * side or 0
+        return baseYaw + math.rad(rangeDegrees * math.clamp(triangle + snap, -1, 1))
+
+    elseif mode == "Crosswind" then
+        -- Uses lateral movement relative to the current look direction. The
+        -- faster the sideways travel, the harder the yaw is pushed crosswise.
+        local lookRight = Vector3.new(math.cos(originalYaw), 0, -math.sin(originalYaw))
+        local lateral = speed > 0.2 and horizontalVelocity.Unit:Dot(lookRight) or 0
+        local windSide = math.abs(lateral) > 0.12 and (lateral > 0 and -1 or 1) or side
+        local speedScale = math.clamp(speed / 18, 0.15, 1)
+        return baseYaw + math.rad(rangeDegrees * windSide * (0.35 + 0.65 * speedScale))
+
+    elseif mode == "Golden Flick" then
+        -- Deterministic golden-angle sequence: it does not repeat in the short
+        -- patterns typical of 2/3-way jitter and does not call math.random.
+        local golden = 137.50776405003785
+        local raw = ((step * golden + patternRate * 0.37) % 360) - 180
+        local scale = rangeDegrees / 180
+        return baseYaw + math.rad(raw * scale)
+
+    elseif mode == "Phase Lattice" then
+        -- Eight-state asymmetric lattice deliberately avoids mirrored pairs.
+        local lattice = {0.12, -0.78, 0.46, 1.00, -0.24, 0.71, -1.00, 0.31}
+        local value = lattice[(step % #lattice) + 1]
+        return baseYaw + math.rad(rangeDegrees * value)
+
+    elseif mode == "Velocity Brake" then
+        -- Moving players face back into their velocity with a speed-dependent
+        -- brake angle. Standing players use a wide two-step hold instead.
+        if speed > 2 then
+            local brake = rangeDegrees > 0 and math.min(rangeDegrees, math.max(8, speed * 2.2)) or 0
+            return velocityYaw() + math.pi + math.rad(brake * side)
+        end
+        local standingRange = rangeDegrees > 0 and math.min(105, rangeDegrees) or 0
+        return baseYaw + math.rad(standingRange * side)
+
+    elseif mode == "Double Pulse" then
+        -- Two quick opposite pulses followed by a longer neutral recovery.
+        local phase = step % 6
+        local pulse
+        if phase == 0 then pulse = 1
+        elseif phase == 1 then pulse = -0.72
+        elseif phase == 2 then pulse = 0.38
+        elseif phase == 3 then pulse = 0
+        elseif phase == 4 then pulse = 0
+        else pulse = -0.18 end
+        return baseYaw + math.rad(rangeDegrees * pulse)
+
+    elseif mode == "Reverse Step" then
+        -- A non-uniform four-corner walk around the base direction. Pattern
+        -- rate subtly rotates the starting phase without continuous spinning.
+        local corners = {-1.0, 0.42, -0.27, 0.83, 0.08}
+        local phaseShift = math.floor(patternRate / 30) % #corners
+        local value = corners[((step + phaseShift) % #corners) + 1]
+        return baseYaw + math.rad(rangeDegrees * value)
+    end
+
     return baseYaw
 end
 
@@ -10300,7 +10462,7 @@ function setupXCCharacterInputHook()
                     local interval = math.max(0.04, tonumber(XCConfig.antiAimInterval) or 0.15)
                     local step = math.floor(elapsed / interval)
                     local originalYaw = tonumber(result.LookYaw) or 0
-                    local mode = tostring(XCConfig.antiAimMode or "Static")
+                    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
                     local rootPart = model:FindFirstChild("HumanoidRootPart")
                     local yaw = resolveXCAntiAimYaw(
                         mode, originalYaw, elapsed, step, xcCharacterInputHook, rootPart
@@ -10376,7 +10538,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local elapsed = now - XCFeatureState.antiAimStarted
     local interval = math.max(0.04, tonumber(XCConfig.antiAimInterval) or 0.15)
     local step = math.floor(elapsed / interval)
-    local mode = tostring(XCConfig.antiAimMode or "Spin")
+    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
     local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp)
     targetYaw = (targetYaw + math.pi) % (math.pi * 2) - math.pi
     hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, targetYaw, 0)
@@ -11433,7 +11595,7 @@ function buildXCUI()
         skeletonDistanceFade = "Gradually fades skeleton lines at long distances.",
         noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
         hitSoundEnabled = "Plays the selected local sound when enemy health decreases.",
-        antiAimMode = "Static, jitter, spin and XC adaptations of Gamesense, NeverLose, NixWare or Memesense anti-aim styles.",
+        antiAimMode = "Selects an XC-native anti-aim pattern. Several modes react to movement velocity; others use deterministic asymmetric phase sequences.",
         nightModeEnabled = "Applies the selected lighting preset locally.",
         worldSkyboxEnabled = "Applies the selected custom skybox locally.",
         worldPostFXEnabled = "Enables local color correction and post-processing.",
@@ -11471,6 +11633,7 @@ function buildXCUI()
         tab_Visuals = "Visuals: ESP, chams and on-screen combat feedback.",
         tab_World = "World: lighting, weather, scope and camera tools.",
         tab_Misc = "Utilities: session helpers, animations and viewmodel controls.",
+        tab_Console = "Consoles: Roblox output on the left and XC/Delta runtime messages on the right.",
         tab_Skins = "Inventory changer: weapon finishes, wear, knives and gloves.",
         tab_Players = "Players: target rules, priority player and ESP details.",
         tab_Settings = "Settings: interface, palette, module editor and quick actions.",
@@ -13206,6 +13369,19 @@ function buildXCUI()
             iconLine(root, 8, 8, 7, 1.4, color)
             iconLine(root, 8, 12, 7, 1.4, color)
             iconLine(root, 8, 16, 7, 1.4, color)
+        elseif kind == "console" then
+            local shell = Instance.new("Frame")
+            shell.Size = UDim2.fromOffset(16, 12)
+            shell.Position = UDim2.fromOffset(3, 5)
+            shell.BackgroundTransparency = 1
+            shell.Parent = root
+            local shellStroke = Instance.new("UIStroke")
+            shellStroke.Color = color
+            shellStroke.Thickness = 1.4
+            shellStroke.Parent = shell
+            iconLine(root, 7, 9, 5, 1.5, color, 35)
+            iconLine(root, 7, 13, 5, 1.5, color, -35)
+            iconLine(root, 14, 14, 5, 1.5, color)
         end
         return root
     end
@@ -13222,7 +13398,7 @@ function buildXCUI()
 
     local tabs = {
         {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"Players", "players"},
-        {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"},
+        {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"}, {"Console", "console"},
         {"Settings", "misc"}, {"Configs", "configs"},
     }
     local function switchPage(name)
@@ -13361,15 +13537,12 @@ function buildXCUI()
     section(R, "Anti-aim")
     toggle(R, "Anti-aim", "antiAimEnabled")
     addChoice(R, "Anti-aim mode", "antiAimMode", {
-        "Static", "Backwards", "Jitter", "Spin", "Random",
-        "Gamesense Center Jitter", "Gamesense 3-Way", "Gamesense Sway",
-        "NeverLose Adaptive", "NeverLose Defensive",
-        "NixWare Sideways", "NixWare Spin Jitter",
-        "Memesense Legit", "Memesense Low Delta"
+        "Vector Shift", "Pendulum Snap", "Crosswind", "Golden Flick",
+        "Phase Lattice", "Velocity Brake", "Double Pulse", "Reverse Step"
     })
-    addSlider(R, "Base yaw", "antiAimYaw", -180, 180, 1, "°")
-    addSlider(R, "Jitter range", "antiAimJitter", 0, 180, 1, "°")
-    addSlider(R, "Spin speed", "spinSpeed", 10, 150, 1, "")
+    addSlider(R, "Base offset", "antiAimYaw", -180, 180, 1, "°")
+    addSlider(R, "Pattern range", "antiAimJitter", 0, 180, 1, "°")
+    addSlider(R, "Pattern rate", "spinSpeed", 10, 150, 1, "")
     addSlider(R, "Switch interval", "antiAimInterval", 0.04, 0.5, 0.01, "s")
 
     section(R, "Third person")
@@ -13977,6 +14150,211 @@ function buildXCUI()
     addNote(ConfigCommunity, "Choose a config from the library list; no name or link is required for loading.")
     addNote(ConfigCommunity, "Only JSON settings are downloaded. Lua code from community entries is never executed.")
     task.defer(refreshCommunityCatalog)
+
+    do
+        local consolePage = pages["Console"]
+        if consolePage then
+            local function consoleLevelColor(level)
+                level = tostring(level or "info"):lower()
+                if level == "error" then return Color3.fromRGB(234, 90, 90) end
+                if level == "warning" then return Color3.fromRGB(232, 191, 96) end
+                return C.Text
+            end
+
+            local function createConsoleCard(title, subtitle, xScale, sourceKey)
+                local card = Instance.new("Frame")
+                card.Name = title:gsub("%W", "")
+                card.Size = UDim2.new(0.49, 0, 1, 0)
+                card.Position = UDim2.new(xScale, 0, 0, 0)
+                card.BackgroundColor3 = C.Control
+                card.BackgroundTransparency = 0.03
+                card.BorderSizePixel = 0
+                card.Parent = consolePage
+                local cardCorner = Instance.new("UICorner")
+                cardCorner.CornerRadius = UDim.new(0, 18)
+                cardCorner.Parent = card
+                local cardStroke = Instance.new("UIStroke")
+                cardStroke.Color = C.Border
+                cardStroke.Thickness = 1
+                cardStroke.Parent = card
+
+                local titleLabel = Instance.new("TextLabel")
+                titleLabel.Size = UDim2.new(1, -32, 0, 32)
+                titleLabel.Position = UDim2.fromOffset(18, 14)
+                titleLabel.BackgroundTransparency = 1
+                titleLabel.Text = title
+                titleLabel.TextColor3 = C.White
+                titleLabel.Font = Enum.Font.GothamBold
+                titleLabel.TextSize = 15
+                titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+                titleLabel.Parent = card
+
+                local subtitleLabel = Instance.new("TextLabel")
+                subtitleLabel.Size = UDim2.new(1, -32, 0, 34)
+                subtitleLabel.Position = UDim2.fromOffset(18, 40)
+                subtitleLabel.BackgroundTransparency = 1
+                subtitleLabel.Text = subtitle
+                subtitleLabel.TextColor3 = C.Muted
+                subtitleLabel.Font = Enum.Font.Gotham
+                subtitleLabel.TextSize = 9
+                subtitleLabel.TextWrapped = true
+                subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+                subtitleLabel.TextYAlignment = Enum.TextYAlignment.Top
+                subtitleLabel.Parent = card
+
+                local searchLabel = Instance.new("TextLabel")
+                searchLabel.Size = UDim2.fromOffset(46, 18)
+                searchLabel.Position = UDim2.new(1, -260, 0, 90)
+                searchLabel.BackgroundTransparency = 1
+                searchLabel.Text = "Search:"
+                searchLabel.TextColor3 = C.White
+                searchLabel.Font = Enum.Font.GothamBold
+                searchLabel.TextSize = 10
+                searchLabel.TextXAlignment = Enum.TextXAlignment.Left
+                searchLabel.Parent = card
+
+                local searchFrame = Instance.new("Frame")
+                searchFrame.Size = UDim2.fromOffset(160, 20)
+                searchFrame.Position = UDim2.new(1, -172, 0, 88)
+                searchFrame.BackgroundColor3 = C.Panel
+                searchFrame.BorderSizePixel = 0
+                searchFrame.Parent = card
+                local searchCorner = Instance.new("UICorner")
+                searchCorner.CornerRadius = UDim.new(0, 7)
+                searchCorner.Parent = searchFrame
+                local searchStroke = Instance.new("UIStroke")
+                searchStroke.Color = C.Lime:Lerp(C.White, 0.35)
+                searchStroke.Thickness = 1
+                searchStroke.Parent = searchFrame
+
+                local searchBoxInner = Instance.new("TextBox")
+                searchBoxInner.Size = UDim2.new(1, -12, 1, 0)
+                searchBoxInner.Position = UDim2.fromOffset(6, 0)
+                searchBoxInner.BackgroundTransparency = 1
+                searchBoxInner.ClearTextOnFocus = false
+                searchBoxInner.PlaceholderText = "filter output"
+                searchBoxInner.Text = ""
+                searchBoxInner.TextColor3 = C.Text
+                searchBoxInner.PlaceholderColor3 = C.Muted
+                searchBoxInner.Font = Enum.Font.Code
+                searchBoxInner.TextSize = 10
+                searchBoxInner.TextXAlignment = Enum.TextXAlignment.Left
+                searchBoxInner.Parent = searchFrame
+
+                local body = Instance.new("Frame")
+                body.Size = UDim2.new(1, -30, 1, -164)
+                body.Position = UDim2.fromOffset(15, 116)
+                body.BackgroundColor3 = C.Panel
+                body.BorderSizePixel = 0
+                body.Parent = card
+                local bodyCorner = Instance.new("UICorner")
+                bodyCorner.CornerRadius = UDim.new(0, 14)
+                bodyCorner.Parent = body
+                local bodyStroke = Instance.new("UIStroke")
+                bodyStroke.Color = C.Border
+                bodyStroke.Thickness = 1
+                bodyStroke.Transparency = 0.08
+                bodyStroke.Parent = body
+
+                local scroller = Instance.new("ScrollingFrame")
+                scroller.Size = UDim2.new(1, -16, 1, -16)
+                scroller.Position = UDim2.fromOffset(8, 8)
+                scroller.BackgroundTransparency = 1
+                scroller.BorderSizePixel = 0
+                scroller.ScrollBarThickness = 3
+                scroller.ScrollBarImageColor3 = C.Border
+                scroller.CanvasSize = UDim2.new()
+                scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
+                scroller.Parent = body
+                local scrollerLayout = Instance.new("UIListLayout")
+                scrollerLayout.Padding = UDim.new(0, 4)
+                scrollerLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                scrollerLayout.Parent = scroller
+                local scrollerPad = Instance.new("UIPadding")
+                scrollerPad.PaddingLeft = UDim.new(0, 6)
+                scrollerPad.PaddingRight = UDim.new(0, 6)
+                scrollerPad.PaddingTop = UDim.new(0, 6)
+                scrollerPad.PaddingBottom = UDim.new(0, 6)
+                scrollerPad.Parent = scroller
+
+                local empty = Instance.new("TextLabel")
+                empty.Size = UDim2.new(1, -4, 0, 20)
+                empty.BackgroundTransparency = 1
+                empty.Text = "No messages yet."
+                empty.TextColor3 = C.Muted
+                empty.Font = Enum.Font.Code
+                empty.TextSize = 10
+                empty.TextXAlignment = Enum.TextXAlignment.Left
+                empty.Parent = scroller
+
+                local clear = Instance.new("TextButton")
+                clear.Size = UDim2.fromOffset(142, 34)
+                clear.Position = UDim2.new(0, 16, 1, -16)
+                clear.AnchorPoint = Vector2.new(0, 1)
+                clear.BackgroundColor3 = C.Control2
+                clear.BorderSizePixel = 0
+                clear.Text = "CLEAR"
+                clear.TextColor3 = C.White
+                clear.Font = Enum.Font.GothamBold
+                clear.TextSize = 11
+                clear.AutoButtonColor = false
+                clear.Parent = card
+                local clearCorner = Instance.new("UICorner")
+                clearCorner.CornerRadius = UDim.new(0, 12)
+                clearCorner.Parent = clear
+                local clearStroke = Instance.new("UIStroke")
+                clearStroke.Color = C.Lime:Lerp(C.White, 0.2)
+                clearStroke.Thickness = 1
+                clearStroke.Parent = clear
+
+                local function refreshConsoleCard()
+                    for _, child in ipairs(scroller:GetChildren()) do
+                        if child:IsA("TextLabel") and child ~= empty then child:Destroy() end
+                    end
+                    local query = searchBoxInner.Text:lower()
+                    local entries = XCGetConsoleEntries(sourceKey)
+                    local visibleCount = 0
+                    for index = 1, #entries do
+                        local entry = entries[index]
+                        local lineText = string.format("[%s] %s", tostring(entry.Time or "--:--:--"), tostring(entry.Text or ""))
+                        if query == "" or lineText:lower():find(query, 1, true) ~= nil then
+                            visibleCount = visibleCount + 1
+                            local line = Instance.new("TextLabel")
+                            line.Size = UDim2.new(1, -2, 0, 0)
+                            line.AutomaticSize = Enum.AutomaticSize.Y
+                            line.BackgroundTransparency = 1
+                            line.RichText = false
+                            line.Text = lineText
+                            line.TextColor3 = consoleLevelColor(entry.Level)
+                            line.Font = Enum.Font.Code
+                            line.TextSize = 10
+                            line.TextWrapped = true
+                            line.TextXAlignment = Enum.TextXAlignment.Left
+                            line.TextYAlignment = Enum.TextYAlignment.Top
+                            line.Parent = scroller
+                        end
+                    end
+                    empty.Visible = visibleCount == 0
+                    empty.Text = query == "" and "No messages yet." or "No messages match this search."
+                    task.defer(function()
+                        if scroller and scroller.Parent then
+                            scroller.CanvasPosition = Vector2.new(0, math.max(0, scroller.AbsoluteCanvasSize.Y - scroller.AbsoluteWindowSize.Y))
+                        end
+                    end)
+                end
+
+                searchBoxInner:GetPropertyChangedSignal("Text"):Connect(refreshConsoleCard)
+                clear.Activated:Connect(function()
+                    XCClearConsoleEntries(sourceKey)
+                end)
+                table.insert(XCConsoleShared.Listeners, refreshConsoleCard)
+                refreshConsoleCard()
+            end
+
+            createConsoleCard("Roblox Console", "Console that gets outputs from ROBLOX console and display it in this menu.", 0, "RobloxEntries")
+            createConsoleCard("Delta Console", "Console that provides output, input from Delta API.", 0.51, "DeltaEntries")
+        end
+    end
 
     applySearch = function()
         local query = searchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
