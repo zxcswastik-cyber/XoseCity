@@ -61,6 +61,7 @@ local XCConfig = {
     customHandsRoll = 0,
     uiScale = 1.0,
     menuThemePreset = "XC Lime",
+    visualLookPreset = "Custom",
     menuTransparency = 0,
     menuAccentR = 152, menuAccentG = 204, menuAccentB = 0,
     menuBackgroundR = 17, menuBackgroundG = 17, menuBackgroundB = 17,
@@ -509,6 +510,61 @@ local function xcApplyConfigValues(data, skipPublicSelection)
     return true
 end
 
+
+-- Visual looks shown in the supplied Neverlose walkthrough. Only existing
+-- visual controls are touched; no frame-time work is added by a preset.
+local XCVisualLookPresets = {
+    ["NeverLose Video"] = {
+        menuThemePreset="Video Blue", menuBackgroundR=10, menuBackgroundG=17, menuBackgroundB=25,
+        menuPanelR=7, menuPanelG=12, menuPanelB=19,
+        menuAccentR=89, menuAccentG=115, menuAccentB=255,
+        espVisibleR=96, espVisibleG=162, espVisibleB=255,
+        espHiddenR=185, espHiddenG=112, espHiddenB=250,
+        chamsVisibleR=96, chamsVisibleG=162, chamsVisibleB=255,
+        chamsHiddenR=185, chamsHiddenG=112, chamsHiddenB=250,
+        chamsStyle="Solid", chamsAnimationFPS=24,
+    },
+    ["Gamesense Classic"] = {
+        menuThemePreset="Gamesense", menuBackgroundR=17, menuBackgroundG=17, menuBackgroundB=17,
+        menuPanelR=12, menuPanelG=12, menuPanelB=12,
+        menuAccentR=152, menuAccentG=204, menuAccentB=0,
+        espVisibleR=152, espVisibleG=204, espVisibleB=0,
+        espHiddenR=113, espHiddenG=117, espHiddenB=123,
+        chamsVisibleR=152, chamsVisibleG=204, chamsVisibleB=0,
+        chamsHiddenR=113, chamsHiddenG=117, chamsHiddenB=123,
+        chamsStyle="Shaded", chamsAnimationFPS=24,
+    },
+    ["NixWare Violet"] = {
+        menuThemePreset="NixWare", menuBackgroundR=20, menuBackgroundG=18, menuBackgroundB=27,
+        menuPanelR=14, menuPanelG=12, menuPanelB=21,
+        menuAccentR=174, menuAccentG=134, menuAccentB=245,
+        espVisibleR=174, espVisibleG=134, espVisibleB=245,
+        espHiddenR=86, espHiddenG=144, espHiddenB=205,
+        chamsVisibleR=174, chamsVisibleG=134, chamsVisibleB=245,
+        chamsHiddenR=86, chamsHiddenG=144, chamsHiddenB=205,
+        chamsStyle="Glow Outline", chamsAnimationFPS=24,
+    },
+}
+local function xcApplyVisualLookPreset(name, refreshControl)
+    local preset = XCVisualLookPresets[name]
+    if not preset then return false end
+    for key, value in pairs(preset) do
+        XCConfig[key] = value
+        if refreshControl then refreshControl(key, value) end
+    end
+    local shared = {
+        boxEspEnabled=true, healthBarEnabled=true, nametagsEnabled=true,
+        chamsEnabled=true, chamsUseEspPalette=false, chamsSoftGlowEnabled=false,
+        espBoxOutline=true, hitmarkerStyle="Neverlose", hitmarkerColorMode="Accent",
+    }
+    for key, value in pairs(shared) do
+        XCConfig[key] = value
+        if refreshControl then refreshControl(key, value) end
+    end
+    XCConfig.visualLookPreset = name
+    if refreshControl then refreshControl("visualLookPreset", name) end
+    return true
+end
 
 -- Reuse one configuration table between reinjections. Persistent hooks from a
 -- previous run then continue to read the values controlled by the new menu.
@@ -13417,7 +13473,10 @@ function buildXCUI()
     main.BackgroundColor3 = C.Main
     main.BackgroundTransparency = XCConfig.menuTransparency
     main.BorderColor3 = C.Border
-    main.BorderSizePixel = 1
+    main.BorderSizePixel = 0
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 10)
+    mainCorner.Parent = main
     main.Active = true
     main.Parent = screenGui
 
@@ -13815,8 +13874,15 @@ function buildXCUI()
         panel.Position = UDim2.new(x, 0, 0, 0)
         panel.BackgroundColor3 = C.Panel
         panel.BorderColor3 = C.Border
-        panel.BorderSizePixel = 1
+        panel.BorderSizePixel = 0
         panel.Parent = page
+        local panelCorner = Instance.new("UICorner")
+        panelCorner.CornerRadius = UDim.new(0, 8)
+        panelCorner.Parent = panel
+        local panelStroke = Instance.new("UIStroke")
+        panelStroke.Color = C.Border
+        panelStroke.Thickness = 1
+        panelStroke.Parent = panel
 
         local titleLabel = Instance.new("TextLabel")
         titleLabel.Size = UDim2.new(1, -16, 0, 24)
@@ -14030,7 +14096,7 @@ function buildXCUI()
             if statusText.BackgroundColor3 ~= background then statusText.BackgroundColor3 = background end
         end
         local function refresh(value)
-            track.BackgroundColor3 = value and Color3.fromRGB(76, 102, 0) or C.Control2
+            track.BackgroundColor3 = value and C.Lime:Lerp(C.Main, 0.62) or C.Control2
             knob.BackgroundColor3 = value and C.Lime or C.Muted
             knob.Position = value and UDim2.new(1, -11, 0.5, -4) or UDim2.new(0, 2, 0.5, -4)
             text.TextColor3 = value and C.White or C.Text
@@ -15697,6 +15763,18 @@ function buildXCUI()
 
     task.wait()
     L, R = columns("Visuals", "Player ESP", "Indicators & feedback")
+    section(R, "Visual looks")
+    addChoice(R, "Look preset", "visualLookPreset", {"Custom", "NeverLose Video", "Gamesense Classic", "NixWare Violet"}, function(name)
+        if xcApplyVisualLookPreset(name, refreshConfigControls) then
+            applyMenuTheme()
+            for _, key in ipairs({"boxEspEnabled", "healthBarEnabled", "nametagsEnabled", "chamsEnabled"}) do
+                refreshConfigControls(key, XCConfig[key])
+            end
+            refreshESPPreview()
+            XCNotify("Visual look", name .. " applied", "success", 2)
+        end
+    end)
+    addNote(R, "Presets set ESP, chams and menu colors. Fine-tune each control below.")
     section(L, "Box ESP")
     toggle(L, "Box overlay", "boxEspEnabled")
     toggle(L, "Corner box", "cornerBoxEnabled")
@@ -16071,6 +16149,7 @@ function buildXCUI()
     L, R = columns("Settings", "Interface", "Advanced settings")
     local menuPresets={
         ["NeverLose"]={10,17,25,7,12,19,65,180,235,230,240,250},
+        ["Video Blue"]={10,17,25,7,12,19,89,115,255,230,240,250},
         ["Gamesense"]={17,17,17,12,12,12,152,204,0,235,235,235},
         ["NixWare"]={20,18,27,14,12,21,174,134,245,239,235,248},
         ["XC Lime"]={17,17,17,12,12,12,152,204,0,235,235,235},
@@ -16087,7 +16166,7 @@ function buildXCUI()
         applyMenuTheme();scheduleConfigAutoSave()
     end
     section(L,"menu appearance")
-    addChoice(L,"Theme preset","menuThemePreset",{"XC Lime","NeverLose","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
+    addChoice(L,"Theme preset","menuThemePreset",{"XC Lime","Video Blue","NeverLose","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
     addSlider(L,"Interface scale","uiScale",0.65,1.25,0.05,"x",applyMenuTheme)
     addSlider(L,"Menu transparency","menuTransparency",0,0.45,0.05,"",applyMenuTheme)
     addToggle(L,"Link menu and ESP color","linkMenuAndEspColor",function() applyMenuTheme() end)
