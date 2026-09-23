@@ -1,4 +1,5 @@
---// XC v67 video-reference pass | no-key build
+-- XC Visual Modules 1-2: ESP Builder + Chams 2.0
+--// XC v67 compact Centurion-compatible build
 pcall(function()
     if type(getgenv) == "function" then
         local env = getgenv()
@@ -58,10 +59,6 @@ local XCConfig = {
     customHandsPitch = 0,
     customHandsYaw = 0,
     customHandsRoll = 0,
-    viewmodelSwayEnabled = false,
-    viewmodelSwayStrength = 1.0,
-    viewmodelSwayRoll = 8.0,
-    viewmodelSwayBob = 0.055,
     uiScale = 1.0,
     menuThemePreset = "XC Lime",
     menuTransparency = 0,
@@ -221,6 +218,15 @@ local XCConfig = {
     chamsTeamCheck = true,
     chamsShowTeammates = false,
     chamsOcclusion = true,
+    -- Chams 2.0
+    chamsStyle = "Solid",
+    chamsUseEspPalette = true,
+    chamsVisibleR = 152, chamsVisibleG = 204, chamsVisibleB = 0,
+    chamsHiddenR = 112, chamsHiddenG = 116, chamsHiddenB = 122,
+    chamsTeamR = 90, chamsTeamG = 170, chamsTeamB = 255,
+    chamsPulseSpeed = 2.0,
+    chamsIridescentSpeed = 0.12,
+    chamsWireThickness = 0.035,
 
     recoilStrength = 0.85,
     noRecoilEnabled = false,
@@ -255,10 +261,6 @@ local XCConfig = {
     -- Local movement trail / afterimages.
     motionTrailLifetime = 1.15,
     motionTrailWidth = 0.11,
-    motionTrailStyle = "Ribbon",
-    motionHelixRadius = 0.72,
-    motionHelixSpin = 4.8,
-    motionHelixHeight = 0.34,
     motionTrailColorR = 245,
     motionTrailColorG = 245,
     motionTrailColorB = 255,
@@ -317,6 +319,14 @@ local XCConfig = {
     espPerspectiveScale = 1.0,
     espBoxAspect = 0.52,
     espBoxOutline = true,
+    -- ESP Builder
+    espNamePosition = "Top",
+    espHealthPosition = "Left",
+    espWeaponPosition = "Bottom",
+    espTextOutline = true,
+    espDistanceFade = true,
+    espFadeStart = 0.62,
+    espMinOpacity = 0.28,
 
     nightPreset = "Midnight",
     nightBrightness = 0.2,
@@ -440,6 +450,9 @@ for _, colorKey in ipairs({
     "espVisibleR", "espVisibleG", "espVisibleB", "espHiddenR", "espHiddenG", "espHiddenB",
     "espHealthHighR", "espHealthHighG", "espHealthHighB", "espHealthMidR", "espHealthMidG", "espHealthMidB",
     "espHealthLowR", "espHealthLowG", "espHealthLowB",
+    "chamsVisibleR", "chamsVisibleG", "chamsVisibleB",
+    "chamsHiddenR", "chamsHiddenG", "chamsHiddenB",
+    "chamsTeamR", "chamsTeamG", "chamsTeamB",
     "grenadeHER", "grenadeHEG", "grenadeHEB", "grenadeSmokeR", "grenadeSmokeG", "grenadeSmokeB",
     "grenadeMolotovR", "grenadeMolotovG", "grenadeMolotovB",
     "killEffectColorR", "killEffectColorG", "killEffectColorB",
@@ -1143,52 +1156,6 @@ local function renderXCBeam(group, origin, destination, width, color, duration)
     }):Play()
 end
 
-function renderXCWire(group, origin, destination, width, color, duration)
-    local startNode = newXCEffectPart(group, color)
-    local endNode = newXCEffectPart(group, color)
-    startNode.Size = Vector3.new(0.04, 0.04, 0.04)
-    endNode.Size = startNode.Size
-    startNode.Transparency = 1
-    endNode.Transparency = 1
-    startNode.Position = origin
-    endNode.Position = destination
-
-    local a0 = Instance.new("Attachment")
-    a0.Parent = startNode
-    local a1 = Instance.new("Attachment")
-    a1.Parent = endNode
-
-    local glow = Instance.new("Beam")
-    glow.Name = "WireGlow"
-    glow.Attachment0 = a0
-    glow.Attachment1 = a1
-    glow.FaceCamera = true
-    glow.LightEmission = 1
-    glow.LightInfluence = 0
-    glow.Width0 = math.max(0.018, width * 1.6)
-    glow.Width1 = math.max(0.012, width * 1.15)
-    glow.Color = ColorSequence.new(color)
-    glow.Transparency = NumberSequence.new(0.58, 0.9)
-    glow.Parent = startNode
-
-    local core = Instance.new("Beam")
-    core.Name = "WireCore"
-    core.Attachment0 = a0
-    core.Attachment1 = a1
-    core.FaceCamera = true
-    core.LightEmission = 1
-    core.LightInfluence = 0
-    core.Width0 = math.max(0.009, width * 0.46)
-    core.Width1 = math.max(0.006, width * 0.34)
-    core.Color = ColorSequence.new(color:Lerp(Color3.new(1, 1, 1), 0.58))
-    core.Transparency = NumberSequence.new(0.02, 0.36)
-    core.Parent = startNode
-
-    local fade = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    TweenService:Create(glow, fade, {Width0 = 0, Width1 = 0}):Play()
-    TweenService:Create(core, fade, {Width0 = 0, Width1 = 0}):Play()
-end
-
 local function renderXCLightning(group, origin, destination, width, color, duration)
     local delta = destination - origin
     local distance = delta.Magnitude
@@ -1290,9 +1257,7 @@ local function renderXCBulletEffects(shot, bullet)
 
     if XCConfig.bulletTrailEnabled then
         local style = tostring(XCConfig.bulletTracerStyle or "Beam")
-        if style == "Wire" then
-            renderXCWire(group, origin, destination, width, color, duration)
-        elseif style == "Lightning" then
+        if style == "Lightning" then
             renderXCLightning(group, origin, destination, width, color, duration)
         elseif style == "Comet" then
             renderXCComet(group, origin, destination, width, color, duration)
@@ -3846,14 +3811,11 @@ function updateSpectatorGui()
 end
 
 function applyXCHandsOffset(view)
-    local customEnabled = XCConfig.customHandsEnabled == true
-    local swayEnabled = XCConfig.viewmodelSwayEnabled == true
-    if not customEnabled and not swayEnabled then
+    if not XCConfig.customHandsEnabled then
         handsLastModel = nil
         handsLastPivot = nil
         return
     end
-
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
     local model = type(view) == "table" and view.Model or getCurrentWeaponModel()
@@ -3862,45 +3824,9 @@ function applyXCHandsOffset(view)
         handsLastModel = model
         handsLastPivot = model:GetPivot()
     end
-
     local original = model:GetPivot()
-    local offset = CFrame.new(
-        customEnabled and XCConfig.customHandsX or 0,
-        customEnabled and XCConfig.customHandsY or 0,
-        customEnabled and XCConfig.customHandsZ or 0
-    ) * CFrame.Angles(
-        math.rad(customEnabled and XCConfig.customHandsPitch or 0),
-        math.rad(customEnabled and XCConfig.customHandsYaw or 0),
-        math.rad(customEnabled and XCConfig.customHandsRoll or 0)
-    )
-
-    if swayEnabled then
-        local character = player and player.Character
-        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-        local root = character and character:FindFirstChild("HumanoidRootPart")
-        if humanoid and root then
-            local strength = math.clamp(tonumber(XCConfig.viewmodelSwayStrength) or 1, 0, 2)
-            local rollDegrees = math.clamp(tonumber(XCConfig.viewmodelSwayRoll) or 8, 0, 20)
-            local bobAmount = math.clamp(tonumber(XCConfig.viewmodelSwayBob) or 0.055, 0, 0.18)
-            local move = humanoid.MoveDirection
-            local horizontalVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 0, root.AssemblyLinearVelocity.Z)
-            local speedAlpha = math.clamp(horizontalVelocity.Magnitude / 22, 0, 1)
-            local right = cam.CFrame.RightVector
-            local flatLook = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
-            if flatLook.Magnitude > 0.001 then flatLook = flatLook.Unit end
-            local strafe = math.clamp(move:Dot(right), -1, 1)
-            local forward = flatLook.Magnitude > 0.001 and math.clamp(move:Dot(flatLook), -1, 1) or 0
-            local phase = os.clock() * (8.5 + speedAlpha * 2.5)
-            local bobY = math.sin(phase * 2) * bobAmount * speedAlpha * strength
-            local bobX = math.sin(phase) * bobAmount * 0.55 * speedAlpha * strength
-            local swayRoll = math.rad(-strafe * rollDegrees * speedAlpha * strength)
-            local swayPitch = math.rad(-forward * math.min(4.5, rollDegrees * 0.35) * speedAlpha * strength)
-            offset = offset
-                * CFrame.new(bobX + strafe * 0.035 * strength * speedAlpha, bobY, 0)
-                * CFrame.Angles(swayPitch, 0, swayRoll)
-        end
-    end
-
+    local offset = CFrame.new(XCConfig.customHandsX, XCConfig.customHandsY, XCConfig.customHandsZ)
+        * CFrame.Angles(math.rad(XCConfig.customHandsPitch), math.rad(XCConfig.customHandsYaw), math.rad(XCConfig.customHandsRoll))
     pcall(function()
         model:PivotTo(cam.CFrame * offset * cam.CFrame:ToObjectSpace(original))
         if type(view) == "table" and view.LargeWeaponModel and view.SmallWeaponModel then
@@ -3949,7 +3875,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if not XCConfig.noFallDamageEnabled
         and not XCConfig.spectatorListEnabled
         and not XCConfig.customHandsEnabled
-        and not XCConfig.viewmodelSwayEnabled
         and not XCConfig.animationsEnabled
         and not animationTrack then
         if spectatorFrame then spectatorFrame.Visible = false end
@@ -3971,7 +3896,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     elseif spectatorFrame then
         spectatorFrame.Visible = false
     end
-    if (XCConfig.customHandsEnabled or XCConfig.viewmodelSwayEnabled) and not handsNativeHooked then
+    if XCConfig.customHandsEnabled and not handsNativeHooked then
         applyXCHandsOffset()
     end
     if animationTrack and animationTrack.IsPlaying then
@@ -5405,11 +5330,7 @@ function applyThirdPerson()
     camera.CameraMaxZoomDistance = distance
     camera.CameraType = Enum.CameraType.Custom
     camera.CameraSubject = hum
-    hum.CameraOffset = Vector3.new(
-        math.clamp(tonumber(XCConfig.thirdPersonOffset) or 0, -6, 6),
-        math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6),
-        0
-    )
+    hum.CameraOffset = Vector3.new(0, math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6), 0)
 end
 
 function setThirdPersonEnabled(enabled)
@@ -7564,26 +7485,6 @@ local function XCUpdateMotionAnchors(root)
     if not root or not XCMotionState.Anchor0 or not XCMotionState.Anchor1 then return end
     local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
     local rootCF = root.CFrame
-    local style = tostring(XCConfig.motionTrailStyle or "Ribbon")
-
-    if style == "Helix" then
-        local radius = math.clamp(tonumber(XCConfig.motionHelixRadius) or 0.72, 0.15, 2.5)
-        local spin = math.clamp(tonumber(XCConfig.motionHelixSpin) or 4.8, 0.5, 12)
-        local height = math.clamp(tonumber(XCConfig.motionHelixHeight) or 0.34, 0, 1.4)
-        local phase = os.clock() * spin
-        local right = rootCF.RightVector
-        local up = rootCF.UpVector
-        local forward = rootCF.LookVector
-        local orbit = (right * math.cos(phase) + up * math.sin(phase)) * radius
-        local tangent = (-right * math.sin(phase) + up * math.cos(phase))
-        local center = root.Position + Vector3.new(0, -1.35, 0)
-            + forward * (math.sin(phase * 0.5) * height)
-        local halfWidth = math.max(0.025, width * 0.5)
-        XCMotionState.Anchor0.CFrame = CFrame.new(center + orbit - tangent * halfWidth)
-        XCMotionState.Anchor1.CFrame = CFrame.new(center + orbit + tangent * halfWidth)
-        return
-    end
-
     local right = rootCF.RightVector
     local upOffset = Vector3.new(0, -2.0, 0)
     local center = root.Position + upOffset
@@ -10487,7 +10388,7 @@ function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxW
     local iconWidth = math.floor(math.clamp(boxWidth * 1.45, 42, 68) + 0.5)
     local iconHeight = math.floor(math.clamp(iconWidth * 0.38, 18, 27) + 0.5)
     esp.WeaponCard.Size = UDim2.fromOffset(iconWidth, iconHeight)
-    esp.WeaponCard.Position = UDim2.fromOffset(boxPosX + boxWidth * 0.5, boxPosY + boxHeight + 3)
+    positionXCElement(esp.WeaponCard, XCConfig.espWeaponPosition, boxPosX, boxPosY, boxWidth, boxHeight, 4)
     esp.WeaponCard.Visible = weaponName ~= nil and esp.WeaponReady
 end
 
@@ -10516,6 +10417,36 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
         screenEspCache[plr] = nil
     end
 end))
+--// ESP BUILDER 2.0
+local function getXCEspDistanceAlpha(distance)
+    if not XCConfig.espDistanceFade then return 1 end
+    local maxDist = math.max(1, tonumber(XCConfig.espMaxDist) or 3000)
+    local startRatio = math.clamp(tonumber(XCConfig.espFadeStart) or 0.62, 0.1, 0.95)
+    local minAlpha = math.clamp(tonumber(XCConfig.espMinOpacity) or 0.28, 0.05, 1)
+    local startDist = maxDist * startRatio
+    if distance <= startDist then return 1 end
+    local t = math.clamp((distance - startDist) / math.max(1, maxDist - startDist), 0, 1)
+    return 1 - (1 - minAlpha) * t
+end
+
+local function positionXCElement(gui, positionName, boxX, boxY, boxW, boxH, gap)
+    gap = gap or 4
+    positionName = tostring(positionName or "Top")
+    if positionName == "Bottom" then
+        gui.AnchorPoint = Vector2.new(0.5, 0)
+        gui.Position = UDim2.fromOffset(boxX + boxW * 0.5, boxY + boxH + gap)
+    elseif positionName == "Left" then
+        gui.AnchorPoint = Vector2.new(1, 0.5)
+        gui.Position = UDim2.fromOffset(boxX - gap, boxY + boxH * 0.5)
+    elseif positionName == "Right" then
+        gui.AnchorPoint = Vector2.new(0, 0.5)
+        gui.Position = UDim2.fromOffset(boxX + boxW + gap, boxY + boxH * 0.5)
+    else
+        gui.AnchorPoint = Vector2.new(0.5, 1)
+        gui.Position = UDim2.fromOffset(boxX + boxW * 0.5, boxY - gap)
+    end
+end
+
 --// TACTICAL ESP
 local tacticalOverlayWasActive = false
 function hideTacticalOverlay()
@@ -10638,6 +10569,7 @@ function renderTacticalOverlay()
                 local sideColor = isVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
 
                 local screenRect = getXCCharacterScreenRect(esp, char, rootPart)
+                local espAlpha = getXCEspDistanceAlpha(dist)
 
                 if screenRect then
                     local boxHeight = screenRect.H
@@ -10649,10 +10581,12 @@ function renderTacticalOverlay()
                         esp.BoxStroke.Color = sideColor
                         local boxStrokeWidth = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
                         esp.BoxStroke.Thickness = boxStrokeWidth
+                        esp.BoxStroke.Transparency = 1 - espAlpha
                         esp.Box.Size = UDim2.new(0, boxWidth, 0, boxHeight)
                         esp.Box.Position = UDim2.new(0, boxPosX, 0, boxPosY)
                         esp.Box.Visible = true
                         esp.BoxOutlineStroke.Thickness = boxStrokeWidth + 2
+                        esp.BoxOutlineStroke.Transparency = math.clamp(0.12 + (1 - espAlpha), 0, 1)
                         esp.BoxOutline.Size = esp.Box.Size
                         esp.BoxOutline.Position = esp.Box.Position
                         esp.BoxOutline.Visible = XCConfig.espBoxOutline
@@ -10676,6 +10610,8 @@ function renderTacticalOverlay()
                         for _, corner in ipairs(esp.Corners) do
                             corner.H.BackgroundColor3 = sideColor
                             corner.V.BackgroundColor3 = sideColor
+                            corner.H.BackgroundTransparency = 1 - espAlpha
+                            corner.V.BackgroundTransparency = 1 - espAlpha
                             corner.HOutline.Enabled = XCConfig.espBoxOutline
                             corner.VOutline.Enabled = XCConfig.espBoxOutline
                         end
@@ -10725,13 +10661,17 @@ function renderTacticalOverlay()
 
                         local barWidth = boxHeight < 32 and 3 or 4
                         local barGap = boxHeight < 32 and 2 or 3
-                        local barX = boxPosX - barWidth - barGap
+                        local healthSide = tostring(XCConfig.espHealthPosition or "Left")
+                        local barX = healthSide == "Right"
+                            and (boxPosX + boxWidth + barGap)
+                            or (boxPosX - barWidth - barGap)
                         local barY = boxPosY
                         local fillHeight = math.max(1, math.floor((boxHeight - 2) * hpPercent + 0.5))
 
                         esp.HealthBarBg.Size = UDim2.new(0, barWidth, 0, boxHeight)
                         esp.HealthBarBg.Position = UDim2.new(0, barX, 0, barY)
                         esp.HealthBarBg.Visible = true
+                        esp.HealthBarBg.BackgroundTransparency = math.clamp(0.05 + (1 - espAlpha), 0, 1)
 
                         esp.HealthBarFill.Position = UDim2.new(0, 1, 1, -1)
                         esp.HealthBarFill.Size = UDim2.fromOffset(barWidth - 2, fillHeight)
@@ -10757,8 +10697,12 @@ function renderTacticalOverlay()
                     if XCConfig.nametagsEnabled then
                         esp.TagCard.BackgroundTransparency = XCConfig.tagTransparency
                         esp.TagCardStroke.Enabled = false
-                        esp.TagLabel.TextColor3 = currentTheme.Enemy_Accent
+                        esp.TagLabel.TextColor3 = sideColor
                         esp.TagLabel.TextSize = XCConfig.espTextSize
+                        esp.TagLabel.TextTransparency = 1 - espAlpha
+                        esp.TagLabel.TextStrokeTransparency = XCConfig.espTextOutline
+                            and math.clamp(0.35 + (1 - espAlpha), 0, 1) or 1
+                        esp.TagLabel.TextStrokeColor3 = Color3.fromRGB(4, 5, 6)
 
                         local baseName = plr.DisplayName or plr.Name
                         local infoText = baseName
@@ -10781,7 +10725,7 @@ function renderTacticalOverlay()
                             esp.LastText = infoText
                         end
 
-                        esp.TagCard.Position = UDim2.new(0, boxPosX + boxWidth * 0.5, 0, boxPosY - 4)
+                        positionXCElement(esp.TagCard, XCConfig.espNamePosition, boxPosX, boxPosY, boxWidth, boxHeight, 4)
                         esp.TagCard.Visible = true
                     else
                         esp.TagCard.Visible = false
@@ -10826,6 +10770,124 @@ function renderTacticalOverlay()
         end
     end
 end
+--// CHAMS 2.0
+local function clearXCWireChams(data)
+    if not data or not data.WireBoxes then return end
+    for _, adornment in ipairs(data.WireBoxes) do
+        pcall(function() adornment:Destroy() end)
+    end
+    data.WireBoxes = {}
+    data.WireCharacter = nil
+end
+
+local function ensureXCWireChams(data, char)
+    if not data or not char then return end
+    if data.WireCharacter == char and data.WireBoxes and #data.WireBoxes > 0 then return end
+    clearXCWireChams(data)
+    data.WireCharacter = char
+    data.WireBoxes = {}
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Transparency < 0.98 then
+            local box = Instance.new("SelectionBox")
+            box.Name = "XCWireCham"
+            box.Adornee = part
+            box.Color3 = currentTheme.Enemy_Accent
+            box.SurfaceTransparency = 1
+            box.LineThickness = math.clamp(tonumber(XCConfig.chamsWireThickness) or 0.035, 0.01, 0.12)
+            box.Transparency = 0
+            pcall(function() box.AlwaysOnTop = true end)
+            box.Parent = part
+            table.insert(data.WireBoxes, box)
+        end
+    end
+end
+
+local function setXCWireChams(data, char, enabled, color)
+    if not enabled then
+        if data and data.WireBoxes then
+            for _, box in ipairs(data.WireBoxes) do pcall(function() box.Visible = false end) end
+        end
+        return
+    end
+    ensureXCWireChams(data, char)
+    local thickness = math.clamp(tonumber(XCConfig.chamsWireThickness) or 0.035, 0.01, 0.12)
+    for _, box in ipairs(data.WireBoxes or {}) do
+        pcall(function()
+            box.Color3 = color
+            box.LineThickness = thickness
+            box.Visible = true
+        end)
+    end
+end
+
+local function getXCChamsColor(ally, isVisible, now)
+    local color
+    if ally then
+        color = xcConfigColor("chamsTeam", currentTheme.TextPrimary)
+    elseif XCConfig.chamsUseEspPalette then
+        color = isVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
+    else
+        color = isVisible
+            and xcConfigColor("chamsVisible", currentTheme.Enemy_Accent)
+            or xcConfigColor("chamsHidden", currentTheme.Enemy_Hidden)
+    end
+    if tostring(XCConfig.chamsStyle or "Solid") == "Iridescent" then
+        local speed = math.clamp(tonumber(XCConfig.chamsIridescentSpeed) or 0.12, 0.02, 0.5)
+        local h = ((now or os.clock()) * speed + (ally and 0.55 or (isVisible and 0 or 0.12))) % 1
+        color = Color3.fromHSV(h, 0.78, 1)
+    end
+    return color
+end
+
+local function applyXCChamsStyle(data, char, ally, isVisible, now)
+    local primary = data.Highlight
+    local glow = data.GlowHighlight
+    local style = tostring(XCConfig.chamsStyle or "Solid")
+    local color = getXCChamsColor(ally, isVisible, now)
+    local fill = math.clamp(tonumber(XCConfig.chamsFillTransparency) or 0.45, 0, 1)
+    local outline = math.clamp(tonumber(XCConfig.chamsOutlineTransparency) or 0.10, 0, 1)
+
+    if style == "Wire" then
+        primary.Enabled = false
+        glow.Enabled = false
+        setXCWireChams(data, char, true, color)
+        return
+    end
+    setXCWireChams(data, char, false, color)
+    primary.Enabled = true
+    glow.Enabled = false
+    primary.FillColor = color
+    primary.OutlineColor = color
+    primary.FillTransparency = fill
+    primary.OutlineTransparency = outline
+
+    if style == "Shaded" then
+        primary.FillColor = color:Lerp(Color3.fromRGB(8, 9, 10), 0.28)
+        primary.OutlineColor = color
+        primary.FillTransparency = math.clamp(fill - 0.12, 0, 1)
+        primary.OutlineTransparency = math.clamp(outline + 0.18, 0, 1)
+    elseif style == "Glow" then
+        primary.FillTransparency = math.max(fill, 0.58)
+        primary.OutlineTransparency = math.min(outline, 0.04)
+        glow.Enabled = true
+        glow.FillTransparency = 1
+        glow.OutlineTransparency = 0.48
+        glow.FillColor = color
+        glow.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.28)
+    elseif style == "Outline" then
+        primary.FillTransparency = 1
+        primary.OutlineTransparency = outline
+    elseif style == "Pulse" then
+        local speed = math.clamp(tonumber(XCConfig.chamsPulseSpeed) or 2, 0.2, 8)
+        local wave = (math.sin((now or os.clock()) * speed * math.pi) + 1) * 0.5
+        primary.FillTransparency = math.clamp(fill + wave * 0.28, 0, 0.92)
+        primary.OutlineTransparency = math.clamp(outline + wave * 0.24, 0, 0.85)
+    elseif style == "Iridescent" then
+        primary.FillTransparency = math.max(0.28, fill)
+        primary.OutlineTransparency = math.min(outline, 0.08)
+    end
+end
+
 --// 3D ESP
 function attachEspToPlayer(plr)
     if plr == player then return end
@@ -10862,6 +10924,14 @@ function attachEspToPlayer(plr)
     hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     hl.Parent = holder
 
+    local glowHighlight = Instance.new("Highlight")
+    glowHighlight.Name = "XCChamsGlow_" .. plr.Name
+    glowHighlight.FillTransparency = 1
+    glowHighlight.OutlineTransparency = 0.48
+    glowHighlight.Enabled = false
+    glowHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    glowHighlight.Parent = holder
+
     local function setupCharacter(char)
         if not char then return end
         task.spawn(function()
@@ -10869,9 +10939,8 @@ function attachEspToPlayer(plr)
             if head and dotBillboard then
                 dotBillboard.Adornee = head
             end
-            if hl then
-                hl.Adornee = char
-            end
+            if hl then hl.Adornee = char end
+            if glowHighlight then glowHighlight.Adornee = char end
         end)
     end
 
@@ -10882,6 +10951,10 @@ function attachEspToPlayer(plr)
             hl.Adornee = nil
             hl.Enabled = false
         end
+        if glowHighlight then
+            glowHighlight.Adornee = nil
+            glowHighlight.Enabled = false
+        end
     end)
     table.insert(connections, charConn)
     table.insert(connections, charRemConn)
@@ -10891,7 +10964,10 @@ function attachEspToPlayer(plr)
         HeadDot = dotBillboard,
         DotFrame = dotFrame,
         Tracer = tracerLine,
-        Highlight = hl
+        Highlight = hl,
+        GlowHighlight = glowHighlight,
+        WireBoxes = {},
+        WireCharacter = nil
     }
 end
 
@@ -11031,6 +11107,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         if not threeDEspActive then
             data.HeadDot.Enabled = false
             data.Highlight.Enabled = false
+            data.GlowHighlight.Enabled = false
+            setXCWireChams(data, plr.Character, false, currentTheme.Enemy_Accent)
             data.Tracer.Visible = false
             break
         end
@@ -11047,26 +11125,21 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             local isVisible = isVisibleThroughWalls(head or rootPart, char)
             
             if XCConfig.chamsEnabled then
-                if ally and not XCConfig.chamsShowTeammates then
+                local chamsAlly = XCConfig.chamsTeamCheck and ally or false
+                if chamsAlly and not XCConfig.chamsShowTeammates then
                     data.Highlight.Enabled = false
+                    data.GlowHighlight.Enabled = false
+                    setXCWireChams(data, char, false, currentTheme.Enemy_Accent)
                 else
-                    data.Highlight.Enabled = true
-                    if data.Highlight.Adornee ~= char then
-                        data.Highlight.Adornee = char
-                    end
-                    data.Highlight.FillTransparency = XCConfig.chamsFillTransparency
-                    data.Highlight.OutlineTransparency = XCConfig.chamsOutlineTransparency
-                    if ally then
-                        data.Highlight.FillColor = currentTheme.Enemy_Accent:Lerp(currentTheme.TextPrimary, 0.45)
-                        data.Highlight.OutlineColor = currentTheme.TextPrimary
-                    else
-                        local chamsAccent = isVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
-                        data.Highlight.FillColor = XCConfig.chamsOcclusion and chamsAccent or currentTheme.Enemy_Accent
-                        data.Highlight.OutlineColor = XCConfig.chamsOcclusion and chamsAccent or currentTheme.Enemy_Accent
-                    end
+                    if data.Highlight.Adornee ~= char then data.Highlight.Adornee = char end
+                    if data.GlowHighlight.Adornee ~= char then data.GlowHighlight.Adornee = char end
+                    local styleVisible = XCConfig.chamsOcclusion and isVisible or true
+                    applyXCChamsStyle(data, char, chamsAlly, styleVisible, os.clock())
                 end
             else
                 data.Highlight.Enabled = false
+                data.GlowHighlight.Enabled = false
+                setXCWireChams(data, char, false, currentTheme.Enemy_Accent)
             end
 
             if not ally then
@@ -11105,8 +11178,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         else
             data.HeadDot.Enabled = false
             data.Highlight.Enabled = false
+            data.GlowHighlight.Enabled = false
+            setXCWireChams(data, char, false, currentTheme.Enemy_Accent)
             data.Tracer.Visible = false
             if data.Highlight.Adornee then data.Highlight.Adornee = nil end
+            if data.GlowHighlight.Adornee then data.GlowHighlight.Adornee = nil end
             if data.HeadDot.Adornee then data.HeadDot.Adornee = nil end
         end
             until true
@@ -11776,9 +11852,9 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
     local now = os.clock()
 
     for healthKey, pending in pairs(
+        repeat
         hitmarkerPendingHits
     ) do
-        repeat
         local char = pending.Character
         local targetPlr = pending.Player
 
@@ -12541,9 +12617,6 @@ function buildXCUI()
         priorityPlayerName = "Roblox player selected as the preferred target. The list uses live server usernames.",
         customScopeEnabled = "Draws the XC scope overlay when scoped.",
         customHandsEnabled = "Offsets the detected first-person weapon or hands model.",
-        viewmodelSwayEnabled = "Adds velocity-aware first-person sway without accumulating transform drift.",
-        motionTrailStyle = "Ribbon is the classic trail; Helix creates the corkscrew movement trail seen in the video references.",
-        bulletTracerStyle = "Wire is a thin low-noise tracer inspired by the supplied wallbang/tracer clip.",
         grenadeEspEnabled = "Shows styled grenade labels, bounce trajectory and landing marker.",
         showGrenadePath = "Predicts the grenade arc with surface bounces and a landing marker.",
         grenadeDangerZonesEnabled = "Draws perspective-correct smoke, fire and grenade danger rings.",
@@ -13579,6 +13652,48 @@ function buildXCUI()
         local weaponGrip = Instance.new("Frame",weaponIcon)
         weaponGrip.Position = UDim2.fromOffset(17,5);weaponGrip.Size=UDim2.fromOffset(4,7);weaponGrip.Rotation=18;weaponGrip.BorderSizePixel=0
 
+        local function nearestBuilderSlot(guiObject, allowHorizontalOnly)
+            local center = Vector2.new(63, 70)
+            local p = Vector2.new(guiObject.Position.X.Offset, guiObject.Position.Y.Offset)
+            local delta = p - center
+            if allowHorizontalOnly then return delta.X >= 0 and "Right" or "Left" end
+            if math.abs(delta.X) > math.abs(delta.Y) then return delta.X >= 0 and "Right" or "Left" end
+            return delta.Y >= 0 and "Bottom" or "Top"
+        end
+
+        local function makeBuilderDraggable(guiObject, configKey, horizontalOnly)
+            guiObject.Active = true
+            local dragging, dragInput, startPos, startGui
+            guiObject.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    dragging = true; dragInput = input; startPos = input.Position; startGui = guiObject.Position
+                end
+            end)
+            guiObject.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+            end)
+            UserInputService.InputChanged:Connect(function(input)
+                if dragging and input == dragInput then
+                    local d = input.Position - startPos
+                    guiObject.Position = UDim2.fromOffset(startGui.X.Offset + d.X, startGui.Y.Offset + d.Y)
+                end
+            end)
+            UserInputService.InputEnded:Connect(function(input)
+                if dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                    dragging = false
+                    local slot = nearestBuilderSlot(guiObject, horizontalOnly)
+                    XCConfig[configKey] = slot
+                    refreshConfigControls(configKey, slot)
+                    task.defer(function() if refreshESPPreview then refreshESPPreview() end end)
+                    scheduleConfigAutoSave()
+                end
+            end)
+        end
+
+        makeBuilderDraggable(tag, "espNamePosition", false)
+        makeBuilderDraggable(weaponIcon, "espWeaponPosition", false)
+        makeBuilderDraggable(healthBack, "espHealthPosition", true)
+
         local function refreshPreview()
             local color = previewVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
             local height = math.clamp(76 * (tonumber(XCConfig.espPerspectiveScale) or 1), 58, 94)
@@ -13593,9 +13708,23 @@ function buildXCUI()
             boxOutline.Thickness = thick+2;boxOutline.Transparency = 0.1
             box.Visible = XCConfig.boxEspEnabled and not XCConfig.cornerBoxEnabled
             boxOutlineFrame.Visible = box.Visible and XCConfig.espBoxOutline
-            body.BackgroundColor3=color;head.BackgroundColor3=color
+            local previewChamColor = color
+            if not XCConfig.chamsUseEspPalette then
+                previewChamColor = previewVisible and xcConfigColor("chamsVisible", color) or xcConfigColor("chamsHidden", color)
+            end
+            if tostring(XCConfig.chamsStyle or "Solid") == "Iridescent" then
+                previewChamColor = Color3.fromHSV((os.clock() * (tonumber(XCConfig.chamsIridescentSpeed) or 0.12)) % 1, 0.78, 1)
+            end
+            body.BackgroundColor3=previewChamColor;head.BackgroundColor3=previewChamColor
+            local chamStyle=tostring(XCConfig.chamsStyle or "Solid")
+            local chamTransparency=math.clamp(tonumber(XCConfig.chamsFillTransparency) or 0.45,0,1)
+            if chamStyle=="Outline" or chamStyle=="Wire" then chamTransparency=0.93 end
+            if chamStyle=="Glow" then chamTransparency=0.70 end
+            if chamStyle=="Pulse" then chamTransparency=math.clamp(chamTransparency+((math.sin(os.clock()*(tonumber(XCConfig.chamsPulseSpeed) or 2)*math.pi)+1)*0.12),0,0.92) end
+            body.BackgroundTransparency=chamTransparency;head.BackgroundTransparency=chamTransparency
             body.Visible=XCConfig.chamsEnabled;head.Visible=XCConfig.chamsEnabled
-            healthBack.Position=UDim2.fromOffset(left-3,top);healthBack.Size=UDim2.fromOffset(4,height)
+            local healthSide=tostring(XCConfig.espHealthPosition or "Left")
+            healthBack.Position=healthSide=="Right" and UDim2.fromOffset(left+width+3,top) or UDim2.fromOffset(left-3,top);healthBack.Size=UDim2.fromOffset(4,height)
             healthBack.Visible=XCConfig.healthBarEnabled
             local hpHigh=previewVisible and currentTheme.HealthHigh or currentTheme.Enemy_Hidden
             local hpMid=previewVisible and currentTheme.HealthMid or currentTheme.Enemy_Hidden
@@ -13607,6 +13736,12 @@ function buildXCUI()
             if XCConfig.espShowHealth then tagText = tagText .. (" [72HP]") end
             if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then tagText = tagText .. (" [AK-47]") end
             tag.Text=tagText;tag.TextColor3=color;tag.TextSize=XCConfig.espTextSize;tag.Visible=XCConfig.nametagsEnabled
+            tag.TextStrokeColor3=Color3.fromRGB(4,5,6);tag.TextStrokeTransparency=XCConfig.espTextOutline and 0.35 or 1
+            local tagSlot=tostring(XCConfig.espNamePosition or "Top")
+            if tagSlot=="Bottom" then tag.AnchorPoint=Vector2.new(0.5,0);tag.Position=UDim2.fromOffset(63,top+height+3)
+            elseif tagSlot=="Left" then tag.AnchorPoint=Vector2.new(1,0.5);tag.Position=UDim2.fromOffset(left-4,70)
+            elseif tagSlot=="Right" then tag.AnchorPoint=Vector2.new(0,0.5);tag.Position=UDim2.fromOffset(left+width+4,70)
+            else tag.AnchorPoint=Vector2.new(0.5,1);tag.Position=UDim2.fromOffset(63,top-3) end
             local length=math.clamp(math.floor(width*0.32+0.5),6,16)
             local specs={{left,top,length,thick},{left,top,thick,length},{left+width-length,top,length,thick},{left+width-thick,top,thick,length},
                 {left,top+height-thick,length,thick},{left,top+height-length,thick,length},{left+width-length,top+height-thick,length,thick},{left+width-thick,top+height-length,thick,length}}
@@ -13618,19 +13753,26 @@ function buildXCUI()
             tracer.BackgroundColor3=color;tracer.Visible=XCConfig.tracersEnabled
             headDot.BackgroundColor3=color;headDot.Visible=XCConfig.headDotEnabled
             weaponBody.BackgroundColor3=color;weaponBarrel.BackgroundColor3=color;weaponGrip.BackgroundColor3=color
+            local weaponSlot=tostring(XCConfig.espWeaponPosition or "Bottom")
+            if weaponSlot=="Top" then weaponIcon.AnchorPoint=Vector2.new(0.5,1);weaponIcon.Position=UDim2.fromOffset(63,top-3)
+            elseif weaponSlot=="Left" then weaponIcon.AnchorPoint=Vector2.new(1,0.5);weaponIcon.Position=UDim2.fromOffset(left-4,70)
+            elseif weaponSlot=="Right" then weaponIcon.AnchorPoint=Vector2.new(0,0.5);weaponIcon.Position=UDim2.fromOffset(left+width+4,70)
+            else weaponIcon.AnchorPoint=Vector2.new(0.5,0);weaponIcon.Position=UDim2.fromOffset(63,top+height+3) end
             weaponIcon.Visible=XCConfig.weaponEspEnabled
         end
         refreshESPPreview = refreshPreview
         mode.Activated:Connect(function() previewVisible=not previewVisible;refreshPreview() end)
         for _,key in ipairs({"boxEspEnabled","cornerBoxEnabled","healthBarEnabled","nametagsEnabled","chamsEnabled","skeletonEspEnabled",
             "tracersEnabled","headDotEnabled","weaponEspEnabled","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline",
-            "espTextSize","espShowDistance","espShowHealth","tagShowWeapon",
+            "espTextSize","espShowDistance","espShowHealth","tagShowWeapon","espNamePosition","espHealthPosition","espWeaponPosition",
+            "espTextOutline","espDistanceFade","espFadeStart","espMinOpacity","chamsStyle","chamsUseEspPalette","chamsFillTransparency",
+            "chamsPulseSpeed","chamsIridescentSpeed","chamsVisibleR","chamsVisibleG","chamsVisibleB","chamsHiddenR","chamsHiddenG","chamsHiddenB",
             "espVisibleR","espVisibleG","espVisibleB","espHiddenR","espHiddenG","espHiddenB","espHealthHighR","espHealthHighG","espHealthHighB",
             "espHealthMidR","espHealthMidG","espHealthMidB","espHealthLowR","espHealthLowG","espHealthLowB"}) do
             refreshers[key]=refreshers[key] or {};table.insert(refreshers[key],refreshPreview)
         end
         task.defer(refreshPreview)
-        registerSearch(card,"player esp preview box corner health nametag chams skeleton tracer head dot weapon")
+        registerSearch(card,"player esp builder drag drop preview box corner health nametag chams skeleton tracer head dot weapon")
         return card
     end
 
@@ -14091,7 +14233,7 @@ function buildXCUI()
             if value then applyXCGloves() else restoreXCGloves() end
         elseif key == "noFallDamageEnabled" then
             setNoFallDamage(value)
-        elseif key == "thirdPersonDistance" or key == "thirdPersonHeight" or key == "thirdPersonOffset" then
+        elseif key == "thirdPersonDistance" or key == "thirdPersonHeight" then
             refreshThirdPerson()
         elseif key == "nightModeEnabled" then
             if value then
@@ -14120,7 +14262,7 @@ function buildXCUI()
         elseif key == "antiAfkEnabled" then setAntiAfkEnabled(value)
         elseif key == "spectatorListEnabled" and value then buildSpectatorGui()
         elseif key == "animationsEnabled" then if value then playXCAnimation() else stopXCAnimation() end
-        elseif key == "customHandsEnabled" or key == "viewmodelSwayEnabled" then
+        elseif key == "customHandsEnabled" then
             handsLastModel = nil
             handsLastPivot = nil
             if value then setupXCCustomHandsHook() end
@@ -14475,7 +14617,6 @@ function buildXCUI()
     toggle(R, "Third person", "thirdPersonEnabled")
     addSlider(R, "Third person distance", "thirdPersonDistance", 5, 25, 1, "", refreshThirdPerson)
     addSlider(R, "Third person height", "thirdPersonHeight", -3, 6, 0.5, "", refreshThirdPerson)
-    addSlider(R, "Shoulder offset", "thirdPersonOffset", -6, 6, 0.5, "", refreshThirdPerson)
 
     task.wait()
     L, R = columns("Visuals", "Player ESP", "Indicators & feedback")
@@ -14488,8 +14629,13 @@ function buildXCUI()
     addSlider(L, "Box stability", "espBoxSmoothing", 0, 0.9, 0.05, "")
     addSlider(L, "ESP scale", "espPerspectiveScale", 0.65, 1.5, 0.05, "x")
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
-    section(L, "Chams")
+    section(L, "Chams 2.0")
     toggle(L, "Chams", "chamsEnabled")
+    addChoice(L, "Chams style", "chamsStyle", {"Solid", "Shaded", "Glow", "Outline", "Iridescent", "Pulse", "Wire"}, refreshESPPreview)
+    toggle(L, "Use ESP palette", "chamsUseEspPalette")
+    addSlider(L, "Pulse speed", "chamsPulseSpeed", 0.2, 8, 0.2, "x")
+    addSlider(L, "Iridescent speed", "chamsIridescentSpeed", 0.02, 0.5, 0.01, "x")
+    addSlider(L, "Wire thickness", "chamsWireThickness", 0.01, 0.12, 0.005, "")
     section(L, "Skeleton")
     toggle(L, "Skeleton ESP", "skeletonEspEnabled")
     toggle(L, "Distance fade", "skeletonDistanceFade")
@@ -14502,7 +14648,16 @@ function buildXCUI()
     toggle(L, "Show distance", "espShowDistance")
     toggle(L, "Show health", "espShowHealth")
     toggle(L, "Show weapon", "tagShowWeapon")
-    section(R, "ESP preview")
+    section(L, "ESP Builder")
+    addChoice(L, "Name position", "espNamePosition", {"Top", "Bottom", "Left", "Right"}, refreshESPPreview)
+    addChoice(L, "Health position", "espHealthPosition", {"Left", "Right"}, refreshESPPreview)
+    addChoice(L, "Weapon position", "espWeaponPosition", {"Top", "Bottom", "Left", "Right"}, refreshESPPreview)
+    toggle(L, "Text outline", "espTextOutline")
+    toggle(L, "Distance fade", "espDistanceFade")
+    addSlider(L, "Fade start", "espFadeStart", 0.1, 0.95, 0.05, "x")
+    addSlider(L, "Minimum opacity", "espMinOpacity", 0.05, 1, 0.05, "")
+    addNote(L, "TIP: drag name / health / weapon directly in the preview")
+    section(R, "ESP Builder preview")
     addESPPreview(R)
     section(R, "ESP indicators")
     toggle(R, "Grenade ESP", "grenadeEspEnabled")
@@ -14546,14 +14701,10 @@ function buildXCUI()
     addChoice(R, "Jump style", "jumpCircleStyle", {"GradientWave", "ChromaPulse", "StaticNeon"})
 
     section(R, "Motion trail")
-    toggle(R, "Movement trail", "motionTrailEnabled")
-    addChoice(R, "Trail style", "motionTrailStyle", {"Ribbon", "Helix"})
+    toggle(R, "Movement ribbon", "motionTrailEnabled")
     addColorPicker(R, "Trail color", "motionTrailColor")
     addSlider(R, "Trail lifetime", "motionTrailLifetime", 0.15, 3, 0.05, "s")
     addSlider(R, "Trail width", "motionTrailWidth", 0.02, 0.55, 0.01, "")
-    addSlider(R, "Helix radius", "motionHelixRadius", 0.15, 2.5, 0.05, "")
-    addSlider(R, "Helix spin", "motionHelixSpin", 0.5, 12, 0.1, "x")
-    addSlider(R, "Helix wave", "motionHelixHeight", 0, 1.4, 0.05, "")
     toggle(R, "Ghost afterimages", "motionGhostEnabled")
     addColorPicker(R, "Ghost color", "motionGhostColor")
     addSlider(R, "Ghost interval", "motionGhostInterval", 0.06, 0.5, 0.01, "s")
@@ -14740,10 +14891,6 @@ function buildXCUI()
     addSlider(R, "Hands pitch", "customHandsPitch", -45, 45, 1, "°")
     addSlider(R, "Hands yaw", "customHandsYaw", -45, 45, 1, "°")
     addSlider(R, "Hands roll", "customHandsRoll", -90, 90, 1, "°")
-    toggle(R, "Movement sway", "viewmodelSwayEnabled")
-    addSlider(R, "Sway strength", "viewmodelSwayStrength", 0, 2, 0.05, "x")
-    addSlider(R, "Sway roll", "viewmodelSwayRoll", 0, 20, 0.5, "°")
-    addSlider(R, "Sway bob", "viewmodelSwayBob", 0, 0.18, 0.005, "")
     section(R, "Weapon visuals")
     toggle(R, "Weapon chams", "weaponChamsEnabled")
     addChoice(R, "Weapon material", "weaponChamsMode", {"Glass", "ForceField", "Metal", "Highlight", "Neon"})
@@ -14754,7 +14901,7 @@ function buildXCUI()
     toggle(R, "Bullet impacts", "bulletImpactEnabled")
     toggle(R, "Rainbow trail", "bulletTracerRainbow")
     addColorPicker(R, "Trail color", "bulletTracerColor")
-    addChoice(R, "Trail style", "bulletTracerStyle", {"Beam", "Wire", "Lightning", "Comet", "Pulse", "Block", "Cylinder"})
+    addChoice(R, "Trail style", "bulletTracerStyle", {"Beam", "Lightning", "Comet", "Pulse", "Block", "Cylinder"})
     addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
     addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
     section(R, "Penetration checker")
@@ -14773,6 +14920,9 @@ function buildXCUI()
     toggle(L, "Chams occlusion", "chamsOcclusion")
     addSlider(L, "Chams fill", "chamsFillTransparency", 0, 1, 0.05, "")
     addSlider(L, "Chams outline", "chamsOutlineTransparency", 0, 1, 0.05, "")
+    addColorPicker(L, "Chams visible", "chamsVisible", refreshESPPreview)
+    addColorPicker(L, "Chams hidden", "chamsHidden", refreshESPPreview)
+    addColorPicker(L, "Chams teammate", "chamsTeam", refreshESPPreview)
     section(R, "Nametag details")
     toggle(R, "Nametag distance", "espShowDistance")
     toggle(R, "Nametag health", "espShowHealth")
