@@ -1,272 +1,4 @@
-flow_init(function(currentKey)
-    local Players = game:GetService("Players")
-    local UserInputService = game:GetService("UserInputService")
-    local TweenService = game:GetService("TweenService")
-    local CoreGui = game:GetService("CoreGui")
-
-    local player = Players.LocalPlayer
-    if not player then
-        repeat task.wait() player = Players.LocalPlayer until player
-    end
-
-    local function resolveParent()
-        local ok, gui = pcall(function()
-            if type(gethui) == "function" then
-                return gethui()
-            end
-        end)
-        if ok and gui then return gui end
-
-        local playerGui = player:FindFirstChildOfClass("PlayerGui") or player:WaitForChild("PlayerGui", 8)
-        if playerGui then return playerGui end
-
-        return CoreGui
-    end
-
-    local parent = resolveParent()
-    local previous = parent and parent:FindFirstChild("XoseCityKeyEntry")
-    if previous then
-        pcall(function() previous:Destroy() end)
-    end
-
-    local done = Instance.new("BindableEvent")
-    local submitted = false
-    local submittedKey = nil
-
-    local screen = Instance.new("ScreenGui")
-    screen.Name = "XoseCityKeyEntry"
-    screen.IgnoreGuiInset = true
-    screen.ResetOnSpawn = false
-    screen.DisplayOrder = 2147483000
-    screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    screen.Parent = parent
-
-    local shade = Instance.new("Frame")
-    shade.Size = UDim2.fromScale(1, 1)
-    shade.BackgroundColor3 = Color3.fromRGB(5, 6, 7)
-    shade.BackgroundTransparency = 0.12
-    shade.BorderSizePixel = 0
-    shade.Parent = screen
-
-    local card = Instance.new("Frame")
-    card.Name = "Card"
-    card.AnchorPoint = Vector2.new(0.5, 0.5)
-    card.Position = UDim2.fromScale(0.5, 0.5)
-    card.Size = UserInputService.TouchEnabled and UDim2.fromOffset(326, 252) or UDim2.fromOffset(370, 258)
-    card.BackgroundColor3 = Color3.fromRGB(15, 16, 17)
-    card.BorderSizePixel = 0
-    card.ClipsDescendants = true
-    card.Parent = shade
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 13)
-    corner.Parent = card
-
-    local stroke = Instance.new("UIStroke")
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.Color = Color3.fromRGB(64, 68, 71)
-    stroke.Transparency = 0.48
-    stroke.Thickness = 1
-    stroke.Parent = card
-
-    local accent = Instance.new("Frame")
-    accent.Size = UDim2.new(1, 0, 0, 2)
-    accent.BackgroundColor3 = Color3.fromRGB(152, 204, 0)
-    accent.BorderSizePixel = 0
-    accent.Parent = card
-
-    local title = Instance.new("TextLabel")
-    title.BackgroundTransparency = 1
-    title.Position = UDim2.fromOffset(22, 20)
-    title.Size = UDim2.new(1, -44, 0, 27)
-    title.Font = Enum.Font.GothamBold
-    title.Text = "Xose City"
-    title.TextColor3 = Color3.fromRGB(241, 243, 244)
-    title.TextSize = 21
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Parent = card
-
-    local subtitle = Instance.new("TextLabel")
-    subtitle.BackgroundTransparency = 1
-    subtitle.Position = UDim2.fromOffset(22, 48)
-    subtitle.Size = UDim2.new(1, -44, 0, 17)
-    subtitle.Font = Enum.Font.GothamMedium
-    subtitle.Text = "ACCESS"
-    subtitle.TextColor3 = Color3.fromRGB(116, 122, 125)
-    subtitle.TextSize = 10
-    subtitle.TextXAlignment = Enum.TextXAlignment.Left
-    subtitle.Parent = card
-
-    local inputHolder = Instance.new("Frame")
-    inputHolder.Position = UDim2.fromOffset(22, 82)
-    inputHolder.Size = UDim2.new(1, -44, 0, 44)
-    inputHolder.BackgroundColor3 = Color3.fromRGB(21, 23, 24)
-    inputHolder.BorderSizePixel = 0
-    inputHolder.Parent = card
-
-    local inputCorner = Instance.new("UICorner")
-    inputCorner.CornerRadius = UDim.new(0, 8)
-    inputCorner.Parent = inputHolder
-
-    local inputStroke = Instance.new("UIStroke")
-    inputStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    inputStroke.Color = Color3.fromRGB(72, 76, 79)
-    inputStroke.Transparency = 0.58
-    inputStroke.Thickness = 1
-    inputStroke.Parent = inputHolder
-
-    local keyBox = Instance.new("TextBox")
-    keyBox.Name = "KeyBox"
-    keyBox.BackgroundTransparency = 1
-    keyBox.Position = UDim2.fromOffset(13, 0)
-    keyBox.Size = UDim2.new(1, -26, 1, 0)
-    keyBox.ClearTextOnFocus = false
-    keyBox.Font = Enum.Font.GothamMedium
-    keyBox.PlaceholderText = "Введите ключ доступа"
-    keyBox.PlaceholderColor3 = Color3.fromRGB(103, 108, 111)
-    keyBox.Text = type(currentKey) == "string" and currentKey or ""
-    keyBox.TextColor3 = Color3.fromRGB(226, 229, 231)
-    keyBox.TextSize = 13
-    keyBox.TextXAlignment = Enum.TextXAlignment.Left
-    keyBox.Parent = inputHolder
-
-    local status = Instance.new("TextLabel")
-    status.BackgroundTransparency = 1
-    status.Position = UDim2.fromOffset(22, 134)
-    status.Size = UDim2.new(1, -44, 0, 20)
-    status.Font = Enum.Font.Gotham
-    status.Text = keyBox.Text ~= "" and "Ключ загружен — нажмите ВОЙТИ" or "Введите ключ, чтобы продолжить"
-    status.TextColor3 = Color3.fromRGB(128, 134, 137)
-    status.TextSize = 11
-    status.TextXAlignment = Enum.TextXAlignment.Left
-    status.TextTruncate = Enum.TextTruncate.AtEnd
-    status.Parent = card
-
-    local submit = Instance.new("TextButton")
-    submit.Name = "Submit"
-    submit.Position = UDim2.fromOffset(22, 166)
-    submit.Size = UDim2.new(1, -44, 0, 40)
-    submit.AutoButtonColor = false
-    submit.BackgroundColor3 = Color3.fromRGB(152, 204, 0)
-    submit.BorderSizePixel = 0
-    submit.Font = Enum.Font.GothamBold
-    submit.Text = "ВОЙТИ"
-    submit.TextColor3 = Color3.fromRGB(10, 12, 11)
-    submit.TextSize = 12
-    submit.Parent = card
-
-    local submitCorner = Instance.new("UICorner")
-    submitCorner.CornerRadius = UDim.new(0, 8)
-    submitCorner.Parent = submit
-
-    local hint = Instance.new("TextLabel")
-    hint.BackgroundTransparency = 1
-    hint.Position = UDim2.fromOffset(22, 217)
-    hint.Size = UDim2.new(1, -44, 0, 17)
-    hint.Font = Enum.Font.Gotham
-    hint.Text = "Ключ проверяется после подтверждения"
-    hint.TextColor3 = Color3.fromRGB(91, 96, 99)
-    hint.TextSize = 10
-    hint.TextXAlignment = Enum.TextXAlignment.Center
-    hint.Parent = card
-
-    local function trim(value)
-        return tostring(value or ""):match("^%s*(.-)%s*$") or ""
-    end
-
-    local function finish()
-        if submitted then return end
-        local value = trim(keyBox.Text)
-        if value == "" then
-            status.Text = "Введите ключ доступа"
-            status.TextColor3 = Color3.fromRGB(224, 92, 92)
-            inputStroke.Color = Color3.fromRGB(224, 92, 92)
-            inputStroke.Transparency = 0.34
-            return
-        end
-
-        submitted = true
-        submittedKey = value
-        status.Text = "Проверка доступа..."
-        status.TextColor3 = Color3.fromRGB(152, 204, 0)
-        submit.Text = "ПРОВЕРКА..."
-        submit.Active = false
-
-        pcall(function()
-            TweenService:Create(card, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                BackgroundTransparency = 0.08
-            }):Play()
-        end)
-
-        task.delay(0.08, function()
-            done:Fire(value)
-        end)
-    end
-
-    submit.MouseButton1Click:Connect(finish)
-    keyBox.FocusLost:Connect(function(enterPressed)
-        if enterPressed then finish() end
-    end)
-
-    keyBox:GetPropertyChangedSignal("Text"):Connect(function()
-        if not submitted then
-            inputStroke.Color = Color3.fromRGB(72, 76, 79)
-            inputStroke.Transparency = 0.58
-            status.TextColor3 = Color3.fromRGB(128, 134, 137)
-        end
-    end)
-
-    submit.MouseEnter:Connect(function()
-        if not submitted then submit.BackgroundColor3 = Color3.fromRGB(166, 219, 8) end
-    end)
-    submit.MouseLeave:Connect(function()
-        if not submitted then submit.BackgroundColor3 = Color3.fromRGB(152, 204, 0) end
-    end)
-
-    local dragging = false
-    local dragStart
-    local startPosition
-
-    card.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPosition = card.Position
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and dragStart and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - dragStart
-            card.Position = UDim2.new(
-                startPosition.X.Scale,
-                startPosition.X.Offset + delta.X,
-                startPosition.Y.Scale,
-                startPosition.Y.Offset + delta.Y
-            )
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-
-    local value = done.Event:Wait()
-    submittedKey = trim(value or submittedKey)
-
-    pcall(function()
-        screen:Destroy()
-    end)
-    pcall(function()
-        done:Destroy()
-    end)
-
-    return submittedKey
-end)
-
---// XC v67 compact Centurion-compatible build
+--// XC v67 video-reference pass | no-key build
 pcall(function()
     if type(getgenv) == "function" then
         local env = getgenv()
@@ -326,6 +58,10 @@ local XCConfig = {
     customHandsPitch = 0,
     customHandsYaw = 0,
     customHandsRoll = 0,
+    viewmodelSwayEnabled = false,
+    viewmodelSwayStrength = 1.0,
+    viewmodelSwayRoll = 8.0,
+    viewmodelSwayBob = 0.055,
     uiScale = 1.0,
     menuThemePreset = "XC Lime",
     menuTransparency = 0,
@@ -519,6 +255,10 @@ local XCConfig = {
     -- Local movement trail / afterimages.
     motionTrailLifetime = 1.15,
     motionTrailWidth = 0.11,
+    motionTrailStyle = "Ribbon",
+    motionHelixRadius = 0.72,
+    motionHelixSpin = 4.8,
+    motionHelixHeight = 0.34,
     motionTrailColorR = 245,
     motionTrailColorG = 245,
     motionTrailColorB = 255,
@@ -1403,6 +1143,52 @@ local function renderXCBeam(group, origin, destination, width, color, duration)
     }):Play()
 end
 
+function renderXCWire(group, origin, destination, width, color, duration)
+    local startNode = newXCEffectPart(group, color)
+    local endNode = newXCEffectPart(group, color)
+    startNode.Size = Vector3.new(0.04, 0.04, 0.04)
+    endNode.Size = startNode.Size
+    startNode.Transparency = 1
+    endNode.Transparency = 1
+    startNode.Position = origin
+    endNode.Position = destination
+
+    local a0 = Instance.new("Attachment")
+    a0.Parent = startNode
+    local a1 = Instance.new("Attachment")
+    a1.Parent = endNode
+
+    local glow = Instance.new("Beam")
+    glow.Name = "WireGlow"
+    glow.Attachment0 = a0
+    glow.Attachment1 = a1
+    glow.FaceCamera = true
+    glow.LightEmission = 1
+    glow.LightInfluence = 0
+    glow.Width0 = math.max(0.018, width * 1.6)
+    glow.Width1 = math.max(0.012, width * 1.15)
+    glow.Color = ColorSequence.new(color)
+    glow.Transparency = NumberSequence.new(0.58, 0.9)
+    glow.Parent = startNode
+
+    local core = Instance.new("Beam")
+    core.Name = "WireCore"
+    core.Attachment0 = a0
+    core.Attachment1 = a1
+    core.FaceCamera = true
+    core.LightEmission = 1
+    core.LightInfluence = 0
+    core.Width0 = math.max(0.009, width * 0.46)
+    core.Width1 = math.max(0.006, width * 0.34)
+    core.Color = ColorSequence.new(color:Lerp(Color3.new(1, 1, 1), 0.58))
+    core.Transparency = NumberSequence.new(0.02, 0.36)
+    core.Parent = startNode
+
+    local fade = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(glow, fade, {Width0 = 0, Width1 = 0}):Play()
+    TweenService:Create(core, fade, {Width0 = 0, Width1 = 0}):Play()
+end
+
 local function renderXCLightning(group, origin, destination, width, color, duration)
     local delta = destination - origin
     local distance = delta.Magnitude
@@ -1504,7 +1290,9 @@ local function renderXCBulletEffects(shot, bullet)
 
     if XCConfig.bulletTrailEnabled then
         local style = tostring(XCConfig.bulletTracerStyle or "Beam")
-        if style == "Lightning" then
+        if style == "Wire" then
+            renderXCWire(group, origin, destination, width, color, duration)
+        elseif style == "Lightning" then
             renderXCLightning(group, origin, destination, width, color, duration)
         elseif style == "Comet" then
             renderXCComet(group, origin, destination, width, color, duration)
@@ -4058,11 +3846,14 @@ function updateSpectatorGui()
 end
 
 function applyXCHandsOffset(view)
-    if not XCConfig.customHandsEnabled then
+    local customEnabled = XCConfig.customHandsEnabled == true
+    local swayEnabled = XCConfig.viewmodelSwayEnabled == true
+    if not customEnabled and not swayEnabled then
         handsLastModel = nil
         handsLastPivot = nil
         return
     end
+
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
     local model = type(view) == "table" and view.Model or getCurrentWeaponModel()
@@ -4071,9 +3862,45 @@ function applyXCHandsOffset(view)
         handsLastModel = model
         handsLastPivot = model:GetPivot()
     end
+
     local original = model:GetPivot()
-    local offset = CFrame.new(XCConfig.customHandsX, XCConfig.customHandsY, XCConfig.customHandsZ)
-        * CFrame.Angles(math.rad(XCConfig.customHandsPitch), math.rad(XCConfig.customHandsYaw), math.rad(XCConfig.customHandsRoll))
+    local offset = CFrame.new(
+        customEnabled and XCConfig.customHandsX or 0,
+        customEnabled and XCConfig.customHandsY or 0,
+        customEnabled and XCConfig.customHandsZ or 0
+    ) * CFrame.Angles(
+        math.rad(customEnabled and XCConfig.customHandsPitch or 0),
+        math.rad(customEnabled and XCConfig.customHandsYaw or 0),
+        math.rad(customEnabled and XCConfig.customHandsRoll or 0)
+    )
+
+    if swayEnabled then
+        local character = player and player.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+        if humanoid and root then
+            local strength = math.clamp(tonumber(XCConfig.viewmodelSwayStrength) or 1, 0, 2)
+            local rollDegrees = math.clamp(tonumber(XCConfig.viewmodelSwayRoll) or 8, 0, 20)
+            local bobAmount = math.clamp(tonumber(XCConfig.viewmodelSwayBob) or 0.055, 0, 0.18)
+            local move = humanoid.MoveDirection
+            local horizontalVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 0, root.AssemblyLinearVelocity.Z)
+            local speedAlpha = math.clamp(horizontalVelocity.Magnitude / 22, 0, 1)
+            local right = cam.CFrame.RightVector
+            local flatLook = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
+            if flatLook.Magnitude > 0.001 then flatLook = flatLook.Unit end
+            local strafe = math.clamp(move:Dot(right), -1, 1)
+            local forward = flatLook.Magnitude > 0.001 and math.clamp(move:Dot(flatLook), -1, 1) or 0
+            local phase = os.clock() * (8.5 + speedAlpha * 2.5)
+            local bobY = math.sin(phase * 2) * bobAmount * speedAlpha * strength
+            local bobX = math.sin(phase) * bobAmount * 0.55 * speedAlpha * strength
+            local swayRoll = math.rad(-strafe * rollDegrees * speedAlpha * strength)
+            local swayPitch = math.rad(-forward * math.min(4.5, rollDegrees * 0.35) * speedAlpha * strength)
+            offset = offset
+                * CFrame.new(bobX + strafe * 0.035 * strength * speedAlpha, bobY, 0)
+                * CFrame.Angles(swayPitch, 0, swayRoll)
+        end
+    end
+
     pcall(function()
         model:PivotTo(cam.CFrame * offset * cam.CFrame:ToObjectSpace(original))
         if type(view) == "table" and view.LargeWeaponModel and view.SmallWeaponModel then
@@ -4122,6 +3949,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if not XCConfig.noFallDamageEnabled
         and not XCConfig.spectatorListEnabled
         and not XCConfig.customHandsEnabled
+        and not XCConfig.viewmodelSwayEnabled
         and not XCConfig.animationsEnabled
         and not animationTrack then
         if spectatorFrame then spectatorFrame.Visible = false end
@@ -4143,7 +3971,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     elseif spectatorFrame then
         spectatorFrame.Visible = false
     end
-    if XCConfig.customHandsEnabled and not handsNativeHooked then
+    if (XCConfig.customHandsEnabled or XCConfig.viewmodelSwayEnabled) and not handsNativeHooked then
         applyXCHandsOffset()
     end
     if animationTrack and animationTrack.IsPlaying then
@@ -5577,7 +5405,11 @@ function applyThirdPerson()
     camera.CameraMaxZoomDistance = distance
     camera.CameraType = Enum.CameraType.Custom
     camera.CameraSubject = hum
-    hum.CameraOffset = Vector3.new(0, math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6), 0)
+    hum.CameraOffset = Vector3.new(
+        math.clamp(tonumber(XCConfig.thirdPersonOffset) or 0, -6, 6),
+        math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6),
+        0
+    )
 end
 
 function setThirdPersonEnabled(enabled)
@@ -7732,6 +7564,26 @@ local function XCUpdateMotionAnchors(root)
     if not root or not XCMotionState.Anchor0 or not XCMotionState.Anchor1 then return end
     local width = math.clamp(tonumber(XCConfig.motionTrailWidth) or 0.11, 0.02, 0.55)
     local rootCF = root.CFrame
+    local style = tostring(XCConfig.motionTrailStyle or "Ribbon")
+
+    if style == "Helix" then
+        local radius = math.clamp(tonumber(XCConfig.motionHelixRadius) or 0.72, 0.15, 2.5)
+        local spin = math.clamp(tonumber(XCConfig.motionHelixSpin) or 4.8, 0.5, 12)
+        local height = math.clamp(tonumber(XCConfig.motionHelixHeight) or 0.34, 0, 1.4)
+        local phase = os.clock() * spin
+        local right = rootCF.RightVector
+        local up = rootCF.UpVector
+        local forward = rootCF.LookVector
+        local orbit = (right * math.cos(phase) + up * math.sin(phase)) * radius
+        local tangent = (-right * math.sin(phase) + up * math.cos(phase))
+        local center = root.Position + Vector3.new(0, -1.35, 0)
+            + forward * (math.sin(phase * 0.5) * height)
+        local halfWidth = math.max(0.025, width * 0.5)
+        XCMotionState.Anchor0.CFrame = CFrame.new(center + orbit - tangent * halfWidth)
+        XCMotionState.Anchor1.CFrame = CFrame.new(center + orbit + tangent * halfWidth)
+        return
+    end
+
     local right = rootCF.RightVector
     local upOffset = Vector3.new(0, -2.0, 0)
     local center = root.Position + upOffset
@@ -11924,9 +11776,9 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
     local now = os.clock()
 
     for healthKey, pending in pairs(
-        repeat
         hitmarkerPendingHits
     ) do
+        repeat
         local char = pending.Character
         local targetPlr = pending.Player
 
@@ -12689,6 +12541,9 @@ function buildXCUI()
         priorityPlayerName = "Roblox player selected as the preferred target. The list uses live server usernames.",
         customScopeEnabled = "Draws the XC scope overlay when scoped.",
         customHandsEnabled = "Offsets the detected first-person weapon or hands model.",
+        viewmodelSwayEnabled = "Adds velocity-aware first-person sway without accumulating transform drift.",
+        motionTrailStyle = "Ribbon is the classic trail; Helix creates the corkscrew movement trail seen in the video references.",
+        bulletTracerStyle = "Wire is a thin low-noise tracer inspired by the supplied wallbang/tracer clip.",
         grenadeEspEnabled = "Shows styled grenade labels, bounce trajectory and landing marker.",
         showGrenadePath = "Predicts the grenade arc with surface bounces and a landing marker.",
         grenadeDangerZonesEnabled = "Draws perspective-correct smoke, fire and grenade danger rings.",
@@ -14236,7 +14091,7 @@ function buildXCUI()
             if value then applyXCGloves() else restoreXCGloves() end
         elseif key == "noFallDamageEnabled" then
             setNoFallDamage(value)
-        elseif key == "thirdPersonDistance" or key == "thirdPersonHeight" then
+        elseif key == "thirdPersonDistance" or key == "thirdPersonHeight" or key == "thirdPersonOffset" then
             refreshThirdPerson()
         elseif key == "nightModeEnabled" then
             if value then
@@ -14265,7 +14120,7 @@ function buildXCUI()
         elseif key == "antiAfkEnabled" then setAntiAfkEnabled(value)
         elseif key == "spectatorListEnabled" and value then buildSpectatorGui()
         elseif key == "animationsEnabled" then if value then playXCAnimation() else stopXCAnimation() end
-        elseif key == "customHandsEnabled" then
+        elseif key == "customHandsEnabled" or key == "viewmodelSwayEnabled" then
             handsLastModel = nil
             handsLastPivot = nil
             if value then setupXCCustomHandsHook() end
@@ -14620,6 +14475,7 @@ function buildXCUI()
     toggle(R, "Third person", "thirdPersonEnabled")
     addSlider(R, "Third person distance", "thirdPersonDistance", 5, 25, 1, "", refreshThirdPerson)
     addSlider(R, "Third person height", "thirdPersonHeight", -3, 6, 0.5, "", refreshThirdPerson)
+    addSlider(R, "Shoulder offset", "thirdPersonOffset", -6, 6, 0.5, "", refreshThirdPerson)
 
     task.wait()
     L, R = columns("Visuals", "Player ESP", "Indicators & feedback")
@@ -14690,10 +14546,14 @@ function buildXCUI()
     addChoice(R, "Jump style", "jumpCircleStyle", {"GradientWave", "ChromaPulse", "StaticNeon"})
 
     section(R, "Motion trail")
-    toggle(R, "Movement ribbon", "motionTrailEnabled")
+    toggle(R, "Movement trail", "motionTrailEnabled")
+    addChoice(R, "Trail style", "motionTrailStyle", {"Ribbon", "Helix"})
     addColorPicker(R, "Trail color", "motionTrailColor")
     addSlider(R, "Trail lifetime", "motionTrailLifetime", 0.15, 3, 0.05, "s")
     addSlider(R, "Trail width", "motionTrailWidth", 0.02, 0.55, 0.01, "")
+    addSlider(R, "Helix radius", "motionHelixRadius", 0.15, 2.5, 0.05, "")
+    addSlider(R, "Helix spin", "motionHelixSpin", 0.5, 12, 0.1, "x")
+    addSlider(R, "Helix wave", "motionHelixHeight", 0, 1.4, 0.05, "")
     toggle(R, "Ghost afterimages", "motionGhostEnabled")
     addColorPicker(R, "Ghost color", "motionGhostColor")
     addSlider(R, "Ghost interval", "motionGhostInterval", 0.06, 0.5, 0.01, "s")
@@ -14880,6 +14740,10 @@ function buildXCUI()
     addSlider(R, "Hands pitch", "customHandsPitch", -45, 45, 1, "°")
     addSlider(R, "Hands yaw", "customHandsYaw", -45, 45, 1, "°")
     addSlider(R, "Hands roll", "customHandsRoll", -90, 90, 1, "°")
+    toggle(R, "Movement sway", "viewmodelSwayEnabled")
+    addSlider(R, "Sway strength", "viewmodelSwayStrength", 0, 2, 0.05, "x")
+    addSlider(R, "Sway roll", "viewmodelSwayRoll", 0, 20, 0.5, "°")
+    addSlider(R, "Sway bob", "viewmodelSwayBob", 0, 0.18, 0.005, "")
     section(R, "Weapon visuals")
     toggle(R, "Weapon chams", "weaponChamsEnabled")
     addChoice(R, "Weapon material", "weaponChamsMode", {"Glass", "ForceField", "Metal", "Highlight", "Neon"})
@@ -14890,7 +14754,7 @@ function buildXCUI()
     toggle(R, "Bullet impacts", "bulletImpactEnabled")
     toggle(R, "Rainbow trail", "bulletTracerRainbow")
     addColorPicker(R, "Trail color", "bulletTracerColor")
-    addChoice(R, "Trail style", "bulletTracerStyle", {"Beam", "Lightning", "Comet", "Pulse", "Block", "Cylinder"})
+    addChoice(R, "Trail style", "bulletTracerStyle", {"Beam", "Wire", "Lightning", "Comet", "Pulse", "Block", "Cylinder"})
     addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
     addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
     section(R, "Penetration checker")
