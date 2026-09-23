@@ -3694,6 +3694,11 @@ function restoreXCKnifeModel()
     constructXCKnifeView(view, weapon.Character or player.Character, weapon)
 end
 
+local function xcKnifeSkinNeedsRefresh(stamp, model, knife, skin, wear)
+    return not stamp or stamp.Model ~= model or stamp.Knife ~= knife
+        or stamp.Skin ~= skin or stamp.Wear ~= wear
+end
+
 function applyXCKnifeChanger()
     if not XCConfig.skinChangerEnabled then
         restoreXCKnifeModel()
@@ -3739,14 +3744,20 @@ function applyXCKnifeChanger()
         selectedSkin = "Default"
     end
     local modelChanged = view.CameraModelWeapon ~= selectedKnife
-    view.CameraModelWeapon = selectedKnife
-    view.Skin = selectedSkin ~= "Default" and selectedSkin or nil
-    view.Float = math.clamp(tonumber(XCConfig.knifeWear) or 0, 0, 1)
+    if modelChanged then view.CameraModelWeapon = selectedKnife end
+    local desiredSkin = selectedSkin ~= "Default" and selectedSkin or nil
+    if view.Skin ~= desiredSkin then view.Skin = desiredSkin end
+    local wear = math.clamp(tonumber(XCConfig.knifeWear) or 0, 0, 1)
+    if view.Float ~= wear then view.Float = wear end
     if modelChanged or not view.Model or not view.Model.Parent then
         if not constructXCKnifeView(view, weapon.Character or player.Character, weapon) then return false end
     end
-    if view.Model and view.Model.Parent then
-        applySurfaceAppearanceSkin(view.Model, selectedKnife, selectedSkin, XCConfig.knifeWear)
+    if view.Model and view.Model.Parent
+        and xcKnifeSkinNeedsRefresh(skinData.ModifiedKnife.SurfaceStamp, view.Model, selectedKnife, selectedSkin, wear) then
+        applySurfaceAppearanceSkin(view.Model, selectedKnife, selectedSkin, wear)
+        skinData.ModifiedKnife.SurfaceStamp = {
+            Model = view.Model, Knife = selectedKnife, Skin = selectedSkin, Wear = wear
+        }
     end
     skinData.LastError = nil
     return true
@@ -3956,7 +3967,7 @@ function restoreXCGloves()
             originals[glove] = nil
         end
     end
-    if cache then cache.Signature = nil end
+    if cache then cache.Signature = nil; cache.NextVerify = nil end
 end
 
 function applyXCGloves()
@@ -4013,7 +4024,11 @@ function applyXCGloves()
         cache.Left = leftGlove
         cache.Right = rightGlove
         cache.Signature = nil
+        cache.NextVerify = nil
     end
+
+    local signature = tostring(XCConfig.selectedGloveModel) .. "\0" .. tostring(XCConfig.selectedGloveSkin)
+    if cache.Signature == signature and os.clock() < (cache.NextVerify or 0) then return end
 
     local gloveFolder = skinData.SkinsRoot:FindFirstChild(XCConfig.selectedGloveModel)
     local skinFolder = gloveFolder and gloveFolder:FindFirstChild(XCConfig.selectedGloveSkin)
@@ -4028,7 +4043,6 @@ function applyXCGloves()
         end
     end
 
-    local signature = tostring(XCConfig.selectedGloveModel) .. "\0" .. tostring(XCConfig.selectedGloveSkin)
     if cache.Signature == signature then
         local function appearancesMatch(glove)
             local actual = {}
@@ -4052,7 +4066,10 @@ function applyXCGloves()
             end
             return true
         end
-        if appearancesMatch(leftGlove) and appearancesMatch(rightGlove) then return end
+        if appearancesMatch(leftGlove) and appearancesMatch(rightGlove) then
+            cache.NextVerify = os.clock() + 1.5
+            return
+        end
     end
 
     for _, glove in ipairs({leftGlove, rightGlove}) do
@@ -4073,6 +4090,7 @@ function applyXCGloves()
         end
     end
     cache.Signature = signature
+    cache.NextVerify = os.clock() + 1.5
 end
 
 -- Compatibility with the existing XC render scanner.
@@ -15396,10 +15414,15 @@ function buildXCUI()
                 card.Name="Skin_"..skinName;card.LayoutOrder=index;card.BackgroundColor3=C.Panel
                 card.BorderColor3=C.Border;card.BorderSizePixel=1;card.Text="";card.AutoButtonColor=false;cards[skinName]=card
                 Instance.new("UICorner",card).CornerRadius=UDim.new(0,4)
-                local visual=Instance.new("ViewportFrame",card)
+                local imageId=findPreviewImage(itemName,skinName)
+                local modelPreview=XCConfig.skinPreviewMode=="Models"
+                local visual=Instance.new(modelPreview and "ViewportFrame" or "Frame",card)
                 visual.Name="Preview";visual.Position=UDim2.fromOffset(4,4);visual.Size=UDim2.new(1,-8,1,-28)
-                visual.BackgroundColor3=C.Control;visual.BorderSizePixel=0;visual.Ambient=Color3.fromRGB(190,190,190)
-                visual.LightColor=Color3.fromRGB(255,255,255);visual.LightDirection=Vector3.new(-1,-0.5,-1)
+                visual.BackgroundColor3=C.Control;visual.BorderSizePixel=0
+                if modelPreview then
+                    visual.Ambient=Color3.fromRGB(190,190,190)
+                    visual.LightColor=Color3.fromRGB(255,255,255);visual.LightDirection=Vector3.new(-1,-0.5,-1)
+                end
                 Instance.new("UICorner",visual).CornerRadius=UDim.new(0,3)
                 local label=Instance.new("TextLabel",card)
                 label.Position=UDim2.new(0,6,1,-23);label.Size=UDim2.new(1,-12,0,19);label.BackgroundTransparency=1
@@ -15408,17 +15431,18 @@ function buildXCUI()
                 selected.Name="Selected";selected.Position=UDim2.fromOffset(5,4);selected.Size=UDim2.fromOffset(13,13)
                 selected.BackgroundColor3=Color3.fromRGB(4,4,4);selected.BackgroundTransparency=0.2;selected.Text="✓"
                 selected.Font=Enum.Font.Code;selected.TextSize=10;selected.Visible=false;selected.ZIndex=5
-                local imageId=findPreviewImage(itemName,skinName)
-                previewJobs[#previewJobs+1]=function()
+                local function populatePreview()
                     if serial~=gallerySerial or not visual.Parent then return end
-                    if imageId and XCConfig.skinPreviewMode~="Models" then
+                    if not modelPreview and imageId then
                         local image=Instance.new("ImageLabel",visual)
                         image.Size=UDim2.new(1,-8,1,-8);image.Position=UDim2.fromOffset(4,4);image.BackgroundTransparency=1
                         image.Image=imageId;image.ScaleType=Enum.ScaleType.Fit
                         return
                     end
-                    if XCConfig.skinGalleryMode=="Gloves" and addGlovePreview(visual,itemName,skinName) then return end
-                    if addModelPreview(visual,itemName,skinName) then return end
+                    if modelPreview then
+                        if XCConfig.skinGalleryMode=="Gloves" and addGlovePreview(visual,itemName,skinName) then return end
+                        if addModelPreview(visual,itemName,skinName) then return end
+                    end
                     if imageId then
                         local image=Instance.new("ImageLabel",visual)
                         image.Size=UDim2.new(1,-8,1,-8);image.Position=UDim2.fromOffset(4,4);image.BackgroundTransparency=1
@@ -15429,6 +15453,7 @@ function buildXCUI()
                     fallback.Text=skinName=="Default" and "DEFAULT" or itemName;fallback.TextColor3=C.Muted
                     fallback.Font=Enum.Font.Code;fallback.TextSize=9;fallback.TextWrapped=true
                 end
+                if modelPreview then previewJobs[#previewJobs+1]=populatePreview else populatePreview() end
                 card.Activated:Connect(function()
                     if XCConfig.skinGalleryMode=="Knife" then XCConfig.selectedSkin=skinName;refreshConfigControls("selectedSkin",skinName);applyXCKnifeChanger()
                     elseif XCConfig.skinGalleryMode=="Gloves" then XCConfig.selectedGloveSkin=skinName;XCConfig.gloveChangerEnabled=true;refreshConfigControls("selectedGloveSkin",skinName);applyXCGloves()
@@ -15440,13 +15465,15 @@ function buildXCUI()
                 end)
             end
             updateCardSelection(itemName)
-            task.spawn(function()
-                for _,job in ipairs(previewJobs) do
-                    RunService.Heartbeat:Wait()
-                    if serial~=gallerySerial then return end
-                    job()
-                end
-            end)
+            if #previewJobs>0 then
+                task.spawn(function()
+                    for _,job in ipairs(previewJobs) do
+                        RunService.Heartbeat:Wait()
+                        if serial~=gallerySerial then return end
+                        job()
+                    end
+                end)
+            end
         end
         task.defer(refreshSkinGallery)
         registerSearch(holder,"skin changer image gallery weapon knife glove previews")
@@ -15465,7 +15492,6 @@ function buildXCUI()
         elseif key == "skinChangerEnabled" then
             XCConfig.gloveChangerEnabled = value
             if value then
-                hookBloxStrikeModules(true)
                 applyXCKnifeChanger()
                 applyXCSelectedWeaponSkin()
                 applyXCGloves()
