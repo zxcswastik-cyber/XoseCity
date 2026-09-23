@@ -267,6 +267,24 @@ local XCConfig = {
     hitmarkerSize = 13,
     hitmarkerThickness = 2,
     hitmarkerGlow = true,
+
+    -- Hit Feedback 2.0
+    hitmarkerStyle = "Neverlose",
+    hitmarkerGap = 5,
+    hitmarkerColorMode = "Accent",
+    hitmarkerColorR = 245,
+    hitmarkerColorG = 245,
+    hitmarkerColorB = 245,
+    hitmarkerDamageEnabled = true,
+    hitmarkerWorldEnabled = true,
+    hitmarkerWorldDuration = 0.55,
+    hitmarkerWorldScale = 1.0,
+    hitmarkerLogEnabled = true,
+    hitmarkerLogDuration = 2.2,
+    hitmarkerMaxLogs = 4,
+    hitmarkerCritThreshold = 50,
+    hitmarkerScalePulse = true,
+
     hitSoundPreset = "Skeet",
     hitSoundVolume = 1,
 
@@ -384,12 +402,24 @@ local XCConfig = {
     worldColorR = 255,
     worldColorG = 255,
     worldColorB = 255,
-    bulletTracerStyle = "Beam",
+    -- Tracers 2.0
+    bulletTracerStyle = "Neverlose",
     bulletTracerDuration = 0.65,
     bulletTracerWidth = 0.08,
     bulletTracerRainbow = false,
+    bulletTracerGlowStrength = 0.72,
+    bulletTracerCoreBrightness = 1.25,
+    bulletTracerTaper = 0.72,
+    bulletTracerDualGap = 0.10,
+    bulletTracerSecondaryR = 255,
+    bulletTracerSecondaryG = 220,
+    bulletTracerSecondaryB = 120,
+
     bulletImpactEnabled = false,
     bulletImpactSize = 0.35,
+    bulletImpactStyle = "Glow Ring",
+    bulletImpactDuration = 0.38,
+    bulletImpactGlow = true,
     cubeCheckerEnabled = false,
     cubeCheckerRainbow = false,
     cubeCheckerSize = 1.5,
@@ -1114,30 +1144,74 @@ end
 
 local function resolveXCBulletVisualLine(shot, bullet)
     if type(shot) ~= "table" or typeof(shot.Origin) ~= "Vector3" then return nil end
+
     local direction = shot.Direction
     if typeof(direction) ~= "Vector3" or direction.Magnitude <= 0.001 then return nil end
     direction = direction.Unit
-    local properties = type(bullet) == "table" and bullet.Properties or nil
-    local distance = math.max(0.1, tonumber(shot.Distance)
-        or tonumber(properties and properties.Range) or 500)
-    local destination = shot.Origin + direction * distance
 
-    -- For a penetrated shot, keep the visual path through the last real entry
-    -- impact. Exit records are ignored so the trail never overshoots wildly.
-    if XCConfig.wallbangEnabled and type(shot.Hits) == "table" then
-        local farthest = distance
+    local properties = type(bullet) == "table" and bullet.Properties or nil
+    local maxRange = math.max(
+        0.1,
+        tonumber(shot.Distance)
+            or tonumber(properties and properties.Range)
+            or 500
+    )
+
+    local destination = shot.Origin + direction * maxRange
+    local bestAlong = -math.huge
+
+    -- Prefer the farthest real entry impact on this completed shot.
+    -- Exit records are ignored. This stops a normal trail at the actual hit
+    -- rather than at maximum weapon range while keeping penetration readable.
+    if type(shot.Hits) == "table" then
         for _, impact in ipairs(shot.Hits) do
-            local position = type(impact) == "table" and (impact.Position or impact.position) or nil
+            local position = type(impact) == "table"
+                and (impact.Position or impact.position)
+                or nil
+
             if not impact.Exit and typeof(position) == "Vector3" then
                 local along = (position - shot.Origin):Dot(direction)
-                if along > farthest and along <= (tonumber(properties and properties.Range) or 500) + 0.1 then
-                    farthest = along
+                if along > 0.01
+                    and along <= maxRange + 0.5
+                    and along > bestAlong
+                then
+                    bestAlong = along
                     destination = position
                 end
             end
         end
     end
+
     return shot.Origin, destination
+end
+
+local function getXCBulletImpactPositions(shot, origin, direction, maxDistance)
+    local positions = {}
+    if type(shot) ~= "table" or type(shot.Hits) ~= "table" then
+        return positions
+    end
+
+    direction = typeof(direction) == "Vector3" and direction.Unit or nil
+    if not direction then return positions end
+
+    for _, impact in ipairs(shot.Hits) do
+        local position = type(impact) == "table"
+            and (impact.Position or impact.position)
+            or nil
+
+        if not impact.Exit and typeof(position) == "Vector3" then
+            local along = (position - origin):Dot(direction)
+            if along > 0.01 and along <= maxDistance + 0.5 then
+                positions[#positions + 1] = position
+            end
+        end
+    end
+
+    table.sort(positions, function(a, b)
+        return (a - origin).Magnitude < (b - origin).Magnitude
+    end)
+
+    return positions
 end
 
 local function renderXCBeam(group, origin, destination, width, color, duration)
@@ -1262,54 +1336,310 @@ local function renderXCPartTrail(group, origin, destination, width, color, durat
     end
 end
 
+--// TRACERS 2.0
+local function xcBrightenColor(color, amount)
+    amount = math.max(0, tonumber(amount) or 0)
+    return Color3.new(
+        math.clamp(color.R * amount, 0, 1),
+        math.clamp(color.G * amount, 0, 1),
+        math.clamp(color.B * amount, 0, 1)
+    )
+end
+
+local function newXCBeamLane(group, origin, destination, offset, width0, width1, color0, color1, alpha, duration)
+    local right = camera and camera.CFrame.RightVector or Vector3.xAxis
+    local laneOffset = right * (offset or 0)
+
+    local startNode = newXCEffectPart(group, color0)
+    local endNode = newXCEffectPart(group, color1)
+    startNode.Name = "TracerNodeA"
+    endNode.Name = "TracerNodeB"
+    startNode.Size = Vector3.new(0.03, 0.03, 0.03)
+    endNode.Size = startNode.Size
+    startNode.Transparency = 1
+    endNode.Transparency = 1
+    startNode.Position = origin + laneOffset
+    endNode.Position = destination + laneOffset
+
+    local a0 = Instance.new("Attachment")
+    a0.Parent = startNode
+    local a1 = Instance.new("Attachment")
+    a1.Parent = endNode
+
+    local beam = Instance.new("Beam")
+    beam.Name = "XCTracerBeam"
+    beam.Attachment0 = a0
+    beam.Attachment1 = a1
+    beam.FaceCamera = true
+    beam.LightEmission = 1
+    beam.LightInfluence = 0
+    beam.Width0 = math.max(0.001, width0)
+    beam.Width1 = math.max(0.001, width1)
+    beam.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, color0),
+        ColorSequenceKeypoint.new(0.52, color0:Lerp(color1, 0.52)),
+        ColorSequenceKeypoint.new(1, color1),
+    })
+    local baseAlpha = math.clamp(alpha or 0, 0, 0.98)
+    beam.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, baseAlpha),
+        NumberSequenceKeypoint.new(0.72, math.min(0.98, baseAlpha + 0.08)),
+        NumberSequenceKeypoint.new(1, math.min(1, baseAlpha + 0.34)),
+    })
+    beam.Parent = startNode
+
+    TweenService:Create(
+        beam,
+        TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+        {Width0 = 0.001, Width1 = 0.001}
+    ):Play()
+    return beam
+end
+
+local function renderXCTracerV2(group, origin, destination, width, primary, secondary, duration, style)
+    style = tostring(style or "Neverlose")
+    local glow = math.clamp(tonumber(XCConfig.bulletTracerGlowStrength) or 0.72, 0, 2)
+    local brightness = math.clamp(tonumber(XCConfig.bulletTracerCoreBrightness) or 1.25, 0.5, 2.5)
+    local taper = math.clamp(tonumber(XCConfig.bulletTracerTaper) or 0.72, 0, 1)
+    local core = xcBrightenColor(primary, brightness)
+    local hot = xcBrightenColor(secondary, math.max(1, brightness * 0.95))
+
+    if style == "Neverlose" then
+        newXCBeamLane(
+            group, origin, destination, 0,
+            width * (3.0 + glow * 1.2),
+            width * (1.0 + glow * 0.55),
+            primary, secondary,
+            math.clamp(0.76 - glow * 0.12, 0.42, 0.82),
+            duration
+        )
+        newXCBeamLane(
+            group, origin, destination, 0,
+            width * 1.15,
+            width * math.max(0.16, 1.15 * (1 - taper)),
+            core, hot,
+            0.02,
+            duration
+        )
+
+    elseif style == "Laser" then
+        newXCBeamLane(group, origin, destination, 0, width * 2.1, width * 2.1, primary, secondary, 0.72, duration)
+        newXCBeamLane(group, origin, destination, 0, width * 0.72, width * 0.72, core, hot, 0, duration)
+
+    elseif style == "Glow" then
+        newXCBeamLane(
+            group, origin, destination, 0,
+            width * (4.2 + glow), width * (2.1 + glow * 0.4),
+            primary, secondary,
+            0.82 - math.min(0.2, glow * 0.08),
+            duration
+        )
+        newXCBeamLane(group, origin, destination, 0, width * 1.45, width * 0.72, core, hot, 0.07, duration)
+
+    elseif style == "Dual" then
+        local gap = math.clamp(tonumber(XCConfig.bulletTracerDualGap) or 0.10, 0.02, 0.45)
+        newXCBeamLane(group, origin, destination, gap, width * 0.82, width * 0.34, core, secondary, 0.02, duration)
+        newXCBeamLane(group, origin, destination, -gap, width * 0.82, width * 0.34, hot, primary, 0.02, duration)
+        if glow > 0.05 then
+            newXCBeamLane(
+                group, origin, destination, 0,
+                width * (2.4 + glow), width * (0.65 + glow * 0.25),
+                primary, secondary,
+                0.86,
+                duration
+            )
+        end
+
+    elseif style == "Electric" then
+        renderXCLightning(group, origin, destination, width * 0.78, primary, duration)
+        newXCBeamLane(group, origin, destination, 0, width * 0.42, width * 0.18, core, hot, 0.28, duration)
+
+    elseif style == "Comet" then
+        renderXCComet(group, origin, destination, width, primary, duration)
+
+    elseif style == "Beam" then
+        renderXCBeam(group, origin, destination, width, primary, duration)
+
+    else
+        renderXCPartTrail(group, origin, destination, width, primary, duration, style)
+    end
+end
+
+local function renderXCImpactV2(group, position, color, secondary, duration, size, style)
+    style = tostring(style or "Glow Ring")
+    duration = math.clamp(tonumber(duration) or 0.38, 0.08, 1.5)
+    size = math.clamp(tonumber(size) or 0.35, 0.05, 2)
+
+    if style == "Cross" then
+        for axis = 1, 3 do
+            local part = newXCEffectPart(group, color)
+            part.Name = "XCImpactCross"
+            if axis == 1 then
+                part.Size = Vector3.new(size * 2.5, size * 0.12, size * 0.12)
+            elseif axis == 2 then
+                part.Size = Vector3.new(size * 0.12, size * 2.5, size * 0.12)
+            else
+                part.Size = Vector3.new(size * 0.12, size * 0.12, size * 2.5)
+            end
+            part.Position = position
+            TweenService:Create(
+                part,
+                TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                {Transparency = 1, Size = part.Size * 0.18}
+            ):Play()
+        end
+        return
+    end
+
+    local node = newXCEffectPart(group, color)
+    node.Name = "XCImpactNode"
+    node.Shape = Enum.PartType.Ball
+    node.Size = Vector3.new(size, size, size)
+    node.Position = position
+
+    if style == "Dot" then
+        TweenService:Create(
+            node,
+            TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Transparency = 1, Size = Vector3.zero}
+        ):Play()
+        return
+    end
+
+    if style == "Pulse" then
+        node.Transparency = 0.18
+        TweenService:Create(
+            node,
+            TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+            {Transparency = 1, Size = Vector3.new(size * 4.5, size * 4.5, size * 4.5)}
+        ):Play()
+        return
+    end
+
+    -- Glow Ring: camera-facing UI ring + small impact core.
+    node.Size = Vector3.new(size * 0.42, size * 0.42, size * 0.42)
+    node.Color = secondary
+    TweenService:Create(
+        node,
+        TweenInfo.new(duration * 0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Transparency = 1, Size = Vector3.zero}
+    ):Play()
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "XCImpactRing"
+    billboard.Adornee = node
+    billboard.AlwaysOnTop = true
+    billboard.LightInfluence = 0
+    billboard.Size = UDim2.fromOffset(28, 28)
+    billboard.Parent = node
+
+    local ring = Instance.new("Frame")
+    ring.AnchorPoint = Vector2.new(0.5, 0.5)
+    ring.Position = UDim2.fromScale(0.5, 0.5)
+    ring.Size = UDim2.fromScale(0.44, 0.44)
+    ring.BackgroundTransparency = 1
+    ring.Parent = billboard
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = ring
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color
+    stroke.Thickness = XCConfig.bulletImpactGlow and 2.3 or 1.2
+    stroke.Transparency = 0.02
+    stroke.Parent = ring
+
+    TweenService:Create(
+        ring,
+        TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+        {Size = UDim2.fromScale(1.45, 1.45)}
+    ):Play()
+    TweenService:Create(
+        stroke,
+        TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Transparency = 1}
+    ):Play()
+end
+
 local function renderXCBulletEffects(shot, bullet)
-    if not (XCConfig.bulletTrailEnabled or XCConfig.bulletFlashEnabled or XCConfig.bulletImpactEnabled) then return end
+    if not (
+        XCConfig.bulletTrailEnabled
+        or XCConfig.bulletFlashEnabled
+        or XCConfig.bulletImpactEnabled
+    ) then
+        return
+    end
+
     local weapon = type(bullet) == "table" and bullet.Weapon or nil
     if weapon and weapon.Player and weapon.Player ~= player then return end
+
     local origin, destination = resolveXCBulletVisualLine(shot, bullet)
-    if not origin or not destination or (destination - origin).Magnitude <= 0.05 then return end
+    if not origin or not destination or (destination - origin).Magnitude <= 0.05 then
+        return
+    end
 
     local duration = math.clamp(tonumber(XCConfig.bulletTracerDuration) or 0.65, 0.05, 3)
     local width = math.clamp(tonumber(XCConfig.bulletTracerWidth) or 0.08, 0.02, 0.5)
-    local color = XCConfig.bulletTracerRainbow and Color3.fromHSV((os.clock() * 0.35) % 1, 0.9, 1)
-        or rgb(XCConfig.bulletTracerColorR, XCConfig.bulletTracerColorG, XCConfig.bulletTracerColorB)
+
+    local primary
+    local secondary
+    if XCConfig.bulletTracerRainbow then
+        local h = (os.clock() * 0.28) % 1
+        primary = Color3.fromHSV(h, 0.88, 1)
+        secondary = Color3.fromHSV((h + 0.13) % 1, 0.78, 1)
+    else
+        primary = rgb(XCConfig.bulletTracerColorR, XCConfig.bulletTracerColorG, XCConfig.bulletTracerColorB)
+        secondary = rgb(XCConfig.bulletTracerSecondaryR, XCConfig.bulletTracerSecondaryG, XCConfig.bulletTracerSecondaryB)
+    end
+
     local group = Instance.new("Folder")
-    group.Name = "Shot"
+    group.Name = "ShotV2"
     group.Parent = getXCBulletEffectFolder()
 
     if XCConfig.bulletTrailEnabled then
-        local style = tostring(XCConfig.bulletTracerStyle or "Beam")
-        if style == "Lightning" then
-            renderXCLightning(group, origin, destination, width, color, duration)
-        elseif style == "Comet" then
-            renderXCComet(group, origin, destination, width, color, duration)
-        elseif style == "Beam" then
-            renderXCBeam(group, origin, destination, width, color, duration)
-        else
-            renderXCPartTrail(group, origin, destination, width, color, duration, style)
-        end
+        renderXCTracerV2(
+            group, origin, destination, width,
+            primary, secondary, duration,
+            XCConfig.bulletTracerStyle
+        )
     end
 
     if XCConfig.bulletImpactEnabled then
-        local impact = newXCEffectPart(group, color)
-        impact.Shape = Enum.PartType.Ball
-        local size = math.clamp(tonumber(XCConfig.bulletImpactSize) or 0.35, 0.05, 2)
-        impact.Size = Vector3.new(size, size, size)
-        impact.Position = destination
-        TweenService:Create(impact, TweenInfo.new(math.min(duration, 0.4), Enum.EasingStyle.Back,
-            Enum.EasingDirection.Out), {Size = Vector3.zero, Transparency = 1}):Play()
+        local direction = destination - origin
+        local impacts = getXCBulletImpactPositions(shot, origin, direction, direction.Magnitude + 1)
+        if #impacts == 0 then impacts[1] = destination end
+
+        -- Last three real entries are enough to show penetration without spam.
+        local startIndex = math.max(1, #impacts - 2)
+        for index = startIndex, #impacts do
+            renderXCImpactV2(
+                group,
+                impacts[index],
+                primary,
+                secondary,
+                XCConfig.bulletImpactDuration,
+                XCConfig.bulletImpactSize,
+                XCConfig.bulletImpactStyle
+            )
+        end
     end
 
     if XCConfig.bulletFlashEnabled then
-        local flash = newXCEffectPart(group, color:Lerp(Color3.new(1, 1, 1), 0.35))
+        local flash = newXCEffectPart(group, primary:Lerp(Color3.new(1, 1, 1), 0.48))
         flash.Shape = Enum.PartType.Ball
         flash.Size = Vector3.new(width * 5, width * 5, width * 5)
         flash.Position = origin
-        TweenService:Create(flash, TweenInfo.new(0.12, Enum.EasingStyle.Quad,
-            Enum.EasingDirection.Out), {Size = Vector3.zero, Transparency = 1}):Play()
+        TweenService:Create(
+            flash,
+            TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Size = Vector3.zero, Transparency = 1}
+        ):Play()
     end
 
-    trackXCBulletEffect(group, duration + (XCConfig.bulletTracerStyle == "Comet" and duration * 0.65 or 0))
+    local style = tostring(XCConfig.bulletTracerStyle or "Neverlose")
+    local extraLife = style == "Comet" and duration * 0.65 or 0
+    trackXCBulletEffect(group, duration + extraLife)
 end
 
 function setupBloxStrikeShootHook()
@@ -1551,6 +1881,7 @@ registerXCLocalHitCandidate = function(hitInstance)
         pending.HitCount = (pending.HitCount or 0) + 1
         if typeof(lastPosition) == "Vector3" then
             pending.LastPosition = lastPosition
+            pending.LastHitPosition = lastPosition
         end
         return
     end
@@ -1568,6 +1899,7 @@ registerXCLocalHitCandidate = function(hitInstance)
         Health = health,
         LastObservedHealth = health,
         LastPosition = lastPosition,
+        LastHitPosition = lastPosition,
         LastHitAt = now,
         Expires = now + 1.75,
         HitCount = 1,
@@ -4068,124 +4400,425 @@ local soundEspPulses = {}
 local soundEspConnections = {}
 local soundEspHooked = false
 local mobileSlideBtn = nil
---// HITMARKER & DAMAGE FEEDBACK
-local hitmarkerGui = Instance.new("ScreenGui")
-hitmarkerGui.Name = "XCHitmarkerGui"
-hitmarkerGui.ResetOnSpawn = false
-hitmarkerGui.IgnoreGuiInset = true
-hitmarkerGui.DisplayOrder = 60
+--// HIT FEEDBACK 2.0
+local hitmarkerGui = Instance.new("Frame")
+hitmarkerGui.Name = "XCHitFeedback"
+hitmarkerGui.Size = UDim2.fromScale(1, 1)
+hitmarkerGui.BackgroundTransparency = 1
+hitmarkerGui.BorderSizePixel = 0
+hitmarkerGui.ZIndex = 90
 hitmarkerGui.Parent = mainContainer
 
 local hitmarkerCenter = Instance.new("Frame")
 hitmarkerCenter.Name = "Center"
 hitmarkerCenter.AnchorPoint = Vector2.new(0.5, 0.5)
-hitmarkerCenter.Position = UDim2.new(0.5, 0, 0.5, 0)
-hitmarkerCenter.Size = UDim2.new(0, 0, 0, 0)
+hitmarkerCenter.Position = UDim2.fromScale(0.5, 0.5)
+hitmarkerCenter.Size = UDim2.fromOffset(1, 1)
 hitmarkerCenter.BackgroundTransparency = 1
 hitmarkerCenter.Visible = false
+hitmarkerCenter.ZIndex = 92
 hitmarkerCenter.Parent = hitmarkerGui
 
+local hitmarkerScale = Instance.new("UIScale")
+hitmarkerScale.Scale = 1
+hitmarkerScale.Parent = hitmarkerCenter
+
 local hitmarkerLines = {}
-for i, rotation in ipairs({45, -45, 135, -135}) do
+for index = 1, 4 do
     local line = Instance.new("Frame")
-    line.Name = "Line" .. i
+    line.Name = "Line" .. index
     line.AnchorPoint = Vector2.new(0.5, 0.5)
-    line.Size = UDim2.new(0, XCConfig.hitmarkerThickness, 0, XCConfig.hitmarkerSize)
     line.BackgroundColor3 = currentTheme.Accent
     line.BorderSizePixel = 0
     line.BackgroundTransparency = 1
-    line.Rotation = rotation
+    line.ZIndex = 93
     line.Parent = hitmarkerCenter
 
     local glow = Instance.new("UIStroke")
     glow.Name = "NeonGlow"
     glow.Color = currentTheme.Accent
-    glow.Thickness = XCConfig.hitmarkerGlow and 2.5 or 0
+    glow.Thickness = XCConfig.hitmarkerGlow and 2.2 or 0
     glow.Transparency = 1
     glow.Parent = line
 
-    hitmarkerLines[i] = line
+    hitmarkerLines[index] = line
 end
+
+local hitmarkerDot = Instance.new("Frame")
+hitmarkerDot.Name = "Dot"
+hitmarkerDot.AnchorPoint = Vector2.new(0.5, 0.5)
+hitmarkerDot.Position = UDim2.fromOffset(0, 0)
+hitmarkerDot.Size = UDim2.fromOffset(5, 5)
+hitmarkerDot.BorderSizePixel = 0
+hitmarkerDot.BackgroundColor3 = currentTheme.Accent
+hitmarkerDot.BackgroundTransparency = 1
+hitmarkerDot.Visible = false
+hitmarkerDot.ZIndex = 94
+hitmarkerDot.Parent = hitmarkerCenter
+local dotCorner = Instance.new("UICorner")
+dotCorner.CornerRadius = UDim.new(1, 0)
+dotCorner.Parent = hitmarkerDot
+
+local hitmarkerRing = Instance.new("Frame")
+hitmarkerRing.Name = "Ring"
+hitmarkerRing.AnchorPoint = Vector2.new(0.5, 0.5)
+hitmarkerRing.Position = UDim2.fromOffset(0, 0)
+hitmarkerRing.Size = UDim2.fromOffset(18, 18)
+hitmarkerRing.BackgroundTransparency = 1
+hitmarkerRing.Visible = false
+hitmarkerRing.ZIndex = 93
+hitmarkerRing.Parent = hitmarkerCenter
+local ringCorner = Instance.new("UICorner")
+ringCorner.CornerRadius = UDim.new(1, 0)
+ringCorner.Parent = hitmarkerRing
+local hitmarkerRingStroke = Instance.new("UIStroke")
+hitmarkerRingStroke.Color = currentTheme.Accent
+hitmarkerRingStroke.Thickness = 1.7
+hitmarkerRingStroke.Transparency = 1
+hitmarkerRingStroke.Parent = hitmarkerRing
 
 local hitmarkerDamage = Instance.new("TextLabel")
 hitmarkerDamage.Name = "Damage"
 hitmarkerDamage.AnchorPoint = Vector2.new(0.5, 0)
-hitmarkerDamage.Position = UDim2.fromOffset(0, XCConfig.hitmarkerSize + 7)
-hitmarkerDamage.Size = UDim2.fromOffset(92, 18)
+hitmarkerDamage.Position = UDim2.fromOffset(0, 20)
+hitmarkerDamage.Size = UDim2.fromOffset(100, 20)
 hitmarkerDamage.BackgroundTransparency = 1
 hitmarkerDamage.Text = ""
 hitmarkerDamage.TextColor3 = currentTheme.Enemy_Accent
 hitmarkerDamage.TextStrokeColor3 = Color3.fromRGB(8, 8, 8)
-hitmarkerDamage.TextStrokeTransparency = 0.15
+hitmarkerDamage.TextStrokeTransparency = 0.12
 hitmarkerDamage.TextTransparency = 1
-hitmarkerDamage.Font = Enum.Font.Code
-hitmarkerDamage.TextSize = 13
+hitmarkerDamage.Font = Enum.Font.GothamBold
+hitmarkerDamage.TextSize = 12
 hitmarkerDamage.TextXAlignment = Enum.TextXAlignment.Center
 hitmarkerDamage.Visible = false
+hitmarkerDamage.ZIndex = 94
 hitmarkerDamage.Parent = hitmarkerCenter
 
-function refreshHitmarkerTheme()
-    for _, line in ipairs(hitmarkerLines) do
-        line.BackgroundColor3 = currentTheme.Accent
+local hitLogHolder = Instance.new("Frame")
+hitLogHolder.Name = "HitLogs"
+hitLogHolder.AnchorPoint = Vector2.new(1, 0.5)
+hitLogHolder.Position = UDim2.new(1, -18, 0.52, 0)
+hitLogHolder.Size = UDim2.fromOffset(230, 170)
+hitLogHolder.BackgroundTransparency = 1
+hitLogHolder.ZIndex = 91
+hitLogHolder.Parent = hitmarkerGui
+local hitLogLayout = Instance.new("UIListLayout")
+hitLogLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+hitLogLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+hitLogLayout.Padding = UDim.new(0, 5)
+hitLogLayout.SortOrder = Enum.SortOrder.LayoutOrder
+hitLogLayout.Parent = hitLogHolder
+
+local hitFeedbackLogs = {}
+local hitFeedbackTweens = {}
+
+local function cancelXCHitFeedbackTweens()
+    for _, tween in ipairs(hitFeedbackTweens) do
+        pcall(function() tween:Cancel() end)
+    end
+    table.clear(hitFeedbackTweens)
+end
+
+local function trackXCHitTween(tween)
+    hitFeedbackTweens[#hitFeedbackTweens + 1] = tween
+    tween:Play()
+    return tween
+end
+
+local function resolveXCHitFeedbackColor(damage, remainingHealth)
+    local mode = tostring(XCConfig.hitmarkerColorMode or "Accent")
+    if mode == "White" then
+        return Color3.fromRGB(245, 245, 245)
+    elseif mode == "Custom" then
+        return rgb(XCConfig.hitmarkerColorR, XCConfig.hitmarkerColorG, XCConfig.hitmarkerColorB)
+    elseif mode == "Damage" then
+        if tonumber(remainingHealth) and tonumber(remainingHealth) <= 0 then
+            return Color3.fromRGB(255, 74, 74)
+        end
+        if (tonumber(damage) or 0) >= (tonumber(XCConfig.hitmarkerCritThreshold) or 50) then
+            return Color3.fromRGB(255, 185, 64)
+        end
+        return Color3.fromRGB(235, 238, 240)
+    end
+    return currentTheme.Accent
+end
+
+local function configureXCHitmarkerShape(style, size, thickness, gap, color)
+    style = tostring(style or "Neverlose")
+    hitmarkerDot.Visible = false
+    hitmarkerRing.Visible = false
+    for _, line in ipairs(hitmarkerLines) do line.Visible = false end
+
+    if style == "Dot" then
+        local dotSize = math.max(4, thickness * 2.5)
+        hitmarkerDot.Size = UDim2.fromOffset(dotSize, dotSize)
+        hitmarkerDot.BackgroundColor3 = color
+        hitmarkerDot.BackgroundTransparency = 0
+        hitmarkerDot.Visible = true
+        return
+    end
+
+    if style == "Ring" then
+        local ringSize = math.max(12, size * 1.45)
+        hitmarkerRing.Size = UDim2.fromOffset(ringSize, ringSize)
+        hitmarkerRingStroke.Color = color
+        hitmarkerRingStroke.Thickness = math.max(1, thickness * 0.8)
+        hitmarkerRingStroke.Transparency = 0
+        hitmarkerRing.Visible = true
+        return
+    end
+
+    local rotations = style == "Cross" and {0, 90, 180, 270} or {45, -45, 135, -135}
+    local actualGap = style == "Classic" and 1 or gap
+
+    for index, line in ipairs(hitmarkerLines) do
+        local rotation = rotations[index]
+        local rad = math.rad(rotation)
+        local offset = actualGap + size * 0.5
+        line.Rotation = rotation
+        line.Size = UDim2.fromOffset(thickness, size)
+        line.Position = UDim2.fromOffset(-math.sin(rad) * offset, math.cos(rad) * offset)
+        line.BackgroundColor3 = color
+        line.BackgroundTransparency = 0
+        line.Visible = true
         local glow = line:FindFirstChild("NeonGlow")
         if glow then
-            glow.Color = currentTheme.Accent
-            glow.Thickness = XCConfig.hitmarkerGlow and 2.5 or 0
+            glow.Color = color
+            glow.Thickness = XCConfig.hitmarkerGlow and math.max(1.4, thickness * 1.2) or 0
+            glow.Transparency = XCConfig.hitmarkerGlow and 0.08 or 1
         end
     end
 end
 
-function showHitmarker(damage)
-    if type(playXCHitSound) == "function" then playXCHitSound() end
-    if not XCConfig.hitmarkerEnabled then return end
+local hitWorldFolder = nil
+local function getXCHitWorldFolder()
+    if hitWorldFolder and hitWorldFolder.Parent then return hitWorldFolder end
+    local old = Workspace:FindFirstChild("XC_HitFeedbackWorld")
+    if old then pcall(function() old:Destroy() end) end
+    hitWorldFolder = Instance.new("Folder")
+    hitWorldFolder.Name = "XC_HitFeedbackWorld"
+    hitWorldFolder.Parent = Workspace
+    return hitWorldFolder
+end
 
-    hitmarkerSerial = hitmarkerSerial + (1)
+local function spawnXCWorldHitFeedback(position, damage, color)
+    if not XCConfig.hitmarkerWorldEnabled or typeof(position) ~= "Vector3" then return end
+    local folder = getXCHitWorldFolder()
+    while #folder:GetChildren() >= 14 do
+        local oldest = folder:GetChildren()[1]
+        if oldest then oldest:Destroy() else break end
+    end
+
+    local anchor = Instance.new("Part")
+    anchor.Name = "WorldHit"
+    anchor.Anchored = true
+    anchor.CanCollide = false
+    anchor.CanTouch = false
+    anchor.CanQuery = false
+    anchor.CastShadow = false
+    anchor.Transparency = 1
+    anchor.Size = Vector3.new(0.05, 0.05, 0.05)
+    anchor.Position = position
+    anchor.Parent = folder
+
+    local scale = math.clamp(tonumber(XCConfig.hitmarkerWorldScale) or 1, 0.5, 2)
+    local life = math.clamp(tonumber(XCConfig.hitmarkerWorldDuration) or 0.55, 0.12, 1.8)
+
+    local gui = Instance.new("BillboardGui")
+    gui.AlwaysOnTop = true
+    gui.LightInfluence = 0
+    gui.Size = UDim2.fromOffset(86 * scale, 58 * scale)
+    gui.StudsOffsetWorldSpace = Vector3.new(0, 0.15, 0)
+    gui.Adornee = anchor
+    gui.Parent = anchor
+
+    local amount = Instance.new("TextLabel")
+    amount.AnchorPoint = Vector2.new(0.5, 0.5)
+    amount.Position = UDim2.fromScale(0.5, 0.5)
+    amount.Size = UDim2.fromScale(1, 0.56)
+    amount.BackgroundTransparency = 1
+    amount.Font = Enum.Font.GothamBold
+    amount.Text = damage and string.format("-%d", math.max(1, math.floor(damage + 0.5))) or "HIT"
+    amount.TextColor3 = color
+    amount.TextStrokeColor3 = Color3.fromRGB(7, 7, 8)
+    amount.TextStrokeTransparency = 0.15
+    amount.TextSize = math.floor(15 * scale)
+    amount.Parent = gui
+
+    local bar = Instance.new("Frame")
+    bar.AnchorPoint = Vector2.new(0.5, 0.5)
+    bar.Position = UDim2.fromScale(0.5, 0.80)
+    bar.Size = UDim2.fromOffset(20 * scale, 2 * scale)
+    bar.BorderSizePixel = 0
+    bar.BackgroundColor3 = color
+    bar.Parent = gui
+
+    TweenService:Create(gui, TweenInfo.new(life, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        StudsOffsetWorldSpace = Vector3.new(0, 1.25, 0)
+    }):Play()
+    TweenService:Create(amount, TweenInfo.new(life, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = 1, TextStrokeTransparency = 1
+    }):Play()
+    TweenService:Create(bar, TweenInfo.new(life, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 1, Size = UDim2.fromOffset(3, 2 * scale)
+    }):Play()
+
+    task.delay(life + 0.05, function()
+        if anchor and anchor.Parent then anchor:Destroy() end
+    end)
+end
+
+local function pushXCHitLog(targetPlr, damage, remainingHealth, color)
+    if not XCConfig.hitmarkerLogEnabled then return end
+
+    local card = Instance.new("Frame")
+    card.Name = "HitLog"
+    card.Size = UDim2.fromOffset(216, 34)
+    card.BackgroundColor3 = Color3.fromRGB(12, 13, 14)
+    card.BackgroundTransparency = 0.14
+    card.BorderSizePixel = 0
+    card.LayoutOrder = -hitmarkerSerial
+    card.ZIndex = 91
+    card.Parent = hitLogHolder
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = card
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color
+    stroke.Thickness = 1
+    stroke.Transparency = 0.48
+    stroke.Parent = card
+    local accent = Instance.new("Frame")
+    accent.Size = UDim2.new(0, 2, 1, -8)
+    accent.Position = UDim2.fromOffset(4, 4)
+    accent.BorderSizePixel = 0
+    accent.BackgroundColor3 = color
+    accent.ZIndex = 92
+    accent.Parent = card
+
+    local label = Instance.new("TextLabel")
+    label.Position = UDim2.fromOffset(12, 0)
+    label.Size = UDim2.new(1, -18, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamMedium
+    local name = targetPlr and targetPlr.Name or "target"
+    local dmg = tonumber(damage) and math.max(1, math.floor(damage + 0.5)) or 0
+    local hp = tonumber(remainingHealth)
+    label.Text = hp and string.format("%s   -%d   [%d HP]", name, dmg, math.max(0, math.floor(hp + 0.5)))
+        or string.format("%s   -%d", name, dmg)
+    label.TextColor3 = Color3.fromRGB(228, 231, 233)
+    label.TextSize = 11
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.ZIndex = 92
+    label.Parent = card
+
+    hitFeedbackLogs[#hitFeedbackLogs + 1] = card
+    local maxLogs = math.clamp(tonumber(XCConfig.hitmarkerMaxLogs) or 4, 1, 8)
+    while #hitFeedbackLogs > maxLogs do
+        local old = table.remove(hitFeedbackLogs, 1)
+        if old and old.Parent then old:Destroy() end
+    end
+
+    local life = math.clamp(tonumber(XCConfig.hitmarkerLogDuration) or 2.2, 0.5, 6)
+    task.delay(life, function()
+        if not card or not card.Parent then return end
+        TweenService:Create(card, TweenInfo.new(0.22), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(label, TweenInfo.new(0.22), {TextTransparency = 1}):Play()
+        TweenService:Create(accent, TweenInfo.new(0.22), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(stroke, TweenInfo.new(0.22), {Transparency = 1}):Play()
+        task.delay(0.24, function()
+            for index, object in ipairs(hitFeedbackLogs) do
+                if object == card then table.remove(hitFeedbackLogs, index) break end
+            end
+            if card and card.Parent then card:Destroy() end
+        end)
+    end)
+end
+
+function refreshHitmarkerTheme()
+    local color = resolveXCHitFeedbackColor(0, nil)
+    for _, line in ipairs(hitmarkerLines) do
+        line.BackgroundColor3 = color
+        local glow = line:FindFirstChild("NeonGlow")
+        if glow then glow.Color = color end
+    end
+    hitmarkerDot.BackgroundColor3 = color
+    hitmarkerRingStroke.Color = color
+end
+
+function showHitmarker(damage, worldPosition, targetPlr, remainingHealth)
+    if type(playXCHitSound) == "function" then playXCHitSound() end
+
+    local wantsAnyVisual = XCConfig.hitmarkerEnabled or XCConfig.hitmarkerWorldEnabled or XCConfig.hitmarkerLogEnabled
+    if not wantsAnyVisual then return end
+
+    hitmarkerSerial += 1
     local serial = hitmarkerSerial
-    hitmarkerCenter.Visible = true
+    local shownDamage = tonumber(damage)
+    local color = resolveXCHitFeedbackColor(shownDamage, remainingHealth)
+
+    spawnXCWorldHitFeedback(worldPosition, shownDamage, color)
+    pushXCHitLog(targetPlr, shownDamage, remainingHealth, color)
+
+    if not XCConfig.hitmarkerEnabled then return end
+    cancelXCHitFeedbackTweens()
 
     local size = math.clamp(tonumber(XCConfig.hitmarkerSize) or 13, 5, 30)
     local thickness = math.clamp(tonumber(XCConfig.hitmarkerThickness) or 2, 1, 6)
+    local gap = math.clamp(tonumber(XCConfig.hitmarkerGap) or 5, 0, 18)
+    local duration = math.clamp(tonumber(XCConfig.hitmarkerDuration) or 0.28, 0.05, 1.5)
 
-    for _, line in ipairs(hitmarkerLines) do
-        line.Size = UDim2.fromOffset(thickness, size)
-        line.BackgroundTransparency = 0
-        local glow = line:FindFirstChild("NeonGlow")
-        if glow then glow.Transparency = 0.05 end
-    end
+    configureXCHitmarkerShape(XCConfig.hitmarkerStyle, size, thickness, gap, color)
+    hitmarkerCenter.Visible = true
+    hitmarkerScale.Scale = XCConfig.hitmarkerScalePulse and 0.76 or 1
 
-    local shownDamage = tonumber(damage)
-    if shownDamage and shownDamage > 0 then
-        hitmarkerDamage.Position = UDim2.fromOffset(0, size + 7)
+    if XCConfig.hitmarkerDamageEnabled and shownDamage and shownDamage > 0 then
+        hitmarkerDamage.Position = UDim2.fromOffset(0, size + gap + 8)
         hitmarkerDamage.Text = string.format("-%d HP", math.max(1, math.floor(shownDamage + 0.5)))
-        hitmarkerDamage.TextColor3 = currentTheme.Enemy_Accent
+        hitmarkerDamage.TextColor3 = color
         hitmarkerDamage.TextTransparency = 0
-        hitmarkerDamage.TextStrokeTransparency = 0.15
+        hitmarkerDamage.TextStrokeTransparency = 0.12
         hitmarkerDamage.Visible = true
     else
         hitmarkerDamage.Visible = false
     end
 
-    local fadeInfo = TweenInfo.new(
-        math.max(0.05, XCConfig.hitmarkerDuration),
-        Enum.EasingStyle.Quad,
-        Enum.EasingDirection.Out
-    )
+    if XCConfig.hitmarkerScalePulse then
+        trackXCHitTween(TweenService:Create(
+            hitmarkerScale,
+            TweenInfo.new(math.min(0.12, duration * 0.40), Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+            {Scale = 1.0}
+        ))
+    end
 
+    local fadeInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     for _, line in ipairs(hitmarkerLines) do
-        TweenService:Create(line, fadeInfo, {
-            BackgroundTransparency = 1
-        }):Play()
-
-        local glow = line:FindFirstChild("NeonGlow")
-        if glow then
-            TweenService:Create(glow, fadeInfo, {Transparency = 1}):Play()
+        if line.Visible then
+            trackXCHitTween(TweenService:Create(line, fadeInfo, {BackgroundTransparency = 1}))
+            local glow = line:FindFirstChild("NeonGlow")
+            if glow then trackXCHitTween(TweenService:Create(glow, fadeInfo, {Transparency = 1})) end
         end
     end
+    if hitmarkerDot.Visible then
+        trackXCHitTween(TweenService:Create(hitmarkerDot, fadeInfo, {BackgroundTransparency = 1}))
+    end
+    if hitmarkerRing.Visible then
+        trackXCHitTween(TweenService:Create(hitmarkerRingStroke, fadeInfo, {Transparency = 1}))
+        trackXCHitTween(TweenService:Create(
+            hitmarkerRing,
+            TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+            {Size = UDim2.fromOffset(size * 2.6, size * 2.6)}
+        ))
+    end
     if hitmarkerDamage.Visible then
-        TweenService:Create(hitmarkerDamage, fadeInfo, {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+        trackXCHitTween(TweenService:Create(hitmarkerDamage, fadeInfo, {
+            TextTransparency = 1, TextStrokeTransparency = 1
+        }))
     end
 
-    task.delay(math.max(0.05, XCConfig.hitmarkerDuration), function()
+    task.delay(duration + 0.02, function()
         if serial == hitmarkerSerial then
             hitmarkerCenter.Visible = false
             hitmarkerDamage.Visible = false
@@ -8180,6 +8813,10 @@ function cleanup()
     clearActiveJumpCircle()
     pcall(function() jumpCircleFolder:Destroy() end)
     pcall(function() hitmarkerGui:Destroy() end)
+    pcall(function()
+        local folder = Workspace:FindFirstChild("XC_HitFeedbackWorld")
+        if folder then folder:Destroy() end
+    end)
     
     pcall(function()
         if bulletTrail then bulletTrail:Destroy() end
@@ -12206,6 +12843,8 @@ table.insert(connections, inEndedConn)
 --// LOCAL-SHOT HIT CONFIRMATION & PHYSICS LOOP
 table.insert(connections, RunService.Heartbeat:Connect(function()
     if not XCConfig.hitmarkerEnabled
+        and not XCConfig.hitmarkerWorldEnabled
+        and not XCConfig.hitmarkerLogEnabled
         and not XCConfig.hitSoundEnabled
         and not XCConfig.killEffectEnabled then
 
@@ -12317,7 +12956,12 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
                 local damage =
                     pending.Health - currentHealth
                 pending.SawDamage = true
-                showHitmarker(damage)
+                showHitmarker(
+                    damage,
+                    pending.LastHitPosition or pending.LastPosition,
+                    pending.Player,
+                    currentHealth
+                )
             end
 
             XCConfirmPendingLocalKill(
@@ -12337,8 +12981,12 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
 
             pending.SawDamage = true
             pending.Health = currentHealth
-            showHitmarker(damage)
-
+            showHitmarker(
+                damage,
+                pending.LastHitPosition or pending.LastPosition,
+                pending.Player,
+                currentHealth
+            )
             -- Keep a short grace period for a Died/Dead signal from the
             -- same local shot after the health change arrives.
             if XCConfig.killEffectEnabled then
@@ -15073,16 +15721,31 @@ function buildXCUI()
     addSlider(R, "Sound marker duration", "soundEspDuration", 0.4, 2.5, 0.05, "s")
     toggle(R, "Tracers", "tracersEnabled")
     toggle(R, "Head dot", "headDotEnabled")
-    section(R, "Hit feedback")
-    toggle(R, "Hitmarker", "hitmarkerEnabled")
+    section(R, "Hit Feedback 2.0")
+    toggle(R, "Screen hitmarker", "hitmarkerEnabled")
+    addChoice(R, "Hitmarker style", "hitmarkerStyle", {"Neverlose", "Classic", "Cross", "Dot", "Ring"})
+    addChoice(R, "Color mode", "hitmarkerColorMode", {"Accent", "White", "Damage", "Custom"})
+    addColorPicker(R, "Custom hit color", "hitmarkerColor", refreshHitmarkerTheme)
+    addSlider(R, "Hitmarker size", "hitmarkerSize", 5, 30, 1, "")
+    addSlider(R, "Hitmarker thickness", "hitmarkerThickness", 1, 6, 0.5, "px")
+    addSlider(R, "Center gap", "hitmarkerGap", 0, 18, 1, "px")
+    addSlider(R, "Hitmarker duration", "hitmarkerDuration", 0.05, 1.5, 0.05, "s")
+    toggle(R, "Glow", "hitmarkerGlow")
+    toggle(R, "Scale pulse", "hitmarkerScalePulse")
+    toggle(R, "Damage text", "hitmarkerDamageEnabled")
+    addSlider(R, "Critical damage", "hitmarkerCritThreshold", 10, 100, 5, " HP")
+    toggle(R, "World hit feedback", "hitmarkerWorldEnabled")
+    addSlider(R, "World duration", "hitmarkerWorldDuration", 0.12, 1.8, 0.05, "s")
+    addSlider(R, "World scale", "hitmarkerWorldScale", 0.5, 2, 0.05, "x")
+    toggle(R, "Hit log", "hitmarkerLogEnabled")
+    addSlider(R, "Hit log duration", "hitmarkerLogDuration", 0.5, 6, 0.1, "s")
+    addSlider(R, "Maximum logs", "hitmarkerMaxLogs", 1, 8, 1, "")
     toggle(R, "Hit sound", "hitSoundEnabled")
     addChoice(R, "Hit sound preset", "hitSoundPreset", {"Skeet", "Neverlose", "Bell", "Bell2", "Bubble", "Rust", "Agro1", "Agro2", "Coins", "Schaater", "Pick"}, function()
         playXCHitSound(true)
     end)
     addSlider(R, "Hit sound volume", "hitSoundVolume", 0.1, 3, 0.1, "x")
     addButton(R, "TEST HIT SOUND", function() playXCHitSound(true) end)
-    addSlider(R, "Hitmarker size", "hitmarkerSize", 5, 30, 1, "")
-    addSlider(R, "Hitmarker duration", "hitmarkerDuration", 0.05, 1, 0.05, "s")
     toggle(R, "Kill effects", "killEffectEnabled")
     addChoice(R, "Kill effect style", "killEffectStyle", {
         "Fireflies", "Lightning Strike", "Dissolve", "Soul", "Black Hole",
@@ -15298,15 +15961,29 @@ function buildXCUI()
     toggle(R, "Weapon chams", "weaponChamsEnabled")
     addChoice(R, "Weapon material", "weaponChamsMode", {"Glass", "ForceField", "Metal", "Highlight", "Neon"})
     addColorPicker(R, "Weapon color", "weaponChamsColor", function() setWeaponVisuals() end)
-    section(R, "Bullet effects")
+    section(R, "Tracers 2.0")
     toggle(R, "Bullet trail", "bulletTrailEnabled")
     toggle(R, "Bullet flash", "bulletFlashEnabled")
-    toggle(R, "Bullet impacts", "bulletImpactEnabled")
     toggle(R, "Rainbow trail", "bulletTracerRainbow")
-    addColorPicker(R, "Trail color", "bulletTracerColor")
-    addChoice(R, "Trail style", "bulletTracerStyle", {"Beam", "Lightning", "Comet", "Pulse", "Block", "Cylinder"})
+    addChoice(R, "Trail style", "bulletTracerStyle", {
+        "Neverlose", "Laser", "Glow", "Dual", "Electric", "Comet",
+        "Beam", "Pulse", "Block", "Cylinder"
+    })
+    addColorPicker(R, "Primary color", "bulletTracerColor")
+    addColorPicker(R, "Secondary color", "bulletTracerSecondary")
     addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
     addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
+    addSlider(R, "Glow strength", "bulletTracerGlowStrength", 0, 2, 0.05, "x")
+    addSlider(R, "Core brightness", "bulletTracerCoreBrightness", 0.5, 2.5, 0.05, "x")
+    addSlider(R, "Taper", "bulletTracerTaper", 0, 1, 0.05, "")
+    addSlider(R, "Dual gap", "bulletTracerDualGap", 0.02, 0.45, 0.01, "")
+
+    section(R, "Bullet impacts 2.0")
+    toggle(R, "Bullet impacts", "bulletImpactEnabled")
+    addChoice(R, "Impact style", "bulletImpactStyle", {"Glow Ring", "Cross", "Pulse", "Dot"})
+    addSlider(R, "Impact size", "bulletImpactSize", 0.05, 2, 0.05, "")
+    addSlider(R, "Impact duration", "bulletImpactDuration", 0.08, 1.5, 0.05, "s")
+    toggle(R, "Impact glow", "bulletImpactGlow")
     section(R, "Penetration checker")
     toggle(R, "Cube checker", "cubeCheckerEnabled")
     addSlider(R, "Cube distance", "cubeCheckerDistance", 1, 100, 1, "")
