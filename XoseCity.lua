@@ -13506,7 +13506,8 @@ local function xcGlassOpacity(role, enabled, intensity, base)
     base = math.max(0, math.min(0.45, tonumber(base) or 0))
     if not enabled then return base end
     local amount = math.max(0, math.min(1, tonumber(intensity) or 0.7))
-    local layer = role == "chrome" and 0.42 or role == "main" and 0.17 or 0.11
+    -- Keep the game visible through the shell without washing out small text.
+    local layer = role == "chrome" and 0.27 or role == "main" and 0.12 or 0.055
     return math.min(0.62, base + layer * amount)
 end
 
@@ -13705,8 +13706,8 @@ function buildXCUI()
     pageSubtitle.Size = UDim2.new(1, isMobileLayout and -182 or -222, 0, 14)
     pageSubtitle.BackgroundTransparency = 1
     pageSubtitle.TextColor3 = C.Muted
-    pageSubtitle.Font = Enum.Font.Gotham
-    pageSubtitle.TextSize = 10
+    pageSubtitle.Font = Enum.Font.GothamMedium
+    pageSubtitle.TextSize = 11
     pageSubtitle.TextTruncate = Enum.TextTruncate.AtEnd
     pageSubtitle.TextXAlignment = Enum.TextXAlignment.Left
     pageSubtitle.Parent = header
@@ -14306,8 +14307,8 @@ function buildXCUI()
         text.BackgroundTransparency = 1
         text.Text = label
         text.TextColor3 = C.Text
-        text.Font = Enum.Font.Gotham
-        text.TextSize = 11
+        text.Font = Enum.Font.GothamMedium
+        text.TextSize = 12
         text.TextXAlignment = Enum.TextXAlignment.Left
         text.TextTruncate = Enum.TextTruncate.AtEnd
         text.Parent = row
@@ -14401,8 +14402,8 @@ function buildXCUI()
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
-        name.Font = Enum.Font.Gotham
-        name.TextSize = 11
+        name.Font = Enum.Font.GothamMedium
+        name.TextSize = 12
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
@@ -14530,17 +14531,17 @@ function buildXCUI()
             openAbove and aboveY or math.min(belowY, viewport.Y - popupHeight - 6)
         )
         popup.Size = UDim2.fromOffset(buttonSize.X, popupHeight)
-        popup.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
-        popup.BorderColor3 = C.Border
-        popup.BorderSizePixel = 1
+        popup.BackgroundColor3 = C.Panel
+        popup.BorderSizePixel = 0
         popup.ScrollBarThickness = #values > visibleRows and 2 or 0
         popup.ScrollBarImageColor3 = C.Lime
         popup.CanvasSize = UDim2.fromOffset(0, #values * rowHeight)
         popup.ZIndex = 200
         popup.Parent = screenGui
+        Instance.new("UICorner", popup).CornerRadius = UDim.new(0, 8)
 
         local popupStroke = Instance.new("UIStroke")
-        popupStroke.Color = C.Black
+        popupStroke.Color = C.Border
         popupStroke.Thickness = 1
         popupStroke.Parent = popup
 
@@ -14554,11 +14555,11 @@ function buildXCUI()
             optionButton.Name = tostring(option)
             optionButton.LayoutOrder = index
             optionButton.Size = UDim2.new(1, 0, 0, rowHeight)
-            optionButton.BackgroundColor3 = selected and Color3.fromRGB(32, 39, 17) or Color3.fromRGB(18, 18, 18)
+            optionButton.BackgroundColor3 = selected and C.Control:Lerp(C.Lime, 0.2) or C.Panel
             optionButton.BorderSizePixel = 0
             optionButton.Text = ""
-            optionButton.Font = Enum.Font.Code
-            optionButton.TextSize = UserInputService.TouchEnabled and 11 or 10
+            optionButton.Font = Enum.Font.GothamMedium
+            optionButton.TextSize = UserInputService.TouchEnabled and 13 or 12
             optionButton.AutoButtonColor = false
             optionButton.ZIndex = 201
             optionButton.Parent = popup
@@ -14569,8 +14570,9 @@ function buildXCUI()
             optionText.BackgroundTransparency = 1
             optionText.Text = tostring(option)
             optionText.TextColor3 = selected and C.White or C.Text
-            optionText.Font = Enum.Font.Code
-            optionText.TextSize = UserInputService.TouchEnabled and 11 or 10
+            optionText.Font = Enum.Font.GothamMedium
+            optionText.TextSize = UserInputService.TouchEnabled and 13 or 12
+            optionText.TextTruncate = Enum.TextTruncate.AtEnd
             optionText.TextXAlignment = Enum.TextXAlignment.Left
             optionText.ZIndex = 202
             optionText.Parent = optionButton
@@ -14588,11 +14590,11 @@ function buildXCUI()
             markerCorner.Parent = marker
 
             optionButton.MouseEnter:Connect(function()
-                optionButton.BackgroundColor3 = selected and Color3.fromRGB(38, 48, 18) or C.Control2
+                optionButton.BackgroundColor3 = selected and C.Control:Lerp(C.Lime, 0.28) or C.Control2
                 optionText.TextColor3 = C.White
             end)
             optionButton.MouseLeave:Connect(function()
-                optionButton.BackgroundColor3 = selected and Color3.fromRGB(32, 39, 17) or Color3.fromRGB(18, 18, 18)
+                optionButton.BackgroundColor3 = selected and C.Control:Lerp(C.Lime, 0.2) or C.Panel
                 optionText.TextColor3 = selected and C.White or C.Text
             end)
             optionButton.Activated:Connect(function()
@@ -14621,8 +14623,8 @@ function buildXCUI()
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
-        name.Font = Enum.Font.Gotham
-        name.TextSize = 11
+        name.Font = Enum.Font.GothamMedium
+        name.TextSize = 12
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
@@ -14642,8 +14644,8 @@ function buildXCUI()
         valueText.Position = UDim2.fromOffset(8, 0)
         valueText.BackgroundTransparency = 1
         valueText.TextColor3 = C.Text
-        valueText.Font = Enum.Font.Gotham
-        valueText.TextSize = 11
+        valueText.Font = Enum.Font.GothamMedium
+        valueText.TextSize = 12
         valueText.TextXAlignment = Enum.TextXAlignment.Left
         valueText.TextTruncate = Enum.TextTruncate.AtEnd
         valueText.Parent = button
@@ -14715,16 +14717,17 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local note = Instance.new("TextLabel")
         note.Size = UDim2.new(1, 0, 0, 30)
-        note.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
+        note.BackgroundColor3 = C.Control
         note.BorderColor3 = C.Border
-        note.BorderSizePixel = 1
+        note.BorderSizePixel = 0
         note.Text = message
         note.TextColor3 = C.Muted
-        note.Font = Enum.Font.Code
-        note.TextSize = 8
+        note.Font = Enum.Font.Gotham
+        note.TextSize = 10
         note.TextWrapped = true
         note.TextXAlignment = Enum.TextXAlignment.Left
         note.Parent = parent
+        Instance.new("UICorner", note).CornerRadius = UDim.new(0, 6)
         local padding = Instance.new("UIPadding")
         padding.PaddingLeft = UDim.new(0, 6)
         padding.PaddingRight = UDim.new(0, 6)
@@ -15941,7 +15944,7 @@ function buildXCUI()
         {"Settings", "settings"}, {"Configs", "configs"},
     }
     local pageDescriptions = {
-        Rage = "Aim, targeting & weapons", AntiAim = "Movement & camera control",
+        Rage = "Aim, targeting & weapons", AntiAim = "Movement, camera & anti-aim",
         Visuals = "ESP & on-screen effects", Players = "Target filtering & overlays",
         World = "Environment & lighting", Skins = "Weapon finishes & gloves",
         Misc = "Viewmodel & utilities", Settings = "Appearance & preferences",
@@ -15951,7 +15954,7 @@ function buildXCUI()
         closeDropdown()
         hideHelp()
         currentPage = name
-        pageTitle.Text = name == "AntiAim" and "ANTI-AIM" or string.upper(name)
+        pageTitle.Text = name == "AntiAim" and "MOVEMENT" or string.upper(name)
         pageSubtitle.Text = pageDescriptions[name] or "Customize your session"
         for pageName, page in pairs(pages) do page.Visible = pageName == name end
         for tabName, data in pairs(tabData) do
@@ -16004,11 +16007,11 @@ function buildXCUI()
         label.Position = UDim2.fromOffset(37, 0)
         label.Size = UDim2.new(1, -40, 1, 0)
         label.BackgroundTransparency = 1
-        label.Text = info[1] == "AntiAim" and "Anti-aim" or info[1]
+        label.Text = info[1] == "AntiAim" and "Movement" or info[1]
         label.Visible = not isMobileLayout
         label.TextColor3 = C.Muted
-        label.Font = Enum.Font.GothamBold
-        label.TextSize = isMobileLayout and 9 or 11
+        label.Font = Enum.Font.GothamMedium
+        label.TextSize = isMobileLayout and 9 or 12
         label.TextTruncate = Enum.TextTruncate.AtEnd
         label.TextXAlignment = Enum.TextXAlignment.Left
         button.MouseEnter:Connect(function()
@@ -16100,7 +16103,7 @@ function buildXCUI()
     addSlider(R, "Fire interval", "fireRate", 0.01, 0.2, 0.01, "s")
 
     task.wait()
-    L, R = columns("AntiAim", "Movement", "Anti-aim & camera")
+    L, R = columns("AntiAim", "Movement", "Camera & anti-aim")
     section(L, "Bunny hop")
     toggle(L, "Bhop engine", "bunnyHopEnabled")
     addChoice(L, "Bhop mode", "bhopMode", {"Hold", "Automatic"})
