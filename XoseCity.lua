@@ -245,6 +245,11 @@ local XCConfig = {
     chamsSoftGlowStrength = 0.85,
     chamsSoftGlowSize = 0.045,
 
+    -- Stable renderer
+    chamsShellScale = 1.012,
+    chamsExcludeAccessories = true,
+    chamsAnimationFPS = 30,
+
     recoilStrength = 0.85,
     noRecoilEnabled = false,
     noSpreadEnabled = false,
@@ -10799,21 +10804,15 @@ function renderTacticalOverlay()
         end
     end
 end
---// CHAMS 4.0 — MATERIAL SHELL ENGINE
--- Neverlose-like material categories adapted to Roblox rendering:
---   Shaded      -> SmoothPlastic / Metal + roughness / reflectance
---   Solid       -> opaque SmoothPlastic shell
---   Glow        -> Neon shell + soft enlarged aura
---   Glow Outline-> Neon/outline shell + adjustable glow zone / optional fill
---   Iridescent  -> ForceField Fresnel material + animated per-part hue
---   Water Flow  -> animated ForceField wave across body parts
---   Glossy      -> Glass shell + brightness / fill / edge falloff / shade
---
--- A normal 3D shell supplies actual lighting/material response when visible.
--- One Workspace Highlight remains only for through-wall fill/outline.
--- No original character parts are modified.
+--// CHAMS 4.1 — STABLE MATERIAL SHELL ENGINE
+-- Stable rules:
+--   * one physical shell layer only
+--   * shells are WeldConstraint-followed, not CFrame-updated each frame
+--   * shells are slightly enlarged to avoid coplanar z-fighting
+--   * no Glass/ForceField inside this engine
+--   * accessories excluded by default to reduce overlapping geometry
 
-local XC_CHAM_PART_CAP = 48
+local XC_CHAM_PART_CAP = 32
 
 local function xcClamp01(v)
     return math.clamp(tonumber(v) or 0, 0, 1)
@@ -10842,10 +10841,15 @@ local function xcEligibleChamParts(char)
 
     for _, part in ipairs(char:GetDescendants()) do
         if #result >= XC_CHAM_PART_CAP then break end
+
+        local accessory = part:FindFirstAncestorOfClass("Accessory")
+        local tool = part:FindFirstAncestorOfClass("Tool")
+
         if part:IsA("BasePart")
             and part.Name ~= "HumanoidRootPart"
             and part.Transparency < 0.98
-            and not part:FindFirstAncestorOfClass("Tool")
+            and not tool
+            and (not XCConfig.chamsExcludeAccessories or not accessory)
         then
             table.insert(result, part)
         end
@@ -10857,8 +10861,6 @@ end
 local function xcStripChamClone(clone)
     if not clone then return end
 
-    -- Preserve SpecialMesh geometry, remove everything else that can render
-    -- textures/effects or execute behavior.
     for _, child in ipairs(clone:GetChildren()) do
         if not child:IsA("SpecialMesh") then
             pcall(function() child:Destroy() end)
@@ -10866,7 +10868,7 @@ local function xcStripChamClone(clone)
     end
 
     pcall(function()
-        clone.Anchored = true
+        clone.Anchored = false
         clone.CanCollide = false
         clone.CanTouch = false
         clone.CanQuery = false
@@ -10888,11 +10890,12 @@ local function xcStripChamClone(clone)
     end
 end
 
-local function xcCloneChamPart(original, parent, name)
+local function xcCloneChamPart(original, parent)
     if not original or not original.Parent then return nil end
 
     local oldArchivable = original.Archivable
     local clone
+
     pcall(function()
         original.Archivable = true
         clone = original:Clone()
@@ -10904,9 +10907,25 @@ local function xcCloneChamPart(original, parent, name)
         return nil
     end
 
-    clone.Name = name or "XCChamShell"
+    clone.Name = "XCChamShell"
     xcStripChamClone(clone)
+
+    local scale = math.clamp(
+        tonumber(XCConfig.chamsShellScale) or 1.012,
+        1.002,
+        1.04
+    )
+
+    clone.CFrame = original.CFrame
+    clone.Size = original.Size * scale
     clone.Parent = parent
+
+    local weld = Instance.new("WeldConstraint")
+    weld.Name = "XCChamWeld"
+    weld.Part0 = clone
+    weld.Part1 = original
+    weld.Parent = clone
+
     return clone
 end
 
@@ -10923,6 +10942,9 @@ local function destroyXCChamShells(data)
     data.ChamShells = {}
     data.ChamShellCharacter = nil
     data.ChamShellPartCount = 0
+    data.ChamLastAnimation = 0
+    data.ChamLastStyle = nil
+    data.ChamLastColor = nil
 end
 
 local function hideXCChamShells(data)
@@ -10930,22 +10952,8 @@ local function hideXCChamShells(data)
     for _, entry in ipairs(data.ChamShells or {}) do
         pcall(function()
             if entry.Shell then entry.Shell.Transparency = 1 end
-            if entry.Aura then entry.Aura.Transparency = 1 end
         end)
     end
-end
-
-local function ensureXCChamAura(entry)
-    if not entry or not entry.Shell or not entry.Shell.Parent then return nil end
-    if entry.Aura and entry.Aura.Parent then return entry.Aura end
-
-    local aura = xcCloneChamPart(entry.Original, entry.Shell.Parent, "XCChamAura")
-    if not aura then return nil end
-    aura.Material = Enum.Material.Neon
-    aura.Reflectance = 0
-    aura.Transparency = 1
-    entry.Aura = aura
-    return aura
 end
 
 local function ensureXCChamShells(data, char)
@@ -10963,7 +10971,9 @@ local function ensureXCChamShells(data, char)
 
     if valid then
         for _, entry in ipairs(data.ChamShells) do
-            if not entry.Original or not entry.Original.Parent or not entry.Shell or not entry.Shell.Parent then
+            if not entry.Original or not entry.Original.Parent
+                or not entry.Shell or not entry.Shell.Parent
+            then
                 valid = false
                 break
             end
@@ -10982,14 +10992,14 @@ local function ensureXCChamShells(data, char)
     data.ChamShellCharacter = char
     data.ChamShellPartCount = currentCount
     data.ChamShells = {}
+    data.ChamLastAnimation = 0
 
     for index, original in ipairs(parts) do
-        local shell = xcCloneChamPart(original, folder, "XCChamShell")
+        local shell = xcCloneChamPart(original, folder)
         if shell then
             table.insert(data.ChamShells, {
                 Original = original,
                 Shell = shell,
-                Aura = nil,
                 Index = index,
             })
         end
@@ -11010,33 +11020,43 @@ local function getXCChamsColor(ally, isVisible)
         or xcConfigColor("chamsHidden", currentTheme.Enemy_Hidden)
 end
 
-local function configureXCChamAura(entry, color, sizeAmount, strength, visible)
-    local aura = ensureXCChamAura(entry)
-    if not aura then return end
-
-    local original = entry.Original
-    aura.CFrame = original.CFrame
-    aura.Size = original.Size + Vector3.new(sizeAmount, sizeAmount, sizeAmount)
-    aura.Material = Enum.Material.Neon
-    aura.Color = xcScaleColor(color, 1 + strength * 0.18)
-    aura.Reflectance = 0
-    aura.Transparency = visible
-        and math.clamp(0.90 - strength * 0.12, 0.68, 0.94)
-        or 1
-end
-
 local function syncXCChamMaterialShells(data, char, style, color, now)
     if not ensureXCChamShells(data, char) then return end
 
-    -- Legacy config migration.
-    if style == "Pulse" then style = "Glow" end
-    if style == "Wire" or style == "Outline" then style = "Glow Outline" end
+    local animated = style == "Iridescent" or style == "Water Flow"
+    local fps = math.clamp(tonumber(XCConfig.chamsAnimationFPS) or 30, 12, 60)
+    local interval = 1 / fps
+
+    if animated then
+        if (now - (data.ChamLastAnimation or 0)) < interval then
+            return
+        end
+        data.ChamLastAnimation = now
+    elseif data.ChamLastStyle == style
+        and data.ChamLastColor == color
+        and data.ChamLastFill == XCConfig.chamsFillTransparency
+        and data.ChamLastRoughness == XCConfig.chamsRoughness
+        and data.ChamLastMetal == XCConfig.chamsMetal
+        and data.ChamLastGlossFill == XCConfig.chamsGlossFill
+        and data.ChamLastGlossEdge == XCConfig.chamsGlossEdgeFalloff
+        and data.ChamLastGlossShade == XCConfig.chamsGlossShade
+    then
+        return
+    end
+
+    data.ChamLastStyle = style
+    data.ChamLastColor = color
+    data.ChamLastFill = XCConfig.chamsFillTransparency
+    data.ChamLastRoughness = XCConfig.chamsRoughness
+    data.ChamLastMetal = XCConfig.chamsMetal
+    data.ChamLastGlossFill = XCConfig.chamsGlossFill
+    data.ChamLastGlossEdge = XCConfig.chamsGlossEdgeFalloff
+    data.ChamLastGlossShade = XCConfig.chamsGlossShade
 
     local fillTransparency = xcClamp01(XCConfig.chamsFillTransparency)
     local roughness = xcClamp01(XCConfig.chamsRoughness)
     local metal = xcClamp01(XCConfig.chamsMetal)
     local glowBrightness = math.clamp(tonumber(XCConfig.chamsGlowBrightness) or 1.35, 0.2, 3)
-    local glowZone = math.clamp(tonumber(XCConfig.chamsGlowZoneSize) or 0.075, 0.01, 0.28)
     local irIntensity = xcClamp01(XCConfig.chamsIridescentIntensity)
     local irRoughness = xcClamp01(XCConfig.chamsIridescentRoughness)
     local irSpeed = math.clamp(tonumber(XCConfig.chamsIridescentSpeed) or 0.12, 0.02, 0.5)
@@ -11045,112 +11065,78 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
     local glossFill = xcClamp01(XCConfig.chamsGlossFill)
     local glossEdge = xcClamp01(XCConfig.chamsGlossEdgeFalloff)
     local glossShade = math.clamp(tonumber(XCConfig.chamsGlossShade) or 0.12, -0.6, 0.6)
-    local softGlow = XCConfig.chamsSoftGlowEnabled == true
-    local softGlowStrength = math.clamp(tonumber(XCConfig.chamsSoftGlowStrength) or 0.85, 0, 2.5)
-    local softGlowSize = math.clamp(tonumber(XCConfig.chamsSoftGlowSize) or 0.045, 0.01, 0.20)
 
     for _, entry in ipairs(data.ChamShells) do
-        local original = entry.Original
         local shell = entry.Shell
-        if original and original.Parent and shell and shell.Parent then
-            shell.CFrame = original.CFrame
-            shell.Size = original.Size
-            shell.CastShadow = false
+        local original = entry.Original
 
-            local auraUsed = false
+        if shell and shell.Parent and original and original.Parent then
+            shell.CastShadow = false
 
             if style == "Solid" then
                 shell.Material = Enum.Material.SmoothPlastic
                 shell.Color = color
                 shell.Reflectance = 0
-                shell.Transparency = math.clamp(fillTransparency * 0.50, 0.03, 0.56)
+                shell.Transparency = math.clamp(0.04 + fillTransparency * 0.24, 0.03, 0.30)
 
             elseif style == "Shaded" then
-                shell.Material = metal >= 0.50 and Enum.Material.Metal or Enum.Material.SmoothPlastic
-                shell.Color = color:Lerp(Color3.new(0, 0, 0), roughness * 0.28)
-                shell.Reflectance = math.clamp(metal * (1 - roughness) * 0.55, 0, 0.55)
-                shell.Transparency = math.clamp(fillTransparency * 0.42, 0.02, 0.48)
+                shell.Material = metal >= 0.52 and Enum.Material.Metal or Enum.Material.SmoothPlastic
+                shell.Color = color:Lerp(Color3.new(0, 0, 0), roughness * 0.22)
+                shell.Reflectance = math.clamp(metal * (1 - roughness) * 0.46, 0, 0.46)
+                shell.Transparency = math.clamp(0.04 + fillTransparency * 0.20, 0.03, 0.27)
 
-            elseif style == "Glow" then
+            elseif style == "Glow" or style == "Glow Outline" then
                 shell.Material = Enum.Material.Neon
-                shell.Color = xcScaleColor(color, 1 + glowBrightness * 0.16)
+                shell.Color = xcScaleColor(color, 1 + glowBrightness * 0.11)
                 shell.Reflectance = 0
-                shell.Transparency = math.clamp(0.10 + fillTransparency * 0.30, 0.08, 0.48)
-                configureXCChamAura(entry, color, glowZone, glowBrightness, true)
-                auraUsed = true
-
-            elseif style == "Glow Outline" then
-                shell.Material = Enum.Material.Neon
-                shell.Color = xcScaleColor(color, 1 + glowBrightness * 0.10)
-                shell.Reflectance = 0
-                shell.Transparency = XCConfig.chamsGlowOutlineFill
-                    and math.clamp(0.26 + fillTransparency * 0.28, 0.20, 0.70)
-                    or 1
-                configureXCChamAura(entry, color, glowZone * 1.35, glowBrightness * 1.15, true)
-                auraUsed = true
+                shell.Transparency = style == "Glow Outline"
+                    and 0.42
+                    or math.clamp(0.08 + fillTransparency * 0.18, 0.07, 0.28)
 
             elseif style == "Iridescent" then
                 local hue = (
-                    (now or os.clock()) * irSpeed
-                    + entry.Index * 0.041
-                    + original.Position.Y * 0.018
+                    now * irSpeed
+                    + entry.Index * 0.055
+                    + original.Position.Y * 0.015
                 ) % 1
-                local irColor = Color3.fromHSV(hue, math.clamp(0.45 + irIntensity * 0.55, 0, 1), 1)
-                shell.Material = Enum.Material.ForceField
-                shell.Color = irColor:Lerp(color, 1 - irIntensity)
-                shell.Reflectance = 0
-                shell.Transparency = math.clamp(0.12 + irRoughness * 0.34, 0.10, 0.52)
-
-                if softGlow then
-                    configureXCChamAura(entry, irColor, softGlowSize, softGlowStrength, true)
-                    auraUsed = true
-                end
+                local rainbow = Color3.fromHSV(
+                    hue,
+                    math.clamp(0.46 + irIntensity * 0.50, 0, 1),
+                    1
+                )
+                shell.Material = Enum.Material.Metal
+                shell.Color = rainbow:Lerp(color, 1 - irIntensity)
+                shell.Reflectance = math.clamp(0.18 + (1 - irRoughness) * 0.28, 0.18, 0.46)
+                shell.Transparency = math.clamp(0.07 + irRoughness * 0.12, 0.06, 0.20)
 
             elseif style == "Water Flow" then
-                local phase = (now or os.clock()) * waterSpeed * 2.4
-                    + original.Position.Y * 1.10
-                    + entry.Index * 0.34
+                local phase = now * waterSpeed * 2.0
+                    + original.Position.Y * 0.85
+                    + entry.Index * 0.42
                 local wave = (math.sin(phase) + 1) * 0.5
-                local second = xcScaleColor(color:Lerp(Color3.new(0.55, 0.90, 1), 0.28), 1.08)
-                local waterColor = color:Lerp(second, wave * 0.72)
+                local cool = color:Lerp(Color3.fromRGB(105, 220, 255), 0.34)
+                local water = color:Lerp(cool, wave * 0.72)
 
-                shell.Material = Enum.Material.ForceField
-                shell.Color = waterColor
+                shell.Material = Enum.Material.Neon
+                shell.Color = water
                 shell.Reflectance = 0
-                shell.Transparency = math.clamp(0.20 + (1 - wave) * 0.14, 0.16, 0.40)
-
-                if softGlow then
-                    configureXCChamAura(entry, waterColor, softGlowSize, softGlowStrength * 0.75, true)
-                    auraUsed = true
-                end
+                shell.Transparency = math.clamp(0.13 + (1 - wave) * 0.07, 0.12, 0.21)
 
             elseif style == "Glossy" then
-                local glossyColor = xcShadeColor(xcScaleColor(color, glossBrightness), glossShade)
-                shell.Material = Enum.Material.Glass
+                local glossyColor = xcShadeColor(
+                    xcScaleColor(color, glossBrightness),
+                    glossShade
+                )
+                shell.Material = Enum.Material.Metal
                 shell.Color = glossyColor
-                shell.Reflectance = math.clamp(0.10 + glossEdge * 0.62, 0, 0.72)
-                shell.Transparency = math.clamp(0.78 - glossFill * 0.64, 0.10, 0.78)
-
-                if softGlow then
-                    configureXCChamAura(entry, glossyColor, softGlowSize, softGlowStrength * 0.55, true)
-                    auraUsed = true
-                end
+                shell.Reflectance = math.clamp(0.20 + glossEdge * 0.52, 0.20, 0.72)
+                shell.Transparency = math.clamp(0.18 - glossFill * 0.13, 0.025, 0.18)
 
             else
                 shell.Material = Enum.Material.SmoothPlastic
                 shell.Color = color
                 shell.Reflectance = 0
-                shell.Transparency = math.clamp(fillTransparency * 0.50, 0.03, 0.56)
-            end
-
-            -- Neverlose-like optional soft contour glow on any material.
-            if softGlow and not auraUsed and style ~= "Solid" and style ~= "Shaded" then
-                configureXCChamAura(entry, shell.Color, softGlowSize, softGlowStrength, true)
-                auraUsed = true
-            end
-
-            if entry.Aura and not auraUsed then
-                entry.Aura.Transparency = 1
+                shell.Transparency = 0.08
             end
         end
     end
@@ -11162,7 +11148,6 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     local primary = data.Highlight
     local style = tostring(XCConfig.chamsStyle or "Shaded")
 
-    -- Backwards compatibility with older saved configs.
     if style == "Pulse" then style = "Glow" end
     if style == "Wire" or style == "Outline" then style = "Glow Outline" end
 
@@ -11187,48 +11172,70 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     local color = getXCChamsColor(ally, isVisible)
     local fill = xcClamp01(XCConfig.chamsFillTransparency)
     local outline = xcClamp01(XCConfig.chamsOutlineTransparency)
+    local glowStrength = math.clamp(
+        tonumber(XCConfig.chamsSoftGlowStrength) or 0.85,
+        0,
+        2.5
+    )
 
-    -- Real 3D material response.
     syncXCChamMaterialShells(data, char, style, color, now or os.clock())
 
-    -- Through-wall / contour layer.
     primary.Enabled = true
     primary.FillColor = color
     primary.OutlineColor = color
     primary.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 
     if isVisible then
-        -- Let the material shell do the visual work instead of flattening it
-        -- with a strong Highlight overlay.
-        if style == "Glow Outline" then
-            primary.FillTransparency = XCConfig.chamsGlowOutlineFill and 0.88 or 1
-            primary.OutlineTransparency = 0.015
-            primary.OutlineColor = xcScaleColor(color, 1.18)
-        elseif style == "Glow" then
-            primary.FillTransparency = 0.93
-            primary.OutlineTransparency = 0.055
-            primary.OutlineColor = xcScaleColor(color, 1.14)
+        if style == "Glow" then
+            primary.FillTransparency = 0.95
+            primary.OutlineTransparency = math.clamp(
+                0.11 - glowStrength * 0.035,
+                0.018,
+                0.11
+            )
+            primary.OutlineColor = xcScaleColor(color, 1.16)
+
+        elseif style == "Glow Outline" then
+            primary.FillTransparency = XCConfig.chamsGlowOutlineFill and 0.92 or 1
+            primary.OutlineTransparency = math.clamp(
+                0.065 - glowStrength * 0.022,
+                0.012,
+                0.065
+            )
+            primary.OutlineColor = xcScaleColor(color, 1.20)
+
+        elseif style == "Iridescent" or style == "Water Flow" then
+            primary.FillTransparency = 0.985
+            primary.OutlineTransparency = 0.10
+
         elseif style == "Glossy" then
             local edge = xcClamp01(XCConfig.chamsGlossEdgeFalloff)
-            primary.FillTransparency = 0.98
-            primary.OutlineTransparency = math.clamp(0.30 - edge * 0.26, 0.02, 0.30)
-            primary.OutlineColor = xcScaleColor(color, 1.10)
-        elseif style == "Iridescent" or style == "Water Flow" then
-            primary.FillTransparency = 0.97
-            primary.OutlineTransparency = 0.11
+            primary.FillTransparency = 0.99
+            primary.OutlineTransparency = math.clamp(
+                0.22 - edge * 0.18,
+                0.025,
+                0.22
+            )
+            primary.OutlineColor = xcScaleColor(color, 1.08)
+
         else
-            primary.FillTransparency = 0.96
-            primary.OutlineTransparency = math.clamp(outline + 0.12, 0.08, 0.75)
+            primary.FillTransparency = 0.985
+            primary.OutlineTransparency = math.clamp(
+                outline + 0.10,
+                0.08,
+                0.72
+            )
         end
     else
-        -- Hidden model: use the user-selected hidden color with a stronger
-        -- x-ray fill; the 3D shell remains naturally occluded by geometry.
-        primary.FillTransparency = math.clamp(fill, 0.10, 0.90)
-        primary.OutlineTransparency = math.clamp(outline, 0.01, 0.80)
+        primary.FillTransparency = math.clamp(fill, 0.12, 0.88)
+        primary.OutlineTransparency = math.clamp(outline, 0.015, 0.76)
 
         if style == "Glow" or style == "Glow Outline" then
-            primary.OutlineColor = xcScaleColor(color, 1.18)
-            primary.OutlineTransparency = math.min(primary.OutlineTransparency, 0.055)
+            primary.OutlineColor = xcScaleColor(color, 1.14)
+            primary.OutlineTransparency = math.min(
+                primary.OutlineTransparency,
+                0.055
+            )
         end
     end
 end
@@ -14996,7 +15003,7 @@ function buildXCUI()
     addSlider(L, "Box stability", "espBoxSmoothing", 0, 0.9, 0.05, "")
     addSlider(L, "ESP scale", "espPerspectiveScale", 0.65, 1.5, 0.05, "x")
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
-    section(L, "Chams 4.0")
+    section(L, "Chams 4.1 Stable")
     toggle(L, "Chams", "chamsEnabled")
     addChoice(L, "Material", "chamsStyle", {"Shaded", "Solid", "Glow", "Glow Outline", "Iridescent", "Water Flow", "Glossy"}, refreshESPPreview)
     toggle(L, "Use ESP palette", "chamsUseEspPalette")
@@ -15027,7 +15034,11 @@ function buildXCUI()
     section(L, "Contour glow")
     toggle(L, "Soft glow overlay", "chamsSoftGlowEnabled")
     addSlider(L, "Soft glow strength", "chamsSoftGlowStrength", 0, 2.5, 0.05, "x")
-    addSlider(L, "Soft glow size", "chamsSoftGlowSize", 0.01, 0.20, 0.005, "")
+
+    section(L, "Stability")
+    addSlider(L, "Shell scale", "chamsShellScale", 1.002, 1.04, 0.002, "x")
+    toggle(L, "Exclude accessories", "chamsExcludeAccessories")
+    addSlider(L, "Animation FPS", "chamsAnimationFPS", 12, 60, 1, "fps")
     section(L, "Skeleton")
     toggle(L, "Skeleton ESP", "skeletonEspEnabled")
     toggle(L, "Distance fade", "skeletonDistanceFade")
