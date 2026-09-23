@@ -13512,7 +13512,9 @@ end
 
 local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedScale, compact, modeOverride)
     local mobile = modeOverride
-    if mobile == nil then mobile = touch or viewportX < 760 end
+    -- Touch input also exists on tablets and landscape phones. Choose the
+    -- column layout from available space instead of the input device.
+    if mobile == nil then mobile = viewportX < 760 and viewportX < viewportY * 1.3 end
     local width, height = mobile and 430 or 820, mobile and 720 or 560
     local preferred = math.max(0.65, math.min(1.25, tonumber(requestedScale) or 1))
     if compact then preferred = preferred * 0.88 end
@@ -13733,13 +13735,13 @@ function buildXCUI()
 
     local sidebar = Instance.new("ScrollingFrame")
     sidebar.Name = "IconBar"
-    sidebar.Size = isMobileLayout and UDim2.new(1, -16, 0, 52) or UDim2.new(0, 152, 1, -66)
-    sidebar.Position = UDim2.fromOffset(isMobileLayout and 8 or 8, isMobileLayout and 52 or 58)
+    sidebar.Size = isMobileLayout and UDim2.new(0, 54, 1, -66) or UDim2.new(0, 152, 1, -66)
+    sidebar.Position = UDim2.fromOffset(8, 58)
     sidebar.BackgroundColor3 = C.Sidebar
     sidebar.BackgroundTransparency = math.clamp(XCConfig.menuTransparency * 0.7, 0, 0.4)
     sidebar.BorderSizePixel = 0
-    sidebar.ScrollingDirection = isMobileLayout and Enum.ScrollingDirection.X or Enum.ScrollingDirection.Y
-    sidebar.ScrollBarThickness = isMobileLayout and 2 or 0
+    sidebar.ScrollingDirection = Enum.ScrollingDirection.Y
+    sidebar.ScrollBarThickness = 0
     sidebar.ScrollBarImageColor3 = C.Lime
     sidebar.CanvasSize = UDim2.new()
     sidebar.Parent = main
@@ -13808,18 +13810,18 @@ function buildXCUI()
     end
 
     local sideLayout = Instance.new("UIListLayout")
-    sideLayout.FillDirection = isMobileLayout and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
+    sideLayout.FillDirection = Enum.FillDirection.Vertical
     sideLayout.Padding = UDim.new(0, isMobileLayout and 4 or 3)
     sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
     sideLayout.Parent = sidebar
     local sidePadding = Instance.new("UIPadding", sidebar)
-    sidePadding.PaddingLeft = UDim.new(0, 7)
+    sidePadding.PaddingLeft = UDim.new(0, isMobileLayout and 2 or 7)
     sidePadding.PaddingTop = UDim.new(0, 4)
 
     local content = Instance.new("Frame")
     content.Name = "Content"
-    content.Size = isMobileLayout and UDim2.new(1, -24, 1, -174) or UDim2.new(1, -178, 1, -132)
-    content.Position = UDim2.fromOffset(isMobileLayout and 12 or 166, isMobileLayout and 144 or 104)
+    content.Size = isMobileLayout and UDim2.new(1, -82, 1, -132) or UDim2.new(1, -178, 1, -132)
+    content.Position = UDim2.fromOffset(isMobileLayout and 70 or 166, 104)
     content.BackgroundTransparency = 1
     content.Parent = main
 
@@ -13850,8 +13852,8 @@ function buildXCUI()
 
     local searchBar = Instance.new("Frame")
     searchBar.Name = "QuickSearch"
-    searchBar.Size = isMobileLayout and UDim2.new(1, -24, 0, 30) or UDim2.new(1, -178, 0, 32)
-    searchBar.Position = UDim2.fromOffset(isMobileLayout and 12 or 166, isMobileLayout and 108 or 64)
+    searchBar.Size = isMobileLayout and UDim2.new(1, -82, 0, 32) or UDim2.new(1, -178, 0, 32)
+    searchBar.Position = UDim2.fromOffset(isMobileLayout and 70 or 166, 64)
     searchBar.BackgroundColor3 = C.Control
     searchBar.BorderSizePixel = 0
     searchBar.Parent = main
@@ -15976,13 +15978,13 @@ function buildXCUI()
             group.TextXAlignment = Enum.TextXAlignment.Left
         end
         local holder = Instance.new("Frame")
-        holder.Size = isMobileLayout and UDim2.fromOffset(96, 44) or UDim2.new(1, -8, 0, 40)
+        holder.Size = isMobileLayout and UDim2.new(1, -4, 0, 44) or UDim2.new(1, -8, 0, 40)
         holder.LayoutOrder = index * 2
         holder.BackgroundTransparency = 1
         holder.Parent = sidebar
         local active = Instance.new("Frame")
-        active.Size = isMobileLayout and UDim2.new(1, -12, 0, 2) or UDim2.fromOffset(3, 24)
-        active.Position = isMobileLayout and UDim2.new(0, 6, 1, -2) or UDim2.new(0, 0, 0.5, -12)
+        active.Size = UDim2.fromOffset(3, 24)
+        active.Position = UDim2.new(0, 0, 0.5, -12)
         active.BackgroundColor3 = C.Lime
         active.BorderSizePixel = 0
         active.Visible = false
@@ -15996,13 +15998,14 @@ function buildXCUI()
         button.Parent = holder
         Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
         local icon = drawTabIcon(button, info[2], ICON_OFF)
-        icon.AnchorPoint = Vector2.new(0, 0.5)
-        icon.Position = UDim2.new(0, 9, 0.5, 0)
+        icon.AnchorPoint = isMobileLayout and Vector2.new(0.5, 0.5) or Vector2.new(0, 0.5)
+        icon.Position = isMobileLayout and UDim2.fromScale(0.5, 0.5) or UDim2.new(0, 9, 0.5, 0)
         local label = Instance.new("TextLabel", button)
         label.Position = UDim2.fromOffset(37, 0)
         label.Size = UDim2.new(1, -40, 1, 0)
         label.BackgroundTransparency = 1
         label.Text = info[1] == "AntiAim" and "Anti-aim" or info[1]
+        label.Visible = not isMobileLayout
         label.TextColor3 = C.Muted
         label.Font = Enum.Font.GothamBold
         label.TextSize = isMobileLayout and 9 or 11
@@ -16028,7 +16031,7 @@ function buildXCUI()
         tabData[info[1]] = {button = button, active = active, icon = icon, label = label}
         createPage(info[1])
     end
-    sidebar.CanvasSize = isMobileLayout and UDim2.fromOffset(#tabs * 100 + 12, 0)
+    sidebar.CanvasSize = isMobileLayout and UDim2.fromOffset(0, #tabs * 48 + 12)
         or UDim2.fromOffset(0, #tabs * 43 + 76)
 
     local function columns(name, leftTitle, rightTitle)
