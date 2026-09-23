@@ -4027,6 +4027,14 @@ overlayContainer.Name = "XC_2DOverlay"
 local grenadeContainer = Instance.new("Folder", mainContainer)
 grenadeContainer.Name = "XC_GrenadeOverlay"
 
+local oldChamsWorld = Workspace:FindFirstChild("XC_ChamsWorld")
+if oldChamsWorld then
+    pcall(function() oldChamsWorld:Destroy() end)
+end
+local chamsWorldFolder = Instance.new("Folder")
+chamsWorldFolder.Name = "XC_ChamsWorld"
+chamsWorldFolder.Parent = Workspace
+
 local jumpCircleFolder = Instance.new("Folder", Workspace)
 jumpCircleFolder.Name = "XC_JumpCircleWorld"
 
@@ -8197,6 +8205,10 @@ function cleanup()
     pcall(function() if spectatorGui then spectatorGui:Destroy() end end)
     stopXCAnimation()
     pcall(function() if targetGui:FindFirstChild("XCMainContainer") then targetGui.XCMainContainer:Destroy() end end)
+    pcall(function()
+        local folder = Workspace:FindFirstChild("XC_ChamsWorld")
+        if folder then folder:Destroy() end
+    end)
 end
 
 if genv then
@@ -10770,12 +10782,18 @@ function renderTacticalOverlay()
         end
     end
 end
---// CHAMS 2.1
--- One Highlight per player is kept for the core fill/outline. Extra styles
--- use adornments instead of stacking multiple Highlights on the same model.
--- This avoids Roblox Highlight stacking/limit issues and makes every style
--- visually distinct.
-local function clearXCWireChams(data)
+--// CHAMS 3.0
+-- Roblox currently renders Highlight inconsistently when it is a descendant
+-- of PlayerGui/ScreenGui. Core chams therefore use exactly ONE Highlight per
+-- entity parented to XC_ChamsWorld in Workspace.
+--
+-- Extra effects:
+--   Glow -> BoxHandleAdornment shells (AlwaysOnTop)
+--   Wire -> SelectionBox per BasePart + core Highlight outline fallback
+--
+-- This also avoids wasting Highlight slots on disabled secondary instances.
+
+local function destroyXCExtraChams(data)
     if not data then return end
     for _, entry in ipairs(data.ExtraChams or {}) do
         local object = entry.Object or entry
@@ -10786,8 +10804,9 @@ local function clearXCWireChams(data)
     data.ExtraChams = {}
     data.ExtraChamsStyle = nil
     data.ExtraChamsCharacter = nil
+    data.ExtraChamsPartCount = 0
 
-    -- Backward compatibility with the first Chams 2.0 build.
+    -- Clean remnants from older builds.
     for _, object in ipairs(data.WireBoxes or {}) do
         pcall(function()
             if object then object:Destroy() end
@@ -10797,24 +10816,44 @@ local function clearXCWireChams(data)
     data.WireCharacter = nil
 end
 
+local function countXCChamParts(char)
+    local n = 0
+    if not char then return 0 end
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart")
+            and part.Name ~= "HumanoidRootPart"
+            and part.Transparency < 0.98
+        then
+            n += 1
+        end
+    end
+    return n
+end
+
 local function ensureXCExtraChams(data, char, style)
     if not data or not char then return end
+
     if style ~= "Wire" and style ~= "Glow" then
-        clearXCWireChams(data)
+        if data.ExtraChamsStyle then
+            destroyXCExtraChams(data)
+        end
         return
     end
 
+    local partCount = countXCChamParts(char)
     if data.ExtraChamsCharacter == char
         and data.ExtraChamsStyle == style
         and data.ExtraChams
         and #data.ExtraChams > 0
+        and data.ExtraChamsPartCount == partCount
     then
         return
     end
 
-    clearXCWireChams(data)
+    destroyXCExtraChams(data)
     data.ExtraChamsCharacter = char
     data.ExtraChamsStyle = style
+    data.ExtraChamsPartCount = partCount
     data.ExtraChams = {}
 
     for _, part in ipairs(char:GetDescendants()) do
@@ -10835,25 +10874,28 @@ local function ensureXCExtraChams(data, char, style)
                     0.12
                 )
                 box.Transparency = 0.02
-                pcall(function() box.AlwaysOnTop = true end)
+                box.Visible = false
                 box.Parent = part
+
                 table.insert(data.ExtraChams, {
                     Object = box,
                     Part = part,
                     Kind = "Wire",
                 })
+
             elseif style == "Glow" then
                 local shell = Instance.new("BoxHandleAdornment")
                 shell.Name = "XCGlowCham"
                 shell.Adornee = part
                 shell.AlwaysOnTop = true
                 shell.ZIndex = 5
-                shell.Size = part.Size + Vector3.new(0.055, 0.055, 0.055)
+                shell.Size = part.Size + Vector3.new(0.07, 0.07, 0.07)
                 shell.CFrame = CFrame.new()
                 shell.Color3 = currentTheme.Enemy_Accent
-                shell.Transparency = 0.76
+                shell.Transparency = 0.78
                 shell.Visible = false
                 shell.Parent = part
+
                 table.insert(data.ExtraChams, {
                     Object = shell,
                     Part = part,
@@ -10871,13 +10913,14 @@ local function setXCExtraChams(data, char, style, enabled, color, now)
         for _, entry in ipairs(data.ExtraChams or {}) do
             local object = entry.Object or entry
             pcall(function()
-                object.Visible = false
+                if object then object.Visible = false end
             end)
         end
         return
     end
 
     ensureXCExtraChams(data, char, style)
+
     local wireThickness = math.clamp(
         tonumber(XCConfig.chamsWireThickness) or 0.035,
         0.01,
@@ -10893,6 +10936,7 @@ local function setXCExtraChams(data, char, style, enabled, color, now)
     for _, entry in ipairs(data.ExtraChams or {}) do
         local object = entry.Object or entry
         local part = entry.Part
+
         pcall(function()
             if not object or not object.Parent or not part or not part.Parent then
                 return
@@ -10905,30 +10949,26 @@ local function setXCExtraChams(data, char, style, enabled, color, now)
                 object.Transparency = 0.02
                 object.SurfaceTransparency = 1
                 object.Visible = true
+
             elseif entry.Kind == "Glow" then
-                object.Color3 = color:Lerp(Color3.new(1, 1, 1), 0.16 + wave * 0.08)
-                object.Size = part.Size + Vector3.new(
-                    0.045 + wave * 0.035,
-                    0.045 + wave * 0.035,
-                    0.045 + wave * 0.035
-                )
-                object.Transparency = math.clamp(0.80 - wave * 0.10, 0.64, 0.86)
+                object.Color3 = color:Lerp(Color3.new(1, 1, 1), 0.12 + wave * 0.10)
+                local grow = 0.055 + wave * 0.045
+                object.Size = part.Size + Vector3.new(grow, grow, grow)
+                object.Transparency = math.clamp(0.82 - wave * 0.14, 0.62, 0.88)
                 object.Visible = true
             end
         end)
     end
 end
 
--- Kept for the existing render-loop cleanup calls.
-local function setXCWireChams(data, char, enabled, color)
-    setXCExtraChams(
-        data,
-        char,
-        "Wire",
-        enabled,
-        color or currentTheme.Enemy_Accent,
-        os.clock()
-    )
+local function hideXCExtraChams(data)
+    if not data then return end
+    for _, entry in ipairs(data.ExtraChams or {}) do
+        local object = entry.Object or entry
+        pcall(function()
+            if object then object.Visible = false end
+        end)
+    end
 end
 
 local function getXCChamsColor(ally, isVisible, now)
@@ -10953,7 +10993,7 @@ local function getXCChamsColor(ally, isVisible, now)
             (now or os.clock()) * speed
             + (ally and 0.55 or (isVisible and 0 or 0.12))
         ) % 1
-        color = Color3.fromHSV(h, 0.78, 1)
+        color = Color3.fromHSV(h, 0.80, 1)
     end
 
     return color
@@ -10963,7 +11003,6 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     if not data or not data.Highlight or not char then return end
 
     local primary = data.Highlight
-    local legacyGlow = data.GlowHighlight
     local style = tostring(XCConfig.chamsStyle or "Solid")
     local validStyles = {
         Solid = true,
@@ -10974,7 +11013,16 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
         Pulse = true,
         Wire = true,
     }
-    if not validStyles[style] then style = "Solid" end
+    if not validStyles[style] then
+        style = "Solid"
+    end
+
+    if primary.Parent ~= chamsWorldFolder then
+        primary.Parent = chamsWorldFolder
+    end
+    if primary.Adornee ~= char then
+        primary.Adornee = char
+    end
 
     local color = getXCChamsColor(ally, isVisible, now)
     local fill = math.clamp(
@@ -10988,21 +11036,6 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
         1
     )
 
-    -- The old secondary Highlight is intentionally never enabled. Keeping it
-    -- disabled preserves compatibility with holders made by the previous build
-    -- without consuming an active Highlight slot.
-    if legacyGlow then
-        legacyGlow.Enabled = false
-    end
-
-    if style == "Wire" then
-        primary.Enabled = false
-        setXCExtraChams(data, char, "Wire", true, color, now)
-        return
-    end
-
-    setXCExtraChams(data, char, style, style == "Glow", color, now)
-
     primary.Enabled = true
     primary.FillColor = color
     primary.OutlineColor = color
@@ -11010,21 +11043,31 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     primary.OutlineTransparency = outline
     primary.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 
-    if style == "Shaded" then
-        primary.FillColor = color:Lerp(Color3.fromRGB(4, 5, 6), 0.42)
-        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.10)
-        primary.FillTransparency = math.clamp(fill - 0.16, 0.05, 0.88)
-        primary.OutlineTransparency = math.clamp(outline + 0.20, 0, 0.92)
+    if style == "Solid" then
+        destroyXCExtraChams(data)
+
+    elseif style == "Shaded" then
+        destroyXCExtraChams(data)
+        primary.FillColor = color:Lerp(Color3.fromRGB(5, 6, 7), 0.46)
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.12)
+        primary.FillTransparency = math.clamp(fill - 0.18, 0.06, 0.84)
+        primary.OutlineTransparency = math.clamp(outline + 0.18, 0, 0.90)
+
     elseif style == "Glow" then
+        setXCExtraChams(data, char, "Glow", true, color, now)
         primary.FillColor = color
-        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.30)
-        primary.FillTransparency = math.max(fill, 0.68)
-        primary.OutlineTransparency = math.min(outline, 0.025)
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.34)
+        primary.FillTransparency = math.max(fill, 0.72)
+        primary.OutlineTransparency = math.min(outline, 0.04)
+
     elseif style == "Outline" then
+        destroyXCExtraChams(data)
         primary.FillTransparency = 1
         primary.OutlineColor = color
-        primary.OutlineTransparency = outline
+        primary.OutlineTransparency = math.min(outline, 0.04)
+
     elseif style == "Pulse" then
+        destroyXCExtraChams(data)
         local speed = math.clamp(
             tonumber(XCConfig.chamsPulseSpeed) or 2,
             0.2,
@@ -11033,23 +11076,45 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
         local wave = (
             math.sin((now or os.clock()) * speed * math.pi) + 1
         ) * 0.5
-        primary.FillColor = color:Lerp(Color3.new(1, 1, 1), wave * 0.10)
-        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), wave * 0.18)
+        primary.FillColor = color:Lerp(Color3.new(1, 1, 1), wave * 0.12)
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), wave * 0.22)
         primary.FillTransparency = math.clamp(
-            fill + wave * 0.30,
+            fill + wave * 0.28,
             0.05,
-            0.92
+            0.91
         )
         primary.OutlineTransparency = math.clamp(
-            outline + wave * 0.22,
+            outline + wave * 0.16,
             0,
-            0.85
+            0.82
         )
+
     elseif style == "Iridescent" then
-        primary.FillTransparency = math.clamp(math.max(0.26, fill), 0, 0.86)
-        primary.OutlineTransparency = math.min(outline, 0.055)
-        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.20)
+        destroyXCExtraChams(data)
+        primary.FillTransparency = math.clamp(math.max(0.30, fill), 0, 0.84)
+        primary.OutlineTransparency = math.min(outline, 0.05)
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.18)
+
+    elseif style == "Wire" then
+        setXCExtraChams(data, char, "Wire", true, color, now)
+        -- SelectionBox itself has no AlwaysOnTop property. Keep a thin
+        -- Highlight outline as a through-wall fallback while the per-part
+        -- SelectionBoxes provide the actual wireframe when visible.
+        primary.FillTransparency = 1
+        primary.OutlineColor = color
+        primary.OutlineTransparency = math.min(outline, 0.08)
     end
+end
+
+local function disableXCChamsForData(data, clearAdornee)
+    if not data then return end
+    if data.Highlight then
+        data.Highlight.Enabled = false
+        if clearAdornee then
+            data.Highlight.Adornee = nil
+        end
+    end
+    hideXCExtraChams(data)
 end
 
 --// 3D ESP
@@ -11086,15 +11151,7 @@ function attachEspToPlayer(plr)
     hl.FillColor = currentTheme.Enemy_Accent
     hl.OutlineColor = currentTheme.TextPrimary
     hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    hl.Parent = holder
-
-    local glowHighlight = Instance.new("Highlight")
-    glowHighlight.Name = "XCChamsGlow_" .. plr.Name
-    glowHighlight.FillTransparency = 1
-    glowHighlight.OutlineTransparency = 0.48
-    glowHighlight.Enabled = false
-    glowHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    glowHighlight.Parent = holder
+    hl.Parent = chamsWorldFolder
 
     local function setupCharacter(char)
         if not char then return end
@@ -11103,8 +11160,12 @@ function attachEspToPlayer(plr)
             if head and dotBillboard then
                 dotBillboard.Adornee = head
             end
-            if hl then hl.Adornee = char end
-            if glowHighlight then glowHighlight.Adornee = char end
+            if hl then
+                hl.Adornee = char
+                if hl.Parent ~= chamsWorldFolder then
+                    hl.Parent = chamsWorldFolder
+                end
+            end
         end)
     end
 
@@ -11115,13 +11176,9 @@ function attachEspToPlayer(plr)
             hl.Adornee = nil
             hl.Enabled = false
         end
-        if glowHighlight then
-            glowHighlight.Adornee = nil
-            glowHighlight.Enabled = false
-        end
         local holderData = activeEspHolders[plr]
         if holderData then
-            clearXCWireChams(holderData)
+            destroyXCExtraChams(holderData)
         end
     end)
     table.insert(connections, charConn)
@@ -11133,12 +11190,12 @@ function attachEspToPlayer(plr)
         DotFrame = dotFrame,
         Tracer = tracerLine,
         Highlight = hl,
-        GlowHighlight = glowHighlight,
         WireBoxes = {},
         WireCharacter = nil,
         ExtraChams = {},
         ExtraChamsStyle = nil,
-        ExtraChamsCharacter = nil
+        ExtraChamsCharacter = nil,
+        ExtraChamsPartCount = 0
     }
 end
 
@@ -11147,7 +11204,10 @@ table.insert(connections, Players.PlayerAdded:Connect(attachEspToPlayer))
 table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
     local data = activeEspHolders[plr]
     if data then
-        clearXCWireChams(data)
+        destroyXCExtraChams(data)
+        pcall(function()
+            if data.Highlight then data.Highlight:Destroy() end
+        end)
         pcall(function()
             if data.Holder then data.Holder:Destroy() end
         end)
@@ -11287,9 +11347,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             repeat
         if not threeDEspActive then
             data.HeadDot.Enabled = false
-            data.Highlight.Enabled = false
-            data.GlowHighlight.Enabled = false
-            setXCWireChams(data, plr.Character, false, currentTheme.Enemy_Accent)
+            disableXCChamsForData(data, false)
             data.Tracer.Visible = false
             break
         end
@@ -11308,19 +11366,17 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             if XCConfig.chamsEnabled then
                 local chamsAlly = XCConfig.chamsTeamCheck and ally or false
                 if chamsAlly and not XCConfig.chamsShowTeammates then
-                    data.Highlight.Enabled = false
-                    data.GlowHighlight.Enabled = false
-                    setXCWireChams(data, char, false, currentTheme.Enemy_Accent)
+                    disableXCChamsForData(data, false)
                 else
                     if data.Highlight.Adornee ~= char then data.Highlight.Adornee = char end
-                    if data.GlowHighlight.Adornee ~= char then data.GlowHighlight.Adornee = char end
+                    if data.Highlight.Parent ~= chamsWorldFolder then
+                        data.Highlight.Parent = chamsWorldFolder
+                    end
                     local styleVisible = XCConfig.chamsOcclusion and isVisible or true
                     applyXCChamsStyle(data, char, chamsAlly, styleVisible, os.clock())
                 end
             else
-                data.Highlight.Enabled = false
-                data.GlowHighlight.Enabled = false
-                setXCWireChams(data, char, false, currentTheme.Enemy_Accent)
+                disableXCChamsForData(data, false)
             end
 
             if not ally then
@@ -11358,12 +11414,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             end
         else
             data.HeadDot.Enabled = false
-            data.Highlight.Enabled = false
-            data.GlowHighlight.Enabled = false
-            setXCWireChams(data, char, false, currentTheme.Enemy_Accent)
+            disableXCChamsForData(data, true)
             data.Tracer.Visible = false
-            if data.Highlight.Adornee then data.Highlight.Adornee = nil end
-            if data.GlowHighlight.Adornee then data.GlowHighlight.Adornee = nil end
             if data.HeadDot.Adornee then data.HeadDot.Adornee = nil end
         end
             until true
@@ -14810,7 +14862,7 @@ function buildXCUI()
     addSlider(L, "Box stability", "espBoxSmoothing", 0, 0.9, 0.05, "")
     addSlider(L, "ESP scale", "espPerspectiveScale", 0.65, 1.5, 0.05, "x")
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
-    section(L, "Chams 2.1")
+    section(L, "Chams 3.0")
     toggle(L, "Chams", "chamsEnabled")
     addChoice(L, "Chams style", "chamsStyle", {"Solid", "Shaded", "Glow", "Outline", "Iridescent", "Pulse", "Wire"}, refreshESPPreview)
     toggle(L, "Use ESP palette", "chamsUseEspPalette")
