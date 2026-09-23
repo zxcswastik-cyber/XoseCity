@@ -10363,6 +10363,24 @@ function buildXCWeaponViewport(esp, weaponName, tool, character)
     return true
 end
 
+local function positionXCElement(gui, positionName, boxX, boxY, boxW, boxH, gap)
+    gap = gap or 4
+    positionName = tostring(positionName or "Top")
+    if positionName == "Bottom" then
+        gui.AnchorPoint = Vector2.new(0.5, 0)
+        gui.Position = UDim2.fromOffset(boxX + boxW * 0.5, boxY + boxH + gap)
+    elseif positionName == "Left" then
+        gui.AnchorPoint = Vector2.new(1, 0.5)
+        gui.Position = UDim2.fromOffset(boxX - gap, boxY + boxH * 0.5)
+    elseif positionName == "Right" then
+        gui.AnchorPoint = Vector2.new(0, 0.5)
+        gui.Position = UDim2.fromOffset(boxX + boxW + gap, boxY + boxH * 0.5)
+    else
+        gui.AnchorPoint = Vector2.new(0.5, 1)
+        gui.Position = UDim2.fromOffset(boxX + boxW * 0.5, boxY - gap)
+    end
+end
+
 function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxWidth, boxHeight)
     if not XCConfig.weaponEspEnabled then
         esp.WeaponCard.Visible = false
@@ -10427,24 +10445,6 @@ local function getXCEspDistanceAlpha(distance)
     if distance <= startDist then return 1 end
     local t = math.clamp((distance - startDist) / math.max(1, maxDist - startDist), 0, 1)
     return 1 - (1 - minAlpha) * t
-end
-
-local function positionXCElement(gui, positionName, boxX, boxY, boxW, boxH, gap)
-    gap = gap or 4
-    positionName = tostring(positionName or "Top")
-    if positionName == "Bottom" then
-        gui.AnchorPoint = Vector2.new(0.5, 0)
-        gui.Position = UDim2.fromOffset(boxX + boxW * 0.5, boxY + boxH + gap)
-    elseif positionName == "Left" then
-        gui.AnchorPoint = Vector2.new(1, 0.5)
-        gui.Position = UDim2.fromOffset(boxX - gap, boxY + boxH * 0.5)
-    elseif positionName == "Right" then
-        gui.AnchorPoint = Vector2.new(0, 0.5)
-        gui.Position = UDim2.fromOffset(boxX + boxW + gap, boxY + boxH * 0.5)
-    else
-        gui.AnchorPoint = Vector2.new(0.5, 1)
-        gui.Position = UDim2.fromOffset(boxX + boxW * 0.5, boxY - gap)
-    end
 end
 
 --// TACTICAL ESP
@@ -11852,9 +11852,9 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
     local now = os.clock()
 
     for healthKey, pending in pairs(
-        repeat
         hitmarkerPendingHits
     ) do
+        repeat
         local char = pending.Character
         local targetPlr = pending.Player
 
