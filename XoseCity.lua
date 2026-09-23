@@ -13500,6 +13500,17 @@ function setAntiAfkEnabled(enabled)
     end)
 end
 --// XC SKEET / GAMESENSE INTERFACE
+local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedScale, compact, modeOverride)
+    local mobile = modeOverride
+    if mobile == nil then mobile = touch or viewportX < 760 end
+    local width, height = mobile and 430 or 820, mobile and 720 or 560
+    local preferred = math.max(0.65, math.min(1.25, tonumber(requestedScale) or 1))
+    if compact then preferred = preferred * 0.88 end
+    local scale = math.max(0.05, math.min(preferred,
+        (viewportX - 16) / width, (viewportY - 16) / height))
+    return {mobile = mobile, width = width, height = height, scale = scale}
+end
+
 function buildXCUI()
     setAntiAfkEnabled(XCConfig.antiAfkEnabled)
 
@@ -13540,17 +13551,21 @@ function buildXCUI()
         local activeCamera = Workspace.CurrentCamera or camera
         return (activeCamera and activeCamera.ViewportSize) or Vector2.new(1280, 720)
     end
+    local initialViewport = getViewportSize()
+    local menuLayout = xcMenuLayoutForViewport(initialViewport.X, initialViewport.Y,
+        UserInputService.TouchEnabled, XCConfig.uiScale, XCConfig.settingsCompactMode)
+    local isMobileLayout = menuLayout.mobile
 
     local main = Instance.new("Frame")
     main.Name = "SkeetMain"
-    main.Size = UDim2.fromOffset(680, 450)
-    main.Position = UDim2.new(0.5, -340, 0.5, -225)
+    main.Size = UDim2.fromOffset(menuLayout.width, menuLayout.height)
+    main.Position = UDim2.new(0.5, -menuLayout.width/2, 0.5, -menuLayout.height/2)
     main.BackgroundColor3 = C.Main
     main.BackgroundTransparency = XCConfig.menuTransparency
     main.BorderColor3 = C.Border
     main.BorderSizePixel = 0
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 10)
+    mainCorner.CornerRadius = UDim.new(0, 12)
     mainCorner.Parent = main
     main.Active = true
     main.Parent = screenGui
@@ -13567,13 +13582,12 @@ function buildXCUI()
     local function updateScale()
         local viewport = getViewportSize()
         if viewport.X <= 0 or viewport.Y <= 0 then return end
-        local preferred = (UserInputService.TouchEnabled and 0.82 or 1)
-            * math.clamp(tonumber(XCConfig.uiScale) or 1, 0.65, 1.25)
-        if XCConfig.settingsCompactMode then preferred = preferred * (0.88) end
-        local nextScale = math.max(0.05, math.min(preferred, (viewport.X - 20) / 680, (viewport.Y - 20) / 450))
+        local nextScale = xcMenuLayoutForViewport(viewport.X, viewport.Y,
+            UserInputService.TouchEnabled, XCConfig.uiScale, XCConfig.settingsCompactMode, isMobileLayout).scale
         if scale.Scale ~= nextScale then
             scale.Scale = nextScale
-            main.Position = UDim2.new(0.5, -340 * nextScale, 0.5, -225 * nextScale)
+            main.Position = UDim2.new(0.5, -menuLayout.width * nextScale/2,
+                0.5, -menuLayout.height * nextScale/2)
         end
     end
     updateScale()
@@ -13587,6 +13601,7 @@ function buildXCUI()
     topLine.Position = UDim2.fromOffset(2, 2)
     topLine.BorderSizePixel = 0
     topLine.BackgroundColor3 = C.Lime
+    topLine.ZIndex = 40
     topLine.Parent = main
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new({
@@ -13598,30 +13613,91 @@ function buildXCUI()
     })
     gradient.Parent = topLine
 
+    local header = Instance.new("Frame")
+    header.Name = "MenuHeader"
+    header.Size = UDim2.new(1, 0, 0, 52)
+    header.BackgroundColor3 = C.Sidebar
+    header.BorderSizePixel = 0
+    header.Parent = main
+    local brand = Instance.new("TextLabel")
+    brand.Name = "Brand"
+    brand.Position = UDim2.fromOffset(16, 12)
+    brand.Size = UDim2.fromOffset(isMobileLayout and 106 or 136, 28)
+    brand.BackgroundTransparency = 1
+    brand.Text = isMobileLayout and "XC /" or "XC  /  STUDIO"
+    brand.TextColor3 = C.White
+    brand.Font = Enum.Font.GothamBold
+    brand.TextSize = 16
+    brand.TextXAlignment = Enum.TextXAlignment.Left
+    brand.Parent = header
+    local brandAccent = Instance.new("Frame")
+    brandAccent.Size = UDim2.fromOffset(3, 22)
+    brandAccent.Position = UDim2.fromOffset(9, 15)
+    brandAccent.BorderSizePixel = 0
+    brandAccent.BackgroundColor3 = C.Lime
+    brandAccent.Parent = header
+    local pageTitle = Instance.new("TextLabel")
+    pageTitle.Position = UDim2.fromOffset(isMobileLayout and 132 or 176, 8)
+    pageTitle.Size = UDim2.new(1, isMobileLayout and -182 or -222, 0, 22)
+    pageTitle.BackgroundTransparency = 1
+    pageTitle.TextColor3 = C.White
+    pageTitle.Font = Enum.Font.GothamBold
+    pageTitle.TextSize = 16
+    pageTitle.TextXAlignment = Enum.TextXAlignment.Left
+    pageTitle.Parent = header
+    local pageSubtitle = Instance.new("TextLabel")
+    pageSubtitle.Position = UDim2.fromOffset(isMobileLayout and 132 or 176, 29)
+    pageSubtitle.Size = UDim2.new(1, isMobileLayout and -182 or -222, 0, 14)
+    pageSubtitle.BackgroundTransparency = 1
+    pageSubtitle.TextColor3 = C.Muted
+    pageSubtitle.Font = Enum.Font.Gotham
+    pageSubtitle.TextSize = 10
+    pageSubtitle.TextTruncate = Enum.TextTruncate.AtEnd
+    pageSubtitle.TextXAlignment = Enum.TextXAlignment.Left
+    pageSubtitle.Parent = header
+    local closeMenuButton = Instance.new("TextButton")
+    closeMenuButton.Name = "CloseMenu"
+    closeMenuButton.Position = UDim2.new(1, -38, 0, 12)
+    closeMenuButton.Size = UDim2.fromOffset(25, 25)
+    closeMenuButton.BackgroundColor3 = C.Control2
+    closeMenuButton.BorderSizePixel = 0
+    closeMenuButton.Text = "×"
+    closeMenuButton.TextColor3 = C.Muted
+    closeMenuButton.Font = Enum.Font.GothamBold
+    closeMenuButton.TextSize = 16
+    closeMenuButton.ZIndex = 30
+    closeMenuButton.Parent = header
+    Instance.new("UICorner", closeMenuButton).CornerRadius = UDim.new(0, 6)
+
     local dragBar = Instance.new("Frame")
     dragBar.Name = "DragBar"
     dragBar.Size = UDim2.new(1, -52, 0, 10)
-    dragBar.Position = UDim2.fromOffset(52, 0)
+    dragBar.Position = UDim2.fromOffset(0, 0)
     dragBar.BackgroundTransparency = 1
     dragBar.Active = true
     dragBar.ZIndex = 20
     dragBar.Parent = main
 
-    local sidebar = Instance.new("Frame")
+    local sidebar = Instance.new("ScrollingFrame")
     sidebar.Name = "IconBar"
-    sidebar.Size = UDim2.new(0, 48, 1, -4)
-    sidebar.Position = UDim2.fromOffset(2, 2)
+    sidebar.Size = isMobileLayout and UDim2.new(1, -16, 0, 52) or UDim2.new(0, 152, 1, -66)
+    sidebar.Position = UDim2.fromOffset(isMobileLayout and 8 or 8, isMobileLayout and 52 or 58)
     sidebar.BackgroundColor3 = C.Sidebar
     sidebar.BackgroundTransparency = math.clamp(XCConfig.menuTransparency * 0.7, 0, 0.4)
-    sidebar.BorderColor3 = C.Border
-    sidebar.BorderSizePixel = 1
+    sidebar.BorderSizePixel = 0
+    sidebar.ScrollingDirection = isMobileLayout and Enum.ScrollingDirection.X or Enum.ScrollingDirection.Y
+    sidebar.ScrollBarThickness = isMobileLayout and 2 or 0
+    sidebar.ScrollBarImageColor3 = C.Lime
+    sidebar.CanvasSize = UDim2.new()
     sidebar.Parent = main
+    Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 8)
 
     -- Filled after the floating XC button is created. Keeping this callback
     -- here lets live theme changes recolor both letters without rebuilding UI.
     local openButtonThemeRefresh = function() end
     local refreshESPPreview = function() end
     local refreshSkinGallery = function() end
+    local refreshNavTheme = function() end
 
     local function applyMenuTheme()
         local old = {Main=C.Main, Sidebar=C.Sidebar, Panel=C.Panel, Control=C.Control,
@@ -13677,21 +13753,37 @@ function buildXCUI()
         syncXCUserTheme()
         refreshESPPreview()
         openButtonThemeRefresh()
+        refreshNavTheme()
         updateScale()
     end
 
     local sideLayout = Instance.new("UIListLayout")
-    sideLayout.Padding = UDim.new(0, 1)
-    sideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    sideLayout.FillDirection = isMobileLayout and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
+    sideLayout.Padding = UDim.new(0, isMobileLayout and 4 or 3)
     sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
     sideLayout.Parent = sidebar
+    local sidePadding = Instance.new("UIPadding", sidebar)
+    sidePadding.PaddingLeft = UDim.new(0, 7)
+    sidePadding.PaddingTop = UDim.new(0, 4)
 
     local content = Instance.new("Frame")
     content.Name = "Content"
-    content.Size = UDim2.new(1, -64, 1, -46)
-    content.Position = UDim2.fromOffset(56, 38)
+    content.Size = isMobileLayout and UDim2.new(1, -24, 1, -174) or UDim2.new(1, -178, 1, -132)
+    content.Position = UDim2.fromOffset(isMobileLayout and 12 or 166, isMobileLayout and 144 or 104)
     content.BackgroundTransparency = 1
     content.Parent = main
+
+    local footer = Instance.new("TextLabel", main)
+    footer.Name = "MenuFooter"
+    footer.Size = UDim2.new(1, -28, 0, 18)
+    footer.Position = UDim2.new(0, 14, 1, -22)
+    footer.BackgroundTransparency = 1
+    footer.Text = "XC STUDIO   •   LOCAL SESSION                                      DRAG TOP EDGE  /  SEARCH THIS TAB"
+    footer.TextColor3 = C.Muted
+    footer.Font = Enum.Font.Gotham
+    footer.TextSize = 9
+    footer.TextTruncate = Enum.TextTruncate.AtEnd
+    footer.TextXAlignment = Enum.TextXAlignment.Left
 
     local pages = {}
     local tabData = {}
@@ -13708,41 +13800,41 @@ function buildXCUI()
 
     local searchBar = Instance.new("Frame")
     searchBar.Name = "QuickSearch"
-    searchBar.Size = UDim2.new(1, -64, 0, 24)
-    searchBar.Position = UDim2.fromOffset(56, 10)
-    searchBar.BackgroundColor3 = C.Panel
-    searchBar.BorderColor3 = C.Border
-    searchBar.BorderSizePixel = 1
+    searchBar.Size = isMobileLayout and UDim2.new(1, -24, 0, 30) or UDim2.new(1, -178, 0, 32)
+    searchBar.Position = UDim2.fromOffset(isMobileLayout and 12 or 166, isMobileLayout and 108 or 64)
+    searchBar.BackgroundColor3 = C.Control
+    searchBar.BorderSizePixel = 0
     searchBar.Parent = main
+    Instance.new("UICorner", searchBar).CornerRadius = UDim.new(0, 7)
     local searchIcon = Instance.new("TextLabel")
-    searchIcon.Size = UDim2.fromOffset(24, 22)
+    searchIcon.Size = UDim2.fromOffset(30, 30)
     searchIcon.BackgroundTransparency = 1
-    searchIcon.Text = ">"
+    searchIcon.Text = "⌕"
     searchIcon.TextColor3 = C.Lime
-    searchIcon.Font = Enum.Font.Code
-    searchIcon.TextSize = 13
+    searchIcon.Font = Enum.Font.GothamBold
+    searchIcon.TextSize = 19
     searchIcon.Parent = searchBar
     local searchBox = Instance.new("TextBox")
-    searchBox.Size = UDim2.new(1, -50, 1, 0)
-    searchBox.Position = UDim2.fromOffset(23, 0)
+    searchBox.Size = UDim2.new(1, -65, 1, 0)
+    searchBox.Position = UDim2.fromOffset(32, 0)
     searchBox.BackgroundTransparency = 1
     searchBox.ClearTextOnFocus = false
-    searchBox.PlaceholderText = "Search modules in this tab..."
+    searchBox.PlaceholderText = "Find settings in this tab..."
     searchBox.PlaceholderColor3 = C.Muted
     searchBox.Text = ""
     searchBox.TextColor3 = C.Text
-    searchBox.Font = Enum.Font.Code
-    searchBox.TextSize = 10
+    searchBox.Font = Enum.Font.Gotham
+    searchBox.TextSize = 12
     searchBox.TextXAlignment = Enum.TextXAlignment.Left
     searchBox.Parent = searchBar
     local clearSearch = Instance.new("TextButton")
-    clearSearch.Size = UDim2.fromOffset(24, 22)
-    clearSearch.Position = UDim2.new(1, -25, 0, 0)
+    clearSearch.Size = UDim2.fromOffset(30, 30)
+    clearSearch.Position = UDim2.new(1, -31, 0, 0)
     clearSearch.BackgroundTransparency = 1
-    clearSearch.Text = "x"
+    clearSearch.Text = "×"
     clearSearch.TextColor3 = C.Muted
-    clearSearch.Font = Enum.Font.Code
-    clearSearch.TextSize = 12
+    clearSearch.Font = Enum.Font.GothamBold
+    clearSearch.TextSize = 15
     clearSearch.Parent = searchBar
     clearSearch.Activated:Connect(function() searchBox.Text = "" end)
 
@@ -13937,10 +14029,20 @@ function buildXCUI()
     end
 
     local function createPage(name)
-        local page = Instance.new("Frame")
+        local page = Instance.new(isMobileLayout and "ScrollingFrame" or "Frame")
         page.Name = name
         page.Size = UDim2.fromScale(1, 1)
         page.BackgroundTransparency = 1
+        if isMobileLayout then
+            page.BorderSizePixel = 0
+            page.ScrollBarThickness = 2
+            page.ScrollBarImageColor3 = C.Lime
+            page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            page.CanvasSize = UDim2.new()
+            local pageLayout = Instance.new("UIListLayout", page)
+            pageLayout.Padding = UDim.new(0, 8)
+            pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        end
         page.Visible = false
         page.Parent = content
         pages[name] = page
@@ -13950,14 +14052,15 @@ function buildXCUI()
     local function createPanel(page, title, x, width)
         local panel = Instance.new("Frame")
         panel.Name = title
-        panel.Size = UDim2.new(width, 0, 1, 0)
-        panel.Position = UDim2.new(x, 0, 0, 0)
+        panel.Size = isMobileLayout and UDim2.new(1, -5, 0, 510) or UDim2.new(width, 0, 1, 0)
+        panel.Position = isMobileLayout and UDim2.new() or UDim2.new(x, 0, 0, 0)
+        panel.LayoutOrder = x > 0 and 2 or 1
         panel.BackgroundColor3 = C.Panel
         panel.BorderColor3 = C.Border
         panel.BorderSizePixel = 0
         panel.Parent = page
         local panelCorner = Instance.new("UICorner")
-        panelCorner.CornerRadius = UDim.new(0, 8)
+        panelCorner.CornerRadius = UDim.new(0, 10)
         panelCorner.Parent = panel
         local panelStroke = Instance.new("UIStroke")
         panelStroke.Color = C.Border
@@ -13965,23 +14068,28 @@ function buildXCUI()
         panelStroke.Parent = panel
 
         local titleLabel = Instance.new("TextLabel")
-        titleLabel.Size = UDim2.new(1, -16, 0, 24)
-        titleLabel.Position = UDim2.fromOffset(8, 3)
+        titleLabel.Size = UDim2.new(1, -34, 0, 30)
+        titleLabel.Position = UDim2.fromOffset(16, 6)
         titleLabel.BackgroundTransparency = 1
         titleLabel.Text = title
         titleLabel.TextColor3 = C.Text
-        titleLabel.Font = Enum.Font.Code
+        titleLabel.Font = Enum.Font.GothamBold
         titleLabel.TextSize = 12
         titleLabel.TextXAlignment = Enum.TextXAlignment.Left
         titleLabel.Parent = panel
+        local titleAccent = Instance.new("Frame", panel)
+        titleAccent.Size = UDim2.fromOffset(3, 17)
+        titleAccent.Position = UDim2.fromOffset(8, 13)
+        titleAccent.BackgroundColor3 = C.Lime
+        titleAccent.BorderSizePixel = 0
 
         local scroll = Instance.new("ScrollingFrame")
         scroll.Name = "Controls"
-        scroll.Size = UDim2.new(1, -14, 1, -32)
-        scroll.Position = UDim2.fromOffset(7, 28)
+        scroll.Size = UDim2.new(1, -18, 1, -47)
+        scroll.Position = UDim2.fromOffset(9, 41)
         scroll.BackgroundTransparency = 1
         scroll.BorderSizePixel = 0
-        scroll.ScrollBarThickness = 2
+        scroll.ScrollBarThickness = 3
         scroll.ScrollBarImageColor3 = C.Border
         scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
         scroll.CanvasSize = UDim2.new()
@@ -13993,9 +14101,29 @@ function buildXCUI()
         layout.Parent = scroll
         local padding = Instance.new("UIPadding")
         padding.PaddingLeft = UDim.new(0, 7)
-        padding.PaddingRight = UDim.new(0, 7)
-        padding.PaddingBottom = UDim.new(0, 9)
+        padding.PaddingRight = UDim.new(0, 9)
+        padding.PaddingBottom = UDim.new(0, 14)
         padding.Parent = scroll
+        if isMobileLayout then
+            -- A single page scroller keeps the second column reachable on touch.
+            scroll.ScrollingEnabled = false
+            scroll.AutomaticCanvasSize = Enum.AutomaticSize.None
+            scroll.ScrollBarThickness = 0
+            local resizePending = false
+            local function resizeMobilePanel()
+                if resizePending then return end
+                resizePending = true
+                task.defer(function()
+                    resizePending = false
+                    if not panel.Parent then return end
+                    local bodyHeight = math.max(52, layout.AbsoluteContentSize.Y + 22)
+                    scroll.Size = UDim2.new(1, -18, 0, bodyHeight)
+                    panel.Size = UDim2.new(1, -5, 0, bodyHeight + 47)
+                end)
+            end
+            table.insert(connections, layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(resizeMobilePanel))
+            resizeMobilePanel()
+        end
         return scroll
     end
 
@@ -14012,53 +14140,46 @@ function buildXCUI()
         outerLayout.Parent = outer
 
         local header = Instance.new("TextButton")
-        header.Size = UDim2.new(1, 0, 0, 24)
+        header.Size = UDim2.new(1, 0, 0, 28)
         header.LayoutOrder = 1
-        header.BackgroundTransparency = 1
+        header.BackgroundColor3 = C.Control
         header.BorderSizePixel = 0
         header.Text = ""
         header.AutoButtonColor = false
         header.Parent = outer
+        Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
 
         local title = Instance.new("TextLabel")
         title.Name = "SectionTitle"
-        title.Size = UDim2.new(1, -26, 0, 18)
-        title.Position = UDim2.fromOffset(1, 0)
+        title.Size = UDim2.new(1, -38, 1, 0)
+        title.Position = UDim2.fromOffset(12, 0)
         title.BackgroundTransparency = 1
         title.Text = text:upper()
         title.TextColor3 = C.White
-        title.Font = Enum.Font.Code
-        title.TextSize = 11
+        title.Font = Enum.Font.GothamBold
+        title.TextSize = 10
         title.TextXAlignment = Enum.TextXAlignment.Left
         title.Parent = header
 
         local collapseIcon = Instance.new("TextLabel")
         collapseIcon.Name = "CollapseIcon"
-        collapseIcon.Size = UDim2.fromOffset(20, 18)
-        collapseIcon.Position = UDim2.new(1, -20, 0, 0)
+        collapseIcon.Size = UDim2.fromOffset(24, 28)
+        collapseIcon.Position = UDim2.new(1, -26, 0, 0)
         collapseIcon.BackgroundTransparency = 1
         collapseIcon.Text = "v"
         collapseIcon.TextColor3 = C.Lime
-        collapseIcon.Font = Enum.Font.Code
+        collapseIcon.Font = Enum.Font.GothamBold
         collapseIcon.TextSize = 11
         collapseIcon.Parent = header
 
         local accentLine = Instance.new("Frame")
         accentLine.Name = "LimeDivider"
-        accentLine.Size = UDim2.new(1, 0, 0, 1)
-        accentLine.Position = UDim2.new(0, 0, 1, -2)
+        accentLine.Size = UDim2.new(0, 3, 1, -10)
+        accentLine.Position = UDim2.fromOffset(3, 5)
         accentLine.BackgroundColor3 = C.Lime
         accentLine.BackgroundTransparency = 0.08
         accentLine.BorderSizePixel = 0
         accentLine.Parent = header
-
-        local lineFade = Instance.new("UIGradient")
-        lineFade.Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0),
-            NumberSequenceKeypoint.new(0.72, 0.28),
-            NumberSequenceKeypoint.new(1, 1),
-        })
-        lineFade.Parent = accentLine
 
         local body = Instance.new("Frame")
         body.Name = "Body"
@@ -14117,7 +14238,7 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local row = Instance.new("TextButton")
         row.Name = key
-        row.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 28 or 22)
+        row.Size = UDim2.new(1, 0, 0, isMobileLayout and 34 or 29)
         row.BackgroundTransparency = 1
         row.Text = ""
         row.AutoButtonColor = false
@@ -14128,7 +14249,7 @@ function buildXCUI()
         text.BackgroundTransparency = 1
         text.Text = label
         text.TextColor3 = C.Text
-        text.Font = Enum.Font.Code
+        text.Font = Enum.Font.Gotham
         text.TextSize = 11
         text.TextXAlignment = Enum.TextXAlignment.Left
         text.Parent = row
@@ -14140,7 +14261,7 @@ function buildXCUI()
         statusText.BackgroundColor3 = C.Control
         statusText.BackgroundTransparency = 0.15
         statusText.BorderSizePixel = 0
-        statusText.Font = Enum.Font.Code
+        statusText.Font = Enum.Font.GothamBold
         statusText.TextSize = 8
         statusText.TextXAlignment = Enum.TextXAlignment.Center
         statusText.Parent = row
@@ -14212,7 +14333,7 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
         holder.Name = key
-        holder.Size = UDim2.new(1, 0, 0, 36)
+        holder.Size = UDim2.new(1, 0, 0, 42)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
@@ -14221,8 +14342,8 @@ function buildXCUI()
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
-        name.Font = Enum.Font.Code
-        name.TextSize = 10
+        name.Font = Enum.Font.Gotham
+        name.TextSize = 11
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.Parent = holder
         local valueLabel = Instance.new("TextLabel")
@@ -14230,22 +14351,24 @@ function buildXCUI()
         valueLabel.Position = UDim2.new(0.68, 0, 0, 0)
         valueLabel.BackgroundTransparency = 1
         valueLabel.TextColor3 = C.Text
-        valueLabel.Font = Enum.Font.Code
+        valueLabel.Font = Enum.Font.GothamBold
         valueLabel.TextSize = 10
         valueLabel.TextXAlignment = Enum.TextXAlignment.Right
         valueLabel.Parent = holder
         local bar = Instance.new("Frame")
-        bar.Size = UDim2.new(1, 0, 0, 7)
-        bar.Position = UDim2.fromOffset(0, 21)
+        bar.Size = UDim2.new(1, 0, 0, 8)
+        bar.Position = UDim2.fromOffset(0, 26)
         bar.BackgroundColor3 = C.Control2
         bar.BorderColor3 = C.Black
-        bar.BorderSizePixel = 1
+        bar.BorderSizePixel = 0
         bar.Active = true
         bar.Parent = holder
+        Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
         local fill = Instance.new("Frame")
         fill.BorderSizePixel = 0
         fill.BackgroundColor3 = C.Lime
         fill.Parent = bar
+        Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
         local function refresh(value)
             value = math.clamp(tonumber(value) or minValue, minValue, maxValue)
             fill.Size = UDim2.new((value - minValue) / (maxValue - minValue), 0, 1, 0)
@@ -14424,7 +14547,7 @@ function buildXCUI()
     local function addChoice(parent, label, key, values, onChanged)
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
-        holder.Size = UDim2.new(1, 0, 0, 38)
+        holder.Size = UDim2.new(1, 0, 0, 44)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
@@ -14433,27 +14556,28 @@ function buildXCUI()
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
-        name.Font = Enum.Font.Code
-        name.TextSize = 10
+        name.Font = Enum.Font.Gotham
+        name.TextSize = 11
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.Parent = holder
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, 0, 0, 22)
-        button.Position = UDim2.fromOffset(0, 15)
+        button.Size = UDim2.new(1, 0, 0, 26)
+        button.Position = UDim2.fromOffset(0, 16)
         button.BackgroundColor3 = C.Control
         button.BorderColor3 = C.Black
-        button.BorderSizePixel = 1
+        button.BorderSizePixel = 0
         button.Text = ""
         button.AutoButtonColor = false
         button.Parent = holder
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 5)
 
         local valueText = Instance.new("TextLabel")
         valueText.Size = UDim2.new(1, -30, 1, 0)
         valueText.Position = UDim2.fromOffset(8, 0)
         valueText.BackgroundTransparency = 1
         valueText.TextColor3 = C.Text
-        valueText.Font = Enum.Font.Code
-        valueText.TextSize = 10
+        valueText.Font = Enum.Font.Gotham
+        valueText.TextSize = 11
         valueText.TextXAlignment = Enum.TextXAlignment.Left
         valueText.TextTruncate = Enum.TextTruncate.AtEnd
         valueText.Parent = button
@@ -14503,16 +14627,19 @@ function buildXCUI()
     local function addButton(parent, label, callback)
         parent = activeSectionByParent[parent] or parent
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, 0, 0, 24)
+        button.Size = UDim2.new(1, 0, 0, 30)
         button.BackgroundColor3 = C.Control
         button.BorderColor3 = C.Black
-        button.BorderSizePixel = 1
+        button.BorderSizePixel = 0
         button.Text = label
         button.TextColor3 = C.Text
-        button.Font = Enum.Font.Code
+        button.Font = Enum.Font.GothamBold
         button.TextSize = 10
         button.AutoButtonColor = false
         button.Parent = parent
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+        button.MouseEnter:Connect(function() button.BackgroundColor3 = C.Control2 end)
+        button.MouseLeave:Connect(function() button.BackgroundColor3 = C.Control end)
         button.Activated:Connect(callback)
         registerSearch(button, label)
         return button
@@ -15699,6 +15826,13 @@ function buildXCUI()
             iconCircle(root, cx, cy, 9, color, false)
             iconCircle(root, cx, cy, 3, color, false)
             for _, angle in ipairs({0, 45, 90, 135}) do iconLine(root, cx, 2, 3, 5, color, angle) end
+        elseif kind == "settings" then
+            iconLine(root, 11, 5, 16, 1.5, color)
+            iconLine(root, 11, 11, 16, 1.5, color)
+            iconLine(root, 11, 17, 16, 1.5, color)
+            iconCircle(root, 7, 5, 4, color, true)
+            iconCircle(root, 16, 11, 4, color, true)
+            iconCircle(root, 10, 17, 4, color, true)
         elseif kind == "skins" then
             iconLine(root, 12, 10, 14, 2, color, -42)
             iconLine(root, 6, 16, 7, 2, color, 42)
@@ -15738,51 +15872,88 @@ function buildXCUI()
     local tabs = {
         {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"Players", "players"},
         {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"},
-        {"Settings", "misc"}, {"Configs", "configs"},
+        {"Settings", "settings"}, {"Configs", "configs"},
+    }
+    local pageDescriptions = {
+        Rage = "Aim, targeting & weapons", AntiAim = "Movement & camera control",
+        Visuals = "ESP & on-screen effects", Players = "Target filtering & overlays",
+        World = "Environment & lighting", Skins = "Weapon finishes & gloves",
+        Misc = "Viewmodel & utilities", Settings = "Appearance & preferences",
+        Configs = "Profiles & community",
     }
     local function switchPage(name)
         closeDropdown()
         hideHelp()
         currentPage = name
+        pageTitle.Text = name == "AntiAim" and "ANTI-AIM" or string.upper(name)
+        pageSubtitle.Text = pageDescriptions[name] or "Customize your session"
         for pageName, page in pairs(pages) do page.Visible = pageName == name end
         for tabName, data in pairs(tabData) do
             data.active.Visible = tabName == name
-            recolorTabIcon(data.icon, tabName == name and ICON_ON or ICON_OFF)
+            data.button.BackgroundColor3 = tabName == name and C.Lime:Lerp(C.Control, 0.84) or C.Sidebar
+            data.button.BackgroundTransparency = tabName == name and 0 or 1
+            data.label.TextColor3 = tabName == name and C.White or C.Muted
+            recolorTabIcon(data.icon, tabName == name and C.Lime or C.Muted)
         end
         if applySearch then applySearch() end
     end
+    refreshNavTheme = function() if currentPage then switchPage(currentPage) end end
     for index, info in ipairs(tabs) do
         local holder = Instance.new("Frame")
-        holder.Size = UDim2.new(1, 0, 0, 41)
+        holder.Size = isMobileLayout and UDim2.fromOffset(96, 44) or UDim2.new(1, -8, 0, 46)
         holder.LayoutOrder = index
         holder.BackgroundTransparency = 1
         holder.Parent = sidebar
         local active = Instance.new("Frame")
-        active.Size = UDim2.fromOffset(2, 30)
-        active.Position = UDim2.new(0, -1, 0.5, -15)
+        active.Size = isMobileLayout and UDim2.new(1, -12, 0, 2) or UDim2.fromOffset(3, 24)
+        active.Position = isMobileLayout and UDim2.new(0, 6, 1, -2) or UDim2.new(0, 0, 0.5, -12)
         active.BackgroundColor3 = C.Lime
         active.BorderSizePixel = 0
         active.Visible = false
         active.Parent = holder
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, -8, 1, 0)
+        button.Size = UDim2.new(1, -5, 1, -4)
         button.Position = UDim2.fromOffset(4, 0)
         button.BackgroundTransparency = 1
         button.Text = ""
         button.AutoButtonColor = false
         button.Parent = holder
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
         local icon = drawTabIcon(button, info[2], ICON_OFF)
+        icon.AnchorPoint = Vector2.new(0, 0.5)
+        icon.Position = UDim2.new(0, 9, 0.5, 0)
+        local label = Instance.new("TextLabel", button)
+        label.Position = UDim2.fromOffset(37, 0)
+        label.Size = UDim2.new(1, -40, 1, 0)
+        label.BackgroundTransparency = 1
+        label.Text = info[1] == "AntiAim" and "Anti-aim" or info[1]
+        label.TextColor3 = C.Muted
+        label.Font = Enum.Font.GothamBold
+        label.TextSize = isMobileLayout and 9 or 11
+        label.TextTruncate = Enum.TextTruncate.AtEnd
+        label.TextXAlignment = Enum.TextXAlignment.Left
         button.MouseEnter:Connect(function()
-            if currentPage ~= info[1] then recolorTabIcon(icon, ICON_HOVER) end
+            if currentPage ~= info[1] then
+                recolorTabIcon(icon, C.White)
+                button.BackgroundColor3 = C.Control
+                button.BackgroundTransparency = 0.25
+                label.TextColor3 = C.White
+            end
         end)
         button.MouseLeave:Connect(function()
-            if currentPage ~= info[1] then recolorTabIcon(icon, ICON_OFF) end
+            if currentPage ~= info[1] then
+                recolorTabIcon(icon, C.Muted)
+                button.BackgroundTransparency = 1
+                label.TextColor3 = C.Muted
+            end
         end)
         button.Activated:Connect(function() switchPage(info[1]) end)
         attachHelp(button, "tab_" .. info[1])
-        tabData[info[1]] = {button = button, active = active, icon = icon}
+        tabData[info[1]] = {button = button, active = active, icon = icon, label = label}
         createPage(info[1])
     end
+    sidebar.CanvasSize = isMobileLayout and UDim2.fromOffset(#tabs * 100 + 12, 0)
+        or UDim2.fromOffset(0, #tabs * 49 + 10)
 
     local function columns(name, leftTitle, rightTitle)
         local page = pages[name]
@@ -16686,6 +16857,9 @@ function buildXCUI()
             for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
         end
     end
+    closeMenuButton.Activated:Connect(function()
+        if main.Visible then toggleMenu() end
+    end)
     table.insert(connections, UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
         local key = Enum.KeyCode[XCConfig.menuKey or "RightShift"]
