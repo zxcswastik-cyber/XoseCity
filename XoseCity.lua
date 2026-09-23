@@ -457,6 +457,7 @@ local XCConfig = {
     skinEditorWeapon = "AK-47",
     skinEditorFinish = "Default",
     skinGalleryMode = "Weapon",
+    skinPreviewMode = "Icons",
     skinWear = 0,
     knifeWear = 0,
     weaponSkinSelections = {},
@@ -13752,6 +13753,8 @@ function buildXCUI()
         killEffectDuration = "How long the selected kill effect remains visible.",
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
+        fireRateEnabled = "Adjusts the active supported weapon's fire interval. WAIT means no supported active weapon; FALL means a legacy table fallback.",
+        fireRate = "Requested seconds between shots. The effective minimum is 0.03 s or 40% of the original interval, whichever is greater.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
         wallbangEnabled = "Forced wallbang boosts the native penetration path so Silent Aim can shoot through otherwise blocked surfaces.",
         extremeWallbangEnabled = "Extreme wallbang rewrites the final shot payload to the Silent Aim target, matching the direct-hit Send behavior used by Memesense-style scripts.",
@@ -14084,6 +14087,10 @@ function buildXCUI()
             if not xcCharacterInputHook.Ready then return "WAIT", Color3.fromRGB(220, 170, 72) end
         elseif key == "silentAimEnabled" and not xcNativeSilentHooked then
             return "WAIT", Color3.fromRGB(220, 170, 72)
+        elseif key == "fireRateEnabled" then
+            local state = XCFeatureState.fireRateStatus
+            if state == "FALL" then return "FALL", Color3.fromRGB(220, 170, 72) end
+            if state ~= "ON" then return "WAIT", Color3.fromRGB(220, 170, 72) end
         end
         return "ON", C.Lime
     end
@@ -14982,10 +14989,12 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame", parent)
         holder.Name = "SkinImageGallery"
-        holder.Size = UDim2.new(1, 0, 0, 388)
-        holder.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+        holder.Size = UDim2.new(1, 0, 0, 430)
+        holder.BackgroundColor3 = C.Panel
         holder.BorderColor3 = C.Border
         holder.BorderSizePixel = 1
+        local galleryCorner = Instance.new("UICorner", holder)
+        galleryCorner.CornerRadius = UDim.new(0, 6)
 
         local categoryButtons = {}
         local categoryBar = Instance.new("Frame", holder)
@@ -15041,9 +15050,20 @@ function buildXCUI()
         heading.TextSize = 9
         heading.TextXAlignment = Enum.TextXAlignment.Left
 
+        local hint = Instance.new("TextLabel", holder)
+        hint.Position = UDim2.fromOffset(7, UserInputService.TouchEnabled and 96 or 91)
+        hint.Size = UDim2.new(1, -14, 0, 18)
+        hint.BackgroundTransparency = 1
+        hint.Text = "Choose a finish below. Changes apply to the held item."
+        hint.TextColor3 = C.Muted
+        hint.Font = Enum.Font.Code
+        hint.TextSize = 9
+        hint.TextTruncate = Enum.TextTruncate.AtEnd
+        hint.TextXAlignment = Enum.TextXAlignment.Left
+
         local grid = Instance.new("ScrollingFrame", holder)
-        grid.Position = UDim2.fromOffset(6, UserInputService.TouchEnabled and 96 or 91)
-        grid.Size = UDim2.new(1, -12, 1, UserInputService.TouchEnabled and -102 or -97)
+        grid.Position = UDim2.fromOffset(6, UserInputService.TouchEnabled and 116 or 111)
+        grid.Size = UDim2.new(1, -12, 1, UserInputService.TouchEnabled and -122 or -117)
         grid.BackgroundTransparency = 1
         grid.BorderSizePixel = 0
         grid.ScrollBarThickness = 2
@@ -15051,7 +15071,7 @@ function buildXCUI()
         grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
         grid.CanvasSize = UDim2.new()
         local layout = Instance.new("UIGridLayout", grid)
-        layout.CellSize = UDim2.new(0.25, -5, 0, UserInputService.TouchEnabled and 118 or 108)
+        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 0.5 or (1/3), -5, 0, UserInputService.TouchEnabled and 126 or 116)
         layout.CellPadding = UDim2.fromOffset(5, 5)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         local padding = Instance.new("UIPadding", grid)
@@ -15065,6 +15085,7 @@ function buildXCUI()
             if value:find("rbxasset",1,true) or value:find("http",1,true) then return value end
             return nil
         end
+        local skinLibraryPreviewEntries = {}
         local function findPreviewImage(itemName, skinName)
             local folder=skinData.SkinsRoot and skinData.SkinsRoot:FindFirstChild(itemName)
             local skinFolder=folder and folder:FindFirstChild(skinName)
@@ -15074,7 +15095,9 @@ function buildXCUI()
                 end
                 for _,object in ipairs(skinFolder:GetDescendants()) do
                     local lower=object.Name:lower()
-                    if lower:find("image",1,true) or lower:find("icon",1,true) or lower:find("thumbnail",1,true) or lower:find("preview",1,true) then
+                    if object:IsA("ImageLabel") or object:IsA("ImageButton")
+                        or lower:find("image",1,true) or lower:find("icon",1,true)
+                        or lower:find("thumbnail",1,true) or lower:find("preview",1,true) then
                         if object:IsA("StringValue") or object:IsA("IntValue") or object:IsA("NumberValue") then
                             local image=normalizeImage(object.Value);if image then return image end
                         elseif object:IsA("ImageLabel") or object:IsA("ImageButton") then
@@ -15084,10 +15107,15 @@ function buildXCUI()
                 end
             end
             if skinData.SkinLibrary and type(skinData.SkinLibrary.GetAllSkinsForWeapon)=="function" then
-                local ok,entries=pcall(skinData.SkinLibrary.GetAllSkinsForWeapon,itemName)
-                if ok and type(entries)=="table" then for _,info in ipairs(entries) do
+                local entries=skinLibraryPreviewEntries[itemName]
+                if entries==nil then
+                    local ok,result=pcall(skinData.SkinLibrary.GetAllSkinsForWeapon,itemName)
+                    entries=ok and type(result)=="table" and result or false
+                    skinLibraryPreviewEntries[itemName]=entries
+                end
+                if type(entries)=="table" then for _,info in ipairs(entries) do
                     if type(info)=="table" and (info.skin==skinName or info.name==skinName) then
-                        for _,key in ipairs({"image","Image","icon","Icon","thumbnail","Thumbnail","preview","Preview"}) do
+                        for _,key in ipairs({"image","Image","icon","Icon","thumbnail","Thumbnail","preview","Preview","imageId","iconId"}) do
                             local image=normalizeImage(info[key]);if image then return image end
                         end
                     end
@@ -15299,11 +15327,15 @@ function buildXCUI()
         local function selectItem(itemName, resetFinish)
             if XCConfig.skinGalleryMode=="Knife" then
                 XCConfig.selectedKnifeType=itemName
-                if resetFinish then XCConfig.selectedSkin="Default" end
+                if resetFinish and not table.find(getXCSkinChoicesForWeapon(itemName), XCConfig.selectedSkin) then
+                    XCConfig.selectedSkin="Default"
+                end
                 applyXCKnifeChanger()
             elseif XCConfig.skinGalleryMode=="Gloves" then
                 XCConfig.selectedGloveModel=itemName
-                if resetFinish then XCConfig.selectedGloveSkin="Default" end
+                if resetFinish and not table.find(getXCGloveSkinChoices(itemName), XCConfig.selectedGloveSkin) then
+                    XCConfig.selectedGloveSkin="Default"
+                end
                 applyXCGloves()
             else
                 XCConfig.skinEditorWeapon=itemName
@@ -15324,7 +15356,7 @@ function buildXCUI()
         end
         refreshSkinGallery=function()
             gallerySerial = gallerySerial + (1);local serial=gallerySerial
-            refreshXCSkinData();table.clear(cards)
+            refreshXCSkinData();table.clear(cards);table.clear(skinLibraryPreviewEntries)
             for _,child in ipairs(grid:GetChildren()) do if child~=layout and child~=padding then child:Destroy() end end
             for _,child in ipairs(itemBar:GetChildren()) do if child~=itemLayout and child~=itemPadding then child:Destroy() end end
             for modeName,button in pairs(categoryButtons) do
@@ -15357,18 +15389,21 @@ function buildXCUI()
             if XCConfig.skinGalleryMode=="Gloves" then choices=getXCGloveSkinChoices(itemName)
             else choices=getXCSkinChoicesForWeapon(itemName) end
             local previewJobs={}
-            heading.Text=string.format("%s  >  SKINS  (%d)",tostring(itemName):upper(),#choices)
+            heading.Text=string.format("%s  /  %d FINISHES",tostring(itemName):upper(),#choices)
+            hint.Text=string.format("Selected: %s  |  Preview: %s",tostring(currentSelection(itemName)),XCConfig.skinPreviewMode or "Icons")
             for index,skinName in ipairs(choices) do
                 local card=Instance.new("TextButton",grid)
                 card.Name="Skin_"..skinName;card.LayoutOrder=index;card.BackgroundColor3=C.Panel
                 card.BorderColor3=C.Border;card.BorderSizePixel=1;card.Text="";card.AutoButtonColor=false;cards[skinName]=card
+                Instance.new("UICorner",card).CornerRadius=UDim.new(0,4)
                 local visual=Instance.new("ViewportFrame",card)
-                visual.Name="Preview";visual.Position=UDim2.fromOffset(3,3);visual.Size=UDim2.new(1,-6,1,-25)
+                visual.Name="Preview";visual.Position=UDim2.fromOffset(4,4);visual.Size=UDim2.new(1,-8,1,-28)
                 visual.BackgroundColor3=C.Control;visual.BorderSizePixel=0;visual.Ambient=Color3.fromRGB(190,190,190)
                 visual.LightColor=Color3.fromRGB(255,255,255);visual.LightDirection=Vector3.new(-1,-0.5,-1)
+                Instance.new("UICorner",visual).CornerRadius=UDim.new(0,3)
                 local label=Instance.new("TextLabel",card)
-                label.Position=UDim2.new(0,4,1,-21);label.Size=UDim2.new(1,-8,0,18);label.BackgroundTransparency=1
-                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.Code;label.TextSize=8;label.TextTruncate=Enum.TextTruncate.AtEnd
+                label.Position=UDim2.new(0,6,1,-23);label.Size=UDim2.new(1,-12,0,19);label.BackgroundTransparency=1
+                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.Code;label.TextSize=10;label.TextTruncate=Enum.TextTruncate.AtEnd
                 local selected=Instance.new("TextLabel",card)
                 selected.Name="Selected";selected.Position=UDim2.fromOffset(5,4);selected.Size=UDim2.fromOffset(13,13)
                 selected.BackgroundColor3=Color3.fromRGB(4,4,4);selected.BackgroundTransparency=0.2;selected.Text="✓"
@@ -15376,24 +15411,32 @@ function buildXCUI()
                 local imageId=findPreviewImage(itemName,skinName)
                 previewJobs[#previewJobs+1]=function()
                     if serial~=gallerySerial or not visual.Parent then return end
+                    if imageId and XCConfig.skinPreviewMode~="Models" then
+                        local image=Instance.new("ImageLabel",visual)
+                        image.Size=UDim2.new(1,-8,1,-8);image.Position=UDim2.fromOffset(4,4);image.BackgroundTransparency=1
+                        image.Image=imageId;image.ScaleType=Enum.ScaleType.Fit
+                        return
+                    end
                     if XCConfig.skinGalleryMode=="Gloves" and addGlovePreview(visual,itemName,skinName) then return end
                     if addModelPreview(visual,itemName,skinName) then return end
                     if imageId then
                         local image=Instance.new("ImageLabel",visual)
                         image.Size=UDim2.new(1,-8,1,-8);image.Position=UDim2.fromOffset(4,4);image.BackgroundTransparency=1
                         image.Image=imageId;image.ScaleType=Enum.ScaleType.Fit
-                    else
-                        local fallback=Instance.new("TextLabel",visual);fallback.Size=UDim2.fromScale(1,1);fallback.BackgroundTransparency=1
-                        fallback.Text=skinName=="Default" and "DEFAULT" or itemName;fallback.TextColor3=C.Muted
-                        fallback.Font=Enum.Font.Code;fallback.TextSize=8;fallback.TextWrapped=true
+                        return
                     end
+                    local fallback=Instance.new("TextLabel",visual);fallback.Size=UDim2.fromScale(1,1);fallback.BackgroundTransparency=1
+                    fallback.Text=skinName=="Default" and "DEFAULT" or itemName;fallback.TextColor3=C.Muted
+                    fallback.Font=Enum.Font.Code;fallback.TextSize=9;fallback.TextWrapped=true
                 end
                 card.Activated:Connect(function()
                     if XCConfig.skinGalleryMode=="Knife" then XCConfig.selectedSkin=skinName;refreshConfigControls("selectedSkin",skinName);applyXCKnifeChanger()
                     elseif XCConfig.skinGalleryMode=="Gloves" then XCConfig.selectedGloveSkin=skinName;XCConfig.gloveChangerEnabled=true;refreshConfigControls("selectedGloveSkin",skinName);applyXCGloves()
                     else XCConfig.skinEditorFinish=skinName;XCConfig.weaponSkinSelections[itemName]=skinName
                         XCConfig.weaponSkinWear[itemName]=XCConfig.skinWear;refreshConfigControls("skinEditorFinish",skinName);applyXCSelectedWeaponSkin() end
-                    updateCardSelection(itemName);scheduleConfigAutoSave()
+                    updateCardSelection(itemName)
+                    hint.Text=string.format("Selected: %s  |  Preview: %s",tostring(skinName),XCConfig.skinPreviewMode or "Icons")
+                    scheduleConfigAutoSave()
                 end)
             end
             updateCardSelection(itemName)
@@ -16075,10 +16118,13 @@ function buildXCUI()
 
     task.wait()
     local S = createPanel(pages["Skins"], "Skin changer", 0, 1)
-    section(S, "Weapons and skins")
-    addSkinGallery(S)
     section(S, "Skin changer")
     toggle(S, "Skin changer", "skinChangerEnabled")
+    addNote(S, "Enable the changer, choose a category and item, then click a finish to equip it.")
+    section(S, "Finish gallery")
+    addChoice(S, "Preview style", "skinPreviewMode", {"Icons", "Models"}, function() refreshSkinGallery() end)
+    addSkinGallery(S)
+    section(S, "Wear and actions")
     addSlider(S, "Weapon wear", "skinWear", 0, 1, 0.01, "", function(value)
         local weaponName = XCConfig.skinEditorWeapon
         XCConfig.weaponSkinWear[weaponName] = value
@@ -16818,6 +16864,7 @@ local function applyXCNativeFireRate()
         record = nil
     end
     if not record then
+        if type(rawget(weapon.Properties, "FireRate")) ~= "number" then return false end
         local readonly = nil
         if type(isreadonly) == "function" then
             local okReadonly, value = pcall(isreadonly, weapon.Properties)
@@ -16835,13 +16882,6 @@ local function applyXCNativeFireRate()
     local requested = math.max(tonumber(XCConfig.fireRate) or 0.03, 0.01)
     local originalRate = tonumber(record.OriginalFireRate) or requested
     local stableRate = math.max(requested, 0.03, originalRate * 0.40)
-    if UserInputService.TouchEnabled then
-        -- Mobile uses the native hold-to-fire loop below. Leave every weapon
-        -- property byte-for-byte unchanged so the game's touch HUD never
-        -- rebuilds itself as a desktop control scheme.
-        record.Rate = stableRate
-        return true
-    end
     if record.Rate == stableRate
         and rawget(record.Properties, "FireRate") == stableRate then
         return true
@@ -16850,11 +16890,14 @@ local function applyXCNativeFireRate()
     -- Change only cooldown. Do not change Automatic: Blox Strike rebuilds its
     -- control scheme when this property changes and can select the desktop HUD.
     local properties = record.Properties
-    if type(setreadonly) == "function" then setreadonly(properties, false) end
-    rawset(properties, "FireRate", stableRate)
+    local wrote = pcall(function()
+        if type(setreadonly) == "function" then setreadonly(properties, false) end
+        rawset(properties, "FireRate", stableRate)
+    end)
     if type(setreadonly) == "function" and record.Readonly ~= nil then
-        setreadonly(properties, record.Readonly)
+        pcall(setreadonly, properties, record.Readonly)
     end
+    if not wrote or rawget(properties, "FireRate") ~= stableRate then return false end
     record.Rate = stableRate
     return true
 end
@@ -16941,6 +16984,7 @@ task.spawn(function()
         pcall(function()
             if XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate then
                 local nativeApplied = applyXCNativeFireRate()
+                XCFeatureState.fireRateStatus = nativeApplied and "ON" or "WAIT"
                 if nativeApplied then
                     -- Undo the broad legacy getgc writer once the equipped
                     -- weapon can be modified through its native Properties.
@@ -16953,6 +16997,7 @@ task.spawn(function()
                         scanXCFireRateObjects()
                     end
                     applyXCFireRate()
+                    if #xcFireRateObjects > 0 then XCFeatureState.fireRateStatus = "FALL" end
                 else
                     -- Never use broad getgc property writes on mobile.
                     restoreXCFireRates()
@@ -16960,6 +17005,7 @@ task.spawn(function()
             elseif wasEnabled then
                 restoreXCNativeFireRate(nil)
                 restoreXCFireRates()
+                XCFeatureState.fireRateStatus = nil
             end
             wasEnabled = XCConfig.fireRateEnabled
         end)
