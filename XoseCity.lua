@@ -1,4 +1,4 @@
--- XC Visual Modules 1-2: ESP Builder + Chams 2.0
+-- XC Visual Modules 3-4: interface refinement + UI workload optimization
 --// XC v67 compact Centurion-compatible build
 pcall(function()
     if type(getgenv) == "function" then
@@ -12006,12 +12006,14 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if nowTick - lastFpsUpdate >= 0.5 then
         local currentFps = math.floor(fpsCounter / (nowTick - lastFpsUpdate))
         local pingVal = 0
-        pcall(function()
-            local serverStats = Stats:FindFirstChild("Network") and Stats.Network:FindFirstChild("ServerStatsItem")
-            if serverStats and serverStats:FindFirstChild("Data Ping") then
-                pingVal = math.floor(serverStats["Data Ping"]:GetValue())
-            end
-        end)
+        if XCConfig.watermarkEnabled and XCConfig.watermarkShowPing then
+            pcall(function()
+                local serverStats = Stats:FindFirstChild("Network") and Stats.Network:FindFirstChild("ServerStatsItem")
+                if serverStats and serverStats:FindFirstChild("Data Ping") then
+                    pingVal = math.floor(serverStats["Data Ping"]:GetValue())
+                end
+            end)
+        end
         local parts = {}
         if XCConfig.watermarkShowFPS then table.insert(parts, string.format("FPS: %d", currentFps)) end
         if XCConfig.watermarkShowPing then table.insert(parts, string.format("PING: %dms", pingVal)) end
@@ -13391,8 +13393,11 @@ function buildXCUI()
         local preferred = (UserInputService.TouchEnabled and 0.82 or 1)
             * math.clamp(tonumber(XCConfig.uiScale) or 1, 0.65, 1.25)
         if XCConfig.settingsCompactMode then preferred = preferred * (0.88) end
-        scale.Scale = math.min(preferred, (viewport.X - 20) / 680, (viewport.Y - 20) / 450)
-        main.Position = UDim2.new(0.5, -340 * scale.Scale, 0.5, -225 * scale.Scale)
+        local nextScale = math.max(0.05, math.min(preferred, (viewport.X - 20) / 680, (viewport.Y - 20) / 450))
+        if scale.Scale ~= nextScale then
+            scale.Scale = nextScale
+            main.Position = UDim2.new(0.5, -340 * nextScale, 0.5, -225 * nextScale)
+        end
     end
     updateScale()
     task.defer(updateScale)
@@ -13457,22 +13462,29 @@ function buildXCUI()
             for role, previous in pairs(old) do if value == previous then return nextColors[role] end end
             return value
         end
-        for _, root in ipairs({screenGui, toggleGui}) do
-            local objects = {root}
-            for _, object in ipairs(root:GetDescendants()) do objects[#objects+1] = object end
-            for _, object in ipairs(objects) do pcall(function()
-                if object:IsA("GuiObject") then
-                    object.BackgroundColor3 = replaceColor(object.BackgroundColor3)
-                    object.BorderColor3 = replaceColor(object.BorderColor3)
-                end
-                if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then
-                    object.TextColor3 = replaceColor(object.TextColor3)
-                end
-                if object:IsA("TextBox") then object.PlaceholderColor3 = replaceColor(object.PlaceholderColor3) end
-                if object:IsA("ImageLabel") or object:IsA("ImageButton") then object.ImageColor3 = replaceColor(object.ImageColor3) end
-                if object:IsA("UIStroke") then object.Color = replaceColor(object.Color) end
-                if object:IsA("ScrollingFrame") then object.ScrollBarImageColor3 = replaceColor(object.ScrollBarImageColor3) end
-            end) end
+        local paletteChanged = false
+        for role, value in pairs(nextColors) do
+            if value ~= old[role] then paletteChanged = true; break end
+        end
+        -- Scale/transparency changes do not require walking the entire menu.
+        if paletteChanged then
+            for _, root in ipairs({screenGui, toggleGui}) do
+                local objects = {root}
+                for _, object in ipairs(root:GetDescendants()) do objects[#objects+1] = object end
+                for _, object in ipairs(objects) do pcall(function()
+                    if object:IsA("GuiObject") then
+                        object.BackgroundColor3 = replaceColor(object.BackgroundColor3)
+                        object.BorderColor3 = replaceColor(object.BorderColor3)
+                    end
+                    if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then
+                        object.TextColor3 = replaceColor(object.TextColor3)
+                    end
+                    if object:IsA("TextBox") then object.PlaceholderColor3 = replaceColor(object.PlaceholderColor3) end
+                    if object:IsA("ImageLabel") or object:IsA("ImageButton") then object.ImageColor3 = replaceColor(object.ImageColor3) end
+                    if object:IsA("UIStroke") then object.Color = replaceColor(object.Color) end
+                    if object:IsA("ScrollingFrame") then object.ScrollBarImageColor3 = replaceColor(object.ScrollBarImageColor3) end
+                end) end
+            end
         end
         for role, value in pairs(nextColors) do C[role] = value end
         main.BackgroundColor3 = C.Main
@@ -14691,13 +14703,13 @@ function buildXCUI()
             guiObject.InputChanged:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
             end)
-            UserInputService.InputChanged:Connect(function(input)
+            table.insert(connections, UserInputService.InputChanged:Connect(function(input)
                 if dragging and input == dragInput then
                     local d = input.Position - startPos
                     guiObject.Position = UDim2.fromOffset(startGui.X.Offset + d.X, startGui.Y.Offset + d.Y)
                 end
-            end)
-            UserInputService.InputEnded:Connect(function(input)
+            end))
+            table.insert(connections, UserInputService.InputEnded:Connect(function(input)
                 if dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                     dragging = false
                     local slot = nearestBuilderSlot(guiObject, horizontalOnly)
@@ -14706,7 +14718,7 @@ function buildXCUI()
                     task.defer(function() if refreshESPPreview then refreshESPPreview() end end)
                     scheduleConfigAutoSave()
                 end
-            end)
+            end))
         end
 
         makeBuilderDraggable(tag, "espNamePosition", false)
@@ -16015,6 +16027,9 @@ function buildXCUI()
     task.wait()
     L, R = columns("Settings", "Interface", "Advanced settings")
     local menuPresets={
+        ["NeverLose"]={10,17,25,7,12,19,65,180,235,230,240,250},
+        ["Gamesense"]={17,17,17,12,12,12,152,204,0,235,235,235},
+        ["NixWare"]={20,18,27,14,12,21,174,134,245,239,235,248},
         ["XC Lime"]={17,17,17,12,12,12,152,204,0,235,235,235},
         ["Midnight"]={10,13,20,8,10,17,65,142,255,232,238,248},
         ["Violet"]={16,12,21,12,9,17,166,92,255,239,232,248},
@@ -16029,7 +16044,7 @@ function buildXCUI()
         applyMenuTheme();scheduleConfigAutoSave()
     end
     section(L,"menu appearance")
-    addChoice(L,"Theme preset","menuThemePreset",{"XC Lime","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
+    addChoice(L,"Theme preset","menuThemePreset",{"XC Lime","NeverLose","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
     addSlider(L,"Interface scale","uiScale",0.65,1.25,0.05,"x",applyMenuTheme)
     addSlider(L,"Menu transparency","menuTransparency",0,0.45,0.05,"",applyMenuTheme)
     addToggle(L,"Link menu and ESP color","linkMenuAndEspColor",function() applyMenuTheme() end)
@@ -16390,11 +16405,23 @@ function buildXCUI()
         end
         clearSearch.TextColor3 = query ~= "" and C.Lime or C.Muted
     end
-    table.insert(connections, searchBox:GetPropertyChangedSignal("Text"):Connect(applySearch))
+    local searchRevision = 0
+    table.insert(connections, searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+        searchRevision = searchRevision + 1
+        local revision = searchRevision
+        task.delay(0.12, function()
+            if revision == searchRevision and xcSessionActive() and screenGui.Parent then
+                applySearch()
+            end
+        end)
+    end))
     task.spawn(function()
         while xcSessionActive() and screenGui.Parent do
             task.wait(0.75)
-            for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
+            if not xcSessionActive() or not screenGui.Parent then break end
+            if main.Visible then
+                for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
+            end
         end
     end)
     switchPage("Rage")
@@ -16406,6 +16433,9 @@ function buildXCUI()
         main.Visible = not main.Visible
         menuVisible = main.Visible
         XCFeatureState.menuOpen = main.Visible
+        if main.Visible then
+            for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
+        end
     end
     table.insert(connections, UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
