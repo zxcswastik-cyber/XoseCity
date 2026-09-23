@@ -352,9 +352,12 @@ local XCConfig = {
     tagTransparency = 0.25,
     espShowDistance = true,
     espShowHealth = true,
+    espShowVisibility = false,
     tagShowWeapon = true,
     boxThickness = 1.0,
     espBoxSmoothing = 0.42,
+    espBoxMode = "Adaptive",
+    visualRefreshFPS = 30,
     espFixedScale = true,
     espFixedBoxHeight = 36,
     espPerspectiveScale = 1.0,
@@ -522,7 +525,7 @@ local XCVisualLookPresets = {
         espHiddenR=185, espHiddenG=112, espHiddenB=250,
         chamsVisibleR=96, chamsVisibleG=162, chamsVisibleB=255,
         chamsHiddenR=185, chamsHiddenG=112, chamsHiddenB=250,
-        chamsStyle="Solid", chamsAnimationFPS=24,
+        chamsStyle="Solid", chamsAnimationFPS=24, espBoxMode="Adaptive",
     },
     ["Gamesense Classic"] = {
         menuThemePreset="Gamesense", menuBackgroundR=17, menuBackgroundG=17, menuBackgroundB=17,
@@ -532,7 +535,7 @@ local XCVisualLookPresets = {
         espHiddenR=113, espHiddenG=117, espHiddenB=123,
         chamsVisibleR=152, chamsVisibleG=204, chamsVisibleB=0,
         chamsHiddenR=113, chamsHiddenG=117, chamsHiddenB=123,
-        chamsStyle="Shaded", chamsAnimationFPS=24,
+        chamsStyle="Shaded", chamsAnimationFPS=24, espBoxMode="Adaptive",
     },
     ["NixWare Violet"] = {
         menuThemePreset="NixWare", menuBackgroundR=20, menuBackgroundG=18, menuBackgroundB=27,
@@ -542,7 +545,7 @@ local XCVisualLookPresets = {
         espHiddenR=86, espHiddenG=144, espHiddenB=205,
         chamsVisibleR=174, chamsVisibleG=134, chamsVisibleB=245,
         chamsHiddenR=86, chamsHiddenG=144, chamsHiddenB=205,
-        chamsStyle="Glow Outline", chamsAnimationFPS=24,
+        chamsStyle="Glow Outline", chamsAnimationFPS=24, espBoxMode="Adaptive",
     },
 }
 local function xcApplyVisualLookPreset(name, refreshControl)
@@ -10749,17 +10752,27 @@ function renderXCSkeleton(esp, char, color, distance)
     }
     local alpha = XCConfig.skeletonDistanceFade
         and math.clamp(1 - distance / math.max(1, XCConfig.espMaxDist), 0.18, 1) or 1
+    local projections = {}
+    local function project(name)
+        if projections[name] ~= nil then return projections[name] or nil end
+        local worldPoint = points[name]
+        if not worldPoint then projections[name] = false; return nil end
+        local point, onScreen = camera:WorldToViewportPoint(worldPoint)
+        projections[name] = onScreen and point.Z > 0 and Vector2.new(point.X, point.Y) or false
+        return projections[name] or nil
+    end
     for index, edge in ipairs(XCFeatureState.skeletonEdges) do
         local line = esp.SkeletonLines[index]
-        local a, b = points[edge[1]], points[edge[2]]
+        if not line then
+            line = Instance.new("Frame", overlayContainer)
+            line.Name = "Skeleton_" .. tostring(index)
+            line.BorderSizePixel = 0
+            line.Visible = false
+            esp.SkeletonLines[index] = line
+        end
+        local a, b = project(edge[1]), project(edge[2])
         if a and b then
-            local pa, va = camera:WorldToViewportPoint(a)
-            local pb, vb = camera:WorldToViewportPoint(b)
-            if va and vb and pa.Z > 0 and pb.Z > 0 then
-                setXCSkeletonLine(line, Vector2.new(pa.X, pa.Y), Vector2.new(pb.X, pb.Y), color, alpha)
-            else
-                line.Visible = false
-            end
+            setXCSkeletonLine(line, a, b, color, alpha)
         else
             line.Visible = false
         end
@@ -10928,14 +10941,8 @@ function getOrCreateScreenEsp(plr)
     tagLabel.TextSize = XCConfig.espTextSize
     tagLabel.Font = Enum.Font.GothamBold
 
+    -- Skeleton lines are allocated only when Skeleton ESP is enabled.
     local skeletonLines = {}
-    for index = 1, #XCFeatureState.skeletonEdges do
-        local line = Instance.new("Frame", overlayContainer)
-        line.Name = "Skeleton_" .. plr.Name .. "_" .. index
-        line.BorderSizePixel = 0
-        line.Visible = false
-        skeletonLines[index] = line
-    end
 
     local data = {
         Box = box,
@@ -10944,6 +10951,7 @@ function getOrCreateScreenEsp(plr)
         BoxOutlineStroke = outlineStroke,
         HealthBarBg = healthBarBg,
         HealthBarFill = healthBarFill,
+        HealthGradient = healthGradient,
         WeaponCard = weaponCard,
         WeaponCardStroke = weaponCardStroke,
         WeaponImageShadow = weaponImageShadow,
@@ -11217,6 +11225,26 @@ local function getXCEspDistanceAlpha(distance)
     return 1 - (1 - minAlpha) * t
 end
 
+local function xcEspHealthColor(fraction, high, mid, low)
+    if fraction <= 0.5 then return low:Lerp(mid, fraction * 2) end
+    return mid:Lerp(high, (fraction - 0.5) * 2)
+end
+
+-- Existing holders still run through the renderer so they can be hidden on
+-- death, team change, or distance; new holders are only made for targets.
+local function xcShouldAllocateScreenEsp(enemy, alive, hasRoot, distance, maxDistance, cached)
+    return cached or (enemy and alive and hasRoot and distance <= maxDistance)
+end
+
+local xcEspVisibilityCache = {}
+local function getXCEspVisibility(char, targetPart)
+    local cached = xcEspVisibilityCache[char]
+    if cached ~= nil then return cached end
+    local visible = isVisibleThroughWalls(targetPart, char)
+    xcEspVisibilityCache[char] = visible
+    return visible
+end
+
 --// TACTICAL ESP
 local tacticalOverlayWasActive = false
 function hideTacticalOverlay()
@@ -11244,6 +11272,8 @@ function getXCCharacterScreenRect(esp, char, rootPart)
     end
 
     local rootPosition = rootPart.Position
+    local boxMode = XCConfig.espBoxMode == "Classic" and "Classic" or "Adaptive"
+    if esp.LastBoxMode ~= boxMode then esp.SmoothRect = nil; esp.LastBoxMode = boxMode end
     local currentFov = math.clamp(tonumber(camera.FieldOfView) or 70, 10, 120)
     if esp.LastProjectionFov and math.abs(esp.LastProjectionFov - currentFov) > 0.05 then
         esp.SmoothRect = nil
@@ -11259,22 +11289,36 @@ function getXCCharacterScreenRect(esp, char, rootPart)
     local preferredAspect = math.clamp(tonumber(XCConfig.espBoxAspect) or 0.52, 0.38, 0.8)
     local perspectiveScale = math.clamp(tonumber(XCConfig.espPerspectiveScale) or 1, 0.65, 1.5)
 
-    -- Project a fixed six-stud body against a virtual 70-degree camera. The
-    -- position follows the live camera, while box size uses radial distance
-    -- only—not camera yaw, Custom FOV, or render order.
     local distance = (rootPosition - camera.CFrame.Position).Magnitude
-    if distance <= 0.2 then
-        esp.SmoothRect = nil
-        return nil
-    end
+    if distance <= 0.2 then esp.SmoothRect = nil; return nil end
 
-    local referenceFocal = viewport.Y / (2 * math.tan(math.rad(35)))
-    local projectedHeight = (6 * referenceFocal / distance) * perspectiveScale
+    local referenceFocal = viewport.Y / (2 * math.tan(math.rad(currentFov * 0.5)))
+    local centerScreenX, centerScreenY = rootScreen.X, rootScreen.Y
+    local projectedHeight
+    if boxMode == "Adaptive" then
+        local head = char:FindFirstChild("Head")
+        local leftFoot = char:FindFirstChild("LeftFoot") or char:FindFirstChild("Left Leg")
+        local rightFoot = char:FindFirstChild("RightFoot") or char:FindFirstChild("Right Leg")
+        local foot = leftFoot and rightFoot
+            and (leftFoot.Position.Y < rightFoot.Position.Y and leftFoot or rightFoot)
+            or leftFoot or rightFoot
+        if head and foot then
+            local top = camera:WorldToViewportPoint(head.Position + Vector3.new(0, head.Size.Y * 0.5, 0))
+            local bottom = camera:WorldToViewportPoint(foot.Position - Vector3.new(0, foot.Size.Y * 0.5, 0))
+            if top.Z > 0.2 and bottom.Z > 0.2 then
+                projectedHeight = math.abs(bottom.Y - top.Y)
+                centerScreenX = (top.X + bottom.X) * 0.5
+                centerScreenY = (top.Y + bottom.Y) * 0.5
+            end
+        end
+    end
+    if not projectedHeight or projectedHeight < 8 then
+        projectedHeight = 6 * referenceFocal / distance
+    end
+    projectedHeight = projectedHeight * perspectiveScale
     local maxHeight = math.max(80, viewport.Y * 0.72)
     local height = math.clamp(projectedHeight, 16, maxHeight)
     local width = height * preferredAspect
-    local centerScreenX = rootScreen.X
-    local centerScreenY = rootScreen.Y
     local target = {
         X = centerScreenX - width * 0.5,
         Y = centerScreenY - height * 0.5,
@@ -11317,25 +11361,26 @@ function renderTacticalOverlay()
     end
     tacticalOverlayWasActive = true
     local camPos = camera.CFrame.Position
-    local allPlayers = Players:GetPlayers()
 
-    for i = 1, #allPlayers do
-        local plr = allPlayers[i]
-        local esp = getOrCreateScreenEsp(plr)
+    for plr in pairs(activeEspHolders) do
+        repeat
         local char = plr.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
-        local head = char and char:FindFirstChild("Head")
-
         local isEnemy = isTargetEnemy(plr, char)
         local isAlive = isEntityAlive(char, hum)
+        local dist = rootPart and (rootPart.Position - camPos).Magnitude or math.huge
+        local esp = screenEspCache[plr]
+        if not xcShouldAllocateScreenEsp(isEnemy, isAlive, rootPart ~= nil, dist,
+            XCConfig.espMaxDist, esp ~= nil) then break end
+        esp = esp or getOrCreateScreenEsp(plr)
+        local head = char and char:FindFirstChild("Head")
         local health, maxHealth = getXCHealth(char, plr, hum)
 
         if isEnemy and isAlive and rootPart and active then
-            local dist = (rootPart.Position - camPos).Magnitude
 
             if dist <= XCConfig.espMaxDist then
-                local isVisible = isVisibleThroughWalls(head or rootPart, char)
+                local isVisible = getXCEspVisibility(char, head or rootPart)
                 local sideColor = isVisible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
 
                 local screenRect = getXCCharacterScreenRect(esp, char, rootPart)
@@ -11436,7 +11481,7 @@ function renderTacticalOverlay()
                             and (boxPosX + boxWidth + barGap)
                             or (boxPosX - barWidth - barGap)
                         local barY = boxPosY
-                        local fillHeight = math.max(1, math.floor((boxHeight - 2) * hpPercent + 0.5))
+                        local fillHeight = math.max(0, math.floor((boxHeight - 2) * hpPercent + 0.5))
 
                         esp.HealthBarBg.Size = UDim2.new(0, barWidth, 0, boxHeight)
                         esp.HealthBarBg.Position = UDim2.new(0, barX, 0, barY)
@@ -11447,18 +11492,14 @@ function renderTacticalOverlay()
                         esp.HealthBarFill.Size = UDim2.fromOffset(barWidth - 2, fillHeight)
                         
                         esp.HealthBarFill.BackgroundColor3 = Color3.new(1, 1, 1)
-                        local healthGradient = esp.HealthBarFill:FindFirstChild("HealthGradient")
-                        local healthHigh = isVisible and currentTheme.HealthHigh or currentTheme.Enemy_Hidden
-                        local healthMid = isVisible and currentTheme.HealthMid or currentTheme.Enemy_Hidden
-                        local healthLow = isVisible and currentTheme.HealthLow or currentTheme.Enemy_Hidden
-                        if healthGradient and (esp.HealthGradientHigh ~= healthHigh
-                            or esp.HealthGradientMid ~= healthMid or esp.HealthGradientLow ~= healthLow) then
-                            healthGradient.Color = ColorSequence.new({
-                                ColorSequenceKeypoint.new(0, healthHigh),
-                                ColorSequenceKeypoint.new(0.55, healthMid),
-                                ColorSequenceKeypoint.new(1, healthLow),
+                        local healthColor = xcEspHealthColor(hpPercent,
+                            currentTheme.HealthHigh, currentTheme.HealthMid, currentTheme.HealthLow)
+                        if esp.HealthGradientColor ~= healthColor then
+                            esp.HealthGradient.Color = ColorSequence.new({
+                                ColorSequenceKeypoint.new(0, healthColor),
+                                ColorSequenceKeypoint.new(1, healthColor:Lerp(Color3.new(0, 0, 0), 0.32)),
                             })
-                            esp.HealthGradientHigh, esp.HealthGradientMid, esp.HealthGradientLow = healthHigh, healthMid, healthLow
+                            esp.HealthGradientColor = healthColor
                         end
                     else
                         esp.HealthBarBg.Visible = false
@@ -11482,6 +11523,9 @@ function renderTacticalOverlay()
                         end
                         if XCConfig.espShowHealth and health then
                             infoText = string.format("%s [%dHP]", infoText, math.floor(health + 0.5))
+                        end
+                        if XCConfig.espShowVisibility then
+                            infoText = infoText .. (isVisible and " [VIS]" or " [WALL]")
                         end
                         if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then
                             local tool = char:FindFirstChildOfClass("Tool")
@@ -11538,6 +11582,7 @@ function renderTacticalOverlay()
             esp.TagCard.Visible = false
             hideXCSkeleton(esp)
         end
+        until true
     end
 end
 --// CHAMS 4.1 — STABLE MATERIAL SHELL ENGINE
@@ -11549,6 +11594,10 @@ end
 --   * accessories excluded by default to reduce overlapping geometry
 
 local XC_CHAM_PART_CAP = 32
+local XC_CHAM_STYLES = {
+    Shaded = true, Solid = true, Glow = true, ["Glow Outline"] = true,
+    Iridescent = true, ["Water Flow"] = true, Glossy = true,
+}
 
 local function xcClamp01(v)
     return math.clamp(tonumber(v) or 0, 0, 1)
@@ -11681,6 +11730,8 @@ local function destroyXCChamShells(data)
     data.ChamLastAnimation = 0
     data.ChamLastStyle = nil
     data.ChamLastColor = nil
+    data.NextPartScan = nil
+    data.ChamExcludeAccessories = nil
 end
 
 local function hideXCChamShells(data)
@@ -11695,28 +11746,34 @@ end
 local function ensureXCChamShells(data, char)
     if not data or not char then return false end
 
-    local parts = xcEligibleChamParts(char)
-    local currentCount = #parts
-
+    local now = os.clock()
     local valid = data.ChamShellCharacter == char
-        and data.ChamShellFolder
-        and data.ChamShellFolder.Parent
-        and data.ChamShells
-        and #data.ChamShells == currentCount
-        and data.ChamShellPartCount == currentCount
+        and data.ChamShellFolder and data.ChamShellFolder.Parent
+        and data.ChamShells and #data.ChamShells == data.ChamShellPartCount
+        and data.ChamExcludeAccessories == XCConfig.chamsExcludeAccessories
 
     if valid then
         for _, entry in ipairs(data.ChamShells) do
-            if not entry.Original or not entry.Original.Parent
-                or not entry.Shell or not entry.Shell.Parent
-            then
+            if not entry.Original or not entry.Original:IsDescendantOf(char)
+                or not entry.Shell or not entry.Shell.Parent then
                 valid = false
                 break
             end
         end
     end
+    if valid and now < (data.NextPartScan or 0) then return true end
 
-    if valid then return true end
+    local parts = xcEligibleChamParts(char)
+    local currentCount = #parts
+    if valid and currentCount == data.ChamShellPartCount then
+        for index, original in ipairs(parts) do
+            if data.ChamShells[index].Original ~= original then valid = false; break end
+        end
+        if valid then
+            data.NextPartScan = now + 0.5
+            return true
+        end
+    end
 
     destroyXCChamShells(data)
 
@@ -11727,6 +11784,8 @@ local function ensureXCChamShells(data, char)
     data.ChamShellFolder = folder
     data.ChamShellCharacter = char
     data.ChamShellPartCount = currentCount
+    data.ChamExcludeAccessories = XCConfig.chamsExcludeAccessories
+    data.NextPartScan = now + 0.5
     data.ChamShells = {}
     data.ChamLastAnimation = 0
 
@@ -11887,16 +11946,7 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     if style == "Pulse" then style = "Glow" end
     if style == "Wire" or style == "Outline" then style = "Glow Outline" end
 
-    local validStyles = {
-        ["Shaded"] = true,
-        ["Solid"] = true,
-        ["Glow"] = true,
-        ["Glow Outline"] = true,
-        ["Iridescent"] = true,
-        ["Water Flow"] = true,
-        ["Glossy"] = true,
-    }
-    if not validStyles[style] then style = "Shaded" end
+    if not XC_CHAM_STYLES[style] then style = "Shaded" end
 
     if primary.Parent ~= chamsWorldFolder then
         primary.Parent = chamsWorldFolder
@@ -12084,11 +12134,15 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
         end)
         pcall(function()
             if data.Holder then data.Holder:Destroy() end
+            if data.Tracer then data.Tracer:Destroy() end
         end)
         activeEspHolders[plr] = nil
     end
 end))
 --// MAIN ENGINE RENDER LOOP
+local function xcVisualUpdateInterval(value)
+    return 1 / math.clamp(tonumber(value) or 30, 15, 60)
+end
 local visualOverlayAccumulator = 0
 local interfaceRefreshAccumulator = 0
 local threeDEspWasActive = false
@@ -12209,9 +12263,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
     runMobileTriggerbot()
 
-    visualOverlayAccumulator = visualOverlayAccumulator + (dt)
-    if visualOverlayAccumulator >= (1 / 30) then
-        visualOverlayAccumulator = 0
+    local visualInterval = xcVisualUpdateInterval(XCConfig.visualRefreshFPS)
+    visualOverlayAccumulator = math.min(visualOverlayAccumulator + dt, visualInterval * 2)
+    if visualOverlayAccumulator >= visualInterval then
+        visualOverlayAccumulator = visualOverlayAccumulator - visualInterval
+        table.clear(xcEspVisibilityCache)
         renderTacticalOverlay()
         renderGrenadeOverlays()
         renderXCGrenadeDangerZones()
@@ -12237,7 +12293,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         local dist = rootPart and (rootPart.Position - localPos).Magnitude or 9999
 
         if char and isAlive and (dist <= XCConfig.espMaxDist) then
-            local isVisible = isVisibleThroughWalls(head or rootPart, char)
+            local isVisible = getXCEspVisibility(char, head or rootPart)
             
             if XCConfig.chamsEnabled then
                 local chamsAlly = XCConfig.chamsTeamCheck and ally or false
@@ -13711,6 +13767,9 @@ function buildXCUI()
         flightEnabled = "Moves the character along the camera direction.",
         chamsEnabled = "Adds a local highlight to valid player models.",
         skeletonEspEnabled = "Draws a lightweight R6/R15 skeleton at 30 updates per second.",
+        espShowVisibility = "Adds a VIS or WALL flag to the nametag using the existing ESP visibility check.",
+        visualRefreshFPS = "Controls how often 2D ESP, chams, grenade and sound visuals refresh; lower values reduce work.",
+        espBoxMode = "Adaptive follows head and feet while crouching or jumping; Classic uses distance and camera FOV.",
         skeletonDistanceFade = "Gradually fades skeleton lines at long distances.",
         noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
         hitSoundEnabled = "Plays the selected local sound when enemy health decreases.",
@@ -14866,14 +14925,14 @@ function buildXCUI()
             local healthSide=tostring(XCConfig.espHealthPosition or "Left")
             healthBack.Position=healthSide=="Right" and UDim2.fromOffset(left+width+3,top) or UDim2.fromOffset(left-3,top);healthBack.Size=UDim2.fromOffset(4,height)
             healthBack.Visible=XCConfig.healthBarEnabled
-            local hpHigh=previewVisible and currentTheme.HealthHigh or currentTheme.Enemy_Hidden
-            local hpMid=previewVisible and currentTheme.HealthMid or currentTheme.Enemy_Hidden
-            local hpLow=previewVisible and currentTheme.HealthLow or currentTheme.Enemy_Hidden
+            local hpColor=xcEspHealthColor(0.72,currentTheme.HealthHigh,currentTheme.HealthMid,currentTheme.HealthLow)
             healthFill.BackgroundColor3=Color3.new(1,1,1)
-            healthGradient.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,hpHigh),ColorSequenceKeypoint.new(0.55,hpMid),ColorSequenceKeypoint.new(1,hpLow)})
+            healthGradient.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,hpColor),
+                ColorSequenceKeypoint.new(1,hpColor:Lerp(Color3.new(0,0,0),0.32))})
             local tagText="enemy"
             if XCConfig.espShowDistance then tagText = tagText .. (" [42m]") end
             if XCConfig.espShowHealth then tagText = tagText .. (" [72HP]") end
+            if XCConfig.espShowVisibility then tagText = tagText .. (previewVisible and " [VIS]" or " [WALL]") end
             if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then tagText = tagText .. (" [AK-47]") end
             tag.Text=tagText;tag.TextColor3=color;tag.TextSize=XCConfig.espTextSize;tag.Visible=XCConfig.nametagsEnabled
             tag.TextStrokeColor3=Color3.fromRGB(4,5,6);tag.TextStrokeTransparency=XCConfig.espTextOutline and 0.35 or 1
@@ -14904,7 +14963,7 @@ function buildXCUI()
         mode.Activated:Connect(function() previewVisible=not previewVisible;refreshPreview() end)
         for _,key in ipairs({"boxEspEnabled","cornerBoxEnabled","healthBarEnabled","nametagsEnabled","chamsEnabled","skeletonEspEnabled",
             "tracersEnabled","headDotEnabled","weaponEspEnabled","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline",
-            "espTextSize","espShowDistance","espShowHealth","tagShowWeapon","espNamePosition","espHealthPosition","espWeaponPosition",
+            "espTextSize","espShowDistance","espShowHealth","espShowVisibility","tagShowWeapon","espNamePosition","espHealthPosition","espWeaponPosition",
             "espTextOutline","espDistanceFade","espFadeStart","espMinOpacity","chamsStyle","chamsUseEspPalette","chamsFillTransparency",
             "chamsRoughness","chamsMetal","chamsGlowBrightness","chamsGlowZoneSize","chamsGlowOutlineFill",
             "chamsIridescentIntensity","chamsIridescentRoughness","chamsIridescentSpeed","chamsWaterFlowSpeed",
@@ -15775,6 +15834,7 @@ function buildXCUI()
         end
     end)
     addNote(R, "Presets set ESP, chams and menu colors. Fine-tune each control below.")
+    addSlider(R, "Visual refresh", "visualRefreshFPS", 15, 60, 5, "fps")
     section(L, "Box ESP")
     toggle(L, "Box overlay", "boxEspEnabled")
     toggle(L, "Corner box", "cornerBoxEnabled")
@@ -15782,6 +15842,7 @@ function buildXCUI()
     toggle(L, "Dark ESP outline", "espBoxOutline")
     addSlider(L, "ESP distance", "espMaxDist", 100, 5000, 50, "")
     addSlider(L, "Box stability", "espBoxSmoothing", 0, 0.9, 0.05, "")
+    addChoice(L, "Box fit", "espBoxMode", {"Adaptive", "Classic"}, refreshESPPreview)
     addSlider(L, "ESP scale", "espPerspectiveScale", 0.65, 1.5, 0.05, "x")
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
     section(L, "Chams 4.1 Stable")
@@ -15831,6 +15892,7 @@ function buildXCUI()
     addSlider(L, "Text size", "espTextSize", 8, 20, 1, "")
     toggle(L, "Show distance", "espShowDistance")
     toggle(L, "Show health", "espShowHealth")
+    toggle(L, "Visibility flag", "espShowVisibility")
     toggle(L, "Show weapon", "tagShowWeapon")
     section(L, "ESP Builder")
     addChoice(L, "Name position", "espNamePosition", {"Top", "Bottom", "Left", "Right"}, refreshESPPreview)
