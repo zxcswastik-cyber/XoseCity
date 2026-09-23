@@ -10770,54 +10770,165 @@ function renderTacticalOverlay()
         end
     end
 end
---// CHAMS 2.0
+--// CHAMS 2.1
+-- One Highlight per player is kept for the core fill/outline. Extra styles
+-- use adornments instead of stacking multiple Highlights on the same model.
+-- This avoids Roblox Highlight stacking/limit issues and makes every style
+-- visually distinct.
 local function clearXCWireChams(data)
-    if not data or not data.WireBoxes then return end
-    for _, adornment in ipairs(data.WireBoxes) do
-        pcall(function() adornment:Destroy() end)
+    if not data then return end
+    for _, entry in ipairs(data.ExtraChams or {}) do
+        local object = entry.Object or entry
+        pcall(function()
+            if object then object:Destroy() end
+        end)
+    end
+    data.ExtraChams = {}
+    data.ExtraChamsStyle = nil
+    data.ExtraChamsCharacter = nil
+
+    -- Backward compatibility with the first Chams 2.0 build.
+    for _, object in ipairs(data.WireBoxes or {}) do
+        pcall(function()
+            if object then object:Destroy() end
+        end)
     end
     data.WireBoxes = {}
     data.WireCharacter = nil
 end
 
-local function ensureXCWireChams(data, char)
+local function ensureXCExtraChams(data, char, style)
     if not data or not char then return end
-    if data.WireCharacter == char and data.WireBoxes and #data.WireBoxes > 0 then return end
+    if style ~= "Wire" and style ~= "Glow" then
+        clearXCWireChams(data)
+        return
+    end
+
+    if data.ExtraChamsCharacter == char
+        and data.ExtraChamsStyle == style
+        and data.ExtraChams
+        and #data.ExtraChams > 0
+    then
+        return
+    end
+
     clearXCWireChams(data)
-    data.WireCharacter = char
-    data.WireBoxes = {}
+    data.ExtraChamsCharacter = char
+    data.ExtraChamsStyle = style
+    data.ExtraChams = {}
+
     for _, part in ipairs(char:GetDescendants()) do
-        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Transparency < 0.98 then
-            local box = Instance.new("SelectionBox")
-            box.Name = "XCWireCham"
-            box.Adornee = part
-            box.Color3 = currentTheme.Enemy_Accent
-            box.SurfaceTransparency = 1
-            box.LineThickness = math.clamp(tonumber(XCConfig.chamsWireThickness) or 0.035, 0.01, 0.12)
-            box.Transparency = 0
-            pcall(function() box.AlwaysOnTop = true end)
-            box.Parent = part
-            table.insert(data.WireBoxes, box)
+        if part:IsA("BasePart")
+            and part.Name ~= "HumanoidRootPart"
+            and part.Transparency < 0.98
+        then
+            if style == "Wire" then
+                local box = Instance.new("SelectionBox")
+                box.Name = "XCWireCham"
+                box.Adornee = part
+                box.Color3 = currentTheme.Enemy_Accent
+                box.SurfaceColor3 = currentTheme.Enemy_Accent
+                box.SurfaceTransparency = 1
+                box.LineThickness = math.clamp(
+                    tonumber(XCConfig.chamsWireThickness) or 0.035,
+                    0.01,
+                    0.12
+                )
+                box.Transparency = 0.02
+                pcall(function() box.AlwaysOnTop = true end)
+                box.Parent = part
+                table.insert(data.ExtraChams, {
+                    Object = box,
+                    Part = part,
+                    Kind = "Wire",
+                })
+            elseif style == "Glow" then
+                local shell = Instance.new("BoxHandleAdornment")
+                shell.Name = "XCGlowCham"
+                shell.Adornee = part
+                shell.AlwaysOnTop = true
+                shell.ZIndex = 5
+                shell.Size = part.Size + Vector3.new(0.055, 0.055, 0.055)
+                shell.CFrame = CFrame.new()
+                shell.Color3 = currentTheme.Enemy_Accent
+                shell.Transparency = 0.76
+                shell.Visible = false
+                shell.Parent = part
+                table.insert(data.ExtraChams, {
+                    Object = shell,
+                    Part = part,
+                    Kind = "Glow",
+                })
+            end
         end
     end
 end
 
-local function setXCWireChams(data, char, enabled, color)
-    if not enabled then
-        if data and data.WireBoxes then
-            for _, box in ipairs(data.WireBoxes) do pcall(function() box.Visible = false end) end
+local function setXCExtraChams(data, char, style, enabled, color, now)
+    if not data then return end
+
+    if not enabled or (style ~= "Wire" and style ~= "Glow") then
+        for _, entry in ipairs(data.ExtraChams or {}) do
+            local object = entry.Object or entry
+            pcall(function()
+                object.Visible = false
+            end)
         end
         return
     end
-    ensureXCWireChams(data, char)
-    local thickness = math.clamp(tonumber(XCConfig.chamsWireThickness) or 0.035, 0.01, 0.12)
-    for _, box in ipairs(data.WireBoxes or {}) do
+
+    ensureXCExtraChams(data, char, style)
+    local wireThickness = math.clamp(
+        tonumber(XCConfig.chamsWireThickness) or 0.035,
+        0.01,
+        0.12
+    )
+    local pulseSpeed = math.clamp(
+        tonumber(XCConfig.chamsPulseSpeed) or 2,
+        0.2,
+        8
+    )
+    local wave = (math.sin((now or os.clock()) * pulseSpeed * math.pi) + 1) * 0.5
+
+    for _, entry in ipairs(data.ExtraChams or {}) do
+        local object = entry.Object or entry
+        local part = entry.Part
         pcall(function()
-            box.Color3 = color
-            box.LineThickness = thickness
-            box.Visible = true
+            if not object or not object.Parent or not part or not part.Parent then
+                return
+            end
+
+            if entry.Kind == "Wire" then
+                object.Color3 = color
+                object.SurfaceColor3 = color
+                object.LineThickness = wireThickness
+                object.Transparency = 0.02
+                object.SurfaceTransparency = 1
+                object.Visible = true
+            elseif entry.Kind == "Glow" then
+                object.Color3 = color:Lerp(Color3.new(1, 1, 1), 0.16 + wave * 0.08)
+                object.Size = part.Size + Vector3.new(
+                    0.045 + wave * 0.035,
+                    0.045 + wave * 0.035,
+                    0.045 + wave * 0.035
+                )
+                object.Transparency = math.clamp(0.80 - wave * 0.10, 0.64, 0.86)
+                object.Visible = true
+            end
         end)
     end
+end
+
+-- Kept for the existing render-loop cleanup calls.
+local function setXCWireChams(data, char, enabled, color)
+    setXCExtraChams(
+        data,
+        char,
+        "Wire",
+        enabled,
+        color or currentTheme.Enemy_Accent,
+        os.clock()
+    )
 end
 
 local function getXCChamsColor(ally, isVisible, now)
@@ -10831,60 +10942,113 @@ local function getXCChamsColor(ally, isVisible, now)
             and xcConfigColor("chamsVisible", currentTheme.Enemy_Accent)
             or xcConfigColor("chamsHidden", currentTheme.Enemy_Hidden)
     end
+
     if tostring(XCConfig.chamsStyle or "Solid") == "Iridescent" then
-        local speed = math.clamp(tonumber(XCConfig.chamsIridescentSpeed) or 0.12, 0.02, 0.5)
-        local h = ((now or os.clock()) * speed + (ally and 0.55 or (isVisible and 0 or 0.12))) % 1
+        local speed = math.clamp(
+            tonumber(XCConfig.chamsIridescentSpeed) or 0.12,
+            0.02,
+            0.5
+        )
+        local h = (
+            (now or os.clock()) * speed
+            + (ally and 0.55 or (isVisible and 0 or 0.12))
+        ) % 1
         color = Color3.fromHSV(h, 0.78, 1)
     end
+
     return color
 end
 
 local function applyXCChamsStyle(data, char, ally, isVisible, now)
+    if not data or not data.Highlight or not char then return end
+
     local primary = data.Highlight
-    local glow = data.GlowHighlight
+    local legacyGlow = data.GlowHighlight
     local style = tostring(XCConfig.chamsStyle or "Solid")
+    local validStyles = {
+        Solid = true,
+        Shaded = true,
+        Glow = true,
+        Outline = true,
+        Iridescent = true,
+        Pulse = true,
+        Wire = true,
+    }
+    if not validStyles[style] then style = "Solid" end
+
     local color = getXCChamsColor(ally, isVisible, now)
-    local fill = math.clamp(tonumber(XCConfig.chamsFillTransparency) or 0.45, 0, 1)
-    local outline = math.clamp(tonumber(XCConfig.chamsOutlineTransparency) or 0.10, 0, 1)
+    local fill = math.clamp(
+        tonumber(XCConfig.chamsFillTransparency) or 0.45,
+        0,
+        1
+    )
+    local outline = math.clamp(
+        tonumber(XCConfig.chamsOutlineTransparency) or 0.10,
+        0,
+        1
+    )
+
+    -- The old secondary Highlight is intentionally never enabled. Keeping it
+    -- disabled preserves compatibility with holders made by the previous build
+    -- without consuming an active Highlight slot.
+    if legacyGlow then
+        legacyGlow.Enabled = false
+    end
 
     if style == "Wire" then
         primary.Enabled = false
-        glow.Enabled = false
-        setXCWireChams(data, char, true, color)
+        setXCExtraChams(data, char, "Wire", true, color, now)
         return
     end
-    setXCWireChams(data, char, false, color)
+
+    setXCExtraChams(data, char, style, style == "Glow", color, now)
+
     primary.Enabled = true
-    glow.Enabled = false
     primary.FillColor = color
     primary.OutlineColor = color
     primary.FillTransparency = fill
     primary.OutlineTransparency = outline
+    primary.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 
     if style == "Shaded" then
-        primary.FillColor = color:Lerp(Color3.fromRGB(8, 9, 10), 0.28)
-        primary.OutlineColor = color
-        primary.FillTransparency = math.clamp(fill - 0.12, 0, 1)
-        primary.OutlineTransparency = math.clamp(outline + 0.18, 0, 1)
+        primary.FillColor = color:Lerp(Color3.fromRGB(4, 5, 6), 0.42)
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.10)
+        primary.FillTransparency = math.clamp(fill - 0.16, 0.05, 0.88)
+        primary.OutlineTransparency = math.clamp(outline + 0.20, 0, 0.92)
     elseif style == "Glow" then
-        primary.FillTransparency = math.max(fill, 0.58)
-        primary.OutlineTransparency = math.min(outline, 0.04)
-        glow.Enabled = true
-        glow.FillTransparency = 1
-        glow.OutlineTransparency = 0.48
-        glow.FillColor = color
-        glow.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.28)
+        primary.FillColor = color
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.30)
+        primary.FillTransparency = math.max(fill, 0.68)
+        primary.OutlineTransparency = math.min(outline, 0.025)
     elseif style == "Outline" then
         primary.FillTransparency = 1
+        primary.OutlineColor = color
         primary.OutlineTransparency = outline
     elseif style == "Pulse" then
-        local speed = math.clamp(tonumber(XCConfig.chamsPulseSpeed) or 2, 0.2, 8)
-        local wave = (math.sin((now or os.clock()) * speed * math.pi) + 1) * 0.5
-        primary.FillTransparency = math.clamp(fill + wave * 0.28, 0, 0.92)
-        primary.OutlineTransparency = math.clamp(outline + wave * 0.24, 0, 0.85)
+        local speed = math.clamp(
+            tonumber(XCConfig.chamsPulseSpeed) or 2,
+            0.2,
+            8
+        )
+        local wave = (
+            math.sin((now or os.clock()) * speed * math.pi) + 1
+        ) * 0.5
+        primary.FillColor = color:Lerp(Color3.new(1, 1, 1), wave * 0.10)
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), wave * 0.18)
+        primary.FillTransparency = math.clamp(
+            fill + wave * 0.30,
+            0.05,
+            0.92
+        )
+        primary.OutlineTransparency = math.clamp(
+            outline + wave * 0.22,
+            0,
+            0.85
+        )
     elseif style == "Iridescent" then
-        primary.FillTransparency = math.max(0.28, fill)
-        primary.OutlineTransparency = math.min(outline, 0.08)
+        primary.FillTransparency = math.clamp(math.max(0.26, fill), 0, 0.86)
+        primary.OutlineTransparency = math.min(outline, 0.055)
+        primary.OutlineColor = color:Lerp(Color3.new(1, 1, 1), 0.20)
     end
 end
 
@@ -10955,6 +11119,10 @@ function attachEspToPlayer(plr)
             glowHighlight.Adornee = nil
             glowHighlight.Enabled = false
         end
+        local holderData = activeEspHolders[plr]
+        if holderData then
+            clearXCWireChams(holderData)
+        end
     end)
     table.insert(connections, charConn)
     table.insert(connections, charRemConn)
@@ -10967,12 +11135,25 @@ function attachEspToPlayer(plr)
         Highlight = hl,
         GlowHighlight = glowHighlight,
         WireBoxes = {},
-        WireCharacter = nil
+        WireCharacter = nil,
+        ExtraChams = {},
+        ExtraChamsStyle = nil,
+        ExtraChamsCharacter = nil
     }
 end
 
 for _, v in pairs(Players:GetPlayers()) do attachEspToPlayer(v) end
 table.insert(connections, Players.PlayerAdded:Connect(attachEspToPlayer))
+table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
+    local data = activeEspHolders[plr]
+    if data then
+        clearXCWireChams(data)
+        pcall(function()
+            if data.Holder then data.Holder:Destroy() end
+        end)
+        activeEspHolders[plr] = nil
+    end
+end))
 --// MAIN ENGINE RENDER LOOP
 local visualOverlayAccumulator = 0
 local interfaceRefreshAccumulator = 0
@@ -14629,7 +14810,7 @@ function buildXCUI()
     addSlider(L, "Box stability", "espBoxSmoothing", 0, 0.9, 0.05, "")
     addSlider(L, "ESP scale", "espPerspectiveScale", 0.65, 1.5, 0.05, "x")
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
-    section(L, "Chams 2.0")
+    section(L, "Chams 2.1")
     toggle(L, "Chams", "chamsEnabled")
     addChoice(L, "Chams style", "chamsStyle", {"Solid", "Shaded", "Glow", "Outline", "Iridescent", "Pulse", "Wire"}, refreshESPPreview)
     toggle(L, "Use ESP palette", "chamsUseEspPalette")
