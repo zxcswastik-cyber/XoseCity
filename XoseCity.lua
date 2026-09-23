@@ -467,6 +467,48 @@ function deepCopyConfigValue(v)
     return out
 end
 local XCConfigDefaults = deepCopyConfigValue(XCConfig)
+-- One validator for local, public, and external config imports.
+local function xcApplyConfigValues(data, skipPublicSelection)
+    if type(data) ~= "table" then return false end
+    for key, value in pairs(data) do
+        local default = XCConfigDefaults[key]
+        if default ~= nil and (not skipPublicSelection or key ~= "publicConfigSelection") then
+            local expected, actual = typeof(default), typeof(value)
+            if expected == actual then
+                if expected == "number" then
+                    if value == value and math.abs(value) <= 1000000 then
+                        if key == "uiScale" then value = math.clamp(value, 0.65, 1.25)
+                        elseif key == "menuTransparency" then value = math.clamp(value, 0, 0.45)
+                        elseif key:match("[RGB]$") and (key:find("Color") or key:find("Accent")
+                            or key:find("Background") or key:find("Panel") or key:find("Text")
+                            or key:find("Visible") or key:find("Hidden") or key:find("grenade")
+                            or key:find("chams") or key:find("esp")) then
+                            value = math.clamp(math.floor(value + 0.5), 0, 255)
+                        end
+                        XCConfig[key] = value
+                    end
+                elseif expected == "table" then
+                    XCConfig[key] = deepCopyConfigValue(value)
+                elseif expected == "boolean" or expected == "string" then
+                    XCConfig[key] = value
+                end
+            elseif type(value) == "table" and expected == "Color3" and value.__type == "Color3" then
+                local r, g, b = tonumber(value.r), tonumber(value.g), tonumber(value.b)
+                if r and g and b and r == r and g == g and b == b then
+                    XCConfig[key] = Color3.new(math.clamp(r, 0, 1), math.clamp(g, 0, 1), math.clamp(b, 0, 1))
+                end
+            elseif type(value) == "table" and expected == "UDim2" and value.__type == "UDim2" then
+                local xs, xo, ys, yo = tonumber(value.xs), tonumber(value.xo), tonumber(value.ys), tonumber(value.yo)
+                if xs and xo and ys and yo and xs == xs and xo == xo and ys == ys and yo == yo
+                    and math.abs(xo) <= 1000000 and math.abs(yo) <= 1000000 then
+                    XCConfig[key] = UDim2.new(xs, xo, ys, yo)
+                end
+            end
+        end
+    end
+    return true
+end
+
 
 -- Reuse one configuration table between reinjections. Persistent hooks from a
 -- previous run then continue to read the values controlled by the new menu.
@@ -8747,6 +8789,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 end))
 --// CLEANUP ROUTINES
 function cleanup()
+    XCFeatureState.applyLoadedConfig = nil
     XCConfig.silentAimEnabled = false
     setXCSilentAimRequested(false)
     pcall(restoreXCKnifeModel)
@@ -16186,6 +16229,44 @@ function buildXCUI()
         setXCSoundPositionEspEnabled(XCConfig.soundPositionEspEnabled == true)
     end
 
+    local function applySavedConfig(data, skipPublicSelection)
+        if type(data) ~= "table" then return false end
+        setXCStreamerMode(false)
+        local requestedStreamerMode = data.streamerModeEnabled == true
+        xcApplyConfigValues(data, skipPublicSelection)
+        lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
+        lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true or XCConfig.rcsEnabled == true
+        lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
+        refreshAll()
+        -- These controls create or restore state only through their toggle callbacks.
+        local gloveEnabled = XCConfig.gloveChangerEnabled
+        for _, key in ipairs({"jumpCircleEnabled", "skinChangerEnabled", "noFallDamageEnabled",
+            "spectatorListEnabled", "customHandsEnabled", "mapOptimizerEnabled"}) do
+            specialToggle(key, XCConfig[key] == true)
+        end
+        XCConfig.gloveChangerEnabled = gloveEnabled
+        specialToggle("gloveChangerEnabled", gloveEnabled == true)
+        updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
+        if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
+        applyXCWeather(); applyXCSmokeState(); updateWorldChanger()
+        if XCConfig.freecamEnabled then setXCCameraMode("Freecam", true)
+        elseif XCConfig.freelookEnabled then setXCCameraMode("Freelook", true)
+        else stopXCCameraMode() end
+        setAntiAfkEnabled(XCConfig.antiAfkEnabled)
+        if XCConfig.animationsEnabled then playXCAnimation() else stopXCAnimation() end
+        if XCConfig.nightModeEnabled then applyNightPreset(XCConfig.nightPreset)
+        else
+            Lighting.Brightness = defaultLighting.Brightness
+            Lighting.ClockTime = defaultLighting.ClockTime
+            Lighting.GlobalShadows = defaultLighting.GlobalShadows
+            Lighting.Ambient = defaultLighting.Ambient
+            Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
+        end
+        setXCStreamerMode(requestedStreamerMode)
+        return true
+    end
+    XCFeatureState.applyLoadedConfig = applySavedConfig
+
     section(L, "quick actions")
     addButton(L, "PANIC: DISABLE ACTIVE MODULES", function()
         for _, key in ipairs({
@@ -16216,36 +16297,10 @@ function buildXCUI()
     end)
     addButton(ConfigLocal, "LOAD CONFIG", function()
         local ok = pcall(function()
-            setXCStreamerMode(false)
             assert(type(readfile) == "function", "File API unavailable")
             local decoded = HttpService:JSONDecode(readfile(configPath()))
             local data = type(decoded) == "table" and type(decoded.settings) == "table" and decoded.settings or decoded
-            assert(type(data) == "table", "Invalid config format")
-            for key, value in pairs(data) do if XCConfig[key] ~= nil then XCConfig[key] = value end end
-            lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
-            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true or XCConfig.rcsEnabled == true
-            lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
-            refreshAll()
-            updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
-            if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
-            applyXCWeather()
-            applyXCSmokeState()
-            if XCConfig.freecamEnabled then setXCCameraMode("Freecam", true)
-            elseif XCConfig.freelookEnabled then setXCCameraMode("Freelook", true)
-            else stopXCCameraMode() end
-            setXCStreamerMode(XCConfig.streamerModeEnabled)
-            setAntiAfkEnabled(XCConfig.antiAfkEnabled)
-            if XCConfig.animationsEnabled then playXCAnimation() else stopXCAnimation() end
-            if XCConfig.nightModeEnabled then
-                applyNightPreset(XCConfig.nightPreset)
-            else
-                Lighting.Brightness = defaultLighting.Brightness
-                Lighting.ClockTime = defaultLighting.ClockTime
-                Lighting.GlobalShadows = defaultLighting.GlobalShadows
-                Lighting.Ambient = defaultLighting.Ambient
-                Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
-            end
-            updateWorldChanger()
+            assert(applySavedConfig(data), "Invalid config format")
         end)
         status.Text = ok and ("loaded: " .. safeName(nameBox.Text)) or "load failed"
     end)
@@ -16347,27 +16402,8 @@ function buildXCUI()
             local ok, result = XCPublicConfigs.Get(selectedId)
             if not ok then setPublicStatus(result, false); return end
             if type(result.settings) ~= "table" then setPublicStatus("Server returned invalid settings", false); return end
-            setXCStreamerMode(false)
-            for key, value in pairs(result.settings) do
-                if XCConfig[key] ~= nil and key ~= "publicConfigSelection" then
-                    if type(value) == "table" and value.__type == "Color3" then
-                        XCConfig[key] = Color3.new(tonumber(value.r) or 1, tonumber(value.g) or 1, tonumber(value.b) or 1)
-                    elseif type(value) == "table" and value.__type == "UDim2" then
-                        XCConfig[key] = UDim2.new(tonumber(value.xs) or 0, tonumber(value.xo) or 0,
-                            tonumber(value.ys) or 0, tonumber(value.yo) or 0)
-                    else
-                        XCConfig[key] = deepCopyConfigValue(value)
-                    end
-                end
-            end
-            lazyFeatureRequests.fireRate = XCConfig.fireRateEnabled == true
-            lazyFeatureRequests.recoilSpread = XCConfig.noRecoilEnabled == true or XCConfig.noSpreadEnabled == true or XCConfig.rcsEnabled == true
-            lazyFeatureRequests.silentFallback = XCConfig.silentAimEnabled == true
-            refreshAll()
-            updateMobileSlideVisibility(); refreshThirdPerson(); setWeaponVisuals(); updateCustomScope(); updateWorldPostFX()
-            if XCMapVisualActive() then applyXCMapStyle(true) else restoreXCMapStyle() end
-            applyXCWeather(); applyXCSmokeState(); updateWorldChanger()
-            setAntiAfkEnabled(XCConfig.antiAfkEnabled)
+            local applied, applyError = pcall(applySavedConfig, result.settings, true)
+            if not applied then setPublicStatus("Config apply failed: " .. tostring(applyError), false); return end
             setPublicStatus("Loaded: " .. tostring(result.name or selectedId), true)
             XCNotify("Community config", "Loaded " .. tostring(result.name or selectedId), "success", 2)
         end)
@@ -17269,8 +17305,10 @@ local XCConfigSystem = {}
 XCConfigSystem.Folder = "XCConfigs"
 XCConfigSystem.ActiveName = "Default"
 
-function cfgFileAPI()
-    return type(isfile)=="function" and type(readfile)=="function" and type(writefile)=="function"
+function cfgFileAPI(operation)
+    if operation == "save" then return type(writefile) == "function" end
+    if operation == "load" then return type(isfile) == "function" and type(readfile) == "function" end
+    return false
 end
 
 function cfgSafeName(name)
@@ -17318,26 +17356,18 @@ function cfgSerialize()
 end
 
 function cfgApply(data)
-    if type(data)~="table" then return false end
-    setXCStreamerMode(false)
-    local requestedStreamerMode=data.streamerModeEnabled==true
-    for k,v in pairs(data) do
-        if XCConfig[k]~=nil then
-            pcall(function()
-                if type(v)=="table" and v.__type=="Color3" then
-                    XCConfig[k]=Color3.new(tonumber(v.r) or 1,tonumber(v.g) or 1,tonumber(v.b) or 1)
-                elseif type(v)=="table" and v.__type=="UDim2" then
-                    XCConfig[k]=UDim2.new(tonumber(v.xs) or 0,tonumber(v.xo) or 0,tonumber(v.ys) or 0,tonumber(v.yo) or 0)
-                else XCConfig[k]=v end
-            end)
-        end
+    if type(data) ~= "table" then return false end
+    if type(XCFeatureState.applyLoadedConfig) == "function" then
+        return XCFeatureState.applyLoadedConfig(data)
     end
-    setXCStreamerMode(requestedStreamerMode)
+    setXCStreamerMode(false)
+    xcApplyConfigValues(data)
+    setXCStreamerMode(data.streamerModeEnabled == true)
     return true
 end
 
 function XCConfigSystem.Save(name)
-    if not cfgFileAPI() then return false,"File API unavailable" end
+    if not cfgFileAPI("save") then return false,"File API unavailable" end
     name=cfgSafeName(name or XCConfigSystem.ActiveName)
     cfgEnsureFolder()
     local raw=cfgJSONEncode({schema=2,product="XC",name=name,savedAt=os.time(),settings=cfgSerialize()})
@@ -17348,7 +17378,7 @@ function XCConfigSystem.Save(name)
 end
 
 function XCConfigSystem.Load(name)
-    if not cfgFileAPI() then return false,"File API unavailable" end
+    if not cfgFileAPI("load") then return false,"File API unavailable" end
     name=cfgSafeName(name or XCConfigSystem.ActiveName)
     local path=cfgPath(name)
     if not isfile(path) then return false,"Config not found" end
@@ -17357,13 +17387,13 @@ function XCConfigSystem.Load(name)
     local data=cfgJSONDecode(raw)
     if type(data)~="table" then return false,"Invalid config" end
     local settings=type(data.settings)=="table" and data.settings or data
-    cfgApply(settings)
+    if not cfgApply(settings) then return false,"Invalid settings" end
     XCConfigSystem.ActiveName=name
     return true,"Loaded"
 end
 
 function XCConfigSystem.Delete(name)
-    if type(delfile)~="function" then return false,"Delete API unavailable" end
+    if type(delfile)~="function" or type(isfile)~="function" then return false,"Delete API unavailable" end
     name=cfgSafeName(name or XCConfigSystem.ActiveName)
     local path=cfgPath(name)
     if not isfile(path) then return false,"Config not found" end
@@ -17388,7 +17418,7 @@ end
 
 function XCConfigSystem.Reset()
     setXCStreamerMode(false)
-    for k,v in pairs(XCConfigDefaults or {}) do pcall(function() XCConfig[k]=v end) end
+    if not cfgApply(XCConfigDefaults) then return false,"Reset failed" end
     return true,"Reset"
 end
 
@@ -17400,7 +17430,7 @@ function XCConfigSystem.Import(raw,name)
     local data=cfgJSONDecode(raw)
     if type(data)~="table" then return false,"Invalid import" end
     local settings=type(data.settings)=="table" and data.settings or data
-    cfgApply(settings)
+    if not cfgApply(settings) then return false,"Invalid settings" end
     XCConfigSystem.ActiveName=cfgSafeName(name or data.name or "Imported")
     return true,"Imported"
 end
