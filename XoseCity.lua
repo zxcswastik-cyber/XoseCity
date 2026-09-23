@@ -60,13 +60,15 @@ local XCConfig = {
     customHandsYaw = 0,
     customHandsRoll = 0,
     uiScale = 1.0,
-    menuThemePreset = "XC Lime",
+    menuThemePreset = "Liquid Glass",
     visualLookPreset = "Custom",
     menuTransparency = 0,
-    menuAccentR = 152, menuAccentG = 204, menuAccentB = 0,
-    menuBackgroundR = 17, menuBackgroundG = 17, menuBackgroundB = 17,
-    menuPanelR = 12, menuPanelG = 12, menuPanelB = 12,
-    menuTextR = 235, menuTextG = 235, menuTextB = 235,
+    menuGlassEnabled = true,
+    menuGlassStrength = 0.7,
+    menuAccentR = 126, menuAccentG = 139, menuAccentB = 255,
+    menuBackgroundR = 16, menuBackgroundG = 17, menuBackgroundB = 26,
+    menuPanelR = 25, menuPanelG = 26, menuPanelB = 38,
+    menuTextR = 238, menuTextG = 239, menuTextB = 249,
     linkMenuAndEspColor = false,
     espVisibleR = 152, espVisibleG = 204, espVisibleB = 0,
     espHiddenR = 112, espHiddenG = 116, espHiddenB = 122,
@@ -13500,6 +13502,14 @@ function setAntiAfkEnabled(enabled)
     end)
 end
 --// XC SKEET / GAMESENSE INTERFACE
+local function xcGlassOpacity(role, enabled, intensity, base)
+    base = math.max(0, math.min(0.45, tonumber(base) or 0))
+    if not enabled then return base end
+    local amount = math.max(0, math.min(1, tonumber(intensity) or 0.7))
+    local layer = role == "chrome" and 0.42 or role == "main" and 0.17 or 0.11
+    return math.min(0.62, base + layer * amount)
+end
+
 local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedScale, compact, modeOverride)
     local mobile = modeOverride
     if mobile == nil then mobile = touch or viewportX < 760 end
@@ -13575,6 +13585,54 @@ function buildXCUI()
     mainStroke.Thickness = 2
     mainStroke.Parent = main
 
+    -- Static layered highlights: no per-frame blur or viewport captures.
+    local glassSurfaces = {}
+    local function registerGlassSurface(surface, role, stroke)
+        local sheen = Instance.new("UIGradient", surface)
+        sheen.Rotation = 85
+        local rim
+        if stroke then
+            rim = Instance.new("UIGradient", stroke)
+            rim.Rotation = 90
+        end
+        glassSurfaces[#glassSurfaces+1] = {surface = surface, role = role, stroke = stroke,
+            sheen = sheen, rim = rim}
+    end
+    local function refreshGlassSurfaces()
+        local enabled = XCConfig.menuGlassEnabled == true
+        local strength = XCConfig.menuGlassStrength
+        local base = XCConfig.menuTransparency
+        for _, entry in ipairs(glassSurfaces) do
+            local role = entry.role
+            local surface = entry.surface
+            local normal = role == "chrome" and 0.04 or role == "main" and base or 0
+            surface.BackgroundTransparency = xcGlassOpacity(role, enabled, strength, normal)
+            entry.sheen.Enabled = enabled
+            if enabled then
+                local color = role == "main" and C.Main or role == "chrome" and C.Sidebar or C.Panel
+                entry.sheen.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, color:Lerp(C.White, role == "panel" and 0.05 or 0.13)),
+                    ColorSequenceKeypoint.new(0.38, color),
+                    ColorSequenceKeypoint.new(1, color:Lerp(C.Lime, 0.07)),
+                })
+            end
+            if entry.stroke then
+                entry.stroke.Color = enabled and C.White or (role == "main" and C.Black or C.Border)
+                entry.stroke.Transparency = enabled and (role == "main" and 0.58 or 0.82) or 0
+                entry.stroke.Thickness = role == "main" and 1.3 or 1
+                entry.rim.Enabled = enabled
+                if enabled then
+                    entry.rim.Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, C.White),
+                        ColorSequenceKeypoint.new(0.45, C.Lime:Lerp(C.White, 0.7)),
+                        ColorSequenceKeypoint.new(1, C.White:Lerp(C.Main, 0.7)),
+                    })
+                end
+            end
+        end
+    end
+    registerGlassSurface(main, "main", mainStroke)
+
     local scale = Instance.new("UIScale")
     scale.Name = "ResponsiveScale"
     scale.Parent = main
@@ -13597,20 +13655,14 @@ function buildXCUI()
     end
 
     local topLine = Instance.new("Frame")
-    topLine.Size = UDim2.new(1, -4, 0, 2)
-    topLine.Position = UDim2.fromOffset(2, 2)
+    topLine.Size = UDim2.new(1, -24, 0, 1)
+    topLine.Position = UDim2.fromOffset(12, 3)
     topLine.BorderSizePixel = 0
     topLine.BackgroundColor3 = C.Lime
     topLine.ZIndex = 40
     topLine.Parent = main
     local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 210, 255)),
-        ColorSequenceKeypoint.new(0.25, Color3.fromRGB(160, 75, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 65, 140)),
-        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255, 135, 20)),
-        ColorSequenceKeypoint.new(1, C.Lime),
-    })
+    gradient.Color = ColorSequence.new(C.Lime, C.Lime:Lerp(C.Main, 0.68))
     gradient.Parent = topLine
 
     local header = Instance.new("Frame")
@@ -13619,12 +13671,13 @@ function buildXCUI()
     header.BackgroundColor3 = C.Sidebar
     header.BorderSizePixel = 0
     header.Parent = main
+    registerGlassSurface(header, "chrome")
     local brand = Instance.new("TextLabel")
     brand.Name = "Brand"
     brand.Position = UDim2.fromOffset(16, 12)
     brand.Size = UDim2.fromOffset(isMobileLayout and 106 or 136, 28)
     brand.BackgroundTransparency = 1
-    brand.Text = isMobileLayout and "XC /" or "XC  /  STUDIO"
+    brand.Text = isMobileLayout and "XC /" or "XC  /  PRISM"
     brand.TextColor3 = C.White
     brand.Font = Enum.Font.GothamBold
     brand.TextSize = 16
@@ -13691,6 +13744,8 @@ function buildXCUI()
     sidebar.CanvasSize = UDim2.new()
     sidebar.Parent = main
     Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 8)
+    local sidebarRim = Instance.new("UIStroke", sidebar)
+    registerGlassSurface(sidebar, "chrome", sidebarRim)
 
     -- Filled after the floating XC button is created. Keeping this callback
     -- here lets live theme changes recolor both letters without rebuilding UI.
@@ -13741,15 +13796,10 @@ function buildXCUI()
         end
         for role, value in pairs(nextColors) do C[role] = value end
         main.BackgroundColor3 = C.Main
-        main.BackgroundTransparency = math.clamp(tonumber(XCConfig.menuTransparency) or 0, 0, 0.45)
         sidebar.BackgroundColor3 = C.Sidebar
-        sidebar.BackgroundTransparency = math.clamp(main.BackgroundTransparency * 0.7, 0, 0.4)
         topLine.BackgroundColor3 = C.Lime
-        gradient.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0,C.Lime:Lerp(Color3.fromRGB(0,170,255),0.45)),
-            ColorSequenceKeypoint.new(0.48,C.Lime:Lerp(C.White,0.2)),
-            ColorSequenceKeypoint.new(1,C.Lime),
-        })
+        gradient.Color = ColorSequence.new(C.Lime, C.Lime:Lerp(C.Main, 0.68))
+        refreshGlassSurfaces()
         syncXCUserTheme()
         refreshESPPreview()
         openButtonThemeRefresh()
@@ -13778,7 +13828,7 @@ function buildXCUI()
     footer.Size = UDim2.new(1, -28, 0, 18)
     footer.Position = UDim2.new(0, 14, 1, -22)
     footer.BackgroundTransparency = 1
-    footer.Text = "XC STUDIO   •   LOCAL SESSION                                      DRAG TOP EDGE  /  SEARCH THIS TAB"
+    footer.Text = "XC PRISM    •    LOCAL SESSION                                          CUSTOM GLASS  /  QUICK SEARCH"
     footer.TextColor3 = C.Muted
     footer.Font = Enum.Font.Gotham
     footer.TextSize = 9
@@ -13806,6 +13856,8 @@ function buildXCUI()
     searchBar.BorderSizePixel = 0
     searchBar.Parent = main
     Instance.new("UICorner", searchBar).CornerRadius = UDim.new(0, 7)
+    local searchRim = Instance.new("UIStroke", searchBar)
+    registerGlassSurface(searchBar, "chrome", searchRim)
     local searchIcon = Instance.new("TextLabel")
     searchIcon.Size = UDim2.fromOffset(30, 30)
     searchIcon.BackgroundTransparency = 1
@@ -13865,6 +13917,8 @@ function buildXCUI()
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
         fireRateEnabled = "Adjusts the active supported weapon's fire interval. WAIT means no supported active weapon; FALL means a legacy table fallback.",
         fireRate = "Requested seconds between shots. The effective minimum is 0.03 s or 40% of the original interval, whichever is greater.",
+        menuGlassEnabled = "Applies translucent layered navigation and static glass highlights without full-screen blur.",
+        menuGlassStrength = "Controls the transparency and highlight strength of the menu glass surfaces.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
         wallbangEnabled = "Forced wallbang boosts the native penetration path so Silent Aim can shoot through otherwise blocked surfaces.",
         extremeWallbangEnabled = "Extreme wallbang rewrites the final shot payload to the Silent Aim target, matching the direct-hit Send behavior used by Memesense-style scripts.",
@@ -14066,6 +14120,7 @@ function buildXCUI()
         panelStroke.Color = C.Border
         panelStroke.Thickness = 1
         panelStroke.Parent = panel
+        registerGlassSurface(panel, "panel", panelStroke)
 
         local titleLabel = Instance.new("TextLabel")
         titleLabel.Size = UDim2.new(1, -34, 0, 30)
@@ -14077,11 +14132,11 @@ function buildXCUI()
         titleLabel.TextSize = 12
         titleLabel.TextXAlignment = Enum.TextXAlignment.Left
         titleLabel.Parent = panel
-        local titleAccent = Instance.new("Frame", panel)
-        titleAccent.Size = UDim2.fromOffset(3, 17)
-        titleAccent.Position = UDim2.fromOffset(8, 13)
-        titleAccent.BackgroundColor3 = C.Lime
-        titleAccent.BorderSizePixel = 0
+        local titleDivider = Instance.new("Frame", panel)
+        titleDivider.Size = UDim2.new(1, -26, 0, 1)
+        titleDivider.Position = UDim2.fromOffset(13, 37)
+        titleDivider.BackgroundColor3 = C.Border
+        titleDivider.BorderSizePixel = 0
 
         local scroll = Instance.new("ScrollingFrame")
         scroll.Name = "Controls"
@@ -14142,7 +14197,7 @@ function buildXCUI()
         local header = Instance.new("TextButton")
         header.Size = UDim2.new(1, 0, 0, 28)
         header.LayoutOrder = 1
-        header.BackgroundColor3 = C.Control
+        header.BackgroundTransparency = 1
         header.BorderSizePixel = 0
         header.Text = ""
         header.AutoButtonColor = false
@@ -14155,7 +14210,7 @@ function buildXCUI()
         title.Position = UDim2.fromOffset(12, 0)
         title.BackgroundTransparency = 1
         title.Text = text:upper()
-        title.TextColor3 = C.White
+        title.TextColor3 = C.Muted
         title.Font = Enum.Font.GothamBold
         title.TextSize = 10
         title.TextXAlignment = Enum.TextXAlignment.Left
@@ -14174,10 +14229,10 @@ function buildXCUI()
 
         local accentLine = Instance.new("Frame")
         accentLine.Name = "LimeDivider"
-        accentLine.Size = UDim2.new(0, 3, 1, -10)
-        accentLine.Position = UDim2.fromOffset(3, 5)
-        accentLine.BackgroundColor3 = C.Lime
-        accentLine.BackgroundTransparency = 0.08
+        accentLine.Size = UDim2.new(1, -2, 0, 1)
+        accentLine.Position = UDim2.new(0, 1, 1, -2)
+        accentLine.BackgroundColor3 = C.Border
+        accentLine.BackgroundTransparency = 0.4
         accentLine.BorderSizePixel = 0
         accentLine.Parent = header
 
@@ -14200,8 +14255,8 @@ function buildXCUI()
             group.collapsed = not group.collapsed
             body.Visible = not group.collapsed
             collapseIcon.Text = group.collapsed and ">" or "v"
-            title.TextColor3 = group.collapsed and C.Text or C.White
-            accentLine.BackgroundTransparency = group.collapsed and 0.45 or 0.08
+            title.TextColor3 = group.collapsed and C.Muted or C.Text
+            accentLine.BackgroundTransparency = group.collapsed and 0.7 or 0.4
         end)
         return body
     end
@@ -14252,6 +14307,7 @@ function buildXCUI()
         text.Font = Enum.Font.Gotham
         text.TextSize = 11
         text.TextXAlignment = Enum.TextXAlignment.Left
+        text.TextTruncate = Enum.TextTruncate.AtEnd
         text.Parent = row
 
         local statusText = Instance.new("TextLabel")
@@ -14294,6 +14350,7 @@ function buildXCUI()
 
         local function refreshStatus()
             local state, color = getModuleRuntimeStatus(key)
+            statusText.Visible = state == "WAIT" or state == "FALL" or state == "ERR"
             local background = state == "ERR" and Color3.fromRGB(45, 18, 18)
                 or (state == "WAIT" or state == "FALL") and Color3.fromRGB(43, 34, 17) or C.Control
             if statusText.Text ~= state then statusText.Text = state end
@@ -14301,8 +14358,8 @@ function buildXCUI()
             if statusText.BackgroundColor3 ~= background then statusText.BackgroundColor3 = background end
         end
         local function refresh(value)
-            track.BackgroundColor3 = value and C.Lime:Lerp(C.Main, 0.62) or C.Control2
-            knob.BackgroundColor3 = value and C.Lime or C.Muted
+            track.BackgroundColor3 = value and C.Lime or C.Control2
+            knob.BackgroundColor3 = value and C.White or C.Muted
             knob.Position = value and UDim2.new(1, -11, 0.5, -4) or UDim2.new(0, 2, 0.5, -4)
             text.TextColor3 = value and C.White or C.Text
             refreshStatus()
@@ -14333,22 +14390,23 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
         holder.Name = key
-        holder.Size = UDim2.new(1, 0, 0, 42)
+        holder.Size = UDim2.new(1, 0, 0, isMobileLayout and 40 or 32)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
         local name = Instance.new("TextLabel")
-        name.Size = UDim2.new(0.68, 0, 0, 16)
+        name.Size = UDim2.new(0.56, 0, 1, 0)
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.Gotham
         name.TextSize = 11
         name.TextXAlignment = Enum.TextXAlignment.Left
+        name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
         local valueLabel = Instance.new("TextLabel")
-        valueLabel.Size = UDim2.new(0.32, 0, 0, 16)
-        valueLabel.Position = UDim2.new(0.68, 0, 0, 0)
+        valueLabel.Size = UDim2.new(0.38, 0, 0, 14)
+        valueLabel.Position = UDim2.new(0.6, 0, 0, 0)
         valueLabel.BackgroundTransparency = 1
         valueLabel.TextColor3 = C.Text
         valueLabel.Font = Enum.Font.GothamBold
@@ -14356,18 +14414,23 @@ function buildXCUI()
         valueLabel.TextXAlignment = Enum.TextXAlignment.Right
         valueLabel.Parent = holder
         local bar = Instance.new("Frame")
-        bar.Size = UDim2.new(1, 0, 0, 8)
-        bar.Position = UDim2.fromOffset(0, 26)
-        bar.BackgroundColor3 = C.Control2
+        bar.Size = UDim2.new(0.38, 0, 0, 20)
+        bar.Position = UDim2.new(0.6, 0, 0, isMobileLayout and 18 or 12)
+        bar.BackgroundTransparency = 1
         bar.BorderColor3 = C.Black
         bar.BorderSizePixel = 0
         bar.Active = true
         bar.Parent = holder
-        Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+        local track = Instance.new("Frame", bar)
+        track.Size = UDim2.new(1, 0, 0, 6)
+        track.Position = UDim2.new(0, 0, 0.5, -3)
+        track.BackgroundColor3 = C.Control2
+        track.BorderSizePixel = 0
+        Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
         local fill = Instance.new("Frame")
         fill.BorderSizePixel = 0
         fill.BackgroundColor3 = C.Lime
-        fill.Parent = bar
+        fill.Parent = track
         Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
         local function refresh(value)
             value = math.clamp(tonumber(value) or minValue, minValue, maxValue)
@@ -14547,22 +14610,23 @@ function buildXCUI()
     local function addChoice(parent, label, key, values, onChanged)
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
-        holder.Size = UDim2.new(1, 0, 0, 44)
+        holder.Size = UDim2.new(1, 0, 0, isMobileLayout and 38 or 32)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
         local name = Instance.new("TextLabel")
-        name.Size = UDim2.new(1, 0, 0, 14)
+        name.Size = UDim2.new(0.46, 0, 1, 0)
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.Gotham
         name.TextSize = 11
         name.TextXAlignment = Enum.TextXAlignment.Left
+        name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, 0, 0, 26)
-        button.Position = UDim2.fromOffset(0, 16)
+        button.Size = UDim2.new(0.53, 0, 0, isMobileLayout and 30 or 27)
+        button.Position = UDim2.new(0.47, 0, 0, isMobileLayout and 4 or 2)
         button.BackgroundColor3 = C.Control
         button.BorderColor3 = C.Black
         button.BorderSizePixel = 0
@@ -15899,9 +15963,21 @@ function buildXCUI()
     end
     refreshNavTheme = function() if currentPage then switchPage(currentPage) end end
     for index, info in ipairs(tabs) do
+        if not isMobileLayout and (index == 1 or index == 3 or index == 7) then
+            local group = Instance.new("TextLabel", sidebar)
+            group.Name = "NavGroup"
+            group.Size = UDim2.new(1, -8, 0, 21)
+            group.LayoutOrder = index * 2 - 1
+            group.BackgroundTransparency = 1
+            group.Text = index == 1 and "COMBAT" or index == 3 and "VISUALS" or "SYSTEM"
+            group.TextColor3 = C.Muted
+            group.Font = Enum.Font.GothamBold
+            group.TextSize = 9
+            group.TextXAlignment = Enum.TextXAlignment.Left
+        end
         local holder = Instance.new("Frame")
-        holder.Size = isMobileLayout and UDim2.fromOffset(96, 44) or UDim2.new(1, -8, 0, 46)
-        holder.LayoutOrder = index
+        holder.Size = isMobileLayout and UDim2.fromOffset(96, 44) or UDim2.new(1, -8, 0, 40)
+        holder.LayoutOrder = index * 2
         holder.BackgroundTransparency = 1
         holder.Parent = sidebar
         local active = Instance.new("Frame")
@@ -15953,7 +16029,7 @@ function buildXCUI()
         createPage(info[1])
     end
     sidebar.CanvasSize = isMobileLayout and UDim2.fromOffset(#tabs * 100 + 12, 0)
-        or UDim2.fromOffset(0, #tabs * 49 + 10)
+        or UDim2.fromOffset(0, #tabs * 43 + 76)
 
     local function columns(name, leftTitle, rightTitle)
         local page = pages[name]
@@ -16453,6 +16529,7 @@ function buildXCUI()
     task.wait()
     L, R = columns("Settings", "Interface", "Advanced settings")
     local menuPresets={
+        ["Liquid Glass"]={16,17,26,25,26,38,126,139,255,238,239,249},
         ["NeverLose"]={10,17,25,7,12,19,65,180,235,230,240,250},
         ["Video Blue"]={10,17,25,7,12,19,89,115,255,230,240,250},
         ["Gamesense"]={17,17,17,12,12,12,152,204,0,235,235,235},
@@ -16471,9 +16548,18 @@ function buildXCUI()
         applyMenuTheme();scheduleConfigAutoSave()
     end
     section(L,"menu appearance")
-    addChoice(L,"Theme preset","menuThemePreset",{"XC Lime","Video Blue","NeverLose","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
+    addChoice(L,"Theme preset","menuThemePreset",{"Liquid Glass","NeverLose","XC Lime","Video Blue","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
     addSlider(L,"Interface scale","uiScale",0.65,1.25,0.05,"x",applyMenuTheme)
     addSlider(L,"Menu transparency","menuTransparency",0,0.45,0.05,"",applyMenuTheme)
+    addToggle(L,"Liquid glass","menuGlassEnabled",applyMenuTheme)
+    local glassRefreshRevision = 0
+    addSlider(L,"Glass strength","menuGlassStrength",0,1,0.05,"",function()
+        glassRefreshRevision = glassRefreshRevision + 1
+        local revision = glassRefreshRevision
+        task.delay(0.07,function()
+            if revision == glassRefreshRevision and screenGui.Parent then applyMenuTheme() end
+        end)
+    end)
     addToggle(L,"Link menu and ESP color","linkMenuAndEspColor",function() applyMenuTheme() end)
     addColorPicker(L,"Menu accent","menuAccent",applyMenuTheme)
     addColorPicker(L,"Menu background","menuBackground",applyMenuTheme)
@@ -16498,7 +16584,7 @@ function buildXCUI()
     toggle(L, "Show ping", "watermarkShowPing")
     toggle(L, "Show name", "watermarkShowName")
     addChoice(L, "Menu key", "menuKey", {"RightShift", "LeftControl", "RightControl", "F6", "F7", "F8", "F9", "F10"})
-    addNote(L, "STATUS: ON active  |  WAIT loading  |  FALL fallback  |  ERR failed")
+    addNote(L, "Status badges appear only for WAIT, FALL or ERR; active modules use the blue switch.")
 
     section(R,"advanced module editor")
     local refreshAdvancedEditor=function() end
@@ -16844,6 +16930,7 @@ function buildXCUI()
             end
         end
     end)
+    refreshGlassSurfaces()
     switchPage("Rage")
 
     local menuVisible = true
