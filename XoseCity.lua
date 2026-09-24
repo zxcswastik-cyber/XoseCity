@@ -1,5 +1,287 @@
 -- XC Visual Modules 3-4: interface refinement + UI workload optimization
 --// XC v67 compact Centurion-compatible build
+--// Panda Auth PUSL-V4 gate
+local function xcRunPandaAuthGate()
+    local libraryOk, PUSL = pcall(function() return loadstring(game:HttpGet(
+        "https://secure.pandauth.com/pv4/lib"))() end)
+    if not libraryOk or not PUSL or type(PUSL.configure) ~= "function"
+        or type(PUSL.validate) ~= "function" then
+        warn("[Panda] Library failed to initialize.")
+        return false
+    end
+
+    local configured, configureError = pcall(function()
+        return PUSL.configure({serviceId = "xosecity"})
+    end)
+    if not configured then
+        warn("[Panda] Configuration failed: " .. tostring(configureError))
+        return false
+    end
+
+    local KEY_FILE = "XC_PandaKey.txt"
+    local function cleanKey(value)
+        if type(value) ~= "string" then return "" end
+        return value:gsub("[%c]", ""):match("^%s*(.-)%s*$"):sub(1, 512)
+    end
+    local function validateKey(key)
+        key = cleanKey(key)
+        if key == "" then return false, "Enter your Panda key." end
+        local ok, result = pcall(function() return PUSL.validate(key) end)
+        if not ok then return false, "Validation service is unavailable." end
+        if type(result) ~= "table" then return false, "Invalid validation response." end
+        if not result.success then
+            return false, tostring(result.message or result.error or "Invalid or expired key.")
+        end
+        return true, result, key
+    end
+    local function loadSavedKey()
+        if type(isfile) ~= "function" or type(readfile) ~= "function" then return "" end
+        local ok, value = pcall(function()
+            return isfile(KEY_FILE) and readfile(KEY_FILE) or ""
+        end)
+        return ok and cleanKey(value) or ""
+    end
+    local function saveKey(key)
+        if type(writefile) == "function" then pcall(writefile, KEY_FILE, cleanKey(key)) end
+    end
+
+    local savedKey = loadSavedKey()
+    if savedKey ~= "" then
+        local valid, result = validateKey(savedKey)
+        if valid then
+            print("[XOSE] Authenticated. Premium:", result.isPremium == true)
+            return true
+        end
+    end
+
+    local Players = game:GetService("Players")
+    local CoreGui = game:GetService("CoreGui")
+    local UserInputService = game:GetService("UserInputService")
+    local player = Players.LocalPlayer
+    local parent
+    pcall(function() if type(gethui) == "function" then parent = gethui() end end)
+    if not parent then pcall(function() parent = CoreGui end) end
+    if not parent and player then
+        pcall(function() parent = player:WaitForChild("PlayerGui", 5) end)
+    end
+    if not parent then warn("[Panda] Unable to create the key window."); return false end
+
+    local old = parent:FindFirstChild("XCPandaAuth")
+    if old then old:Destroy() end
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "XCPandaAuth"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 10000
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.Parent = parent
+
+    local shade = Instance.new("Frame", gui)
+    shade.Size = UDim2.fromScale(1, 1)
+    shade.BackgroundColor3 = Color3.fromRGB(2, 3, 7)
+    shade.BackgroundTransparency = 0.34
+    shade.BorderSizePixel = 0
+
+    local card = Instance.new("Frame", shade)
+    card.Name = "AuthCard"
+    card.AnchorPoint = Vector2.new(0.5, 0.5)
+    card.Position = UDim2.fromScale(0.5, 0.5)
+    card.Size = UDim2.fromOffset(430, 278)
+    card.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
+    card.BackgroundTransparency = 0.08
+    card.BorderSizePixel = 0
+    card.Active = true
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 15)
+    local rim = Instance.new("UIStroke", card)
+    rim.Color = Color3.fromRGB(126, 139, 255)
+    rim.Transparency = 0.42
+    rim.Thickness = 1.2
+    local sheen = Instance.new("UIGradient", card)
+    sheen.Rotation = 115
+    sheen.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(0.55, Color3.fromRGB(239, 241, 249)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(218, 223, 241)),
+    })
+
+    local scale = Instance.new("UIScale", card)
+    local camera = workspace.CurrentCamera
+    local viewport = camera and camera.ViewportSize or Vector2.new(1280, 720)
+    scale.Scale = math.min(1, math.max(0.55, (viewport.X - 24) / 430, (viewport.Y - 24) / 278))
+
+    local accent = Instance.new("Frame", card)
+    accent.Size = UDim2.new(1, -26, 0, 2)
+    accent.Position = UDim2.fromOffset(13, 5)
+    accent.BackgroundColor3 = Color3.fromRGB(126, 139, 255)
+    accent.BorderSizePixel = 0
+    Instance.new("UICorner", accent).CornerRadius = UDim.new(1, 0)
+
+    local brand = Instance.new("TextLabel", card)
+    brand.Position = UDim2.fromOffset(22, 18)
+    brand.Size = UDim2.new(1, -70, 0, 28)
+    brand.BackgroundTransparency = 1
+    brand.Text = "XC  /  ACCESS"
+    brand.TextColor3 = Color3.fromRGB(242, 244, 252)
+    brand.Font = Enum.Font.GothamBold
+    brand.TextSize = 17
+    brand.TextXAlignment = Enum.TextXAlignment.Left
+
+    local subtitle = Instance.new("TextLabel", card)
+    subtitle.Position = UDim2.fromOffset(22, 46)
+    subtitle.Size = UDim2.new(1, -44, 0, 20)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Text = "Enter your Panda Auth key to start XC."
+    subtitle.TextColor3 = Color3.fromRGB(145, 151, 171)
+    subtitle.Font = Enum.Font.GothamMedium
+    subtitle.TextSize = 11
+    subtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+    local close = Instance.new("TextButton", card)
+    close.Position = UDim2.new(1, -44, 0, 18)
+    close.Size = UDim2.fromOffset(26, 26)
+    close.BackgroundColor3 = Color3.fromRGB(34, 36, 51)
+    close.BorderSizePixel = 0
+    close.Text = "×"
+    close.TextColor3 = Color3.fromRGB(159, 164, 182)
+    close.Font = Enum.Font.GothamBold
+    close.TextSize = 17
+    Instance.new("UICorner", close).CornerRadius = UDim.new(0, 7)
+
+    local keyBox = Instance.new("TextBox", card)
+    keyBox.Position = UDim2.fromOffset(22, 82)
+    keyBox.Size = UDim2.new(1, -44, 0, 46)
+    keyBox.BackgroundColor3 = Color3.fromRGB(23, 25, 38)
+    keyBox.BorderSizePixel = 0
+    keyBox.ClearTextOnFocus = false
+    keyBox.PlaceholderText = "Panda key"
+    keyBox.PlaceholderColor3 = Color3.fromRGB(103, 108, 127)
+    keyBox.Text = savedKey
+    keyBox.TextColor3 = Color3.fromRGB(235, 237, 247)
+    keyBox.Font = Enum.Font.GothamMedium
+    keyBox.TextSize = 13
+    keyBox.TextXAlignment = Enum.TextXAlignment.Left
+    Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 9)
+    local keyPadding = Instance.new("UIPadding", keyBox)
+    keyPadding.PaddingLeft = UDim.new(0, 14)
+    keyPadding.PaddingRight = UDim.new(0, 14)
+
+    local status = Instance.new("TextLabel", card)
+    status.Position = UDim2.fromOffset(22, 136)
+    status.Size = UDim2.new(1, -44, 0, 31)
+    status.BackgroundTransparency = 1
+    status.Text = savedKey ~= "" and "Saved key needs validation." or "Your key is stored locally after successful validation."
+    status.TextColor3 = Color3.fromRGB(145, 151, 171)
+    status.Font = Enum.Font.Gotham
+    status.TextSize = 10
+    status.TextWrapped = true
+    status.TextXAlignment = Enum.TextXAlignment.Left
+
+    local validate = Instance.new("TextButton", card)
+    validate.Position = UDim2.fromOffset(22, 180)
+    validate.Size = UDim2.new(0.64, -25, 0, 43)
+    validate.BackgroundColor3 = Color3.fromRGB(126, 139, 255)
+    validate.BorderSizePixel = 0
+    validate.Text = "VALIDATE KEY"
+    validate.TextColor3 = Color3.fromRGB(250, 250, 255)
+    validate.Font = Enum.Font.GothamBold
+    validate.TextSize = 11
+    validate.AutoButtonColor = false
+    Instance.new("UICorner", validate).CornerRadius = UDim.new(0, 9)
+
+    local getKey = Instance.new("TextButton", card)
+    getKey.Position = UDim2.new(0.64, 3, 0, 180)
+    getKey.Size = UDim2.new(0.36, -25, 0, 43)
+    getKey.BackgroundColor3 = Color3.fromRGB(33, 35, 49)
+    getKey.BorderSizePixel = 0
+    getKey.Text = "GET KEY"
+    getKey.TextColor3 = Color3.fromRGB(207, 211, 228)
+    getKey.Font = Enum.Font.GothamBold
+    getKey.TextSize = 11
+    Instance.new("UICorner", getKey).CornerRadius = UDim.new(0, 9)
+
+    local footer = Instance.new("TextLabel", card)
+    footer.Position = UDim2.fromOffset(22, 239)
+    footer.Size = UDim2.new(1, -44, 0, 18)
+    footer.BackgroundTransparency = 1
+    footer.Text = "PANDA AUTH  •  PUSL-V4  •  XOSE CITY"
+    footer.TextColor3 = Color3.fromRGB(85, 90, 108)
+    footer.Font = Enum.Font.GothamMedium
+    footer.TextSize = 9
+    footer.TextXAlignment = Enum.TextXAlignment.Left
+
+    local resolved, validating = nil, false
+    local dragging, dragStart, startPosition
+    card.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging, dragStart, startPosition = true, input.Position, card.Position
+        end
+    end)
+    local dragMoveConnection = UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            card.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X,
+                startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
+        end
+    end)
+    local dragEndConnection = UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
+    end)
+
+    local function submit()
+        if validating then return end
+        validating = true
+        validate.Text = "VALIDATING..."
+        status.Text = "Contacting Panda Auth..."
+        status.TextColor3 = Color3.fromRGB(155, 164, 205)
+        task.spawn(function()
+            local valid, result, usedKey = validateKey(keyBox.Text)
+            if valid then
+                saveKey(usedKey)
+                status.Text = result.isPremium and "Authenticated · Premium access" or "Authenticated · Access granted"
+                status.TextColor3 = Color3.fromRGB(118, 220, 164)
+                validate.Text = "AUTHENTICATED"
+                print("[XOSE] Authenticated. Premium:", result.isPremium == true)
+                task.wait(0.35)
+                resolved = true
+            else
+                status.Text = tostring(result)
+                status.TextColor3 = Color3.fromRGB(234, 111, 125)
+                validate.Text = "TRY AGAIN"
+                validating = false
+            end
+        end)
+    end
+    validate.Activated:Connect(submit)
+    keyBox.FocusLost:Connect(function(enterPressed) if enterPressed then submit() end end)
+    getKey.Activated:Connect(function()
+        local ok, url = pcall(function() return PUSL.getKeyUrl() end)
+        if not ok or type(url) ~= "string" or url == "" then
+            status.Text = "Unable to create a key URL right now."
+            status.TextColor3 = Color3.fromRGB(234, 111, 125)
+            return
+        end
+        if type(setclipboard) == "function" then
+            pcall(setclipboard, url)
+            status.Text = "Key URL copied to clipboard."
+        else
+            status.Text = "Key URL: " .. url
+        end
+        status.TextColor3 = Color3.fromRGB(155, 164, 205)
+    end)
+    close.Activated:Connect(function() resolved = false end)
+
+    while resolved == nil and gui.Parent do task.wait(0.05) end
+    dragMoveConnection:Disconnect()
+    dragEndConnection:Disconnect()
+    if gui.Parent then gui:Destroy() end
+    return resolved == true
+end
+
+if not xcRunPandaAuthGate() then return end
+
 pcall(function()
     if type(getgenv) == "function" then
         local env = getgenv()
