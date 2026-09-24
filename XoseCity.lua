@@ -2240,14 +2240,67 @@ function getTargetHitbox(char)
     end
 end
 
+XCUnavailableStates = {
+    dead = true, spectating = true, spectator = true, menu = true, mainmenu = true,
+    lobby = true, loading = true, choosingteam = true, selectingteam = true, loadout = true,
+}
+
+function xcUnavailableByAttributes(object)
+    if not object then return false end
+    local ok, attributes = pcall(function() return object:GetAttributes() end)
+    if not ok or type(attributes) ~= "table" then return false end
+
+    for name, value in pairs(attributes) do
+        local key = tostring(name):lower():gsub("[%s_%-]", "")
+        if value == true then
+            if key == "dead" or key == "isdead" or key:find("spectat", 1, true)
+                or key:find("inmenu", 1, true) or key:find("menuopen", 1, true)
+                or key:find("inlobby", 1, true) or key:find("choosingteam", 1, true)
+                or key:find("selectingteam", 1, true) or key:find("inloadout", 1, true) then
+                return true
+            end
+        elseif value == false then
+            if key == "alive" or key == "isalive" or key == "spawned" or key == "isspawned" then
+                return true
+            end
+        elseif type(value) == "string"
+            and (key == "state" or key == "playerstate" or key == "status" or key == "roundstate") then
+            local state = value:lower():gsub("[%s_%-]", "")
+            if XCUnavailableStates[state] then return true end
+        end
+    end
+    return false
+end
+
+function xcHasActiveTeam(owner)
+    if not owner then return true end
+    -- Do not break a possible FFA session: require a team token only when the
+    -- local BloxStrike player also has one. In team matches menu/lobby players
+    -- commonly lose that token while their old character may still exist.
+    local localTeam = player.Team or player:GetAttribute("Team")
+    if localTeam == nil or tostring(localTeam) == "" then return true end
+    if owner.Team ~= nil then return true end
+    local team = owner:GetAttribute("Team")
+    return team ~= nil and tostring(team) ~= ""
+end
+
 function isEntityAlive(char, hum)
     if not char or not char.Parent or not char:IsDescendantOf(Workspace) then 
         return false 
     end
     
     local owner = Players:GetPlayerFromCharacter(char)
-    if char:GetAttribute("Dead") == true then return false end
-    if owner and (owner.Character ~= char or owner:GetAttribute("Dead") == true) then return false end
+    if char:GetAttribute("Dead") == true or xcUnavailableByAttributes(char) then return false end
+    if owner and (owner.Character ~= char or owner:GetAttribute("Dead") == true
+        or xcUnavailableByAttributes(owner) or not xcHasActiveTeam(owner)) then return false end
+
+    -- BloxStrike keeps active combat characters in Workspace.Characters. Old
+    -- corpses/menu stand-ins can remain elsewhere and must not be valid ESP/Aim targets.
+    local charactersFolder = Workspace:FindFirstChild("Characters")
+    if charactersFolder and not char:IsDescendantOf(charactersFolder) then return false end
+    local characterType = char:GetAttribute("CharacterType")
+    if characterType ~= nil and characterType ~= "PlayerCustomCharacter" then return false end
+
     local health = getXCHealth(char, owner, hum)
     if health == nil or health <= 0 then return false end
     if hum and hum.Parent then
@@ -2345,6 +2398,30 @@ local function getXCSilentShotOrigin(activeCamera)
         if originPart and originPart:IsA("BasePart") then return originPart.Position end
     end
     return activeCamera and activeCamera.CFrame.Position or nil
+end
+
+function getXCCrosshairWorldPoint(activeCamera, range)
+    activeCamera = activeCamera or Workspace.CurrentCamera or camera
+    if not activeCamera then return nil end
+    range = math.max(1, tonumber(range) or 500)
+
+    local cameraOrigin = activeCamera.CFrame.Position
+    local cameraDirection = activeCamera.CFrame.LookVector * range
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.IgnoreWater = true
+    params.FilterDescendantsInstances = {player.Character, activeCamera}
+    local hit = Workspace:Raycast(cameraOrigin, cameraDirection, params)
+    return hit and hit.Position or (cameraOrigin + cameraDirection)
+end
+
+function getXCThirdPersonDirection(origin, range, activeCamera)
+    if typeof(origin) ~= "Vector3" then return nil end
+    local point = getXCCrosshairWorldPoint(activeCamera, range)
+    if typeof(point) ~= "Vector3" then return nil end
+    local offset = point - origin
+    if offset.Magnitude <= 0.05 then return nil end
+    return offset.Unit
 end
 
 silentAimCamPosAim = function(targetPart)
@@ -2985,6 +3062,36 @@ local function castXCNativeSilentShot(origin, direction, properties)
     return result
 end
 
+-- Preserve every field produced by BloxStrike's native shot object. Replacing
+-- the whole table with only Origin/Direction/Distance/Hits can silently drop
+-- weapon metadata used later by automatic/burst/mobile firing paths.
+function mergeXCShotPayload(originalShot, rayShot)
+    if type(originalShot) ~= "table" or type(rayShot) ~= "table" then return originalShot end
+    local merged = table.clone(originalShot)
+    merged.Origin = rayShot.Origin
+    merged.Direction = rayShot.Direction
+    merged.Distance = rayShot.Distance
+    merged.Hits = rayShot.Hits
+    return merged
+end
+
+function buildXCDirectHitRay(origin, targetPart, targetPosition)
+    local offset = targetPosition - origin
+    if offset.Magnitude <= 0.05 then return nil end
+    return {
+        Origin = origin,
+        Direction = offset.Unit,
+        Distance = offset.Magnitude,
+        Hits = {{
+            Position = targetPosition,
+            Instance = targetPart,
+            Material = targetPart.Material.Name,
+            Normal = -offset.Unit,
+            Exit = false,
+        }},
+    }
+end
+
 -- ScriptAdap target pass, executed only from the real Bullet raycast. The
 -- native ray module is also used for visibility so target selection and the
 -- weapon's collision rules cannot disagree.
@@ -3108,25 +3215,16 @@ local function redirectXCNativeSilentShot(bullet, shot)
     local offset = aimPosition - shotOrigin
     if offset.Magnitude < 0.05 then return shot end
 
-    local redirected
+    local redirectedRay
     if XCConfig.extremeWallbangEnabled then
-        -- Direct hit payload: map geometry is omitted entirely for this redirected shot.
-        redirected = {
-            Origin = shotOrigin,
-            Direction = offset.Unit,
-            Distance = offset.Magnitude,
-            Hits = {{
-                Position = aimPosition,
-                Instance = targetPart,
-                Material = targetPart.Material.Name,
-                Normal = -offset.Unit,
-                Exit = false,
-            }},
-        }
+        -- Direct hit ray: map geometry is omitted, while the original native
+        -- shot metadata is retained by mergeXCShotPayload below.
+        redirectedRay = buildXCDirectHitRay(shotOrigin, targetPart, aimPosition)
     else
-        redirected = castXCNativeSilentShot(shotOrigin, offset.Unit, bullet.Properties or {})
+        redirectedRay = castXCNativeSilentShot(shotOrigin, offset.Unit, bullet.Properties or {})
     end
-    if not redirected then return shot end
+    if not redirectedRay then return shot end
+    local redirected = mergeXCShotPayload(shot, redirectedRay)
     silentAimResolved = targetPart
     if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
     return redirected
@@ -3137,6 +3235,19 @@ local function processXCNativeLocalShot(bullet, shot)
     local finalShot = shot
 
     if weapon and weapon.Player == player then
+        -- Third-person camera rays originate behind the avatar. Rebuild only
+        -- the ray fields from the character-side origin toward the camera
+        -- crosshair, then merge them into the original shot payload.
+        if XCConfig.thirdPersonEnabled and type(shot) == "table" and typeof(shot.Origin) == "Vector3" then
+            local properties = type(bullet.Properties) == "table" and bullet.Properties or {}
+            local range = math.max(1, tonumber(properties.Range) or 500)
+            local thirdOrigin = getXCSilentShotOrigin()
+            local thirdDirection = thirdOrigin and getXCThirdPersonDirection(thirdOrigin, range) or nil
+            if thirdOrigin and thirdDirection then
+                local baseRay = castXCNativeSilentShot(thirdOrigin, thirdDirection, properties)
+                if baseRay then finalShot = mergeXCShotPayload(shot, baseRay) end
+            end
+        end
         local redirectStore = sharedXCEnv or _G
         local queued = redirectStore and redirectStore.XCTriggerRedirectV38 or nil
 
@@ -3213,26 +3324,17 @@ local function processXCNativeLocalShot(bullet, shot)
                     )
 
                     if allowed and minDamageOk then
+                        local redirectedRay
                         if XCConfig.extremeWallbangEnabled then
-                            finalShot = {
-                                Origin = shotOrigin,
-                                Direction = offset.Unit,
-                                Distance = offset.Magnitude,
-                                Hits = {{
-                                    Position = targetPosition,
-                                    Instance = targetPart,
-                                    Material = targetPart.Material.Name,
-                                    Normal = -offset.Unit,
-                                    Exit = false,
-                                }},
-                            }
+                            redirectedRay = buildXCDirectHitRay(shotOrigin, targetPart, targetPosition)
                         else
-                            finalShot = castXCNativeSilentShot(
-                                shotOrigin, offset.Unit, properties
-                            ) or shot
+                            redirectedRay = castXCNativeSilentShot(shotOrigin, offset.Unit, properties)
+                        end
+                        if redirectedRay then
+                            finalShot = mergeXCShotPayload(finalShot, redirectedRay)
                         end
 
-                        if finalShot ~= shot then
+                        if redirectedRay then
                             silentAimResolved = targetPart
                             if registerXCLocalHitCandidate then
                                 registerXCLocalHitCandidate(targetPart)
@@ -3245,8 +3347,8 @@ local function processXCNativeLocalShot(bullet, shot)
 
         -- Ragebot owns bullet redirection while enabled. With Ragebot OFF,
         -- standalone Silent Aim works exactly through its own toggle.
-        if finalShot == shot and not XCConfig.rageBotEnabled then
-            finalShot = redirectXCNativeSilentShot(bullet, shot)
+        if not XCConfig.rageBotEnabled then
+            finalShot = redirectXCNativeSilentShot(bullet, finalShot)
         end
 
         pcall(renderXCBulletEffects, finalShot, bullet)
@@ -10557,6 +10659,11 @@ end
 
 function runMobileTriggerbot()
     if not XCConfig.triggerbotEnabled then return end
+    local localCharacter = player.Character
+    local localHumanoid = localCharacter and localCharacter:FindFirstChildOfClass("Humanoid")
+    if not isEntityAlive(localCharacter, localHumanoid)
+        or GuiService.MenuIsOpen or XCFeatureState.menuOpen
+        or player:GetAttribute("IsSpectating") == true then return end
     -- Do not run a second standalone trigger loop while Ragebot owns firing.
     -- The Triggerbot toggle itself is untouched and resumes when Ragebot is off.
     if XCConfig.rageBotEnabled then return end
@@ -12506,7 +12613,16 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if visualOverlayAccumulator >= visualInterval then
         visualOverlayAccumulator = visualOverlayAccumulator - visualInterval
         table.clear(xcEspVisibilityCache)
-        renderTacticalOverlay()
+        local overlayOk, overlayErr = pcall(renderTacticalOverlay)
+        if not overlayOk then
+            XCFeatureState.tacticalOverlayErrorAt = XCFeatureState.tacticalOverlayErrorAt or 0
+            local now = os.clock()
+            if now - XCFeatureState.tacticalOverlayErrorAt > 2 then
+                XCFeatureState.tacticalOverlayErrorAt = now
+                warn("[XOSE] ESP renderer paused this frame: " .. tostring(overlayErr))
+            end
+            hideTacticalOverlay()
+        end
         renderGrenadeOverlays()
         renderXCGrenadeDangerZones()
         renderXCSoundPositionEsp()
@@ -12640,6 +12756,7 @@ function resetXCCharacterInputState()
     xcCharacterInputHook.Character = nil
     xcCharacterInputHook.GroundSince = nil
     xcCharacterInputHook.LastJumpDown = false
+    xcCharacterInputHook.MoveUntil = nil
     xcCharacterInputHook.AntiCharacter = nil
     xcCharacterInputHook.AntiStarted = nil
     xcCharacterInputHook.AntiLastStep = nil
@@ -12806,9 +12923,12 @@ function setupXCCharacterInputHook()
                     if xcCharacterInputHook.Character ~= character then
                         xcCharacterInputHook.Character = character
                         xcCharacterInputHook.GroundSince = nil
+                        xcCharacterInputHook.MoveUntil = nil
                         xcCharacterInputHook.LastJumpDown = buttons.has((movementState.PreviousButtons or 0), buttons.Jump)
                     end
-                    local moving = input.Move and input.Move.Magnitude > 0.05
+                    local moveMagnitude = input.Move and input.Move.Magnitude or 0
+                    if moveMagnitude > 0.05 then xcCharacterInputHook.MoveUntil = now + 0.08 end
+                    local moving = moveMagnitude > 0.05 or now <= (xcCharacterInputHook.MoveUntil or -math.huge)
                     local requested = XCConfig.bhopMode == "Automatic" or XCConfig.bhopAutoJump or character.JumpInputDown
                         or isMobileJumpHeld or buttons.has(input.Buttons, buttons.Jump)
                     if requested and (not XCConfig.bhopMovingOnly or moving) then
@@ -12824,6 +12944,11 @@ function setupXCCharacterInputHook()
                             and now - xcCharacterInputHook.GroundSince >= delay
                         result = table.clone(result)
                         result.Buttons = buttons.with(input.Buttons, buttons.Jump, jump)
+                        -- Mobile sticks often report partial magnitude near the rim.
+                        -- Normalize only on touch so Bhop does not randomly lose speed.
+                        if UserInputService.TouchEnabled and moveMagnitude > 0.05 then
+                            result.Move = input.Move.Unit
+                        end
                         xcCharacterInputHook.LastJumpDown = jump
                         if jump then xcCharacterInputHook.GroundSince = nil end
                     else
@@ -12833,6 +12958,7 @@ function setupXCCharacterInputHook()
                 else
                     xcCharacterInputHook.Character = nil
                     xcCharacterInputHook.GroundSince = nil
+                    xcCharacterInputHook.MoveUntil = nil
                     xcCharacterInputHook.LastJumpDown = false
                 end
 
