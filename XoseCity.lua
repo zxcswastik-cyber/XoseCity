@@ -1,3 +1,357 @@
+--// XOSE ACCESS GATEWAY -------------------------------------------------------
+do
+    local Players = game:GetService("Players")
+    local CoreGui = game:GetService("CoreGui")
+    local UserInputService = game:GetService("UserInputService")
+    local TweenService = game:GetService("TweenService")
+
+    local AUTH_GUI_NAME = "XOSEAccessGateway"
+    local ACCENT = Color3.fromRGB(152, 204, 0)
+    local ACCENT_HOVER = Color3.fromRGB(180, 225, 25)
+    local BG = Color3.fromRGB(18, 18, 22)
+    local PANEL = Color3.fromRGB(28, 28, 34)
+    local SIDEBAR = Color3.fromRGB(22, 22, 27)
+    local BORDER = Color3.fromRGB(45, 45, 55)
+    local TEXT = Color3.fromRGB(240, 240, 245)
+    local MUTED = Color3.fromRGB(150, 150, 160)
+    local ERROR = Color3.fromRGB(225, 65, 70)
+    local SUCCESS = Color3.fromRGB(75, 190, 105)
+
+    local function getEnv()
+        if type(getgenv) == "function" then
+            local ok, env = pcall(getgenv)
+            if ok and type(env) == "table" then return env end
+        end
+        return _G
+    end
+
+    local env = getEnv()
+
+    local function getGuiParent()
+        if type(gethui) == "function" then
+            local ok, hui = pcall(gethui)
+            if ok and typeof(hui) == "Instance" then return hui end
+        end
+        local okCore, core = pcall(function() return CoreGui end)
+        if okCore and core then return core end
+        local lp = Players.LocalPlayer or Players.PlayerAdded:Wait()
+        return lp:WaitForChild("PlayerGui")
+    end
+
+    local guiParent = getGuiParent()
+    pcall(function()
+        local old = guiParent:FindFirstChild(AUTH_GUI_NAME)
+        if old then old:Destroy() end
+    end)
+
+    local authGui = Instance.new("ScreenGui")
+    authGui.Name = AUTH_GUI_NAME
+    authGui.ResetOnSpawn = false
+    authGui.IgnoreGuiInset = true
+    authGui.DisplayOrder = 100000
+    authGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    if syn and type(syn.protect_gui) == "function" then
+        pcall(syn.protect_gui, authGui)
+    elseif type(protectgui) == "function" then
+        pcall(protectgui, authGui)
+    end
+    authGui.Parent = guiParent
+
+    local shade = Instance.new("Frame")
+    shade.Name = "Shade"
+    shade.Size = UDim2.fromScale(1, 1)
+    shade.BackgroundColor3 = Color3.new(0, 0, 0)
+    shade.BackgroundTransparency = 0.34
+    shade.BorderSizePixel = 0
+    shade.Parent = authGui
+
+    local card = Instance.new("Frame")
+    card.Name = "Card"
+    card.AnchorPoint = Vector2.new(0.5, 0.5)
+    card.Position = UDim2.fromScale(0.5, 0.5)
+    card.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 342 or 382, 250)
+    card.BackgroundColor3 = BG
+    card.BackgroundTransparency = 0.03
+    card.BorderSizePixel = 0
+    card.ClipsDescendants = true
+    card.Parent = shade
+
+    local cardCorner = Instance.new("UICorner")
+    cardCorner.CornerRadius = UDim.new(0, 12)
+    cardCorner.Parent = card
+
+    local cardStroke = Instance.new("UIStroke")
+    cardStroke.Color = BORDER
+    cardStroke.Thickness = 1
+    cardStroke.Transparency = 0.02
+    cardStroke.Parent = card
+
+    local accentBar = Instance.new("Frame")
+    accentBar.Name = "Accent"
+    accentBar.Size = UDim2.new(0, 4, 1, -20)
+    accentBar.Position = UDim2.fromOffset(8, 10)
+    accentBar.BackgroundColor3 = ACCENT
+    accentBar.BorderSizePixel = 0
+    accentBar.Parent = card
+    local accentCorner = Instance.new("UICorner")
+    accentCorner.CornerRadius = UDim.new(0, 3)
+    accentCorner.Parent = accentBar
+
+    local brand = Instance.new("TextLabel")
+    brand.Name = "Brand"
+    brand.Position = UDim2.fromOffset(24, 18)
+    brand.Size = UDim2.new(1, -48, 0, 29)
+    brand.BackgroundTransparency = 1
+    brand.Font = Enum.Font.GothamBold
+    brand.Text = "XOSE"
+    brand.TextColor3 = TEXT
+    brand.TextSize = 21
+    brand.TextXAlignment = Enum.TextXAlignment.Left
+    brand.Parent = card
+
+    local xAccent = Instance.new("Frame")
+    xAccent.Name = "BrandAccent"
+    xAccent.Position = UDim2.fromOffset(24, 49)
+    xAccent.Size = UDim2.fromOffset(35, 2)
+    xAccent.BackgroundColor3 = ACCENT
+    xAccent.BorderSizePixel = 0
+    xAccent.Parent = card
+    local brandAccentCorner = Instance.new("UICorner")
+    brandAccentCorner.CornerRadius = UDim.new(1, 0)
+    brandAccentCorner.Parent = xAccent
+
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Position = UDim2.fromOffset(24, 58)
+    subtitle.Size = UDim2.new(1, -48, 0, 18)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Font = Enum.Font.Gotham
+    subtitle.Text = "Secure access gateway"
+    subtitle.TextColor3 = MUTED
+    subtitle.TextSize = 11
+    subtitle.TextXAlignment = Enum.TextXAlignment.Left
+    subtitle.Parent = card
+
+    local field = Instance.new("Frame")
+    field.Name = "KeyField"
+    field.Position = UDim2.fromOffset(24, 91)
+    field.Size = UDim2.new(1, -48, 0, 44)
+    field.BackgroundColor3 = PANEL
+    field.BackgroundTransparency = 0.02
+    field.BorderSizePixel = 0
+    field.Parent = card
+    local fieldCorner = Instance.new("UICorner")
+    fieldCorner.CornerRadius = UDim.new(0, 8)
+    fieldCorner.Parent = field
+    local fieldStroke = Instance.new("UIStroke")
+    fieldStroke.Color = BORDER
+    fieldStroke.Thickness = 1
+    fieldStroke.Transparency = 0.06
+    fieldStroke.Parent = field
+
+    local keyBox = Instance.new("TextBox")
+    keyBox.Name = "KeyInput"
+    keyBox.Position = UDim2.fromOffset(13, 0)
+    keyBox.Size = UDim2.new(1, -26, 1, 0)
+    keyBox.BackgroundTransparency = 1
+    keyBox.ClearTextOnFocus = false
+    keyBox.Font = Enum.Font.GothamMedium
+    keyBox.PlaceholderText = "Enter access key"
+    keyBox.PlaceholderColor3 = MUTED
+    keyBox.Text = ""
+    keyBox.TextColor3 = TEXT
+    keyBox.TextSize = 12
+    keyBox.TextXAlignment = Enum.TextXAlignment.Left
+    keyBox.Parent = field
+
+    local status = Instance.new("TextLabel")
+    status.Name = "Status"
+    status.Position = UDim2.fromOffset(24, 143)
+    status.Size = UDim2.new(1, -48, 0, 19)
+    status.BackgroundTransparency = 1
+    status.Font = Enum.Font.Gotham
+    status.Text = "Initializing secure session..."
+    status.TextColor3 = MUTED
+    status.TextSize = 10
+    status.TextXAlignment = Enum.TextXAlignment.Left
+    status.TextTruncate = Enum.TextTruncate.AtEnd
+    status.Parent = card
+
+    local buttons = Instance.new("Frame")
+    buttons.Position = UDim2.fromOffset(24, 171)
+    buttons.Size = UDim2.new(1, -48, 0, 39)
+    buttons.BackgroundTransparency = 1
+    buttons.Parent = card
+
+    local getKey = Instance.new("TextButton")
+    getKey.Name = "GetKey"
+    getKey.Size = UDim2.new(0.42, -4, 1, 0)
+    getKey.BackgroundColor3 = SIDEBAR
+    getKey.BorderSizePixel = 0
+    getKey.AutoButtonColor = false
+    getKey.Font = Enum.Font.GothamBold
+    getKey.Text = "GET KEY"
+    getKey.TextColor3 = TEXT
+    getKey.TextSize = 10
+    getKey.Parent = buttons
+    local getKeyCorner = Instance.new("UICorner")
+    getKeyCorner.CornerRadius = UDim.new(0, 8)
+    getKeyCorner.Parent = getKey
+    local getKeyStroke = Instance.new("UIStroke")
+    getKeyStroke.Color = BORDER
+    getKeyStroke.Thickness = 1
+    getKeyStroke.Parent = getKey
+
+    local unlock = Instance.new("TextButton")
+    unlock.Name = "Unlock"
+    unlock.AnchorPoint = Vector2.new(1, 0)
+    unlock.Position = UDim2.new(1, 0, 0, 0)
+    unlock.Size = UDim2.new(0.58, -4, 1, 0)
+    unlock.BackgroundColor3 = ACCENT
+    unlock.BorderSizePixel = 0
+    unlock.AutoButtonColor = false
+    unlock.Font = Enum.Font.GothamBold
+    unlock.Text = "UNLOCK XOSE"
+    unlock.TextColor3 = Color3.fromRGB(18, 20, 14)
+    unlock.TextSize = 10
+    unlock.Parent = buttons
+    local unlockCorner = Instance.new("UICorner")
+    unlockCorner.CornerRadius = UDim.new(0, 8)
+    unlockCorner.Parent = unlock
+
+    local footer = Instance.new("TextLabel")
+    footer.Position = UDim2.new(0, 24, 1, -27)
+    footer.Size = UDim2.new(1, -48, 0, 14)
+    footer.BackgroundTransparency = 1
+    footer.Font = Enum.Font.Gotham
+    footer.Text = "XOSE  •  protected session"
+    footer.TextColor3 = Color3.fromRGB(105, 105, 114)
+    footer.TextSize = 9
+    footer.TextXAlignment = Enum.TextXAlignment.Left
+    footer.Parent = card
+
+    local function tweenButton(button, color)
+        pcall(function()
+            TweenService:Create(button, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                BackgroundColor3 = color
+            }):Play()
+        end)
+    end
+
+    unlock.MouseEnter:Connect(function() tweenButton(unlock, ACCENT_HOVER) end)
+    unlock.MouseLeave:Connect(function() tweenButton(unlock, ACCENT) end)
+    getKey.MouseEnter:Connect(function() tweenButton(getKey, PANEL:Lerp(TEXT, 0.08)) end)
+    getKey.MouseLeave:Connect(function() tweenButton(getKey, SIDEBAR) end)
+
+    local authEvent = Instance.new("BindableEvent")
+    local validating = false
+    local PUSL = nil
+
+    local function setStatus(message, color)
+        status.Text = tostring(message or "")
+        status.TextColor3 = color or MUTED
+    end
+
+    local function finish(ok, result, key)
+        if ok then
+            env.XOSE_AUTH_KEY = key
+            env.XOSE_PREMIUM = result and result.isPremium == true or false
+            setStatus("Access granted. Loading XOSE...", SUCCESS)
+            task.wait(0.16)
+            authEvent:Fire(true)
+        end
+    end
+
+    local function validateKey(key)
+        key = tostring(key or ""):match("^%s*(.-)%s*$") or ""
+        if key == "" then
+            setStatus("Enter your access key first.", ERROR)
+            return
+        end
+        if validating or not PUSL then return end
+        validating = true
+        unlock.Text = "CHECKING..."
+        unlock.Active = false
+        setStatus("Verifying access...", MUTED)
+
+        task.spawn(function()
+            local ok, result = pcall(function()
+                return PUSL.validate(key)
+            end)
+            if ok and type(result) == "table" and result.success == true then
+                finish(true, result, key)
+                return
+            end
+            validating = false
+            unlock.Text = "UNLOCK XOSE"
+            unlock.Active = true
+            setStatus("Key rejected. Check it and try again.", ERROR)
+        end)
+    end
+
+    getKey.MouseButton1Click:Connect(function()
+        if not PUSL then
+            setStatus("Access service is still initializing.", ERROR)
+            return
+        end
+        local ok, url = pcall(function() return PUSL.getKeyUrl() end)
+        if not ok or type(url) ~= "string" or url == "" then
+            setStatus("Could not create a key link.", ERROR)
+            return
+        end
+        local copied = false
+        if type(setclipboard) == "function" then
+            copied = pcall(setclipboard, url)
+        elseif type(toclipboard) == "function" then
+            copied = pcall(toclipboard, url)
+        end
+        if copied then
+            setStatus("Key link copied to clipboard.", SUCCESS)
+        else
+            setStatus("Clipboard is unavailable in this executor.", ERROR)
+            pcall(function() print("[XOSE] Key URL:", url) end)
+        end
+    end)
+
+    unlock.MouseButton1Click:Connect(function()
+        validateKey(keyBox.Text)
+    end)
+    keyBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then validateKey(keyBox.Text) end
+    end)
+
+    local initOk, initResult = pcall(function()
+        local library = loadstring(game:HttpGet("https://secure.pandauth.com/pv4/lib"))()
+        if not library or type(library.configure) ~= "function" or type(library.validate) ~= "function" then
+            error("authorization library unavailable")
+        end
+        library.configure({ serviceId = "xosecity" })
+        return library
+    end)
+
+    if not initOk or not initResult then
+        setStatus("XOSE access service failed to initialize.", ERROR)
+        warn("[XOSE] Authorization service failed to initialize.")
+        return
+    end
+
+    PUSL = initResult
+    setStatus("Enter your key to continue.", MUTED)
+
+    local cachedKey = type(env.XOSE_AUTH_KEY) == "string" and env.XOSE_AUTH_KEY or nil
+    if cachedKey and cachedKey ~= "" then
+        keyBox.Text = cachedKey
+        validateKey(cachedKey)
+    end
+
+    local authenticated = authEvent.Event:Wait()
+    authEvent:Destroy()
+    if not authenticated then return end
+    pcall(function() authGui:Destroy() end)
+    print("[XOSE] Authenticated. Premium:", env.XOSE_PREMIUM == true)
+end
+--// END XOSE ACCESS GATEWAY ---------------------------------------------------
+
 -- XC Visual Modules 3-4: interface refinement + UI workload optimization
 --// XC v67 protected-host compatible build
 --// Authorization is injected before this protected XOSe payload.
@@ -390,7 +744,59 @@ local XCConfig = {
     worldExposure = 0,
     worldSaturation = 0,
     worldContrast = 0,
+    worldPostBrightness = 0,
     worldTonePreset = "Neutral",
+
+    -- World changer 2.0: lighting / fog / atmosphere / post processing.
+    worldFogEnabled = false,
+    worldFogColorR = 180,
+    worldFogColorG = 190,
+    worldFogColorB = 205,
+    worldShadowSoftness = 0.20,
+    worldEnvironmentDiffuse = 1.0,
+    worldEnvironmentSpecular = 1.0,
+    worldAmbientR = 15,
+    worldAmbientG = 15,
+    worldAmbientB = 25,
+    worldOutdoorAmbientR = 25,
+    worldOutdoorAmbientG = 25,
+    worldOutdoorAmbientB = 40,
+    worldColorShiftTopR = 0,
+    worldColorShiftTopG = 0,
+    worldColorShiftTopB = 0,
+    worldColorShiftBottomR = 0,
+    worldColorShiftBottomG = 0,
+    worldColorShiftBottomB = 0,
+
+    worldSkySunSize = 21,
+    worldSkyMoonSize = 11,
+
+    worldAtmosphereOffset = 0,
+    worldAtmosphereColorR = 220,
+    worldAtmosphereColorG = 230,
+    worldAtmosphereColorB = 210,
+    worldAtmosphereDecayR = 92,
+    worldAtmosphereDecayG = 102,
+    worldAtmosphereDecayB = 82,
+
+    worldSunRaysEnabled = false,
+    worldSunRaysIntensity = 0.08,
+    worldSunRaysSpread = 0.80,
+    worldDepthOfFieldEnabled = false,
+    worldDofFarIntensity = 0.12,
+    worldDofNearIntensity = 0.00,
+    worldDofFocusDistance = 60,
+    worldDofInFocusRadius = 35,
+    worldBlurEnabled = false,
+    worldBlurSize = 4,
+
+    worldCloudsEnabled = false,
+    worldCloudCover = 0.35,
+    worldCloudDensity = 0.65,
+    worldCloudColorR = 235,
+    worldCloudColorG = 240,
+    worldCloudColorB = 255,
+
     mapStylePreset = "Black & White",
     mapOptimizerMode = "Balanced",
     mapStyleStrength = 0.92,
@@ -4430,56 +4836,209 @@ function updateSpectatorGui()
     spectatorFrame.Size = UDim2.new(0, 210, 0, math.max(88, 64 + math.min(#lines, 8) * 14))
 end
 
+-- Custom Hands 2.0
+-- BloxStrike can keep arms and the weapon in separate camera models. The old
+-- implementation only moved view.Model, so on builds where Arms is separate
+-- the option appeared to do nothing. This renderer offsets every local
+-- first-person viewmodel target in camera space and remembers the unmodified
+-- local pivot so the transform never accumulates frame-to-frame.
+function XCCFrameNear(a, b, positionEpsilon, directionDot)
+    if typeof(a) ~= "CFrame" or typeof(b) ~= "CFrame" then return false end
+    positionEpsilon = positionEpsilon or 0.004
+    directionDot = directionDot or 0.9997
+    if (a.Position - b.Position).Magnitude > positionEpsilon then return false end
+    return a.LookVector:Dot(b.LookVector) >= directionDot
+        and a.UpVector:Dot(b.UpVector) >= directionDot
+end
+
+function XCGetCustomHandsTargets(view)
+    local cam = Workspace.CurrentCamera or camera
+    local result, seen = {}, {}
+    local function add(model)
+        if not model or not model:IsA("Model") or not model.Parent or seen[model] then return end
+        if not model:FindFirstChildWhichIsA("BasePart", true) then return end
+
+        -- Never offset both a parent viewmodel and one of its child models:
+        -- doing that would apply the same transform twice to the child.
+        for index = #result, 1, -1 do
+            local existing = result[index]
+            if model:IsDescendantOf(existing) then return end
+            if existing:IsDescendantOf(model) then
+                seen[existing] = nil
+                table.remove(result, index)
+            end
+        end
+        seen[model] = true
+        result[#result + 1] = model
+    end
+
+    -- Native viewmodel references are the most reliable when the game exposes
+    -- them. Include both the weapon model and split large/small variants.
+    if type(view) == "table" then
+        add(view.Model)
+        add(view.LargeWeaponModel)
+        add(view.SmallWeaponModel)
+    end
+
+    if type(skinData.GetWeapon) == "function" then
+        pcall(function()
+            local weapon = skinData.GetWeapon()
+            local nativeView = weapon and weapon.Viewmodel
+            if type(nativeView) == "table" then
+                add(nativeView.Model)
+                add(nativeView.LargeWeaponModel)
+                add(nativeView.SmallWeaponModel)
+            end
+        end)
+    end
+    if type(resolveWeaponModel) == "function" then
+        pcall(function() add(resolveWeaponModel()) end)
+    end
+    add(getCurrentWeaponModel())
+
+    -- Arms are a separate direct child of CurrentCamera in BloxStrike builds.
+    -- Move them together with the weapon so X/Y/Z and rotations behave like a
+    -- normal viewmodel offset rather than only shifting the gun.
+    if cam then
+        for _, child in ipairs(cam:GetChildren()) do
+            if child:IsA("Model") then
+                local lower = child.Name:lower()
+                local isArms = lower:find("arm", 1, true) ~= nil
+                    or child:FindFirstChild("Right Arm", true) ~= nil
+                    or child:FindFirstChild("Left Arm", true) ~= nil
+                    or child:FindFirstChild("RightHand", true) ~= nil
+                    or child:FindFirstChild("LeftHand", true) ~= nil
+                local isViewmodel = lower:find("viewmodel", 1, true) ~= nil
+                if isArms or isViewmodel then add(child) end
+            end
+        end
+    end
+
+    return result
+end
+
+function restoreXCCustomHands()
+    local states = XCFeatureState.customHandsTransforms
+    local cam = Workspace.CurrentCamera or camera
+    if type(states) == "table" and cam then
+        for model, state in pairs(states) do
+            if model and model.Parent and type(state) == "table"
+                and typeof(state.NativeLocal) == "CFrame" then
+                pcall(function()
+                    local currentLocal = cam.CFrame:ToObjectSpace(model:GetPivot())
+                    -- Only restore when our transform is still the one visible.
+                    -- If the game has already rendered a fresh pose, leave it.
+                    if typeof(state.AppliedLocal) ~= "CFrame"
+                        or XCCFrameNear(currentLocal, state.AppliedLocal, 0.03, 0.997) then
+                        model:PivotTo(cam.CFrame * state.NativeLocal)
+                    end
+                end)
+            end
+        end
+    end
+    XCFeatureState.customHandsTransforms = setmetatable({}, {__mode = "k"})
+    handsLastModel = nil
+    handsLastPivot = nil
+end
+
 function applyXCHandsOffset(view)
     if not XCConfig.customHandsEnabled then
-        handsLastModel = nil
-        handsLastPivot = nil
+        restoreXCCustomHands()
         return
     end
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
-    local model = type(view) == "table" and view.Model or getCurrentWeaponModel()
-    if not model or not model:IsA("Model") then return end
-    if handsLastModel ~= model then
-        handsLastModel = model
-        handsLastPivot = model:GetPivot()
+
+    local states = XCFeatureState.customHandsTransforms
+    if type(states) ~= "table" then
+        states = setmetatable({}, {__mode = "k"})
+        XCFeatureState.customHandsTransforms = states
     end
-    local original = model:GetPivot()
-    local offset = CFrame.new(XCConfig.customHandsX, XCConfig.customHandsY, XCConfig.customHandsZ)
-        * CFrame.Angles(math.rad(XCConfig.customHandsPitch), math.rad(XCConfig.customHandsYaw), math.rad(XCConfig.customHandsRoll))
-    pcall(function()
-        model:PivotTo(cam.CFrame * offset * cam.CFrame:ToObjectSpace(original))
-        if type(view) == "table" and view.LargeWeaponModel and view.SmallWeaponModel then
-            view.LargeWeaponModel:PivotTo(view.SmallWeaponModel:GetPivot())
-        end
-    end)
+
+    local offset = CFrame.new(
+        tonumber(XCConfig.customHandsX) or 0,
+        tonumber(XCConfig.customHandsY) or 0,
+        tonumber(XCConfig.customHandsZ) or 0
+    ) * CFrame.Angles(
+        math.rad(tonumber(XCConfig.customHandsPitch) or 0),
+        math.rad(tonumber(XCConfig.customHandsYaw) or 0),
+        math.rad(tonumber(XCConfig.customHandsRoll) or 0)
+    )
+
+    local targets = XCGetCustomHandsTargets(view)
+    for _, model in ipairs(targets) do
+        pcall(function()
+            local currentLocal = cam.CFrame:ToObjectSpace(model:GetPivot())
+            local state = states[model]
+            local nativeLocal
+
+            -- If the current pivot is still exactly what XC wrote previously,
+            -- the native renderer did not refresh it this frame. Reuse the
+            -- stored native pivot instead of applying the offset a second time.
+            if state and typeof(state.AppliedLocal) == "CFrame"
+                and XCCFrameNear(currentLocal, state.AppliedLocal, 0.025, 0.998) then
+                nativeLocal = state.NativeLocal
+            else
+                nativeLocal = currentLocal
+            end
+
+            local appliedLocal = offset * nativeLocal
+            model:PivotTo(cam.CFrame * appliedLocal)
+            states[model] = {
+                NativeLocal = nativeLocal,
+                AppliedLocal = appliedLocal,
+                UpdatedAt = os.clock(),
+            }
+            handsLastModel = model
+            handsLastPivot = cam.CFrame * nativeLocal
+        end)
+    end
 end
 
--- Apply the offset immediately after the native viewmodel render. This keeps
--- the native pose as the baseline and prevents a RenderStepped offset from
--- accumulating/drifting each frame.
+-- Keep a native hook when the current build exposes Viewmodel.render, but do
+-- not depend on it: a late RenderStepped pass below handles split/renamed
+-- viewmodels too.
 function setupXCCustomHandsHook()
     pcall(function()
+        local candidates = {}
         local classes = ReplicatedStorage:FindFirstChild("Classes")
         local weaponComponent = classes and classes:FindFirstChild("WeaponComponent")
         local viewClasses = weaponComponent and weaponComponent:FindFirstChild("Classes")
-        local viewScript = viewClasses and viewClasses:FindFirstChild("Viewmodel")
-        local viewmodel = viewScript and require(viewScript)
-        if type(viewmodel) ~= "table" or type(viewmodel.render) ~= "function" then return end
-        if sharedXCEnv then sharedXCEnv.XCApplyHandsV33 = applyXCHandsOffset end
-        if rawget(viewmodel, "__XCCustomHandsHookV33") then
-            handsNativeHooked = true
-            return
+        local direct = viewClasses and (viewClasses:FindFirstChild("Viewmodel") or viewClasses:FindFirstChild("ViewModel"))
+        if direct and direct:IsA("ModuleScript") then candidates[#candidates + 1] = direct end
+
+        local recursive = ReplicatedStorage:FindFirstChild("Viewmodel", true)
+            or ReplicatedStorage:FindFirstChild("ViewModel", true)
+        if recursive and recursive:IsA("ModuleScript") and recursive ~= direct then
+            candidates[#candidates + 1] = recursive
         end
-        local originalRender = viewmodel.render
-        viewmodel.render = function(view, ...)
-            local results = table.pack(originalRender(view, ...))
-            local callback = sharedXCEnv and sharedXCEnv.XCApplyHandsV33 or applyXCHandsOffset
-            if type(callback) == "function" then pcall(callback, view) end
-            return table.unpack(results, 1, results.n)
+
+        if sharedXCEnv then sharedXCEnv.XCApplyHandsV72 = applyXCHandsOffset end
+        for _, moduleScript in ipairs(candidates) do
+            local ok, viewmodel = pcall(require, moduleScript)
+            if ok and type(viewmodel) == "table" then
+                local methodName
+                for _, name in ipairs({"render", "Render", "update", "Update"}) do
+                    if type(viewmodel[name]) == "function" then methodName = name; break end
+                end
+                if methodName then
+                    if rawget(viewmodel, "__XCCustomHandsHookV72") then
+                        handsNativeHooked = true
+                        return
+                    end
+                    local originalRender = viewmodel[methodName]
+                    viewmodel[methodName] = function(view, ...)
+                        local results = table.pack(originalRender(view, ...))
+                        local callback = sharedXCEnv and sharedXCEnv.XCApplyHandsV72 or applyXCHandsOffset
+                        if type(callback) == "function" then pcall(callback, view) end
+                        return table.unpack(results, 1, results.n)
+                    end
+                    rawset(viewmodel, "__XCCustomHandsHookV72", true)
+                    handsNativeHooked = true
+                    return
+                end
+            end
         end
-        rawset(viewmodel, "__XCCustomHandsHookV33", true)
-        handsNativeHooked = true
     end)
     return handsNativeHooked
 end
@@ -4517,7 +5076,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         spectatorFrame.Visible = false
     end
     if XCConfig.customHandsEnabled and not handsNativeHooked then
-        applyXCHandsOffset()
+        local now = os.clock()
+        if now >= (XCFeatureState.customHandsHookRetryAt or 0) then
+            XCFeatureState.customHandsHookRetryAt = now + 1.5
+            setupXCCustomHandsHook()
+        end
     end
     if animationTrack and animationTrack.IsPlaying then
         animationUpdateAccumulator = animationUpdateAccumulator + (dt)
@@ -4568,47 +5131,82 @@ local defaultHipHeight = 2.0
 local defaultHipHeightCaptured = false
 --// ENVIRONMENT PRESETS & FOG LIBRARY FULL WORK
 local nightPresets = {
+    ["Competitive"] = {
+        ClockTime = 14.0, Brightness = 2.35,
+        OutdoorAmbient = Color3.fromRGB(185, 190, 195), Ambient = Color3.fromRGB(115, 120, 125),
+        FogColor = Color3.fromRGB(205, 215, 225), ShadowSoftness = 0.05,
+        Diffuse = 0.80, Specular = 0.35,
+        ShiftTop = Color3.fromRGB(0, 0, 0), ShiftBottom = Color3.fromRGB(0, 0, 0)
+    },
+    ["Daylight"] = {
+        ClockTime = 13.5, Brightness = 2.0,
+        OutdoorAmbient = Color3.fromRGB(150, 158, 170), Ambient = Color3.fromRGB(95, 100, 110),
+        FogColor = Color3.fromRGB(190, 205, 220), ShadowSoftness = 0.20,
+        Diffuse = 1.0, Specular = 0.75,
+        ShiftTop = Color3.fromRGB(4, 8, 12), ShiftBottom = Color3.fromRGB(0, 0, 0)
+    },
+    ["Golden Hour"] = {
+        ClockTime = 17.25, Brightness = 1.65,
+        OutdoorAmbient = Color3.fromRGB(168, 117, 79), Ambient = Color3.fromRGB(92, 67, 58),
+        FogColor = Color3.fromRGB(222, 153, 105), ShadowSoftness = 0.42,
+        Diffuse = 0.95, Specular = 0.85,
+        ShiftTop = Color3.fromRGB(18, 8, 0), ShiftBottom = Color3.fromRGB(9, 3, 0)
+    },
+    ["Sunset"] = {
+        ClockTime = 18.35, Brightness = 1.15,
+        OutdoorAmbient = Color3.fromRGB(120, 72, 105), Ambient = Color3.fromRGB(65, 45, 72),
+        FogColor = Color3.fromRGB(176, 92, 124), ShadowSoftness = 0.52,
+        Diffuse = 0.90, Specular = 0.72,
+        ShiftTop = Color3.fromRGB(15, 2, 10), ShiftBottom = Color3.fromRGB(5, 0, 6)
+    },
     ["Midnight"] = {
-        ClockTime = 0.0,
-        Brightness = 0.2,
-        OutdoorAmbient = Color3.fromRGB(25, 25, 40),
-        Ambient = Color3.fromRGB(15, 15, 25),
-        FogColor = Color3.fromRGB(10, 10, 20)
+        ClockTime = 0.0, Brightness = 0.2,
+        OutdoorAmbient = Color3.fromRGB(25, 25, 40), Ambient = Color3.fromRGB(15, 15, 25),
+        FogColor = Color3.fromRGB(10, 10, 20), ShadowSoftness = 0.28,
+        Diffuse = 0.65, Specular = 0.70,
+        ShiftTop = Color3.fromRGB(0, 0, 8), ShiftBottom = Color3.fromRGB(0, 0, 3)
     },
     ["Nebula"] = {
-        ClockTime = 23.8,
-        Brightness = 0.3,
-        OutdoorAmbient = Color3.fromRGB(70, 25, 85),
-        Ambient = Color3.fromRGB(45, 15, 60),
-        FogColor = Color3.fromRGB(90, 30, 110)
+        ClockTime = 23.8, Brightness = 0.3,
+        OutdoorAmbient = Color3.fromRGB(70, 25, 85), Ambient = Color3.fromRGB(45, 15, 60),
+        FogColor = Color3.fromRGB(90, 30, 110), ShadowSoftness = 0.34,
+        Diffuse = 0.72, Specular = 0.86,
+        ShiftTop = Color3.fromRGB(10, 0, 18), ShiftBottom = Color3.fromRGB(6, 0, 12)
     },
     ["DeepBlood"] = {
-        ClockTime = 0.0,
-        Brightness = 0.35,
-        OutdoorAmbient = Color3.fromRGB(75, 10, 15),
-        Ambient = Color3.fromRGB(45, 5, 10),
-        FogColor = Color3.fromRGB(35, 5, 8)
+        ClockTime = 0.0, Brightness = 0.35,
+        OutdoorAmbient = Color3.fromRGB(75, 10, 15), Ambient = Color3.fromRGB(45, 5, 10),
+        FogColor = Color3.fromRGB(35, 5, 8), ShadowSoftness = 0.22,
+        Diffuse = 0.66, Specular = 0.55,
+        ShiftTop = Color3.fromRGB(16, 0, 0), ShiftBottom = Color3.fromRGB(8, 0, 0)
     },
     ["CyberPurple"] = {
-        ClockTime = 23.5,
-        Brightness = 0.3,
-        OutdoorAmbient = Color3.fromRGB(65, 15, 95),
-        Ambient = Color3.fromRGB(40, 10, 60),
-        FogColor = Color3.fromRGB(30, 8, 45)
+        ClockTime = 23.5, Brightness = 0.3,
+        OutdoorAmbient = Color3.fromRGB(65, 15, 95), Ambient = Color3.fromRGB(40, 10, 60),
+        FogColor = Color3.fromRGB(30, 8, 45), ShadowSoftness = 0.18,
+        Diffuse = 0.72, Specular = 0.95,
+        ShiftTop = Color3.fromRGB(8, 0, 18), ShiftBottom = Color3.fromRGB(4, 0, 12)
     },
     ["EmeraldNight"] = {
-        ClockTime = 1.0,
-        Brightness = 0.25,
-        OutdoorAmbient = Color3.fromRGB(10, 55, 30),
-        Ambient = Color3.fromRGB(5, 35, 20),
-        FogColor = Color3.fromRGB(5, 25, 15)
+        ClockTime = 1.0, Brightness = 0.25,
+        OutdoorAmbient = Color3.fromRGB(10, 55, 30), Ambient = Color3.fromRGB(5, 35, 20),
+        FogColor = Color3.fromRGB(5, 25, 15), ShadowSoftness = 0.25,
+        Diffuse = 0.70, Specular = 0.82,
+        ShiftTop = Color3.fromRGB(0, 11, 4), ShiftBottom = Color3.fromRGB(0, 6, 2)
+    },
+    ["Noir"] = {
+        ClockTime = 21.5, Brightness = 0.55,
+        OutdoorAmbient = Color3.fromRGB(62, 62, 66), Ambient = Color3.fromRGB(34, 34, 37),
+        FogColor = Color3.fromRGB(62, 64, 69), ShadowSoftness = 0.12,
+        Diffuse = 0.58, Specular = 0.35,
+        ShiftTop = Color3.fromRGB(0, 0, 0), ShiftBottom = Color3.fromRGB(0, 0, 0)
     },
     ["PitchBlack"] = {
-        ClockTime = 0.0,
-        Brightness = 0.0,
-        OutdoorAmbient = Color3.fromRGB(0, 0, 0),
-        Ambient = Color3.fromRGB(0, 0, 0),
-        FogColor = Color3.fromRGB(0, 0, 0)
+        ClockTime = 0.0, Brightness = 0.0,
+        OutdoorAmbient = Color3.fromRGB(0, 0, 0), Ambient = Color3.fromRGB(0, 0, 0),
+        FogColor = Color3.fromRGB(0, 0, 0), ShadowSoftness = 0,
+        Diffuse = 0.25, Specular = 0.25,
+        ShiftTop = Color3.fromRGB(0, 0, 0), ShiftBottom = Color3.fromRGB(0, 0, 0)
     }
 }
 
@@ -4631,7 +5229,12 @@ local defaultLighting = {
     ExposureCompensation = Lighting.ExposureCompensation,
     FogStart = Lighting.FogStart,
     FogEnd = Lighting.FogEnd,
-    FogColor = Lighting.FogColor
+    FogColor = Lighting.FogColor,
+    ShadowSoftness = Lighting.ShadowSoftness,
+    EnvironmentDiffuseScale = Lighting.EnvironmentDiffuseScale,
+    EnvironmentSpecularScale = Lighting.EnvironmentSpecularScale,
+    ColorShift_Top = Lighting.ColorShift_Top,
+    ColorShift_Bottom = Lighting.ColorShift_Bottom,
 }
 --// DISPLAY CONTAINERS SETUP
 local mainContainer = Instance.new("ScreenGui")
@@ -6281,23 +6884,33 @@ function refreshThirdPerson()
 end
 --// LIGHTING & ATMOSPHERE FUNCTIONS WORK
 function applyNightPreset(presetName)
+    if presetName == "Custom" then
+        XCConfig.nightPreset = "Custom"
+        if XCConfig.nightModeEnabled then updateWorldChanger() end
+        return
+    end
+
     local cfg = nightPresets[presetName]
     if not cfg then return end
     XCConfig.nightPreset = presetName
     XCConfig.nightClockTime = cfg.ClockTime
     XCConfig.nightBrightness = cfg.Brightness
-    
-    if XCConfig.nightModeEnabled then
-        Lighting.ClockTime = cfg.ClockTime
-        Lighting.Brightness = cfg.Brightness
-        Lighting.OutdoorAmbient = cfg.OutdoorAmbient
-        Lighting.Ambient = cfg.Ambient
-        Lighting.GlobalShadows = true
-        if not XCConfig.removeFogEnabled then
-            Lighting.FogColor = fogLibrary[presetName] or cfg.FogColor
-        end
-        updateWorldChanger()
+    XCConfig.worldShadowSoftness = cfg.ShadowSoftness or XCConfig.worldShadowSoftness
+    XCConfig.worldEnvironmentDiffuse = cfg.Diffuse or XCConfig.worldEnvironmentDiffuse
+    XCConfig.worldEnvironmentSpecular = cfg.Specular or XCConfig.worldEnvironmentSpecular
+
+    local function saveColor(prefix, color)
+        XCConfig[prefix .. "R"] = math.floor(color.R * 255 + 0.5)
+        XCConfig[prefix .. "G"] = math.floor(color.G * 255 + 0.5)
+        XCConfig[prefix .. "B"] = math.floor(color.B * 255 + 0.5)
     end
+    saveColor("worldAmbient", cfg.Ambient)
+    saveColor("worldOutdoorAmbient", cfg.OutdoorAmbient)
+    saveColor("worldFogColor", fogLibrary[presetName] or cfg.FogColor)
+    saveColor("worldColorShiftTop", cfg.ShiftTop or Color3.new())
+    saveColor("worldColorShiftBottom", cfg.ShiftBottom or Color3.new())
+
+    if XCConfig.nightModeEnabled then updateWorldChanger() end
 end
 
 function restoreLightingState()
@@ -6311,22 +6924,14 @@ function restoreLightingState()
         Lighting.FogStart = defaultLighting.FogStart or 0
         Lighting.FogColor = defaultLighting.FogColor
         Lighting.ExposureCompensation = defaultLighting.ExposureCompensation or 0
-        restoreWorldSkybox()
-        local fx = Lighting:FindFirstChild("XCWorldColorFX")
-        if fx then fx:Destroy() end
-        if XCFeatureState and XCFeatureState.worldAtmosphere then
-            XCFeatureState.worldAtmosphere:Destroy()
-            XCFeatureState.worldAtmosphere = nil
-        end
-        if XCFeatureState and XCFeatureState.worldOriginalAtmosphere then
-            XCFeatureState.worldOriginalAtmosphere.Parent = Lighting
-            XCFeatureState.worldOriginalAtmosphere = nil
-        end
-        if XCFeatureState and XCFeatureState.worldBloom then
-            XCFeatureState.worldBloom:Destroy()
-            XCFeatureState.worldBloom = nil
-        end
+        Lighting.ShadowSoftness = defaultLighting.ShadowSoftness
+        Lighting.EnvironmentDiffuseScale = defaultLighting.EnvironmentDiffuseScale
+        Lighting.EnvironmentSpecularScale = defaultLighting.EnvironmentSpecularScale
+        Lighting.ColorShift_Top = defaultLighting.ColorShift_Top
+        Lighting.ColorShift_Bottom = defaultLighting.ColorShift_Bottom
     end)
+    pcall(function() restoreWorldSkybox() end)
+    pcall(function() if restoreXCWorldEffects then restoreXCWorldEffects() end end)
 end
 --// WORLD VISUALS
 local worldSkyboxData = {
@@ -6344,7 +6949,7 @@ local worldSkyboxData = {
     ["Pink Sky"] = {"rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060","rbxassetid://7890140060"}
 }
 
-local originalSkybox = nil
+local originalSkyboxes = {}
 local originalPostFX = nil
 local weaponVisualState = setmetatable({}, {__mode = "k"})
 local weaponGlowObjects = setmetatable({}, {__mode = "k"})
@@ -6575,11 +7180,13 @@ function applyWorldSkybox()
     local data = worldSkyboxData[XCConfig.worldSkyboxPreset]
     if not data or not XCConfig.worldSkyboxEnabled then return end
     pcall(function()
-        -- Blox Strike can recreate its native Sky during a round change. Keep
-        -- exactly one active Sky, as in the reference implementation.
+        -- Preserve every native sky instead of only the first one. BloxStrike
+        -- can swap Sky objects between rounds, so XC keeps its own single sky
+        -- while the override is active and restores the captured set later.
+        local captureNative = #originalSkyboxes == 0
         for _, existing in ipairs(Lighting:GetChildren()) do
             if existing:IsA("Sky") and existing.Name ~= "XCWorldSky" then
-                if not originalSkybox then originalSkybox = existing:Clone() end
+                if captureNative then table.insert(originalSkyboxes, existing:Clone()) end
                 existing:Destroy()
             end
         end
@@ -6591,11 +7198,11 @@ function applyWorldSkybox()
         end
         sky.SkyboxBk, sky.SkyboxDn, sky.SkyboxFt = data[1], data[2], data[3]
         sky.SkyboxLf, sky.SkyboxRt, sky.SkyboxUp = data[4], data[5], data[6]
-        pcall(function()
-            sky.SkyboxOrientation = Vector3.new(0, tonumber(XCConfig.worldSkyRotation) or 0, 0)
-            sky.StarCount = math.clamp(tonumber(XCConfig.worldSkyStars) or 0, 0, 5000)
-            sky.CelestialBodiesShown = XCConfig.worldSkyCelestial == true
-        end)
+        pcall(function() sky.SkyboxOrientation = Vector3.new(0, tonumber(XCConfig.worldSkyRotation) or 0, 0) end)
+        pcall(function() sky.StarCount = math.clamp(tonumber(XCConfig.worldSkyStars) or 0, 0, 5000) end)
+        pcall(function() sky.CelestialBodiesShown = XCConfig.worldSkyCelestial == true end)
+        pcall(function() sky.SunAngularSize = math.clamp(tonumber(XCConfig.worldSkySunSize) or 21, 0, 60) end)
+        pcall(function() sky.MoonAngularSize = math.clamp(tonumber(XCConfig.worldSkyMoonSize) or 11, 0, 60) end)
     end)
 end
 
@@ -6603,18 +7210,87 @@ function restoreWorldSkybox()
     pcall(function()
         local sky = Lighting:FindFirstChild("XCWorldSky")
         if sky then sky:Destroy() end
-        if originalSkybox then
-            originalSkybox.Parent = Lighting
-            originalSkybox = nil
+        if #originalSkyboxes > 0 then
+            -- Do not duplicate a native sky that the game already recreated.
+            local hasNative = false
+            for _, object in ipairs(Lighting:GetChildren()) do
+                if object:IsA("Sky") and object.Name ~= "XCWorldSky" then hasNative = true break end
+            end
+            if not hasNative then
+                for _, saved in ipairs(originalSkyboxes) do
+                    if saved then saved.Parent = Lighting end
+                end
+            else
+                for _, saved in ipairs(originalSkyboxes) do pcall(function() saved:Destroy() end) end
+            end
+            table.clear(originalSkyboxes)
         end
     end)
+end
+
+--// XC protector register headroom: map/world helpers use prefixed globals to avoid Stage1 local overflow.
+function XCWorldSet(instance, property, value)
+    pcall(function()
+        if instance[property] ~= value then instance[property] = value end
+    end)
+end
+
+function updateXCWorldLighting()
+    local optimizerKillsShadows = XCConfig.mapOptimizerEnabled == true and XCConfig.mapOptimizerDisableShadows == true
+    if XCConfig.fullBrightEnabled then
+        XCWorldSet(Lighting, "Brightness", 3)
+        XCWorldSet(Lighting, "ClockTime", 14)
+        XCWorldSet(Lighting, "GlobalShadows", false)
+        XCWorldSet(Lighting, "Ambient", Color3.fromRGB(190, 190, 190))
+        XCWorldSet(Lighting, "OutdoorAmbient", Color3.fromRGB(205, 205, 205))
+        XCWorldSet(Lighting, "ColorShift_Top", Color3.new())
+        XCWorldSet(Lighting, "ColorShift_Bottom", Color3.new())
+    elseif XCConfig.nightModeEnabled then
+        local preset = nightPresets[XCConfig.nightPreset] or nightPresets.Midnight
+        XCWorldSet(Lighting, "Brightness", math.clamp(tonumber(XCConfig.nightBrightness) or preset.Brightness, 0, 10))
+        XCWorldSet(Lighting, "ClockTime", (tonumber(XCConfig.nightClockTime) or preset.ClockTime) % 24)
+        XCWorldSet(Lighting, "GlobalShadows", not optimizerKillsShadows)
+        XCWorldSet(Lighting, "Ambient", rgb(XCConfig.worldAmbientR, XCConfig.worldAmbientG, XCConfig.worldAmbientB))
+        XCWorldSet(Lighting, "OutdoorAmbient", rgb(XCConfig.worldOutdoorAmbientR, XCConfig.worldOutdoorAmbientG, XCConfig.worldOutdoorAmbientB))
+        XCWorldSet(Lighting, "ShadowSoftness", math.clamp(tonumber(XCConfig.worldShadowSoftness) or 0.2, 0, 1))
+        XCWorldSet(Lighting, "EnvironmentDiffuseScale", math.clamp(tonumber(XCConfig.worldEnvironmentDiffuse) or 1, 0, 1))
+        XCWorldSet(Lighting, "EnvironmentSpecularScale", math.clamp(tonumber(XCConfig.worldEnvironmentSpecular) or 1, 0, 1))
+        XCWorldSet(Lighting, "ColorShift_Top", rgb(XCConfig.worldColorShiftTopR, XCConfig.worldColorShiftTopG, XCConfig.worldColorShiftTopB))
+        XCWorldSet(Lighting, "ColorShift_Bottom", rgb(XCConfig.worldColorShiftBottomR, XCConfig.worldColorShiftBottomG, XCConfig.worldColorShiftBottomB))
+    else
+        XCWorldSet(Lighting, "Brightness", defaultLighting.Brightness)
+        XCWorldSet(Lighting, "ClockTime", defaultLighting.ClockTime)
+        XCWorldSet(Lighting, "GlobalShadows", optimizerKillsShadows and false or defaultLighting.GlobalShadows)
+        XCWorldSet(Lighting, "Ambient", defaultLighting.Ambient)
+        XCWorldSet(Lighting, "OutdoorAmbient", defaultLighting.OutdoorAmbient)
+        XCWorldSet(Lighting, "ShadowSoftness", defaultLighting.ShadowSoftness)
+        XCWorldSet(Lighting, "EnvironmentDiffuseScale", defaultLighting.EnvironmentDiffuseScale)
+        XCWorldSet(Lighting, "EnvironmentSpecularScale", defaultLighting.EnvironmentSpecularScale)
+        XCWorldSet(Lighting, "ColorShift_Top", defaultLighting.ColorShift_Top)
+        XCWorldSet(Lighting, "ColorShift_Bottom", defaultLighting.ColorShift_Bottom)
+    end
+
+    if XCConfig.removeFogEnabled then
+        XCWorldSet(Lighting, "FogStart", 0)
+        XCWorldSet(Lighting, "FogEnd", 1000000)
+    elseif XCConfig.worldFogEnabled then
+        local fogStart = math.max(0, tonumber(XCConfig.worldFogStart) or 0)
+        local fogEnd = math.max(fogStart + 1, tonumber(XCConfig.worldFogEnd) or 100000)
+        XCWorldSet(Lighting, "FogStart", fogStart)
+        XCWorldSet(Lighting, "FogEnd", fogEnd)
+        XCWorldSet(Lighting, "FogColor", rgb(XCConfig.worldFogColorR, XCConfig.worldFogColorG, XCConfig.worldFogColorB))
+    else
+        XCWorldSet(Lighting, "FogStart", defaultLighting.FogStart or 0)
+        XCWorldSet(Lighting, "FogEnd", defaultLighting.FogEnd)
+        XCWorldSet(Lighting, "FogColor", defaultLighting.FogColor)
+    end
 end
 
 function updateWorldPostFX()
     if not XCConfig.worldPostFXEnabled then
         local fx = Lighting:FindFirstChild("XCWorldColorFX")
         if fx then fx:Destroy() end
-        Lighting.ExposureCompensation = defaultLighting.ExposureCompensation or 0
+        XCWorldSet(Lighting, "ExposureCompensation", defaultLighting.ExposureCompensation or 0)
         return
     end
     local fx = Lighting:FindFirstChild("XCWorldColorFX")
@@ -6624,11 +7300,30 @@ function updateWorldPostFX()
         fx.Parent = Lighting
     end
     fx.Enabled = true
-    fx.Saturation = math.clamp(XCConfig.worldSaturation or 0, -1, 1)
-    fx.Contrast = math.clamp(XCConfig.worldContrast or 0, -1, 1)
+    fx.Brightness = math.clamp(tonumber(XCConfig.worldPostBrightness) or 0, -1, 1)
+    fx.Saturation = math.clamp(tonumber(XCConfig.worldSaturation) or 0, -1, 1)
+    fx.Contrast = math.clamp(tonumber(XCConfig.worldContrast) or 0, -1, 1)
     fx.TintColor = XCFeatureState.worldTonePresets[XCConfig.worldTonePreset]
         or rgb(XCConfig.worldColorR, XCConfig.worldColorG, XCConfig.worldColorB)
-    Lighting.ExposureCompensation = math.clamp(XCConfig.worldExposure or 0, -5, 5)
+    XCWorldSet(Lighting, "ExposureCompensation", math.clamp(tonumber(XCConfig.worldExposure) or 0, -5, 5))
+end
+
+function XCRestoreOriginalAtmospheres()
+    local saved = XCFeatureState and XCFeatureState.worldOriginalAtmospheres
+    if type(saved) ~= "table" or #saved == 0 then return end
+    local hasNative = false
+    for _, object in ipairs(Lighting:GetChildren()) do
+        if object:IsA("Atmosphere") and object.Name ~= "XCWorldAtmosphere" and object.Name ~= "XCWeatherAtmosphere" then
+            hasNative = true break
+        end
+    end
+    for _, atmosphere in ipairs(saved) do
+        if atmosphere then
+            if hasNative then pcall(function() atmosphere:Destroy() end)
+            else pcall(function() atmosphere.Parent = Lighting end) end
+        end
+    end
+    table.clear(saved)
 end
 
 function updateXCWorldAtmosphere()
@@ -6636,32 +7331,29 @@ function updateXCWorldAtmosphere()
     if not XCConfig.worldAtmosphereEnabled or weatherOwnsFog then
         if XCFeatureState.worldAtmosphere then XCFeatureState.worldAtmosphere:Destroy() end
         XCFeatureState.worldAtmosphere = nil
-        if XCFeatureState.worldOriginalAtmosphere and not weatherOwnsFog then
-            XCFeatureState.worldOriginalAtmosphere.Parent = Lighting
-            XCFeatureState.worldOriginalAtmosphere = nil
-        end
+        if not weatherOwnsFog then XCRestoreOriginalAtmospheres() end
         return
     end
-    if not XCFeatureState.worldAtmosphere or not XCFeatureState.worldAtmosphere.Parent then
-        if not XCFeatureState.worldOriginalAtmosphere then
-            for _, object in ipairs(Lighting:GetChildren()) do
-                if object:IsA("Atmosphere") and object.Name ~= "XCWeatherAtmosphere" then
-                    XCFeatureState.worldOriginalAtmosphere = object:Clone()
-                    object:Destroy()
-                    break
-                end
-            end
+    XCFeatureState.worldOriginalAtmospheres = XCFeatureState.worldOriginalAtmospheres or {}
+    local captureNative = #XCFeatureState.worldOriginalAtmospheres == 0
+    for _, object in ipairs(Lighting:GetChildren()) do
+        if object:IsA("Atmosphere") and object.Name ~= "XCWeatherAtmosphere" and object.Name ~= "XCWorldAtmosphere" then
+            if captureNative then table.insert(XCFeatureState.worldOriginalAtmospheres, object:Clone()) end
+            object:Destroy()
         end
+    end
+    if not XCFeatureState.worldAtmosphere or not XCFeatureState.worldAtmosphere.Parent then
         XCFeatureState.worldAtmosphere = Instance.new("Atmosphere")
         XCFeatureState.worldAtmosphere.Name = "XCWorldAtmosphere"
         XCFeatureState.worldAtmosphere.Parent = Lighting
     end
     local atmosphere = XCFeatureState.worldAtmosphere
     atmosphere.Density = math.clamp(tonumber(XCConfig.worldAtmosphereDensity) or 0.3, 0, 1)
+    atmosphere.Offset = math.clamp(tonumber(XCConfig.worldAtmosphereOffset) or 0, -1, 1)
     atmosphere.Haze = math.clamp(tonumber(XCConfig.worldAtmosphereHaze) or 0, 0, 10)
     atmosphere.Glare = math.clamp(tonumber(XCConfig.worldAtmosphereGlare) or 0, 0, 10)
-    atmosphere.Color = XCFeatureState.worldTonePresets[XCConfig.worldTonePreset] or Color3.fromRGB(220, 230, 210)
-    atmosphere.Decay = Color3.fromRGB(92, 102, 82)
+    atmosphere.Color = rgb(XCConfig.worldAtmosphereColorR, XCConfig.worldAtmosphereColorG, XCConfig.worldAtmosphereColorB)
+    atmosphere.Decay = rgb(XCConfig.worldAtmosphereDecayR, XCConfig.worldAtmosphereDecayG, XCConfig.worldAtmosphereDecayB)
 end
 
 function updateXCWorldBloom()
@@ -6675,21 +7367,134 @@ function updateXCWorldBloom()
         XCFeatureState.worldBloom.Name = "XCWorldBloom"
         XCFeatureState.worldBloom.Parent = Lighting
     end
+    XCFeatureState.worldBloom.Enabled = true
     XCFeatureState.worldBloom.Intensity = math.clamp(tonumber(XCConfig.worldBloomIntensity) or 0.35, 0, 3)
     XCFeatureState.worldBloom.Size = math.clamp(tonumber(XCConfig.worldBloomSize) or 24, 0, 56)
     XCFeatureState.worldBloom.Threshold = math.clamp(tonumber(XCConfig.worldBloomThreshold) or 1, 0, 5)
 end
 
+function updateXCWorldSunRays()
+    if not XCConfig.worldSunRaysEnabled then
+        if XCFeatureState.worldSunRays then XCFeatureState.worldSunRays:Destroy() end
+        XCFeatureState.worldSunRays = nil
+        return
+    end
+    if not XCFeatureState.worldSunRays or not XCFeatureState.worldSunRays.Parent then
+        XCFeatureState.worldSunRays = Instance.new("SunRaysEffect")
+        XCFeatureState.worldSunRays.Name = "XCWorldSunRays"
+        XCFeatureState.worldSunRays.Parent = Lighting
+    end
+    XCFeatureState.worldSunRays.Enabled = true
+    XCFeatureState.worldSunRays.Intensity = math.clamp(tonumber(XCConfig.worldSunRaysIntensity) or 0.08, 0, 1)
+    XCFeatureState.worldSunRays.Spread = math.clamp(tonumber(XCConfig.worldSunRaysSpread) or 0.8, 0, 1)
+end
+
+function updateXCWorldDepthOfField()
+    if not XCConfig.worldDepthOfFieldEnabled then
+        if XCFeatureState.worldDepthOfField then XCFeatureState.worldDepthOfField:Destroy() end
+        XCFeatureState.worldDepthOfField = nil
+        return
+    end
+    if not XCFeatureState.worldDepthOfField or not XCFeatureState.worldDepthOfField.Parent then
+        XCFeatureState.worldDepthOfField = Instance.new("DepthOfFieldEffect")
+        XCFeatureState.worldDepthOfField.Name = "XCWorldDepthOfField"
+        XCFeatureState.worldDepthOfField.Parent = Lighting
+    end
+    local effect = XCFeatureState.worldDepthOfField
+    effect.Enabled = true
+    effect.FarIntensity = math.clamp(tonumber(XCConfig.worldDofFarIntensity) or 0.12, 0, 1)
+    effect.NearIntensity = math.clamp(tonumber(XCConfig.worldDofNearIntensity) or 0, 0, 1)
+    effect.FocusDistance = math.max(0.05, tonumber(XCConfig.worldDofFocusDistance) or 60)
+    effect.InFocusRadius = math.max(0, tonumber(XCConfig.worldDofInFocusRadius) or 35)
+end
+
+function updateXCWorldBlur()
+    if not XCConfig.worldBlurEnabled then
+        if XCFeatureState.worldBlur then XCFeatureState.worldBlur:Destroy() end
+        XCFeatureState.worldBlur = nil
+        return
+    end
+    if not XCFeatureState.worldBlur or not XCFeatureState.worldBlur.Parent then
+        XCFeatureState.worldBlur = Instance.new("BlurEffect")
+        XCFeatureState.worldBlur.Name = "XCWorldBlur"
+        XCFeatureState.worldBlur.Parent = Lighting
+    end
+    XCFeatureState.worldBlur.Enabled = true
+    XCFeatureState.worldBlur.Size = math.clamp(tonumber(XCConfig.worldBlurSize) or 4, 0, 56)
+end
+
+function XCRestoreOriginalClouds()
+    local saved = XCFeatureState and XCFeatureState.worldOriginalClouds
+    if type(saved) ~= "table" or #saved == 0 then return end
+    local terrain = Workspace:FindFirstChildOfClass("Terrain")
+    if not terrain then return end
+    local hasNative = false
+    for _, object in ipairs(terrain:GetChildren()) do
+        if object:IsA("Clouds") and object.Name ~= "XCWorldClouds" then hasNative = true break end
+    end
+    for _, clouds in ipairs(saved) do
+        if clouds then
+            if hasNative then pcall(function() clouds:Destroy() end)
+            else pcall(function() clouds.Parent = terrain end) end
+        end
+    end
+    table.clear(saved)
+end
+
+function updateXCWorldClouds()
+    local terrain = Workspace:FindFirstChildOfClass("Terrain")
+    if not terrain then return end
+    if not XCConfig.worldCloudsEnabled then
+        if XCFeatureState.worldClouds then XCFeatureState.worldClouds:Destroy() end
+        XCFeatureState.worldClouds = nil
+        XCRestoreOriginalClouds()
+        return
+    end
+    XCFeatureState.worldOriginalClouds = XCFeatureState.worldOriginalClouds or {}
+    local captureNative = #XCFeatureState.worldOriginalClouds == 0
+    for _, object in ipairs(terrain:GetChildren()) do
+        if object:IsA("Clouds") and object.Name ~= "XCWorldClouds" then
+            if captureNative then table.insert(XCFeatureState.worldOriginalClouds, object:Clone()) end
+            object:Destroy()
+        end
+    end
+    if not XCFeatureState.worldClouds or not XCFeatureState.worldClouds.Parent then
+        XCFeatureState.worldClouds = Instance.new("Clouds")
+        XCFeatureState.worldClouds.Name = "XCWorldClouds"
+        XCFeatureState.worldClouds.Parent = terrain
+    end
+    XCFeatureState.worldClouds.Cover = math.clamp(tonumber(XCConfig.worldCloudCover) or 0.35, 0, 1)
+    XCFeatureState.worldClouds.Density = math.clamp(tonumber(XCConfig.worldCloudDensity) or 0.65, 0, 1)
+    XCFeatureState.worldClouds.Color = rgb(XCConfig.worldCloudColorR, XCConfig.worldCloudColorG, XCConfig.worldCloudColorB)
+end
+
+function restoreXCWorldEffects()
+    local fx = Lighting:FindFirstChild("XCWorldColorFX")
+    if fx then fx:Destroy() end
+    for _, key in ipairs({"worldAtmosphere", "worldBloom", "worldSunRays", "worldDepthOfField", "worldBlur"}) do
+        local object = XCFeatureState and XCFeatureState[key]
+        if object then pcall(function() object:Destroy() end) end
+        if XCFeatureState then XCFeatureState[key] = nil end
+    end
+    if XCFeatureState and XCFeatureState.worldClouds then pcall(function() XCFeatureState.worldClouds:Destroy() end) end
+    if XCFeatureState then XCFeatureState.worldClouds = nil end
+    XCRestoreOriginalAtmospheres()
+    XCRestoreOriginalClouds()
+    XCWorldSet(Lighting, "ExposureCompensation", defaultLighting.ExposureCompensation or 0)
+end
+
 function updateWorldChanger()
+    updateXCWorldLighting()
     if XCConfig.worldSkyboxEnabled then applyWorldSkybox() else restoreWorldSkybox() end
     updateWorldPostFX()
     updateXCWorldAtmosphere()
     updateXCWorldBloom()
-    if XCConfig.worldFogEnd and XCConfig.worldFogEnd > 0 then
-        Lighting.FogStart = math.max(0, XCConfig.worldFogStart or 0)
-        Lighting.FogEnd = math.max(Lighting.FogStart + 1, XCConfig.worldFogEnd)
-    end
+    updateXCWorldSunRays()
+    updateXCWorldDepthOfField()
+    updateXCWorldBlur()
+    updateXCWorldClouds()
 end
+
 --// MINIMAL MAP STYLE + FPS MAP OPTIMIZER | v62: rendering-path-aware map styling. FPS optimization intentionally avoids texture/PBR churn; full texture removal is isolated to the visual style path.
 local XCMapStylePresets = {
     ["Black & White"] = {Dark=Color3.fromRGB(20,22,25), Light=Color3.fromRGB(232,234,238), Steps=5, Gamma=0.92},
@@ -6715,15 +7520,15 @@ local XCMapNeutralVariant = nil
 local XCContentNone = nil
 pcall(function() XCContentNone = Content.none end)
 
-local function XCMapVisualActive()
+function XCMapVisualActive()
     return XCConfig.mapStyleEnabled == true or XCConfig.mapOptimizerEnabled == true
 end
 
-local function XCMapLuminance(color)
+function XCMapLuminance(color)
     return math.clamp(color.R * 0.2126 + color.G * 0.7152 + color.B * 0.0722, 0, 1)
 end
 
-local function XCMapStylePalette()
+function XCMapStylePalette()
     if XCConfig.mapStylePreset == "Custom" then
         return {
             Dark = rgb(XCConfig.mapStyleDarkR, XCConfig.mapStyleDarkG, XCConfig.mapStyleDarkB),
@@ -6734,7 +7539,7 @@ local function XCMapStylePalette()
     return XCMapStylePresets[XCConfig.mapStylePreset] or XCMapStylePresets["Black & White"]
 end
 
-local function XCMapToneFromColor(original)
+function XCMapToneFromColor(original)
     local palette = XCMapStylePalette()
     local t = XCMapLuminance(original)
     t = math.clamp(t ^ (tonumber(palette.Gamma) or 1), 0, 1)
@@ -6751,7 +7556,7 @@ local XCMapExcludedWords = {
 }
 local XCMapSignWords = {"sign", "poster", "screen", "monitor", "billboard", "logo", "text", "ad_", "advert"}
 
-local function XCMapHasWord(instance, words)
+function XCMapHasWord(instance, words)
     local cursor = instance
     for _ = 1, 8 do
         if not cursor or cursor == Workspace or cursor == Lighting then break end
@@ -6764,7 +7569,7 @@ local function XCMapHasWord(instance, words)
     return false
 end
 
-local function XCMapWorldGuiPart(instance)
+function XCMapWorldGuiPart(instance)
     local cursor = instance
     for _ = 1, 8 do
         if not cursor then break end
@@ -6783,7 +7588,7 @@ local function XCMapWorldGuiPart(instance)
     return nil
 end
 
-local function XCMapFindPart(instance)
+function XCMapFindPart(instance)
     if instance:IsA("BasePart") then return instance end
     local guiPart = XCMapWorldGuiPart(instance)
     if guiPart then return guiPart end
@@ -6795,7 +7600,7 @@ local function XCMapFindPart(instance)
     return nil
 end
 
-local function XCMapIsProtectedObject(instance)
+function XCMapIsProtectedObject(instance)
     if not instance then return true end
     if camera and instance:IsDescendantOf(camera) then return true end
     if instance:FindFirstAncestorOfClass("Tool") then return true end
@@ -6809,7 +7614,7 @@ local function XCMapIsProtectedObject(instance)
     return false
 end
 
-local function XCMapStyleEligible(instance)
+function XCMapStyleEligible(instance)
     if not instance or not instance.Parent then return false end
     local inWorkspace = instance:IsDescendantOf(Workspace)
     local guiPart = not inWorkspace and XCMapWorldGuiPart(instance) or nil
@@ -6828,7 +7633,7 @@ local function XCMapStyleEligible(instance)
     return true
 end
 
-local function XCMapOptimizerProfile()
+function XCMapOptimizerProfile()
     local mode = tostring(XCConfig.mapOptimizerMode or "Balanced")
     if mode == "Safe" then
         return {Effects=false, Lights=false, Terrain=false}
@@ -6838,7 +7643,7 @@ local function XCMapOptimizerProfile()
     return {Effects=true, Lights=false, Terrain=true}
 end
 
-local function XCMapStyleMode()
+function XCMapStyleMode()
     local mode = tostring(XCConfig.mapStyleTextureMode or "Full Minimal")
     if mode ~= "Soft Tint" and mode ~= "Minimal" and mode ~= "Full Minimal" then
         mode = "Full Minimal"
@@ -6846,27 +7651,36 @@ local function XCMapStyleMode()
     return mode
 end
 
-local function XCEffectiveMapDetail()
+function XCEffectiveMapDetail()
     return XCConfig.mapStyleEnabled and math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1) or 1
 end
 
-local function XCMapTexturePolicy()
-    local detail = XCEffectiveMapDetail()
+function XCMapTexturePolicy()
     local mode = XCMapStyleMode()
     local style = XCConfig.mapStyleEnabled == true
-    local full = style and mode == "Full Minimal"
-    local minimal = style and (mode == "Minimal" or full)
-    local stripColor = full or (minimal and detail <= 0.35)
-    local stripPBR = full or (minimal and detail < 0.90)
+    local optimizerAggressive = XCConfig.mapOptimizerEnabled == true
+        and tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive"
+
+    -- v70: Aggressive optimizer is allowed to strip expensive map texture
+    -- content even when Minimal Map Style is disabled. This matches the UI
+    -- promise and prevents streamed textures/PBR from staying alive for
+    -- several seconds while the regular map scan catches up.
+    local detail = style and math.clamp(tonumber(XCConfig.mapStyleTextureDetail) or 0.18, 0, 1)
+        or (optimizerAggressive and 0 or 1)
+    local styleFull = style and mode == "Full Minimal"
+    local full = styleFull or optimizerAggressive
+    local minimal = style and (mode == "Minimal" or styleFull)
+    local stripColor = optimizerAggressive or styleFull or (minimal and detail <= 0.35)
+    local stripPBR = optimizerAggressive or styleFull or (minimal and detail < 0.90)
     return detail, stripColor, stripPBR, full
 end
 
-local function XCMapShouldFlatMaterial()
+function XCMapShouldFlatMaterial()
     local _, _, _, full = XCMapTexturePolicy()
     return XCConfig.mapStyleEnabled and (XCConfig.mapStyleFlatMaterials == true or full)
 end
 
-local function XCEnsureSurfaceParking()
+function XCEnsureSurfaceParking()
     if XCMapSurfaceParking and XCMapSurfaceParking.Parent then return XCMapSurfaceParking end
     pcall(function()
         local old = targetGui:FindFirstChild("XCMapSurfaceParking")
@@ -6879,7 +7693,7 @@ local function XCEnsureSurfaceParking()
     return folder
 end
 
-local function XCEnsureNeutralMaterialVariant()
+function XCEnsureNeutralMaterialVariant()
     if XCMapNeutralVariant and XCMapNeutralVariant.Parent == MaterialService then return XCMapNeutralVariant end
     local ownedName = "XC_MinimalMaterial_" .. tostring(player and player.UserId or 0)
     local existing = MaterialService:FindFirstChild(ownedName)
@@ -6900,7 +7714,7 @@ local function XCEnsureNeutralMaterialVariant()
     return variant
 end
 
-local function XCCleanupMapOwnedHelpers()
+function XCCleanupMapOwnedHelpers()
     if XCMapNeutralVariant and XCMapNeutralVariant.Parent then
         pcall(function() XCMapNeutralVariant:Destroy() end)
     end
@@ -6911,7 +7725,7 @@ local function XCCleanupMapOwnedHelpers()
     XCMapSurfaceParking = nil
 end
 
-local function XCCaptureMapGlobalState()
+function XCCaptureMapGlobalState()
     if XCMapGlobalState then return end
     XCMapGlobalState = {GlobalShadows=Lighting.GlobalShadows, TerrainColors={}}
     local terrain = Workspace:FindFirstChildOfClass("Terrain")
@@ -6927,7 +7741,7 @@ local function XCCaptureMapGlobalState()
     end
 end
 
-local function XCRestoreMapGlobalState()
+function XCRestoreMapGlobalState()
     if not XCMapGlobalState then return end
     pcall(function() Lighting.GlobalShadows = XCMapGlobalState.GlobalShadows end)
     local terrain = XCMapGlobalState.Terrain
@@ -6943,7 +7757,7 @@ local function XCRestoreMapGlobalState()
     XCMapGlobalState = nil
 end
 
-local function XCApplyMapGlobalOptimizer()
+function XCApplyMapGlobalOptimizer()
     if not XCMapVisualActive() then XCRestoreMapGlobalState(); return end
     XCCaptureMapGlobalState()
     local state = XCMapGlobalState
@@ -6984,7 +7798,7 @@ local function XCApplyMapGlobalOptimizer()
     end
 end
 
-local function XCApplyMapPart(part)
+function XCApplyMapPart(part)
     local state = XCMapPartState[part]
     if not XCMapStyleEligible(part) then
         if state and part and part.Parent then
@@ -7015,7 +7829,9 @@ local function XCApplyMapPart(part)
             if part:IsA("UnionOperation") then pcall(function() state.UsePartColor = part.UsePartColor end) end
         end
     end
-    if part:IsA("MeshPart") and (XCConfig.mapOptimizerLowMesh or XCConfig.mapStyleEnabled or state.TextureID ~= nil) then
+    local _, stripColor, _, full = XCMapTexturePolicy()
+    if part:IsA("MeshPart") and (XCConfig.mapOptimizerLowMesh or XCConfig.mapStyleEnabled
+        or state.TextureID ~= nil or stripColor or full) then
         if state.TextureID == nil then pcall(function() state.TextureID = part.TextureID end) end
         if state.TextureContentCaptured == nil then
             state.TextureContentCaptured = false
@@ -7025,7 +7841,6 @@ local function XCApplyMapPart(part)
     end
 
     local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
-    local _, stripColor, _, full = XCMapTexturePolicy()
     pcall(function()
         if state.Color ~= nil then
             local desiredColor = XCConfig.mapStyleEnabled and state.Color:Lerp(XCMapToneFromColor(state.Color), strength) or state.Color
@@ -7100,7 +7915,7 @@ local function XCSetMapDecalContents(object, state, clear)
     end
 end
 
-local function XCMapSurfaceStateFor(object)
+function XCMapSurfaceStateFor(object)
     local state = XCMapSurfaceState[object]
     if state then return state end
     state = {OriginalParent=object.Parent, Parked=false}
@@ -7112,7 +7927,7 @@ local function XCMapSurfaceStateFor(object)
     return state
 end
 
-local function XCMapRestoreSurfaceParent(object, state)
+function XCMapRestoreSurfaceParent(object, state)
     if not object or not state or not state.Parked then return end
     local parent = state.OriginalParent
     if parent and parent.Parent then
@@ -7123,7 +7938,7 @@ local function XCMapRestoreSurfaceParent(object, state)
     state.Parked = false
 end
 
-local function XCMapApplySurfaceAppearance(object)
+function XCMapApplySurfaceAppearance(object)
     if not object or not object.Parent then return false end
     local state = XCMapSurfaceStateFor(object)
     local _, _, stripPBR, full = XCMapTexturePolicy()
@@ -7152,7 +7967,7 @@ local function XCMapApplySurfaceAppearance(object)
     return XCConfig.mapStyleEnabled
 end
 
-local function XCMapGuiVisualEligible(object)
+function XCMapGuiVisualEligible(object)
     local part, surfaceGui = XCMapWorldGuiPart(object)
     if not part or not surfaceGui then return false end
     if XCMapIsProtectedObject(part) then return false end
@@ -7160,7 +7975,7 @@ local function XCMapGuiVisualEligible(object)
     return XCMapStyleEligible(object)
 end
 
-local function XCApplyMapTexture(object)
+function XCApplyMapTexture(object)
     if not object or not object.Parent then return false end
     local detail, stripColor, stripPBR, full = XCMapTexturePolicy()
 
@@ -7181,15 +7996,19 @@ local function XCApplyMapTexture(object)
 
     if object:IsA("SurfaceAppearance") then
         local state = XCMapSurfaceState[object]
-        if not XCConfig.mapStyleEnabled and state then
-            if state.Parked then XCMapRestoreSurfaceParent(object, state) end
-            if object.Parent then
-                pcall(function()
-                    if state.Color ~= nil then object.Color = state.Color end
-                    if state.AlphaMode ~= nil then object.AlphaMode = state.AlphaMode end
-                    if state.EmissiveStrength ~= nil then object.EmissiveStrength = state.EmissiveStrength end
-                    if state.EmissiveTint ~= nil then object.EmissiveTint = state.EmissiveTint end
-                end)
+        local texturePolicyActive = XCConfig.mapStyleEnabled == true
+            or (XCConfig.mapOptimizerEnabled == true and (stripPBR or full))
+        if not texturePolicyActive then
+            if state then
+                if state.Parked then XCMapRestoreSurfaceParent(object, state) end
+                if object.Parent then
+                    pcall(function()
+                        if state.Color ~= nil then object.Color = state.Color end
+                        if state.AlphaMode ~= nil then object.AlphaMode = state.AlphaMode end
+                        if state.EmissiveStrength ~= nil then object.EmissiveStrength = state.EmissiveStrength end
+                        if state.EmissiveTint ~= nil then object.EmissiveTint = state.EmissiveTint end
+                    end)
+                end
             end
             return false
         end
@@ -7199,19 +8018,23 @@ local function XCApplyMapTexture(object)
 
     if object:IsA("ImageLabel") or object:IsA("ImageButton") or object:IsA("VideoFrame") or object:IsA("ViewportFrame") then
         local state = XCMapGuiImageState[object]
-        if not XCConfig.mapStyleEnabled and state and object.Parent then
-            pcall(function()
-                object.Visible = state.Visible
-                if object:IsA("ImageLabel") or object:IsA("ImageButton") then
-                    object.Image = state.Image
-                    object.ImageColor3 = state.ImageColor3
-                    object.ImageTransparency = state.ImageTransparency
-                    if object:IsA("ImageButton") then
-                        if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
-                        if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+        -- Optimizer-only mode must never blank gameplay/UI imagery. World GUI
+        -- recoloring belongs exclusively to Minimal Map Style.
+        if not XCConfig.mapStyleEnabled then
+            if state and object.Parent then
+                pcall(function()
+                    object.Visible = state.Visible
+                    if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                        object.Image = state.Image
+                        object.ImageColor3 = state.ImageColor3
+                        object.ImageTransparency = state.ImageTransparency
+                        if object:IsA("ImageButton") then
+                            if state.HoverImage ~= nil then object.HoverImage = state.HoverImage end
+                            if state.PressedImage ~= nil then object.PressedImage = state.PressedImage end
+                        end
                     end
-                end
-            end)
+                end)
+            end
             return false
         end
         if not XCMapGuiVisualEligible(object) then return false end
@@ -7306,7 +8129,7 @@ local function XCApplyMapTexture(object)
     return false
 end
 
-local function XCMapEffectEligible(object)
+function XCMapEffectEligible(object)
     if not object or not object.Parent then return false end
     if object.Name:sub(1,2) == "XC" then return false end
     if XCMapIsProtectedObject(object) then return false end
@@ -7315,8 +8138,12 @@ local function XCMapEffectEligible(object)
     return XCMapFindPart(object) ~= nil
 end
 
-local function XCApplyMapEffect(object)
-    if not XCConfig.mapOptimizerEnabled or not XCConfig.mapOptimizerDisableEffects then return false end
+function XCApplyMapEffect(object)
+    if not XCConfig.mapOptimizerEnabled or not XCConfig.mapOptimizerDisableEffects then
+        local state = XCMapEffectState[object]
+        if state and object and object.Parent then pcall(function() object.Enabled = state.Enabled end) end
+        return false
+    end
     local profile = XCMapOptimizerProfile()
     local isVisual = object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam")
         or object:IsA("Smoke") or object:IsA("Fire") or object:IsA("Sparkles")
@@ -7338,7 +8165,7 @@ local function XCApplyMapEffect(object)
     return true
 end
 
-local function XCApplyMapObject(object)
+function XCApplyMapObject(object)
     if not XCMapVisualActive() or not object then return false, false, false end
     local partApplied = object:IsA("BasePart") and XCApplyMapPart(object) or false
     local textureApplied = (object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh")
@@ -7349,7 +8176,116 @@ local function XCApplyMapObject(object)
     return partApplied, textureApplied, effectApplied
 end
 
-local function XCRestoreMapPartEntry(part, state)
+-- v70 fast-start pass -------------------------------------------------------
+-- The old mobile path intentionally processed as few as 3-4 descendants per
+-- frame. On a streamed BloxStrike map that let high-cost textures, PBR and FX
+-- stay rendered for seconds, which is exactly when FPS collapsed. The fast
+-- pass touches only GPU-expensive objects first; the normal scanner still does
+-- the complete/restorable styling work afterwards.
+local XCMapPriorityFlagsCache = nil
+local XCMapPriorityFlagsSerial = -1
+function XCMapPriorityFlags()
+    if XCMapPriorityFlagsCache and XCMapPriorityFlagsSerial == XCMapStyleScanSerial then
+        return XCMapPriorityFlagsCache
+    end
+    local _, stripColor, stripPBR, full = XCMapTexturePolicy()
+    local profile = XCMapOptimizerProfile()
+    local optimizer = XCConfig.mapOptimizerEnabled == true
+    local effectsEnabled = optimizer and XCConfig.mapOptimizerDisableEffects == true
+    local flags = {
+        StripColor = stripColor,
+        StripPBR = stripPBR,
+        Full = full,
+        LowMesh = optimizer and XCConfig.mapOptimizerLowMesh == true,
+        VisualFX = effectsEnabled and profile.Effects == true,
+        Lights = effectsEnabled and profile.Lights == true,
+    }
+    XCMapPriorityFlagsCache = flags
+    XCMapPriorityFlagsSerial = XCMapStyleScanSerial
+    return flags
+end
+
+function XCMapPriorityObject(object, flags)
+    if not object or not object.Parent or not XCMapVisualActive() then return false end
+    flags = flags or XCMapPriorityFlags()
+
+    if object:IsA("MeshPart") then
+        return flags.LowMesh or flags.StripColor or flags.Full
+    end
+    if object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh") then
+        return flags.StripColor or flags.Full
+    end
+    if object:IsA("SurfaceAppearance") then
+        return flags.StripPBR or flags.Full
+    end
+    if XCConfig.mapStyleEnabled and (object:IsA("ImageLabel") or object:IsA("ImageButton")
+        or object:IsA("VideoFrame") or object:IsA("ViewportFrame")) then
+        return flags.StripColor or flags.Full
+    end
+    if flags.VisualFX and (object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam")
+        or object:IsA("Smoke") or object:IsA("Fire") or object:IsA("Sparkles")
+        or object:IsA("BloomEffect") or object:IsA("BlurEffect")
+        or object:IsA("DepthOfFieldEffect") or object:IsA("SunRaysEffect")) then
+        return true
+    end
+    if flags.Lights and (object:IsA("PointLight") or object:IsA("SpotLight") or object:IsA("SurfaceLight")) then
+        return true
+    end
+    return false
+end
+
+function XCApplyMapPriorityObject(object, flags)
+    if not XCMapPriorityObject(object, flags) then return false end
+    if object:IsA("MeshPart") then
+        return XCApplyMapPart(object)
+    end
+    if object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh")
+        or object:IsA("SurfaceAppearance") or object:IsA("ImageLabel")
+        or object:IsA("ImageButton") or object:IsA("VideoFrame") or object:IsA("ViewportFrame") then
+        return XCApplyMapTexture(object)
+    end
+    return XCApplyMapEffect(object)
+end
+
+function XCMapRunPriorityPass(serial)
+    -- Lighting is tiny and high-impact, so disable post FX before touching the
+    -- much larger Workspace tree.
+    local roots = XCConfig.mapOptimizerEnabled and {Lighting, Workspace} or {Workspace}
+
+    local flags = XCMapPriorityFlags()
+    local touch = UserInputService.TouchEnabled
+    local applyBudget = touch and 84 or 220
+    local inspectBudget = touch and 700 or 1800
+    local maxSlice = touch and 0.0042 or 0.0075
+
+    for _, root in ipairs(roots) do
+        local ok, descendants = pcall(function() return root:GetDescendants() end)
+        if ok and descendants then
+            local applied, inspected = 0, 0
+            local sliceStarted = os.clock()
+            for i = 1, #descendants do
+                if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then
+                    return false
+                end
+                local object = descendants[i]
+                inspected = inspected + 1
+                if object and object.Parent and XCMapPriorityObject(object, flags) then
+                    pcall(XCApplyMapPriorityObject, object, flags)
+                    applied = applied + 1
+                end
+
+                if applied >= applyBudget or inspected >= inspectBudget or (os.clock() - sliceStarted) >= maxSlice then
+                    applied, inspected = 0, 0
+                    RunService.Heartbeat:Wait()
+                    sliceStarted = os.clock()
+                end
+            end
+        end
+    end
+    return true
+end
+
+function XCRestoreMapPartEntry(part, state)
     if not part or not part.Parent or not state then return end
     pcall(function()
         if state.Color ~= nil then part.Color=state.Color end
@@ -7366,7 +8302,7 @@ local function XCRestoreMapPartEntry(part, state)
     end)
 end
 
-local function XCRestoreMapTextureEntry(object, state)
+function XCRestoreMapTextureEntry(object, state)
     if not object or not object.Parent or not state then return end
     pcall(function()
         object.Transparency=state.Transparency
@@ -7376,11 +8312,11 @@ local function XCRestoreMapTextureEntry(object, state)
     XCSetMapDecalContents(object, state, false)
 end
 
-local function XCRestoreMapMeshEntry(object, state)
+function XCRestoreMapMeshEntry(object, state)
     if object and object.Parent and state then pcall(function() object.TextureId=state.TextureId end) end
 end
 
-local function XCRestoreMapSurfaceEntry(object, state)
+function XCRestoreMapSurfaceEntry(object, state)
     if not object or not state then return end
     if state.Parked then XCMapRestoreSurfaceParent(object, state) end
     if not object.Parent then return end
@@ -7392,7 +8328,7 @@ local function XCRestoreMapSurfaceEntry(object, state)
     end)
 end
 
-local function XCRestoreMapTerrainDetailEntry(object, state)
+function XCRestoreMapTerrainDetailEntry(object, state)
     if not object or not object.Parent or not state then return end
     pcall(function()
         if state.ColorMap ~= nil then object.ColorMap = state.ColorMap end
@@ -7401,7 +8337,7 @@ local function XCRestoreMapTerrainDetailEntry(object, state)
     end)
 end
 
-local function XCRestoreMapGuiImageEntry(object, state)
+function XCRestoreMapGuiImageEntry(object, state)
     if not object or not object.Parent or not state then return end
     pcall(function()
         object.Visible = state.Visible
@@ -7417,7 +8353,7 @@ local function XCRestoreMapGuiImageEntry(object, state)
     end)
 end
 
-local function XCRestoreMapEffectEntry(object, state)
+function XCRestoreMapEffectEntry(object, state)
     if object and object.Parent and state then pcall(function() object.Enabled=state.Enabled end) end
 end
 
@@ -7515,19 +8451,21 @@ function restoreXCMapStyle(immediate)
     else task.spawn(function() restoreAll(true) end) end
 end
 
-local function XCMapScanBudget()
+function XCMapScanBudget()
     local _, stripColor, stripPBR, full = XCMapTexturePolicy()
+    -- v70: the priority pass already removes the expensive content first, so
+    -- the complete pass can use larger batches without leaving a long backlog.
     if UserInputService.TouchEnabled then
-        if full then return 4 end
-        if stripColor or stripPBR then return 7 end
-        return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 10 or 18
+        if full then return 16 end
+        if stripColor or stripPBR then return 24 end
+        return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 32 or 44
     end
-    if full then return 24 end
-    if stripColor or stripPBR then return 42 end
-    return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 48 or 90
+    if full then return 42 end
+    if stripColor or stripPBR then return 72 end
+    return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 96 or 132
 end
 
-local function XCMapCanDescend(object)
+function XCMapCanDescend(object)
     if not object then return false end
     if camera and object == camera then return false end
     if object:IsA("Tool") then return false end
@@ -7545,6 +8483,11 @@ function applyXCMapStyle(rescan)
 
     task.spawn(function()
         local stats={Parts=0, Textures=0, Effects=0}
+
+        -- Fast-start: kill the expensive render workload first. This runs before
+        -- the normal recursive style pass so textures/PBR/effects do not remain
+        -- visible and expensive for several seconds on mobile.
+        if rescan ~= false and not XCMapRunPriorityPass(serial) then return end
         if not XCReconcileParkedSurfaces(serial, true) then return end
         local stack={Workspace}
         if XCConfig.mapOptimizerEnabled then stack[#stack+1]=Lighting end
@@ -7555,7 +8498,7 @@ function applyXCMapStyle(rescan)
         local processedThisSlice=0
         local sliceStarted=os.clock()
         local budget=XCMapScanBudget()
-        local maxSlice=UserInputService.TouchEnabled and 0.0018 or 0.0045
+        local maxSlice=UserInputService.TouchEnabled and 0.0028 or 0.0055
 
         while #stack > 0 do
             if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
@@ -7614,7 +8557,7 @@ local XCMapStreamHead = 1
 local XCMapStreamWorker = false
 local XCMapStreamQueued = setmetatable({}, {__mode="k"})
 
-local function XCQueueStreamMapObject(object)
+function XCQueueStreamMapObject(object)
     if not object or XCMapStreamQueued[object] then return end
     XCMapStreamQueued[object]=true
     XCMapStreamQueue[#XCMapStreamQueue+1]=object
@@ -7624,8 +8567,8 @@ local function XCQueueStreamMapObject(object)
         while XCMapStreamHead <= #XCMapStreamQueue and xcSessionActive() do
             local _, stripColor, stripPBR, full = XCMapTexturePolicy()
             local budget = UserInputService.TouchEnabled
-                and (full and 3 or ((stripColor or stripPBR) and 5 or 9))
-                or (full and 14 or ((stripColor or stripPBR) and 20 or 32))
+                and (full and 18 or ((stripColor or stripPBR) and 26 or 38))
+                or (full and 48 or ((stripColor or stripPBR) and 72 or 108))
             for _=1,budget do
                 if XCMapStreamHead > #XCMapStreamQueue then break end
                 local queued=XCMapStreamQueue[XCMapStreamHead]
@@ -7645,11 +8588,19 @@ local function XCQueueStreamMapObject(object)
 end
 
 table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
-    if XCMapVisualActive() then XCQueueStreamMapObject(object) end
+    if XCMapVisualActive() then
+        -- Streamed textures/effects are handled immediately, before the queue can
+        -- build up. The queue remains responsible for the full style pass.
+        if XCMapPriorityObject(object) then pcall(XCApplyMapPriorityObject, object) end
+        XCQueueStreamMapObject(object)
+    end
 end))
 
 table.insert(connections, Lighting.DescendantAdded:Connect(function(object)
-    if XCConfig.mapOptimizerEnabled then XCQueueStreamMapObject(object) end
+    if XCConfig.mapOptimizerEnabled then
+        if XCMapPriorityObject(object) then pcall(XCApplyMapPriorityObject, object) end
+        XCQueueStreamMapObject(object)
+    end
 end))
 
 task.defer(function()
@@ -7876,11 +8827,8 @@ function updateCustomScope()
 
     local cam = Workspace.CurrentCamera or camera
     if XCConfig.customScopeEnabled and scoped then
-        if XCConfig.scopeFovEnabled and cam then
-            if scopeSavedFov == nil then scopeSavedFov = cam.FieldOfView end
-            cam.FieldOfView = math.clamp(tonumber(XCConfig.scopeFov) or 70, 10, 120)
-        end
-
+        -- FOV is owned by applyXCCameraFov() so Custom FOV and Scope FOV
+        -- cannot overwrite each other in different RenderStepped callbacks.
         local enabled = XCConfig.scopeCrosshairEnabled ~= false
         scopeContainer.Visible = enabled
         if not enabled then return end
@@ -7948,30 +8896,71 @@ function updateCustomScope()
         d.Visible = XCConfig.scopeCrosshairDot ~= false
     else
         scopeContainer.Visible=false
-        if scopeSavedFov and cam then cam.FieldOfView=scopeSavedFov end
-        scopeSavedFov=nil
     end
 end
 
+-- Central FOV owner. All camera projection consumers see one final FOV value
+-- for the current frame. Scope FOV takes priority only while actually scoped.
+function applyXCCameraFov()
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil end
+
+    local state = XCFeatureState.cameraFovState
+    if type(state) ~= "table" then
+        state = {Camera = nil, BaseFov = nil, Controlled = false}
+        XCFeatureState.cameraFovState = state
+    end
+    if state.Camera ~= cam then
+        state.Camera = cam
+        state.BaseFov = cam.FieldOfView
+        state.Controlled = false
+    end
+
+    local scope = findSniperScope()
+    local scoped = scope and scope.Visible == true
+    local desired
+    if XCConfig.customScopeEnabled and scoped and XCConfig.scopeFovEnabled then
+        desired = math.clamp(tonumber(XCConfig.scopeFov) or 70, 10, 120)
+    elseif XCConfig.customFovEnabled then
+        desired = math.clamp(tonumber(XCConfig.customFov) or 90, 70, 120)
+    end
+
+    if desired then
+        -- BaseFov is sampled continuously while XC is not controlling FOV.
+        -- Do not overwrite it on the first scoped frame because BloxStrike may
+        -- already have applied its native zoom by then.
+        if state.BaseFov == nil then state.BaseFov = cam.FieldOfView end
+        state.Controlled = true
+        if math.abs((cam.FieldOfView or desired) - desired) > 0.001 then
+            cam.FieldOfView = desired
+        end
+    elseif state.Controlled then
+        local restore = math.clamp(tonumber(state.BaseFov) or 70, 1, 120)
+        state.Controlled = false
+        cam.FieldOfView = restore
+        state.BaseFov = restore
+    else
+        -- Follow the game's own FOV while XC is not controlling it so a later
+        -- enable restores to the correct weapon/round baseline, not hardcoded 70.
+        state.BaseFov = cam.FieldOfView
+    end
+    return desired
+end
+
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
-    local worldVisualActive = XCConfig.nightModeEnabled or XCConfig.worldSkyboxEnabled
-        or XCConfig.worldPostFXEnabled or XCConfig.worldAtmosphereEnabled or XCConfig.worldBloomEnabled
+    local worldVisualActive = XCConfig.nightModeEnabled or XCConfig.fullBrightEnabled or XCConfig.removeFogEnabled
+        or XCConfig.worldFogEnabled or XCConfig.worldSkyboxEnabled or XCConfig.worldPostFXEnabled
+        or XCConfig.worldAtmosphereEnabled or XCConfig.worldBloomEnabled or XCConfig.worldSunRaysEnabled
+        or XCConfig.worldDepthOfFieldEnabled or XCConfig.worldBlurEnabled or XCConfig.worldCloudsEnabled
+        or (XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerDisableShadows)
     if not XCConfig.weaponChamsEnabled
         and not XCConfig.customScopeEnabled
-        and not XCConfig.customFovEnabled
         and not worldVisualActive then
         return
     end
     pcall(function()
         if XCConfig.weaponChamsEnabled then setWeaponVisuals() end
         if XCConfig.customScopeEnabled then updateCustomScope() end
-        -- XC Custom FOV: apply the camera FOV every render frame while enabled.
-        if XCConfig.customFovEnabled then
-            local cam = Workspace.CurrentCamera or camera
-            if cam then
-                cam.FieldOfView = math.clamp(tonumber(XCConfig.customFov) or 90, 70, 120)
-            end
-        end
         if worldVisualActive then
             XCFeatureState.worldUpdateAccumulator = XCFeatureState.worldUpdateAccumulator + (dt)
             if XCFeatureState.worldUpdateAccumulator >= 0.2 then
@@ -8559,14 +9548,23 @@ XCFeatureState = {
     menuOpen = true,
     worldUpdateAccumulator = 0,
     worldAtmosphere = nil,
-    worldOriginalAtmosphere = nil,
+    worldOriginalAtmospheres = {},
     worldBloom = nil,
+    worldSunRays = nil,
+    worldDepthOfField = nil,
+    worldBlur = nil,
+    worldClouds = nil,
+    worldOriginalClouds = {},
     worldTonePresets = {
         Neutral = Color3.fromRGB(255, 255, 255),
         ["XC Lime"] = Color3.fromRGB(225, 242, 185),
         Cold = Color3.fromRGB(205, 225, 255),
+        Ice = Color3.fromRGB(190, 225, 255),
         Warm = Color3.fromRGB(255, 224, 190),
+        Sunset = Color3.fromRGB(255, 198, 176),
         Purple = Color3.fromRGB(225, 200, 255),
+        Emerald = Color3.fromRGB(198, 255, 220),
+        Noir = Color3.fromRGB(205, 205, 205),
     },
     hitSounds = {
         Skeet = "rbxassetid://83717596220569",
@@ -12526,6 +13524,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     camera = Workspace.CurrentCamera or camera
     if not camera then return end
 
+    -- Lock the final projection before any same-frame camera/ESP math.
+    applyXCCameraFov()
     applyThirdPerson(dt)
 
     local localPos = camera.CFrame.Position
@@ -12641,9 +13641,18 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
     local visualInterval = xcVisualUpdateInterval(XCConfig.visualRefreshFPS)
     visualOverlayAccumulator = math.min(visualOverlayAccumulator + dt, visualInterval * 2)
-    if visualOverlayAccumulator >= visualInterval then
+    local visualRefreshDue = visualOverlayAccumulator >= visualInterval
+    if visualRefreshDue then
         visualOverlayAccumulator = visualOverlayAccumulator - visualInterval
         table.clear(xcEspVisibilityCache)
+    end
+
+    -- At custom FOV the camera projection changes every rendered frame. A
+    -- 30-FPS ESP update visibly trails while rotating, even though
+    -- WorldToViewportPoint itself is correct. Refresh only the screen-space
+    -- overlay every frame; visibility/weapon lookup stay cached at the user's
+    -- normal visualRefreshFPS cadence.
+    if visualRefreshDue or XCConfig.customFovEnabled then
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
             XCFeatureState.tacticalOverlayErrorAt = XCFeatureState.tacticalOverlayErrorAt or 0
@@ -12654,6 +13663,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             end
             hideTacticalOverlay()
         end
+    end
+
+    if visualRefreshDue then
         renderGrenadeOverlays()
         renderXCGrenadeDangerZones()
         renderXCSoundPositionEsp()
@@ -12741,39 +13753,71 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         threeDEspWasActive = threeDEspActive
     end
 
-    if XCConfig.fullBrightEnabled then
-        Lighting.Brightness = 3
-        Lighting.ClockTime = 14
-        Lighting.GlobalShadows = false
-    elseif XCConfig.nightModeEnabled then
-        local cfg = nightPresets[XCConfig.nightPreset] or nightPresets["Midnight"]
-        Lighting.Brightness = XCConfig.nightBrightness or cfg.Brightness
-        Lighting.ClockTime = XCConfig.nightClockTime or cfg.ClockTime
-        Lighting.GlobalShadows = true
-        Lighting.OutdoorAmbient = cfg.OutdoorAmbient
-        Lighting.Ambient = cfg.Ambient
+    -- Lighting/Fog are owned by the unified World Changer update loop.
+    -- Keeping them out of the ESP render path prevents Fullbright, custom fog
+    -- and map optimizer from fighting over Lighting properties every frame.
+    updateXCAntiFlashState(XCConfig.antiFlashEnabled)
+end))
+
+-- Late first-person/viewmodel pass. It is intentionally registered after the
+-- main camera loop so the game's native camera/viewmodel pose is already
+-- available. This is the compatibility path when Viewmodel.render cannot be
+-- hooked by an executor/build.
+table.insert(connections, RunService.RenderStepped:Connect(function()
+    if not xcSessionActive() then return end
+    if XCConfig.customHandsEnabled then
+        pcall(applyXCHandsOffset)
+    elseif XCFeatureState.customHandsTransforms then
+        pcall(restoreXCCustomHands)
     end
 
-    if XCConfig.removeFogEnabled then
-        Lighting.FogEnd = 100000
-    else
-        Lighting.FogEnd = defaultLighting.FogEnd
+    -- Tracers are screen-space too. Keep their endpoints glued to the current
+    -- camera while Custom FOV is active without rerunning chams/visibility.
+    if XCConfig.customFovEnabled and XCConfig.tracersEnabled and camera then
+        local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
+        for plr, data in pairs(activeEspHolders) do
+            local char = plr.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            local root = char and (char:FindFirstChild("HumanoidRootPart")
+                or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
+            if root and isTargetEnemy(plr, char) and isEntityAlive(char, hum) then
+                local screen, onScreen = camera:WorldToViewportPoint(root.Position)
+                if onScreen and screen.Z > 0 then
+                    local dest = Vector2.new(screen.X, screen.Y)
+                    local delta = dest - origin
+                    data.Tracer.Size = UDim2.fromOffset(delta.Magnitude, 1.5)
+                    data.Tracer.Position = UDim2.fromOffset((origin.X + dest.X) * 0.5, (origin.Y + dest.Y) * 0.5)
+                    data.Tracer.Rotation = math.deg(math.atan2(delta.Y, delta.X))
+                    data.Tracer.Visible = true
+                else
+                    data.Tracer.Visible = false
+                end
+            else
+                data.Tracer.Visible = false
+            end
+        end
     end
-    updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
 
 -- Stateful anti-flash: preserve the game's original Enabled values instead
 -- of permanently disabling ColorCorrectionEffect objects.
 local xcAntiFlashSaved = setmetatable({}, {__mode = "k"})
-function updateXCAntiFlashState(enabled)
+local xcAntiFlashNextScan = 0
+function updateXCAntiFlashState(enabled, force)
     if enabled then
+        local now = os.clock()
+        if not force and now < xcAntiFlashNextScan then return end
+        xcAntiFlashNextScan = now + 0.08
         for _, effect in ipairs(Lighting:GetChildren()) do
-            if effect:IsA("ColorCorrectionEffect") and effect.Saturation < -0.5 then
+            -- Never disable XC's own color correction even if the user chooses
+            -- strong negative saturation. Only suppress game flash effects.
+            if effect:IsA("ColorCorrectionEffect") and effect.Name:sub(1, 2) ~= "XC" and effect.Saturation < -0.5 then
                 if xcAntiFlashSaved[effect] == nil then xcAntiFlashSaved[effect] = effect.Enabled end
                 if effect.Enabled then effect.Enabled = false end
             end
         end
     else
+        xcAntiFlashNextScan = 0
         for effect, originalEnabled in pairs(xcAntiFlashSaved) do
             if effect and effect.Parent then
                 pcall(function() effect.Enabled = originalEnabled == true end)
@@ -12782,6 +13826,12 @@ function updateXCAntiFlashState(enabled)
         end
     end
 end
+
+table.insert(connections, Lighting.ChildAdded:Connect(function(object)
+    if XCConfig.antiFlashEnabled and object:IsA("ColorCorrectionEffect") then
+        task.defer(function() updateXCAntiFlashState(true, true) end)
+    end
+end))
 --// ANTI-AIM ROTATION SHLAK
 function resetXCCharacterInputState()
     xcCharacterInputHook.Character = nil
@@ -14318,12 +15368,17 @@ function buildXCUI()
         noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
         hitSoundEnabled = "Plays the selected local sound when enemy health decreases.",
         antiAimMode = "Selects an XC-native anti-aim pattern. Several modes react to movement velocity; others use deterministic asymmetric phase sequences.",
-        nightModeEnabled = "Applies the selected lighting preset locally.",
-        worldSkyboxEnabled = "Applies the selected custom skybox locally.",
-        worldPostFXEnabled = "Enables local color correction and post-processing.",
+        nightModeEnabled = "World Changer lighting layer: time, brightness, ambient, shadow softness, diffuse/specular response and color shift.",
+        worldFogEnabled = "Uses XC custom classic fog. Enabling it automatically turns Remove fog off.",
+        worldSkyboxEnabled = "Applies a custom sky locally, preserves native skies and restores them when disabled.",
+        worldPostFXEnabled = "Enables XC color correction: tint, brightness, exposure, saturation and contrast.",
+        worldSunRaysEnabled = "Adds local SunRays with adjustable intensity and spread.",
+        worldDepthOfFieldEnabled = "Adds configurable cinematic depth of field. Keep it off when maximizing FPS.",
+        worldBlurEnabled = "Adds a local BlurEffect. Keep it low on mobile because large blur sizes are expensive.",
+        worldCloudsEnabled = "Overrides terrain clouds locally and restores the original cloud layer when disabled.",
         mapStyleEnabled = "Restyles map geometry locally using a soft minimal palette while preserving characters, weapons and gameplay objects.",
-        mapOptimizerEnabled = "Mobile-safe FPS optimizer: processes the map gradually and reduces shadows, decorative effects and mesh cost without touching characters or weapons.",
-        mapOptimizerMode = "Safe changes only low-risk rendering settings. Balanced is recommended for phones. Aggressive also clears map texture IDs gradually and disables decorative lights.",
+        mapOptimizerEnabled = "Mobile-safe FPS optimizer: applies the expensive GPU cuts first, then finishes the map in background without touching characters or weapons.",
+        mapOptimizerMode = "Safe changes only low-risk rendering settings. Balanced is recommended for phones. Aggressive immediately strips eligible map textures/PBR and disables decorative lights.",
         mapOptimizerDisableShadows = "Disables map/global shadow rendering while the optimizer is active.",
         mapOptimizerDisableEffects = "Balanced removes eligible decorative particles/beams/post effects; Aggressive also removes eligible decorative lights.",
         mapOptimizerLowMesh = "Requests Performance render fidelity for eligible MeshParts where Roblox allows it.",
@@ -14336,10 +15391,10 @@ function buildXCUI()
         mapStyleAffectTransparent = "Also styles glass and other substantially transparent map parts; enabled by default for full coverage.",
         worldSkyboxPreset = "Selects a local sky preset from the supplied World visual scripts.",
         worldTonePreset = "Applies a coordinated tint preset to Post FX and atmosphere.",
-        worldAtmosphereEnabled = "Adds a configurable local Atmosphere without deleting the game's original one.",
+        worldAtmosphereEnabled = "Overrides Atmosphere locally with density, offset, haze, glare, color and decay, then restores the native atmosphere.",
         worldBloomEnabled = "Adds a lightweight local Bloom effect with configurable intensity.",
         weatherEnabled = "Local weather layer. Uses one particle emitter to avoid frame spikes.",
-        weatherMode = "Rain, snow, fog or ash. The effect follows the active camera.",
+        weatherMode = "Rain, snow, fog, ash or Hell Fire. The effect follows the active camera.",
         weatherIntensity = "Controls particle rate or fog density.",
         weatherWind = "Horizontal drift of rain, snow and ash particles.",
         freecamEnabled = "Detaches the camera. WASD moves, Space/E rises, Q/Ctrl lowers, Shift boosts.",
@@ -16110,27 +17165,21 @@ function buildXCUI()
         elseif key == "thirdPersonDistance" or key == "thirdPersonHeight" then
             refreshThirdPerson()
         elseif key == "nightModeEnabled" then
-            if value then
-                applyNightPreset(XCConfig.nightPreset)
-            else
-                Lighting.Brightness = defaultLighting.Brightness
-                Lighting.ClockTime = defaultLighting.ClockTime
-                Lighting.GlobalShadows = defaultLighting.GlobalShadows
-                Lighting.Ambient = defaultLighting.Ambient
-                Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
+            if value then applyNightPreset(XCConfig.nightPreset) end
+            updateWorldChanger()
+        elseif key == "fullBrightEnabled" then
+            updateWorldChanger()
+        elseif key == "removeFogEnabled" then
+            if value and XCConfig.worldFogEnabled then
+                XCConfig.worldFogEnabled = false
+                refreshConfigControls("worldFogEnabled", false)
             end
             updateWorldChanger()
-        elseif key == "fullBrightEnabled" and not value and not XCConfig.nightModeEnabled then
-            Lighting.Brightness = defaultLighting.Brightness
-            Lighting.ClockTime = defaultLighting.ClockTime
-            Lighting.GlobalShadows = defaultLighting.GlobalShadows
-            Lighting.Ambient = defaultLighting.Ambient
-            Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
-            updateWorldChanger()
-        elseif key == "removeFogEnabled" and not value then
-            Lighting.FogStart = defaultLighting.FogStart or 0
-            Lighting.FogEnd = defaultLighting.FogEnd
-            Lighting.FogColor = defaultLighting.FogColor
+        elseif key == "worldFogEnabled" then
+            if value and XCConfig.removeFogEnabled then
+                XCConfig.removeFogEnabled = false
+                refreshConfigControls("removeFogEnabled", false)
+            end
             updateWorldChanger()
         elseif key == "thirdPersonEnabled" then setThirdPersonEnabled(value)
         elseif key == "antiAfkEnabled" then setAntiAfkEnabled(value)
@@ -16139,22 +17188,30 @@ function buildXCUI()
         elseif key == "customHandsEnabled" then
             handsLastModel = nil
             handsLastPivot = nil
-            if value then setupXCCustomHandsHook() end
+            XCFeatureState.customHandsHookRetryAt = 0
+            if value then
+                setupXCCustomHandsHook()
+                applyXCHandsOffset()
+            else
+                restoreXCCustomHands()
+            end
         elseif key == "weaponChamsEnabled" then setWeaponVisuals()
         elseif key == "soundPositionEspEnabled" then setXCSoundPositionEspEnabled(value)
         elseif key == "customScopeEnabled" then updateCustomScope()
-        elseif key == "customFovEnabled" and not value then
-            local cam = Workspace.CurrentCamera or camera
-            if cam then cam.FieldOfView = 70 end
+        elseif key == "customFovEnabled" then
+            applyXCCameraFov()
         elseif key == "weatherEnabled" then applyXCWeather(); updateWorldChanger()
         elseif key == "noSmokeEnabled" then applyXCSmokeState()
         elseif key == "mapStyleEnabled" then setXCMapStyleEnabled(value)
-        elseif key == "mapOptimizerEnabled" then setXCMapOptimizerEnabled(value)
+        elseif key == "mapOptimizerEnabled" then setXCMapOptimizerEnabled(value); updateWorldChanger()
         elseif key == "mapStyleFlatMaterials" or key == "mapStylePreserveSigns" or key == "mapStyleAffectTransparent"
             or key == "mapOptimizerDisableShadows" or key == "mapOptimizerDisableEffects" or key == "mapOptimizerLowMesh" then
             if XCMapVisualActive() then applyXCMapStyle(true) end
+            if key == "mapOptimizerDisableShadows" then updateWorldChanger() end
         elseif key == "worldSkyboxEnabled" or key == "worldSkyCelestial" or key == "worldPostFXEnabled"
-            or key == "worldAtmosphereEnabled" or key == "worldBloomEnabled" then updateWorldChanger()
+            or key == "worldAtmosphereEnabled" or key == "worldBloomEnabled" or key == "worldSunRaysEnabled"
+            or key == "worldDepthOfFieldEnabled" or key == "worldBlurEnabled" or key == "worldCloudsEnabled" then
+            updateWorldChanger()
         elseif key == "freecamEnabled" then setXCCameraMode("Freecam", value)
         elseif key == "freelookEnabled" then setXCCameraMode("Freelook", value)
         elseif key == "streamerModeEnabled" then setXCStreamerMode(value)
@@ -16712,9 +17769,44 @@ function buildXCUI()
     toggle(L, "Remove fog", "removeFogEnabled")
     toggle(L, "Anti flash", "antiFlashEnabled")
     toggle(L, "No smoke", "noSmokeEnabled")
-    addChoice(L, "Night preset", "nightPreset", {"Midnight", "Nebula", "DeepBlood", "CyberPurple", "EmeraldNight", "PitchBlack"}, function(v) if XCConfig.nightModeEnabled then applyNightPreset(v) end end)
-    addSlider(L, "Brightness", "nightBrightness", 0, 5, 0.1, "")
-    addSlider(L, "Clock time", "nightClockTime", 0, 24, 0.5, "h")
+    addChoice(L, "Lighting preset", "nightPreset", {"Competitive", "Daylight", "Golden Hour", "Sunset", "Midnight", "Nebula", "DeepBlood", "CyberPurple", "EmeraldNight", "Noir", "PitchBlack", "Custom"}, function(v)
+        if v ~= "Custom" then
+            applyNightPreset(v)
+            for _, k in ipairs({
+                "nightBrightness", "nightClockTime", "worldShadowSoftness", "worldEnvironmentDiffuse", "worldEnvironmentSpecular",
+                "worldAmbientR", "worldAmbientG", "worldAmbientB", "worldOutdoorAmbientR", "worldOutdoorAmbientG", "worldOutdoorAmbientB",
+                "worldFogColorR", "worldFogColorG", "worldFogColorB",
+                "worldColorShiftTopR", "worldColorShiftTopG", "worldColorShiftTopB",
+                "worldColorShiftBottomR", "worldColorShiftBottomG", "worldColorShiftBottomB"
+            }) do refreshConfigControls(k, XCConfig[k]) end
+        elseif XCConfig.nightModeEnabled then
+            updateWorldChanger()
+        end
+    end)
+    addSlider(L, "Brightness", "nightBrightness", 0, 5, 0.05, "", function() updateWorldChanger() end)
+    addSlider(L, "Clock time", "nightClockTime", 0, 24, 0.25, "h", function() updateWorldChanger() end)
+    addColorPicker(L, "Ambient", "worldAmbient", function()
+        XCConfig.nightPreset = "Custom"; refreshConfigControls("nightPreset", "Custom"); updateWorldChanger()
+    end)
+    addColorPicker(L, "Outdoor ambient", "worldOutdoorAmbient", function()
+        XCConfig.nightPreset = "Custom"; refreshConfigControls("nightPreset", "Custom"); updateWorldChanger()
+    end)
+    addSlider(L, "Shadow softness", "worldShadowSoftness", 0, 1, 0.05, "", function() updateWorldChanger() end)
+    addSlider(L, "Diffuse lighting", "worldEnvironmentDiffuse", 0, 1, 0.05, "", function() updateWorldChanger() end)
+    addSlider(L, "Specular lighting", "worldEnvironmentSpecular", 0, 1, 0.05, "", function() updateWorldChanger() end)
+    addColorPicker(L, "Top color shift", "worldColorShiftTop", function()
+        XCConfig.nightPreset = "Custom"; refreshConfigControls("nightPreset", "Custom"); updateWorldChanger()
+    end)
+    addColorPicker(L, "Bottom color shift", "worldColorShiftBottom", function()
+        XCConfig.nightPreset = "Custom"; refreshConfigControls("nightPreset", "Custom"); updateWorldChanger()
+    end)
+
+    section(L, "fog")
+    toggle(L, "Custom fog", "worldFogEnabled")
+    addSlider(L, "Fog start", "worldFogStart", 0, 5000, 25, "st", function() updateWorldChanger() end)
+    addSlider(L, "Fog end", "worldFogEnd", 25, 100000, 100, "st", function() updateWorldChanger() end)
+    addColorPicker(L, "Fog color", "worldFogColor", function() updateWorldChanger() end)
+
     section(L, "map optimizer")
     toggle(L, "FPS map optimizer", "mapOptimizerEnabled")
     addChoice(L, "Optimizer mode", "mapOptimizerMode", {"Safe", "Balanced", "Aggressive"}, function()
@@ -16725,6 +17817,7 @@ function buildXCUI()
     toggle(L, "Low mesh fidelity", "mapOptimizerLowMesh")
     addButton(L, "RESCAN / OPTIMIZE MAP", function()
         if XCMapVisualActive() then applyXCMapStyle(true) end
+        updateWorldChanger()
     end)
 
     section(L, "minimal map style")
@@ -16754,31 +17847,60 @@ function buildXCUI()
         refreshConfigControls("mapStylePreset", "Custom")
         if XCMapVisualActive() then applyXCMapStyle(false) end
     end)
-    section(L, "sky & tone")
+
+    section(L, "sky")
     toggle(L, "Custom skybox", "worldSkyboxEnabled")
     addChoice(L, "Skybox preset", "worldSkyboxPreset", {"Night", "Ocean Sunset", "My Summer Car", "Standard", "Minecraft", "Spongebob", "Deep Space", "Clouded Sky", "Retro", "City", "Purple Nebula", "Pink Sky"}, function() updateWorldChanger() end)
     addSlider(L, "Sky rotation", "worldSkyRotation", -180, 180, 1, "°", function() updateWorldChanger() end)
     addSlider(L, "Stars", "worldSkyStars", 0, 5000, 100, "", function() updateWorldChanger() end)
     toggle(L, "Sun & moon", "worldSkyCelestial")
+    addSlider(L, "Sun size", "worldSkySunSize", 0, 60, 1, "", function() updateWorldChanger() end)
+    addSlider(L, "Moon size", "worldSkyMoonSize", 0, 60, 1, "", function() updateWorldChanger() end)
+
+    section(L, "tone & post fx")
     toggle(L, "Post FX", "worldPostFXEnabled")
-    addChoice(L, "Tone preset", "worldTonePreset", {"Neutral", "XC Lime", "Cold", "Warm", "Purple", "Custom"}, function() updateWorldChanger() end)
+    addChoice(L, "Tone preset", "worldTonePreset", {"Neutral", "XC Lime", "Cold", "Ice", "Warm", "Sunset", "Purple", "Emerald", "Noir", "Custom"}, function() updateWorldChanger() end)
     addColorPicker(L, "Custom world tint", "worldColor", function()
         XCConfig.worldTonePreset = "Custom"
         refreshConfigControls("worldTonePreset", "Custom")
         updateWorldPostFX()
     end)
+    addSlider(L, "Post brightness", "worldPostBrightness", -1, 1, 0.05, "", function() updateWorldChanger() end)
     addSlider(L, "Exposure", "worldExposure", -3, 3, 0.1, "", function() updateWorldChanger() end)
     addSlider(L, "Saturation", "worldSaturation", -1, 1, 0.05, "", function() updateWorldChanger() end)
     addSlider(L, "Contrast", "worldContrast", -1, 1, 0.05, "", function() updateWorldChanger() end)
-    section(L, "atmosphere & bloom")
+
+    section(L, "atmosphere")
     toggle(L, "Atmosphere", "worldAtmosphereEnabled")
-    addSlider(L, "Atmosphere density", "worldAtmosphereDensity", 0, 1, 0.05, "", function() updateWorldChanger() end)
-    addSlider(L, "Atmosphere haze", "worldAtmosphereHaze", 0, 10, 0.1, "", function() updateWorldChanger() end)
-    addSlider(L, "Atmosphere glare", "worldAtmosphereGlare", 0, 10, 0.1, "", function() updateWorldChanger() end)
+    addSlider(L, "Density", "worldAtmosphereDensity", 0, 1, 0.025, "", function() updateWorldChanger() end)
+    addSlider(L, "Offset", "worldAtmosphereOffset", -1, 1, 0.05, "", function() updateWorldChanger() end)
+    addSlider(L, "Haze", "worldAtmosphereHaze", 0, 10, 0.1, "", function() updateWorldChanger() end)
+    addSlider(L, "Glare", "worldAtmosphereGlare", 0, 10, 0.1, "", function() updateWorldChanger() end)
+    addColorPicker(L, "Atmosphere color", "worldAtmosphereColor", function() updateWorldChanger() end)
+    addColorPicker(L, "Atmosphere decay", "worldAtmosphereDecay", function() updateWorldChanger() end)
+
+    section(L, "cinematic fx")
     toggle(L, "Bloom", "worldBloomEnabled")
     addSlider(L, "Bloom intensity", "worldBloomIntensity", 0, 3, 0.05, "", function() updateWorldChanger() end)
     addSlider(L, "Bloom size", "worldBloomSize", 0, 56, 1, "", function() updateWorldChanger() end)
     addSlider(L, "Bloom threshold", "worldBloomThreshold", 0, 5, 0.1, "", function() updateWorldChanger() end)
+    toggle(L, "Sun rays", "worldSunRaysEnabled")
+    addSlider(L, "Sun ray intensity", "worldSunRaysIntensity", 0, 1, 0.025, "", function() updateWorldChanger() end)
+    addSlider(L, "Sun ray spread", "worldSunRaysSpread", 0, 1, 0.025, "", function() updateWorldChanger() end)
+    toggle(L, "Depth of field", "worldDepthOfFieldEnabled")
+    addSlider(L, "DOF far", "worldDofFarIntensity", 0, 1, 0.025, "", function() updateWorldChanger() end)
+    addSlider(L, "DOF near", "worldDofNearIntensity", 0, 1, 0.025, "", function() updateWorldChanger() end)
+    addSlider(L, "DOF focus distance", "worldDofFocusDistance", 1, 500, 1, "st", function() updateWorldChanger() end)
+    addSlider(L, "DOF focus radius", "worldDofInFocusRadius", 0, 500, 1, "st", function() updateWorldChanger() end)
+    toggle(L, "Blur", "worldBlurEnabled")
+    addSlider(L, "Blur size", "worldBlurSize", 0, 56, 1, "", function() updateWorldChanger() end)
+
+    section(L, "clouds")
+    toggle(L, "Custom clouds", "worldCloudsEnabled")
+    addSlider(L, "Cloud cover", "worldCloudCover", 0, 1, 0.025, "", function() updateWorldChanger() end)
+    addSlider(L, "Cloud density", "worldCloudDensity", 0, 1, 0.025, "", function() updateWorldChanger() end)
+    addColorPicker(L, "Cloud color", "worldCloudColor", function() updateWorldChanger() end)
+
     section(L, "weather")
     toggle(L, "Weather effects", "weatherEnabled")
     addChoice(L, "Weather type", "weatherMode", {"Rain", "Snow", "Fog", "Ash", "Hell Fire"}, function() applyXCWeather(); updateWorldChanger() end)
@@ -17140,14 +18262,10 @@ function buildXCUI()
         else stopXCCameraMode() end
         setAntiAfkEnabled(XCConfig.antiAfkEnabled)
         if XCConfig.animationsEnabled then playXCAnimation() else stopXCAnimation() end
-        if XCConfig.nightModeEnabled then applyNightPreset(XCConfig.nightPreset)
-        else
-            Lighting.Brightness = defaultLighting.Brightness
-            Lighting.ClockTime = defaultLighting.ClockTime
-            Lighting.GlobalShadows = defaultLighting.GlobalShadows
-            Lighting.Ambient = defaultLighting.Ambient
-            Lighting.OutdoorAmbient = defaultLighting.OutdoorAmbient
+        if XCConfig.nightModeEnabled and XCConfig.nightPreset ~= "Custom" then
+            applyNightPreset(XCConfig.nightPreset)
         end
+        updateWorldChanger()
         setXCStreamerMode(requestedStreamerMode)
         return true
     end
@@ -17175,7 +18293,7 @@ function buildXCUI()
         end
         stopXCCameraMode()
         setThirdPersonEnabled(false)
-        if camera then camera.FieldOfView = 70 end
+        applyXCCameraFov()
         XCNotify("Camera", "Camera state restored", "success", 1.5)
     end)
     addButton(ConfigLocal, "SAVE CONFIG", function()
