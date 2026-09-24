@@ -121,6 +121,9 @@ local XCConfig = {
     grenadeDangerZonesEnabled = false,
     soundPositionEspEnabled = false,
     weaponEspEnabled = false,
+    weaponEspStyle = "Card",
+    weaponEspScale = 1,
+    weaponEspShowName = true,
     jumpCircleEnabled = false,
     motionTrailEnabled = false,
     motionGhostEnabled = true,
@@ -598,6 +601,9 @@ if tonumber(XCConfig.espFixedBoxHeight) == 64 or tonumber(XCConfig.espFixedBoxHe
     XCConfig.espFixedBoxHeight = 36
 end
 XCConfig.espPerspectiveScale = math.clamp(tonumber(XCConfig.espPerspectiveScale) or 1, 0.65, 1.5)
+if XCConfig.weaponEspStyle ~= "Card" and XCConfig.weaponEspStyle ~= "Minimal"
+    and XCConfig.weaponEspStyle ~= "Text" then XCConfig.weaponEspStyle = "Card" end
+XCConfig.weaponEspScale = math.clamp(tonumber(XCConfig.weaponEspScale) or 1, 0.75, 1.5)
 XCConfig.uiScale = math.clamp(tonumber(XCConfig.uiScale) or 1, 0.65, 1.25)
 XCConfig.menuTransparency = math.clamp(tonumber(XCConfig.menuTransparency) or 0, 0, 0.45)
 for _, colorKey in ipairs({
@@ -10858,24 +10864,30 @@ function getOrCreateScreenEsp(plr)
     local weaponCard = Instance.new("Frame", overlayContainer)
     weaponCard.Name = "WeaponIcon_" .. plr.Name
     weaponCard.AnchorPoint = Vector2.new(0.5, 0)
-    weaponCard.Size = UDim2.fromOffset(36, 15)
-    weaponCard.BackgroundColor3 = Color3.fromRGB(5, 6, 7)
-    weaponCard.BackgroundTransparency = 1
+    weaponCard.Size = UDim2.fromOffset(108, 25)
+    weaponCard.BackgroundColor3 = Color3.fromRGB(13, 17, 26)
+    weaponCard.BackgroundTransparency = 0.13
     weaponCard.BorderSizePixel = 0
     weaponCard.ClipsDescendants = true
     weaponCard.Visible = false
     weaponCard.ZIndex = 8
-    Instance.new("UICorner", weaponCard).CornerRadius = UDim.new(0, 3)
+    Instance.new("UICorner", weaponCard).CornerRadius = UDim.new(0, 6)
     local weaponCardStroke = Instance.new("UIStroke", weaponCard)
     weaponCardStroke.Color = currentTheme.Enemy_Accent
-    weaponCardStroke.Thickness = 1
-    weaponCardStroke.Transparency = 1
-    weaponCardStroke.Enabled = false
+    weaponCardStroke.Thickness = 0.9
+    weaponCardStroke.Transparency = 0.43
+    local weaponStripe = Instance.new("Frame", weaponCard)
+    weaponStripe.Name = "Accent"
+    weaponStripe.Size = UDim2.fromOffset(2, 13)
+    weaponStripe.Position = UDim2.new(0, 4, 0.5, -6)
+    weaponStripe.BorderSizePixel = 0
+    weaponStripe.ZIndex = 9
+    Instance.new("UICorner", weaponStripe).CornerRadius = UDim.new(1, 0)
 
     local weaponImageShadow = Instance.new("ImageLabel", weaponCard)
     weaponImageShadow.Name = "ImageShadow"
-    weaponImageShadow.Size = UDim2.new(1, -4, 1, -4)
-    weaponImageShadow.Position = UDim2.fromOffset(3, 3)
+    weaponImageShadow.Size = UDim2.fromOffset(37, 17)
+    weaponImageShadow.Position = UDim2.fromOffset(11, 5)
     weaponImageShadow.BackgroundTransparency = 1
     weaponImageShadow.ScaleType = Enum.ScaleType.Fit
     weaponImageShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
@@ -10885,27 +10897,24 @@ function getOrCreateScreenEsp(plr)
 
     local weaponImage = Instance.new("ImageLabel", weaponCard)
     weaponImage.Name = "Image"
-    weaponImage.Size = UDim2.new(1, -4, 1, -4)
-    weaponImage.Position = UDim2.fromOffset(2, 1)
+    weaponImage.Size = UDim2.fromOffset(37, 17)
+    weaponImage.Position = UDim2.fromOffset(10, 4)
     weaponImage.BackgroundTransparency = 1
     weaponImage.ScaleType = Enum.ScaleType.Fit
     weaponImage.ImageColor3 = currentTheme.Enemy_Accent
     weaponImage.Visible = false
     weaponImage.ZIndex = 10
 
-    local weaponViewport = Instance.new("ViewportFrame", weaponCard)
-    weaponViewport.Name = "Viewport"
-    weaponViewport.Size = UDim2.new(1, -4, 1, -4)
-    weaponViewport.Position = UDim2.fromOffset(2, 1)
-    weaponViewport.BackgroundTransparency = 1
-    weaponViewport.Ambient = Color3.fromRGB(72, 96, 0)
-    weaponViewport.LightColor = currentTheme.Enemy_Accent
-    weaponViewport.LightDirection = Vector3.new(-1, -0.45, -1)
-    weaponViewport.Visible = false
-    weaponViewport.ZIndex = 10
-    local weaponWorld = Instance.new("WorldModel", weaponViewport)
-    local weaponCamera = Instance.new("Camera", weaponViewport)
-    weaponViewport.CurrentCamera = weaponCamera
+    local weaponLabel = Instance.new("TextLabel", weaponCard)
+    weaponLabel.Name = "WeaponName"
+    weaponLabel.Position = UDim2.fromOffset(52, 1)
+    weaponLabel.Size = UDim2.new(1, -59, 1, -2)
+    weaponLabel.BackgroundTransparency = 1
+    weaponLabel.Font = Enum.Font.GothamMedium
+    weaponLabel.TextSize = 10
+    weaponLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    weaponLabel.TextXAlignment = Enum.TextXAlignment.Left
+    weaponLabel.ZIndex = 11
 
     local corners = {}
     for i = 1, 4 do
@@ -10977,9 +10986,8 @@ function getOrCreateScreenEsp(plr)
         WeaponCardStroke = weaponCardStroke,
         WeaponImageShadow = weaponImageShadow,
         WeaponImage = weaponImage,
-        WeaponViewport = weaponViewport,
-        WeaponWorld = weaponWorld,
-        WeaponCamera = weaponCamera,
+        WeaponLabel = weaponLabel,
+        WeaponStripe = weaponStripe,
         WeaponRaw = nil,
         WeaponName = nil,
         WeaponReady = false,
@@ -10999,16 +11007,27 @@ function getOrCreateScreenEsp(plr)
     return data
 end
 
-function getXCEquippedWeapon(plr, char)
+function getXCEquippedWeapon(plr, char, esp)
     local raw = plr:GetAttribute("CurrentEquipped")
     local weaponName
     if type(raw) == "string" and raw ~= "" then
-        pcall(function()
-            local decoded = HttpService:JSONDecode(raw)
-            if type(decoded) == "table" then
-                weaponName = decoded.Name or decoded.Weapon or decoded.ItemName
+        if esp and esp.WeaponAttributeRaw == raw then
+            weaponName = esp.WeaponAttributeName
+        else
+            pcall(function()
+                local decoded = HttpService:JSONDecode(raw)
+                if type(decoded) == "table" then
+                    weaponName = decoded.Name or decoded.Weapon or decoded.ItemName
+                end
+            end)
+            if esp then
+                esp.WeaponAttributeRaw = raw
+                esp.WeaponAttributeName = weaponName
             end
-        end)
+        end
+    elseif esp then
+        esp.WeaponAttributeRaw = nil
+        esp.WeaponAttributeName = nil
     end
     local tool = char and char:FindFirstChildOfClass("Tool")
     if type(weaponName) ~= "string" or weaponName == "" then
@@ -11022,9 +11041,17 @@ function clearXCWeaponPreview(esp)
     esp.WeaponImage.Visible = false
     esp.WeaponImageShadow.Image = ""
     esp.WeaponImageShadow.Visible = false
-    esp.WeaponViewport.Visible = false
-    esp.WeaponWorld:ClearAllChildren()
+    if esp.WeaponViewport then esp.WeaponViewport.Visible = false end
+    if esp.WeaponWorld then esp.WeaponWorld:ClearAllChildren() end
     esp.WeaponReady = false
+end
+
+function xcWeaponDisplayName(name)
+    if type(name) ~= "string" then return "UNKNOWN" end
+    -- Some equipped attributes include an instance path; keep only its label.
+    name = name:match("([^/\\]+)$") or name
+    name = name:gsub("[%c]", " "):gsub("^%s+", ""):gsub("%s+$", "")
+    return name ~= "" and name:sub(1, 32) or "UNKNOWN"
 end
 
 function findXCWeaponAsset(weaponName)
@@ -11058,6 +11085,8 @@ end
 function buildXCWeaponViewport(esp, weaponName, tool, character)
     clearXCWeaponPreview(esp)
 
+    if XCConfig.weaponEspStyle == "Text" then return false end
+
     if tool and type(tool.TextureId) == "string" and tool.TextureId ~= "" then
         esp.WeaponImage.Image = tool.TextureId
         esp.WeaponImageShadow.Image = tool.TextureId
@@ -11089,8 +11118,25 @@ function buildXCWeaponViewport(esp, weaponName, tool, character)
     )) or tool
     if not source then return false end
 
+    -- An arbitrary replicated asset can include an entire viewmodel. Keep
+    -- the UI responsive and fall back to the weapon name for large models.
+    if #source:GetDescendants() > 96 then return false end
+
     local ok, clone = pcall(function() return source:Clone() end)
     if not ok or not clone then return false end
+    if not esp.WeaponViewport then
+        local viewport = Instance.new("ViewportFrame", esp.WeaponCard)
+        viewport.Name = "Viewport"
+        viewport.Size = UDim2.fromOffset(37, 17)
+        viewport.Position = UDim2.fromOffset(10, 4)
+        viewport.BackgroundTransparency = 1
+        viewport.LightDirection = Vector3.new(-1, -0.45, -1)
+        viewport.ZIndex = 10
+        local world = Instance.new("WorldModel", viewport)
+        local viewCamera = Instance.new("Camera", viewport)
+        viewport.CurrentCamera = viewCamera
+        esp.WeaponViewport, esp.WeaponWorld, esp.WeaponCamera = viewport, world, viewCamera
+    end
     clone.Parent = esp.WeaponWorld
     local cloneObjects = {clone}
     local visibleParts = {}
@@ -11117,7 +11163,9 @@ function buildXCWeaponViewport(esp, weaponName, tool, character)
                 if object:IsA("MeshPart") then object.TextureID = "" end
                 if object.Transparency < 0.98 then table.insert(visibleParts, object) end
             end
-        elseif object:IsA("SurfaceAppearance") or object:IsA("Decal") or object:IsA("Texture") then
+        elseif object:IsA("SurfaceAppearance") or object:IsA("Decal") or object:IsA("Texture")
+            or object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam")
+            or object:IsA("Sound") or object:IsA("Light") then
             object:Destroy()
         end
     end
@@ -11151,7 +11199,7 @@ function buildXCWeaponViewport(esp, weaponName, tool, character)
     local depthSize = longOnX and boundsSize.Z or boundsSize.X
     local fieldOfView = 24
     local tangent = math.tan(math.rad(fieldOfView * 0.5))
-    local viewportAspect = 2.6
+    local viewportAspect = 37 / 17
     local distanceForWidth = horizontalSize / math.max(0.01, 2 * tangent * viewportAspect)
     local distanceForHeight = boundsSize.Y / math.max(0.01, 2 * tangent)
     local cameraDistance = math.max(distanceForWidth, distanceForHeight, 0.35) * 1.18 + depthSize * 0.5
@@ -11180,33 +11228,88 @@ local function positionXCElement(gui, positionName, boxX, boxY, boxW, boxH, gap)
     end
 end
 
-function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxWidth, boxHeight)
+function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxWidth, boxHeight, espAlpha)
     if not XCConfig.weaponEspEnabled then
+        if esp.WeaponRaw ~= nil or esp.WeaponReady then
+            clearXCWeaponPreview(esp)
+            esp.WeaponRaw = nil
+        end
         esp.WeaponCard.Visible = false
         return
     end
 
-    local weaponName, tool, raw = getXCEquippedWeapon(plr, char)
-    local key = tostring(raw or "") .. "|" .. tostring(weaponName or "") .. "|" .. tostring(tool)
+    local weaponName, tool, raw = getXCEquippedWeapon(plr, char, esp)
+    if not weaponName then
+        if esp.WeaponRaw ~= nil then clearXCWeaponPreview(esp) end
+        esp.WeaponCard.Visible = false
+        esp.WeaponRaw = nil
+        return
+    end
+    local style = XCConfig.weaponEspStyle
+    if style ~= "Minimal" and style ~= "Text" then style = "Card" end
+    local key = tostring(char) .. "|" .. tostring(raw or "") .. "|"
+        .. weaponName .. "|" .. tostring(tool) .. "|" .. style
     local now = os.clock()
-    if key ~= esp.WeaponRaw or (not esp.WeaponReady and now >= (esp.WeaponNextRetry or 0)) then
+    if key ~= esp.WeaponRaw or (style ~= "Text" and not esp.WeaponReady
+        and now >= (esp.WeaponNextRetry or 0)) then
         esp.WeaponRaw = key
         esp.WeaponName = weaponName
-        esp.WeaponNextRetry = now + 1
+        esp.WeaponNextRetry = now + 3
         buildXCWeaponViewport(esp, weaponName, tool, char)
     end
 
-    local weaponLime = currentTheme.Enemy_Accent
-    esp.WeaponCardStroke.Color = weaponLime
-    esp.WeaponImage.ImageColor3 = weaponLime
-    esp.WeaponImageShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    esp.WeaponViewport.Ambient = weaponLime
-    esp.WeaponViewport.LightColor = Color3.fromRGB(225, 255, 160)
-    local iconWidth = math.floor(math.clamp(boxWidth * 1.45, 42, 68) + 0.5)
-    local iconHeight = math.floor(math.clamp(iconWidth * 0.38, 18, 27) + 0.5)
-    esp.WeaponCard.Size = UDim2.fromOffset(iconWidth, iconHeight)
-    positionXCElement(esp.WeaponCard, XCConfig.espWeaponPosition, boxPosX, boxPosY, boxWidth, boxHeight, 4)
-    esp.WeaponCard.Visible = weaponName ~= nil and esp.WeaponReady
+    local accent = sideColor or currentTheme.Enemy_Accent
+    local alpha = math.clamp(tonumber(espAlpha) or 1, 0, 1)
+    local hasIcon = esp.WeaponReady and style ~= "Text"
+    local showName = XCConfig.weaponEspShowName ~= false or not hasIcon
+    local displayName = xcWeaponDisplayName(weaponName)
+    if esp.WeaponLabel.Text ~= displayName then esp.WeaponLabel.Text = displayName end
+    local scale = math.clamp(tonumber(XCConfig.weaponEspScale) or 1, 0.75, 1.5)
+    local iconWidth = math.floor(37 * scale + 0.5)
+    local iconHeight = math.floor(17 * scale + 0.5)
+    local labelWidth = showName and math.clamp(#displayName * 6 + 9, 36, 126) * scale or 0
+    local width = math.floor((hasIcon and iconWidth + 13 or 0) + labelWidth + 13)
+    local height = math.floor(25 * scale + 0.5)
+    esp.WeaponCard.Size = UDim2.fromOffset(math.max(38, width), height)
+    esp.WeaponCard.BackgroundTransparency = style == "Card"
+        and math.clamp(0.13 + (1 - alpha) * 0.6, 0, 1) or 1
+    esp.WeaponCardStroke.Enabled = style == "Card"
+    esp.WeaponCardStroke.Color = accent
+    esp.WeaponCardStroke.Transparency = math.clamp(0.43 + (1 - alpha) * 0.55, 0, 1)
+    esp.WeaponStripe.Visible = style == "Card"
+    esp.WeaponStripe.BackgroundColor3 = accent
+    esp.WeaponStripe.BackgroundTransparency = 1 - alpha
+    esp.WeaponStripe.Size = UDim2.fromOffset(2, math.floor(13 * scale + 0.5))
+    esp.WeaponStripe.Position = UDim2.new(0, 4, 0.5, -math.floor(6 * scale + 0.5))
+
+    local iconX = style == "Card" and 10 or 5
+    local iconY = math.floor((height - iconHeight) * 0.5)
+    local imageSize = UDim2.fromOffset(iconWidth, iconHeight)
+    esp.WeaponImage.Size, esp.WeaponImage.Position = imageSize, UDim2.fromOffset(iconX, iconY)
+    esp.WeaponImageShadow.Size = imageSize
+    esp.WeaponImageShadow.Position = UDim2.fromOffset(iconX + 1, iconY + 1)
+    esp.WeaponImage.ImageColor3 = accent
+    esp.WeaponImage.ImageTransparency = 1 - alpha
+    esp.WeaponImageShadow.ImageTransparency = math.clamp(0.35 + (1 - alpha), 0, 1)
+    if esp.WeaponViewport then
+        esp.WeaponViewport.Size, esp.WeaponViewport.Position = imageSize, UDim2.fromOffset(iconX, iconY)
+        esp.WeaponViewport.Ambient = accent:Lerp(Color3.new(1, 1, 1), 0.35)
+        esp.WeaponViewport.LightColor = accent:Lerp(Color3.new(1, 1, 1), 0.65)
+    end
+    esp.WeaponLabel.Visible = showName
+    esp.WeaponLabel.Position = UDim2.fromOffset(hasIcon and iconX + iconWidth + 5 or 9, 1)
+    esp.WeaponLabel.Size = UDim2.new(1, -(hasIcon and iconX + iconWidth + 10 or 18), 1, -2)
+    esp.WeaponLabel.TextColor3 = style == "Card" and Color3.fromRGB(240, 243, 250) or accent
+    esp.WeaponLabel.TextTransparency = 1 - alpha
+    esp.WeaponLabel.TextStrokeColor3 = Color3.fromRGB(3, 5, 9)
+    esp.WeaponLabel.TextStrokeTransparency = style == "Card" and 1 or 0.4
+    esp.WeaponLabel.TextSize = math.floor(10 * scale + 0.5)
+    local slot = XCConfig.espWeaponPosition
+    local stacked = XCConfig.nametagsEnabled and XCConfig.espNamePosition == slot
+        and (slot == "Top" or slot == "Bottom")
+    positionXCElement(esp.WeaponCard, slot, boxPosX, boxPosY, boxWidth, boxHeight,
+        stacked and 23 or 5)
+    esp.WeaponCard.Visible = true
 end
 
 table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
@@ -11274,6 +11377,10 @@ function hideTacticalOverlay()
         esp.BoxOutline.Visible = false
         esp.HealthBarBg.Visible = false
         esp.WeaponCard.Visible = false
+        if not XCConfig.weaponEspEnabled and esp.WeaponRaw ~= nil then
+            clearXCWeaponPreview(esp)
+            esp.WeaponRaw = nil
+        end
         esp.TagCard.Visible = false
         for _, corner in ipairs(esp.Corners) do
             corner.H.Visible = false
@@ -11565,7 +11672,7 @@ function renderTacticalOverlay()
                     else
                         esp.TagCard.Visible = false
                     end
-                    updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxWidth, boxHeight)
+                    updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxWidth, boxHeight, espAlpha)
                     renderXCSkeleton(esp, char, sideColor, dist)
                 else
                     esp.Box.Visible = false
@@ -13985,7 +14092,9 @@ function buildXCUI()
         showMolotovRadius = "Shows the projected fire effect radius on the ground.",
         showSmokeRadius = "Shows the projected smoke effect radius on the ground.",
         grenadeDangerOpacity = "Controls danger-ring visibility without changing trajectory brightness.",
-        weaponEspEnabled = "Shows a compact lime weapon silhouette below the player box.",
+        weaponEspEnabled = "Shows the equipped weapon with an icon when available and a readable name as fallback.",
+        weaponEspStyle = "Card has a dark panel; Minimal removes it; Text avoids loading weapon images and models.",
+        weaponEspShowName = "Displays the weapon name alongside its icon; a name is always shown when the icon is unavailable.",
         spectatorListEnabled = "Shows players currently observing the local player when detectable.",
         settingsAutoSave = "Saves the current profile shortly after a UI setting changes.",
         menuKey = "Keyboard shortcut used to show or hide XC.",
@@ -15063,14 +15172,26 @@ function buildXCUI()
         local weaponIcon = Instance.new("Frame", root)
         weaponIcon.AnchorPoint = Vector2.new(0.5,0)
         weaponIcon.Position = UDim2.fromOffset(63,111)
-        weaponIcon.Size = UDim2.fromOffset(38,12)
-        weaponIcon.BackgroundTransparency = 1
+        weaponIcon.Size = UDim2.fromOffset(92,19)
+        weaponIcon.BackgroundColor3 = Color3.fromRGB(13,17,26)
+        weaponIcon.BorderSizePixel = 0
+        Instance.new("UICorner",weaponIcon).CornerRadius = UDim.new(0,4)
+        local weaponRim = Instance.new("UIStroke",weaponIcon)
+        weaponRim.Thickness = 0.8
         local weaponBody = Instance.new("Frame",weaponIcon)
-        weaponBody.Position = UDim2.fromOffset(3,2);weaponBody.Size=UDim2.fromOffset(25,4);weaponBody.BorderSizePixel=0
+        weaponBody.Position = UDim2.fromOffset(8,6);weaponBody.Size=UDim2.fromOffset(24,3);weaponBody.BorderSizePixel=0
         local weaponBarrel = Instance.new("Frame",weaponIcon)
-        weaponBarrel.Position = UDim2.fromOffset(27,3);weaponBarrel.Size=UDim2.fromOffset(9,2);weaponBarrel.BorderSizePixel=0
+        weaponBarrel.Position = UDim2.fromOffset(31,7);weaponBarrel.Size=UDim2.fromOffset(8,2);weaponBarrel.BorderSizePixel=0
         local weaponGrip = Instance.new("Frame",weaponIcon)
-        weaponGrip.Position = UDim2.fromOffset(17,5);weaponGrip.Size=UDim2.fromOffset(4,7);weaponGrip.Rotation=18;weaponGrip.BorderSizePixel=0
+        weaponGrip.Position = UDim2.fromOffset(19,9);weaponGrip.Size=UDim2.fromOffset(3,5);weaponGrip.Rotation=18;weaponGrip.BorderSizePixel=0
+        local weaponTitle = Instance.new("TextLabel",weaponIcon)
+        weaponTitle.Position = UDim2.fromOffset(44,0)
+        weaponTitle.Size = UDim2.new(1,-49,1,0)
+        weaponTitle.BackgroundTransparency = 1
+        weaponTitle.Font = Enum.Font.GothamMedium
+        weaponTitle.TextSize = 9
+        weaponTitle.Text = "AK-47"
+        weaponTitle.TextXAlignment = Enum.TextXAlignment.Left
 
         local function nearestBuilderSlot(guiObject, allowHorizontalOnly)
             local center = Vector2.new(63, 70)
@@ -15173,17 +15294,32 @@ function buildXCUI()
             tracer.BackgroundColor3=color;tracer.Visible=XCConfig.tracersEnabled
             headDot.BackgroundColor3=color;headDot.Visible=XCConfig.headDotEnabled
             weaponBody.BackgroundColor3=color;weaponBarrel.BackgroundColor3=color;weaponGrip.BackgroundColor3=color
+            weaponRim.Color=color
+            local weaponStyle = XCConfig.weaponEspStyle
+            local previewIcon = weaponStyle ~= "Text"
+            local previewLabel = XCConfig.weaponEspShowName ~= false or not previewIcon
+            weaponBody.Visible=previewIcon;weaponBarrel.Visible=previewIcon;weaponGrip.Visible=previewIcon
+            weaponTitle.Visible=previewLabel
+            weaponTitle.TextColor3=weaponStyle=="Card" and C.White or color
+            weaponTitle.Position=UDim2.fromOffset(previewIcon and 44 or 7,0)
+            weaponTitle.Size=UDim2.new(1,previewIcon and -49 or -12,1,0)
+            weaponIcon.Size=UDim2.fromOffset(math.floor((previewIcon and (previewLabel and 92 or 44) or 55)
+                * math.clamp(tonumber(XCConfig.weaponEspScale) or 1,0.75,1.5)),19)
+            weaponIcon.BackgroundTransparency=weaponStyle=="Card" and 0.13 or 1
+            weaponRim.Enabled=weaponStyle=="Card"
             local weaponSlot=tostring(XCConfig.espWeaponPosition or "Bottom")
-            if weaponSlot=="Top" then weaponIcon.AnchorPoint=Vector2.new(0.5,1);weaponIcon.Position=UDim2.fromOffset(63,top-3)
+            local weaponGap=(XCConfig.nametagsEnabled and XCConfig.espNamePosition==weaponSlot
+                and (weaponSlot=="Top" or weaponSlot=="Bottom")) and 22 or 3
+            if weaponSlot=="Top" then weaponIcon.AnchorPoint=Vector2.new(0.5,1);weaponIcon.Position=UDim2.fromOffset(63,top-weaponGap)
             elseif weaponSlot=="Left" then weaponIcon.AnchorPoint=Vector2.new(1,0.5);weaponIcon.Position=UDim2.fromOffset(left-4,70)
             elseif weaponSlot=="Right" then weaponIcon.AnchorPoint=Vector2.new(0,0.5);weaponIcon.Position=UDim2.fromOffset(left+width+4,70)
-            else weaponIcon.AnchorPoint=Vector2.new(0.5,0);weaponIcon.Position=UDim2.fromOffset(63,top+height+3) end
+            else weaponIcon.AnchorPoint=Vector2.new(0.5,0);weaponIcon.Position=UDim2.fromOffset(63,top+height+weaponGap) end
             weaponIcon.Visible=XCConfig.weaponEspEnabled
         end
         refreshESPPreview = refreshPreview
         mode.Activated:Connect(function() previewVisible=not previewVisible;refreshPreview() end)
         for _,key in ipairs({"boxEspEnabled","cornerBoxEnabled","healthBarEnabled","nametagsEnabled","chamsEnabled","skeletonEspEnabled",
-            "tracersEnabled","headDotEnabled","weaponEspEnabled","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline",
+            "tracersEnabled","headDotEnabled","weaponEspEnabled","weaponEspStyle","weaponEspShowName","weaponEspScale","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline",
             "espTextSize","espShowDistance","espShowHealth","espShowVisibility","tagShowWeapon","espNamePosition","espHealthPosition","espWeaponPosition",
             "espTextOutline","espDistanceFade","espFadeStart","espMinOpacity","chamsStyle","chamsUseEspPalette","chamsFillTransparency",
             "chamsRoughness","chamsMetal","chamsGlowBrightness","chamsGlowZoneSize","chamsGlowOutlineFill",
@@ -16208,7 +16344,10 @@ function buildXCUI()
     toggle(L, "Distance fade", "skeletonDistanceFade")
     addSlider(L, "Skeleton thickness", "skeletonThickness", 1, 4, 0.5, "px")
     section(L, "Weapon ESP")
-    toggle(L, "Weapon image", "weaponEspEnabled")
+    toggle(L, "Weapon ESP", "weaponEspEnabled")
+    addChoice(L, "Display style", "weaponEspStyle", {"Card", "Minimal", "Text"}, refreshESPPreview)
+    toggle(L, "Show weapon name", "weaponEspShowName")
+    addSlider(L, "Weapon label scale", "weaponEspScale", 0.75, 1.5, 0.05, "x", refreshESPPreview)
     section(L, "Nametags")
     toggle(L, "Nametags", "nametagsEnabled")
     addSlider(L, "Text size", "espTextSize", 8, 20, 1, "")
