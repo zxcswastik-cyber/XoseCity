@@ -353,8 +353,8 @@ local XCConfig = {
     soundEspMaxDist = 1200,
 
     espMaxDist = 3000,
-    espTextSize = 8.5,
-    tagTransparency = 0.25,
+    espTextSize = 10.5,
+    tagTransparency = 0.75,
     espShowDistance = true,
     espShowHealth = true,
     espShowVisibility = false,
@@ -10754,19 +10754,31 @@ end
 
 function renderXCSkeleton(esp, char, color, distance)
     if not XCConfig.skeletonEspEnabled or not char then hideXCSkeleton(esp) return end
-    local head = char:FindFirstChild("Head")
-    local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
-    local waistPart = char:FindFirstChild("LowerTorso") or torso
+    local now = os.clock()
+    local rig = esp.SkeletonRig
+    if not rig or rig.Character ~= char or now >= rig.RefreshAt then
+        rig = {Character = char, RefreshAt = now + 1}
+        for _, name in ipairs({"Head", "UpperTorso", "Torso", "LowerTorso", "LeftUpperArm", "Left Arm",
+            "RightUpperArm", "Right Arm", "LeftHand", "LeftLowerArm", "RightHand", "RightLowerArm",
+            "LeftUpperLeg", "Left Leg", "RightUpperLeg", "Right Leg", "LeftFoot", "LeftLowerLeg",
+            "RightFoot", "RightLowerLeg"}) do
+            rig[name] = char:FindFirstChild(name)
+        end
+        esp.SkeletonRig = rig
+    end
+    local head = rig.Head
+    local torso = rig.UpperTorso or rig.Torso
+    local waistPart = rig.LowerTorso or torso
     if not head or not torso or not waistPart then hideXCSkeleton(esp) return end
 
-    local leftArm = char:FindFirstChild("LeftUpperArm") or char:FindFirstChild("Left Arm")
-    local rightArm = char:FindFirstChild("RightUpperArm") or char:FindFirstChild("Right Arm")
-    local leftHand = char:FindFirstChild("LeftHand") or char:FindFirstChild("LeftLowerArm") or leftArm
-    local rightHand = char:FindFirstChild("RightHand") or char:FindFirstChild("RightLowerArm") or rightArm
-    local leftLeg = char:FindFirstChild("LeftUpperLeg") or char:FindFirstChild("Left Leg")
-    local rightLeg = char:FindFirstChild("RightUpperLeg") or char:FindFirstChild("Right Leg")
-    local leftFoot = char:FindFirstChild("LeftFoot") or char:FindFirstChild("LeftLowerLeg") or leftLeg
-    local rightFoot = char:FindFirstChild("RightFoot") or char:FindFirstChild("RightLowerLeg") or rightLeg
+    local leftArm = rig.LeftUpperArm or rig["Left Arm"]
+    local rightArm = rig.RightUpperArm or rig["Right Arm"]
+    local leftHand = rig.LeftHand or rig.LeftLowerArm or leftArm
+    local rightHand = rig.RightHand or rig.RightLowerArm or rightArm
+    local leftLeg = rig.LeftUpperLeg or rig["Left Leg"]
+    local rightLeg = rig.RightUpperLeg or rig["Right Leg"]
+    local leftFoot = rig.LeftFoot or rig.LeftLowerLeg or leftLeg
+    local rightFoot = rig.RightFoot or rig.RightLowerLeg or rightLeg
 
     local points = {
         Head = head.Position,
@@ -10783,7 +10795,9 @@ function renderXCSkeleton(esp, char, color, distance)
     }
     local alpha = XCConfig.skeletonDistanceFade
         and math.clamp(1 - distance / math.max(1, XCConfig.espMaxDist), 0.18, 1) or 1
-    local projections = {}
+    local projections = esp.SkeletonProjections
+    if not projections then projections = {}; esp.SkeletonProjections = projections end
+    table.clear(projections)
     local function project(name)
         if projections[name] ~= nil then return projections[name] or nil end
         local worldPoint = points[name]
@@ -10884,18 +10898,6 @@ function getOrCreateScreenEsp(plr)
     weaponImage.Visible = false
     weaponImage.ZIndex = 10
 
-    local weaponBadge = Instance.new("TextLabel", weaponCard)
-    weaponBadge.Name = "WeaponBadge"
-    weaponBadge.Size = UDim2.fromOffset(56, 24)
-    weaponBadge.Position = UDim2.fromOffset(10, 3)
-    weaponBadge.BackgroundTransparency = 1
-    weaponBadge.BorderSizePixel = 0
-    weaponBadge.Font = Enum.Font.GothamBold
-    weaponBadge.TextSize = 10
-    weaponBadge.TextTruncate = Enum.TextTruncate.AtEnd
-    weaponBadge.Visible = false
-    weaponBadge.ZIndex = 10
-
     local weaponLabel = Instance.new("TextLabel", weaponCard)
     weaponLabel.Name = "WeaponName"
     weaponLabel.Position = UDim2.fromOffset(71, 1)
@@ -10937,8 +10939,8 @@ function getOrCreateScreenEsp(plr)
     local tagCard = Instance.new("Frame", overlayContainer)
     tagCard.Name = "TagCard_" .. plr.Name
     tagCard.AnchorPoint = Vector2.new(0.5, 1)
-    tagCard.Size = UDim2.new(0, 0, 0, 16)
-    tagCard.AutomaticSize = Enum.AutomaticSize.X
+    tagCard.Size = UDim2.fromOffset(140, 30)
+    tagCard.ClipsDescendants = true
     tagCard.BackgroundColor3 = currentTheme.Sidebar
     tagCard.BackgroundTransparency = XCConfig.tagTransparency
     tagCard.BorderSizePixel = 0
@@ -10955,12 +10957,19 @@ function getOrCreateScreenEsp(plr)
     pad.PaddingLeft = UDim.new(0, 6)
 
     local tagLabel = Instance.new("TextLabel", tagCard)
-    tagLabel.AutomaticSize = Enum.AutomaticSize.X
-    tagLabel.Size = UDim2.new(0, 0, 1, 0)
+    tagLabel.Size = UDim2.new(1, 0, 0, 15)
     tagLabel.BackgroundTransparency = 1
     tagLabel.TextColor3 = currentTheme.NametagTextColor
     tagLabel.TextSize = XCConfig.espTextSize
     tagLabel.Font = Enum.Font.GothamBold
+    tagLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    local tagDetails = Instance.new("TextLabel", tagCard)
+    tagDetails.Name = "Details"
+    tagDetails.Size = UDim2.new(1, 0, 0, 13)
+    tagDetails.Position = UDim2.fromOffset(0, 15)
+    tagDetails.BackgroundTransparency = 1
+    tagDetails.Font = Enum.Font.GothamMedium
+    tagDetails.TextTruncate = Enum.TextTruncate.AtEnd
 
     -- Skeleton lines are allocated only when Skeleton ESP is enabled.
     local skeletonLines = {}
@@ -10975,7 +10984,6 @@ function getOrCreateScreenEsp(plr)
         HealthGradient = healthGradient,
         WeaponCard = weaponCard,
         WeaponImage = weaponImage,
-        WeaponBadge = weaponBadge,
         WeaponLabel = weaponLabel,
         WeaponRaw = nil,
         WeaponName = nil,
@@ -10984,6 +10992,7 @@ function getOrCreateScreenEsp(plr)
         TagCard = tagCard,
         TagCardStroke = cardStroke,
         TagLabel = tagLabel,
+        TagDetails = tagDetails,
         SkeletonLines = skeletonLines,
         LastText = "",
         Character = nil,
@@ -11028,7 +11037,6 @@ end
 function clearXCWeaponPreview(esp)
     esp.WeaponImage.Image = ""
     esp.WeaponImage.Visible = false
-    esp.WeaponBadge.Visible = false
     if esp.WeaponViewport then esp.WeaponViewport.Visible = false end
     if esp.WeaponWorld then esp.WeaponWorld:ClearAllChildren() end
     esp.WeaponReady = false
@@ -11319,9 +11327,12 @@ function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxW
     local key = tostring(char) .. "|" .. tostring(raw or "") .. "|"
         .. weaponName .. "|" .. tostring(tool) .. "|" .. style
     local now = os.clock()
-    if key ~= esp.WeaponRaw or (style ~= "Text" and not esp.WeaponReady
+    if key ~= esp.WeaponRaw or esp.WeaponCharacter ~= char or esp.WeaponTool ~= tool
+        or (style ~= "Text" and not esp.WeaponReady
         and now >= (esp.WeaponNextRetry or 0)) then
         esp.WeaponRaw = key
+        esp.WeaponCharacter = char
+        esp.WeaponTool = tool
         esp.WeaponName = weaponName
         esp.WeaponNextRetry = now + 3
         buildXCWeaponViewport(esp, weaponName, tool, char)
@@ -11332,8 +11343,7 @@ function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxW
     local hasIcon = esp.WeaponReady and style ~= "Text"
         and ((esp.WeaponViewport and esp.WeaponViewport.Visible)
             or (esp.WeaponImage.Visible and esp.WeaponImage.IsLoaded))
-    local showBadge = not hasIcon and style ~= "Text"
-    local hasVisual = hasIcon or showBadge
+    local hasVisual = hasIcon
     local showName = XCConfig.weaponEspShowName ~= false or not hasIcon
     local displayName = xcWeaponDisplayName(weaponName)
     if esp.WeaponLabel.Text ~= displayName then esp.WeaponLabel.Text = displayName end
@@ -11346,14 +11356,6 @@ function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxW
     esp.WeaponCard.Size = UDim2.fromOffset(width, height)
     local iconX = math.floor((width - iconWidth) * 0.5)
     local imageSize = UDim2.fromOffset(iconWidth, iconHeight)
-    esp.WeaponBadge.Visible = showBadge
-    esp.WeaponBadge.Text = displayName:upper():sub(1, 7)
-    esp.WeaponBadge.Size, esp.WeaponBadge.Position = imageSize, UDim2.fromOffset(iconX, 0)
-    esp.WeaponBadge.TextSize = math.floor(10 * scale + 0.5)
-    esp.WeaponBadge.TextColor3 = accent:Lerp(Color3.new(1, 1, 1), 0.55)
-    esp.WeaponBadge.TextTransparency = 1 - alpha
-    esp.WeaponBadge.TextStrokeColor3 = Color3.fromRGB(4, 5, 8)
-    esp.WeaponBadge.TextStrokeTransparency = 0.25
     esp.WeaponImage.Size, esp.WeaponImage.Position = imageSize, UDim2.fromOffset(iconX, 0)
     esp.WeaponImage.ImageColor3 = Color3.new(1, 1, 1)
     esp.WeaponImage.ImageTransparency = 1 - alpha
@@ -11374,9 +11376,13 @@ function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxW
     esp.WeaponLabel.TextSize = math.floor(12 * scale + 0.5)
     local slot = XCConfig.espWeaponPosition
     local stacked = XCConfig.nametagsEnabled and XCConfig.espNamePosition == slot
-        and (slot == "Top" or slot == "Bottom")
+    local stackGap = 5
+    if stacked then
+        stackGap = (slot == "Left" or slot == "Right")
+            and esp.TagCard.Size.X.Offset + 8 or esp.TagCard.Size.Y.Offset + 8
+    end
     positionXCElement(esp.WeaponCard, slot, boxPosX, boxPosY, boxWidth, boxHeight,
-        stacked and 23 or 5)
+        stackGap)
     esp.WeaponCard.Visible = true
 end
 
@@ -11702,38 +11708,56 @@ function renderTacticalOverlay()
                     end
 
                     if XCConfig.nametagsEnabled then
-                        esp.TagCard.BackgroundTransparency = XCConfig.tagTransparency
+                        local textSize = math.clamp(tonumber(XCConfig.espTextSize) or 10.5, 8, 20)
+                        local detailSize = math.max(8, textSize - 1)
+                        esp.TagCard.BackgroundTransparency = 1 - (1 - XCConfig.tagTransparency) * espAlpha
                         esp.TagCardStroke.Enabled = false
-                        esp.TagLabel.TextColor3 = sideColor
-                        esp.TagLabel.TextSize = XCConfig.espTextSize
+                        esp.TagLabel.TextColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.4)
+                        esp.TagLabel.TextSize = textSize
                         esp.TagLabel.TextTransparency = 1 - espAlpha
                         esp.TagLabel.TextStrokeTransparency = XCConfig.espTextOutline
                             and math.clamp(0.35 + (1 - espAlpha), 0, 1) or 1
                         esp.TagLabel.TextStrokeColor3 = Color3.fromRGB(4, 5, 6)
 
                         local baseName = plr.DisplayName or plr.Name
-                        local infoText = baseName
+                        local details = {}
                         
                         if XCConfig.espShowDistance then
-                            infoText = string.format("%s [%dm]", infoText, math.floor(dist))
+                            details[#details + 1] = string.format("%d st", math.floor(dist))
                         end
                         if XCConfig.espShowHealth and health then
-                            infoText = string.format("%s [%dHP]", infoText, math.floor(health + 0.5))
+                            details[#details + 1] = string.format("%d HP", math.floor(health + 0.5))
                         end
                         if XCConfig.espShowVisibility then
-                            infoText = infoText .. (isVisible and " [VIS]" or " [WALL]")
+                            details[#details + 1] = isVisible and "VIS" or "WALL"
                         end
                         if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then
                             local tool = char:FindFirstChildOfClass("Tool")
                             if tool then
-                                infoText = string.format("%s {%s}", infoText, tool.Name)
+                                details[#details + 1] = tool.Name
                             end
                         end
 
+                        local infoText = table.concat(details, "  ·  ")
+                        if esp.TagLabel.Text ~= baseName then esp.TagLabel.Text = baseName end
                         if esp.LastText ~= infoText then
-                            esp.TagLabel.Text = infoText
+                            esp.TagDetails.Text = infoText
                             esp.LastText = infoText
                         end
+                        local titleHeight = math.ceil(textSize + 4)
+                        local detailHeight = infoText ~= "" and math.ceil(detailSize + 4) or 0
+                        local width = math.clamp(math.max(#baseName * textSize * 0.6,
+                            #infoText * detailSize * 0.47) + 16, 88, 180)
+                        esp.TagCard.Size = UDim2.fromOffset(math.ceil(width), titleHeight + detailHeight)
+                        esp.TagLabel.Size = UDim2.new(1, 0, 0, titleHeight)
+                        esp.TagDetails.Position = UDim2.fromOffset(0, titleHeight)
+                        esp.TagDetails.Size = UDim2.new(1, 0, 0, detailHeight)
+                        esp.TagDetails.Visible = detailHeight > 0
+                        esp.TagDetails.TextSize = detailSize
+                        esp.TagDetails.TextColor3 = Color3.fromRGB(214, 220, 232)
+                        esp.TagDetails.TextTransparency = 1 - espAlpha * 0.88
+                        esp.TagDetails.TextStrokeColor3 = Color3.fromRGB(4, 5, 6)
+                        esp.TagDetails.TextStrokeTransparency = XCConfig.espTextOutline and 0.3 or 1
 
                         positionXCElement(esp.TagCard, XCConfig.espNamePosition, boxPosX, boxPosY, boxWidth, boxHeight, 4)
                         esp.TagCard.Visible = true
@@ -13787,11 +13811,12 @@ function buildXCUI()
             surface.BackgroundTransparency = xcGlassOpacity(role, enabled, strength, normal)
             entry.sheen.Enabled = enabled
             if enabled then
-                local color = role == "main" and C.Main or role == "chrome" and C.Sidebar or C.Panel
+                -- UIGradient multiplies the surface color. Neutral stops keep
+                -- the selected palette intact instead of darkening it twice.
                 entry.sheen.Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, color:Lerp(C.White, role == "panel" and 0.05 or 0.13)),
-                    ColorSequenceKeypoint.new(0.38, color),
-                    ColorSequenceKeypoint.new(1, color:Lerp(C.Lime, 0.07)),
+                    ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+                    ColorSequenceKeypoint.new(0.45, Color3.fromRGB(242, 244, 250)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(222, 226, 239)),
                 })
             end
             if entry.stroke then
@@ -14894,6 +14919,7 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local note = Instance.new("TextLabel")
         note.Size = UDim2.new(1, 0, 0, 30)
+        note.AutomaticSize = Enum.AutomaticSize.Y
         note.BackgroundColor3 = C.Control
         note.BorderColor3 = C.Border
         note.BorderSizePixel = 0
@@ -14908,6 +14934,8 @@ function buildXCUI()
         local padding = Instance.new("UIPadding")
         padding.PaddingLeft = UDim.new(0, 6)
         padding.PaddingRight = UDim.new(0, 6)
+        padding.PaddingTop = UDim.new(0, 6)
+        padding.PaddingBottom = UDim.new(0, 6)
         padding.Parent = note
         registerSearch(note, message)
         return note
@@ -15249,14 +15277,6 @@ function buildXCUI()
         weaponPreviewImage.BackgroundTransparency = 1
         weaponPreviewImage.ScaleType = Enum.ScaleType.Fit
         weaponPreviewImage.Visible = false
-        local previewBadge = Instance.new("TextLabel",weaponIcon)
-        previewBadge.Position = UDim2.fromOffset(10,0)
-        previewBadge.Size = UDim2.fromOffset(38,15)
-        previewBadge.BackgroundTransparency = 1
-        previewBadge.BorderSizePixel = 0
-        previewBadge.Font = Enum.Font.GothamBold
-        previewBadge.TextSize = 8
-        previewBadge.Text = "AK-47"
         local weaponTitle = Instance.new("TextLabel",weaponIcon)
         weaponTitle.Position = UDim2.fromOffset(0,15)
         weaponTitle.Size = UDim2.new(1,0,0,13)
@@ -15345,11 +15365,13 @@ function buildXCUI()
             healthGradient.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,hpColor),
                 ColorSequenceKeypoint.new(1,hpColor:Lerp(Color3.new(0,0,0),0.32))})
             local tagText="enemy"
-            if XCConfig.espShowDistance then tagText = tagText .. (" [42m]") end
+            if XCConfig.espShowDistance then tagText = tagText .. (" [42 st]") end
             if XCConfig.espShowHealth then tagText = tagText .. (" [72HP]") end
             if XCConfig.espShowVisibility then tagText = tagText .. (previewVisible and " [VIS]" or " [WALL]") end
             if XCConfig.tagShowWeapon and not XCConfig.weaponEspEnabled then tagText = tagText .. (" [AK-47]") end
-            tag.Text=tagText;tag.TextColor3=color;tag.TextSize=XCConfig.espTextSize;tag.Visible=XCConfig.nametagsEnabled
+            tag.Text=tagText:gsub("^enemy ", "enemy\n")
+            tag.Size=UDim2.fromOffset(124,tagText=="enemy" and 16 or 30)
+            tag.TextColor3=color;tag.TextSize=XCConfig.espTextSize;tag.Visible=XCConfig.nametagsEnabled
             tag.TextStrokeColor3=Color3.fromRGB(4,5,6);tag.TextStrokeTransparency=XCConfig.espTextOutline and 0.35 or 1
             local tagSlot=tostring(XCConfig.espNamePosition or "Top")
             if tagSlot=="Bottom" then tag.AnchorPoint=Vector2.new(0.5,0);tag.Position=UDim2.fromOffset(63,top+height+3)
@@ -15370,14 +15392,12 @@ function buildXCUI()
             local nativeIcon = weaponStyle ~= "Text" and findXCWeaponIcon("AK-47") or nil
             local nativeImage = nativeIcon and nativeIcon.Image or nil
             local previewIcon = nativeImage ~= nil
-            local previewVisual = weaponStyle ~= "Text"
+            local previewVisual = previewIcon
             local previewLabel = XCConfig.weaponEspShowName ~= false or not previewIcon
             weaponPreviewImage.Image=nativeImage or ""
             weaponPreviewImage.ImageRectOffset=nativeIcon and nativeIcon.Offset or Vector2.zero
             weaponPreviewImage.ImageRectSize=nativeIcon and nativeIcon.Size or Vector2.zero
             weaponPreviewImage.Visible=previewIcon
-            previewBadge.Visible=previewVisual and not previewIcon
-            previewBadge.TextColor3=color:Lerp(C.White,0.44)
             weaponTitle.Visible=previewLabel
             weaponTitle.TextColor3=color:Lerp(C.White,0.55)
             weaponTitle.Position=UDim2.fromOffset(0,previewVisual and 15 or 0)
@@ -15386,7 +15406,7 @@ function buildXCUI()
                 previewVisual and (previewLabel and 28 or 15) or 13)
             local weaponSlot=tostring(XCConfig.espWeaponPosition or "Bottom")
             local weaponGap=(XCConfig.nametagsEnabled and XCConfig.espNamePosition==weaponSlot
-                and (weaponSlot=="Top" or weaponSlot=="Bottom")) and 22 or 3
+                and (weaponSlot=="Top" or weaponSlot=="Bottom")) and tag.Size.Y.Offset+6 or 3
             if weaponSlot=="Top" then weaponIcon.AnchorPoint=Vector2.new(0.5,1);weaponIcon.Position=UDim2.fromOffset(63,top-weaponGap)
             elseif weaponSlot=="Left" then weaponIcon.AnchorPoint=Vector2.new(1,0.5);weaponIcon.Position=UDim2.fromOffset(left-4,70)
             elseif weaponSlot=="Right" then weaponIcon.AnchorPoint=Vector2.new(0,0.5);weaponIcon.Position=UDim2.fromOffset(left+width+4,70)
@@ -17107,9 +17127,11 @@ function buildXCUI()
     applySearch = function()
         local query = searchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
         local page = pages[currentPage]
+        local matches = 0
         for _, entry in ipairs(searchableControls) do
             if page and entry.gui:IsDescendantOf(page) then
                 entry.gui.Visible = query == "" or entry.label:find(query, 1, true) ~= nil
+                if entry.gui.Visible then matches = matches + 1 end
             else
                 entry.gui.Visible = true
             end
@@ -17132,6 +17154,9 @@ function buildXCUI()
             end
         end
         clearSearch.TextColor3 = query ~= "" and C.Lime or C.Muted
+        pageSubtitle.Text = query == "" and (pageDescriptions[currentPage] or "Customize your session")
+            or matches == 0 and "No matches — clear search or try another term"
+            or tostring(matches) .. " matching settings in this tab"
     end
     local searchRevision = 0
     table.insert(connections, searchBox:GetPropertyChangedSignal("Text"):Connect(function()
