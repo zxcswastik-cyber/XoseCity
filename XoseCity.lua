@@ -2272,56 +2272,84 @@ function xcUnavailableByAttributes(object)
     return false
 end
 
+local XCBloxStrikeCombatTeams = {
+    ["Counter-Terrorists"] = true,
+    ["Terrorists"] = true,
+}
+
+function xcBloxStrikeTeamToken(owner)
+    if not owner then return nil end
+    local team = owner:GetAttribute("Team")
+    if type(team) == "string" and XCBloxStrikeCombatTeams[team] then
+        return team
+    end
+    return nil
+end
+
 function xcHasActiveTeam(owner)
-    if not owner then return true end
-    -- Do not break a possible FFA session: require a team token only when the
-    -- local BloxStrike player also has one. In team matches menu/lobby players
-    -- commonly lose that token while their old character may still exist.
+    if not owner then return false end
+
+    -- BloxStrike replicates the actual round team through the Player's Team
+    -- attribute. The Roblox Team property can stay populated for users that
+    -- are sitting in the menu/lobby, so it is not a valid combat-state test.
+    local charactersFolder = Workspace:FindFirstChild("Characters")
+    if charactersFolder then
+        return xcBloxStrikeTeamToken(owner) ~= nil
+    end
+
+    -- Generic fallback for places without BloxStrike's Characters contract.
     local localTeam = player.Team or player:GetAttribute("Team")
     if localTeam == nil or tostring(localTeam) == "" then return true end
-    if owner.Team ~= nil then return true end
-    local team = owner:GetAttribute("Team")
+    local team = owner.Team or owner:GetAttribute("Team")
     return team ~= nil and tostring(team) ~= ""
 end
 
 function isEntityAlive(char, hum)
-    if not char or not char.Parent or not char:IsDescendantOf(Workspace) then 
-        return false 
+    if not char or not char.Parent or not char:IsDescendantOf(Workspace) then
+        return false
     end
-    
+
     local owner = Players:GetPlayerFromCharacter(char)
     if char:GetAttribute("Dead") == true or xcUnavailableByAttributes(char) then return false end
     if owner and (owner.Character ~= char or owner:GetAttribute("Dead") == true
-        or xcUnavailableByAttributes(owner) or not xcHasActiveTeam(owner)) then return false end
+        or xcUnavailableByAttributes(owner)) then return false end
 
-    -- BloxStrike keeps active combat characters in Workspace.Characters. Old
-    -- corpses/menu stand-ins can remain elsewhere and must not be valid ESP/Aim targets.
     local charactersFolder = Workspace:FindFirstChild("Characters")
-    if charactersFolder and not char:IsDescendantOf(charactersFolder) then return false end
-    local characterType = char:GetAttribute("CharacterType")
-    if characterType ~= nil and characterType ~= "PlayerCustomCharacter" then return false end
+    if charactersFolder then
+        -- Port the strict matchCharacter contract from govno.lua instead of
+        -- accepting any humanoid-looking model. Active BloxStrike players must
+        -- have all four replicated round markers below. Menu/lobby users often
+        -- retain a 100-HP stand-in character, which is why Humanoid.Health alone
+        -- caused false ESP icons.
+        if not owner or owner.Character ~= char then return false end
+        if not char:IsDescendantOf(charactersFolder) then return false end
+        if char:GetAttribute("CharacterType") ~= "PlayerCustomCharacter" then return false end
+        if not xcHasActiveTeam(owner) then return false end
 
-    local health = getXCHealth(char, owner, hum)
-    if health == nil or health <= 0 then return false end
-    if hum and hum.Parent then
-        local health = 100
-        pcall(function() health = hum.Health end)
-        if health <= 0 then 
-            return false 
+        local replicatedHealth = char:GetAttribute("Health")
+        if type(replicatedHealth) ~= "number" or replicatedHealth ~= replicatedHealth
+            or replicatedHealth == math.huge or replicatedHealth <= 0 then
+            return false
         end
-        
+    else
+        -- Keep compatibility outside BloxStrike.
+        local health = getXCHealth(char, owner, hum)
+        if health == nil or health <= 0 then return false end
+    end
+
+    if hum and hum.Parent then
+        local humanoidHealth = 100
+        pcall(function() humanoidHealth = hum.Health end)
+        if humanoidHealth <= 0 then return false end
+
         local state = nil
         pcall(function() state = hum:GetState() end)
-        if state == Enum.HumanoidStateType.Dead then 
-            return false 
-        end
+        if state == Enum.HumanoidStateType.Dead then return false end
     end
 
     local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
     local head = char:FindFirstChild("Head")
-    if not root and not head then
-        return false
-    end
+    if not root and not head then return false end
 
     return true
 end
@@ -10043,7 +10071,8 @@ function getXCSoundSource(sound)
         for _, candidate in ipairs(Players:GetPlayers()) do
             local character = candidate.Character
             local root = character and (character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso"))
-            if root and isTargetEnemy(candidate, character) then
+            local hum = character and character:FindFirstChildOfClass("Humanoid")
+            if root and isTargetEnemy(candidate, character) and isEntityAlive(character, hum) then
                 local distance = (root.Position - position).Magnitude
                 if distance < closestDistance then
                     closestPlayer, closestCharacter, closestDistance = candidate, character, distance
@@ -10133,7 +10162,9 @@ end
 function triggerXCSoundPosition(sound)
     if not XCConfig.soundPositionEspEnabled or not sound or not sound.Parent then return end
     local owner, position, character = getXCSoundSource(sound)
-    if not owner or not position or not isTargetEnemy(owner, character) then return end
+    local hum = character and character:FindFirstChildOfClass("Humanoid")
+    if not owner or not position or not isTargetEnemy(owner, character)
+        or not isEntityAlive(character, hum) then return end
     local cam = Workspace.CurrentCamera or camera
     if not cam or (position - cam.CFrame.Position).Magnitude > (tonumber(XCConfig.soundEspMaxDist) or 1200) then return end
     local now = os.clock()
