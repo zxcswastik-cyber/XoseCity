@@ -723,6 +723,9 @@ local XCConfig = {
     espPerspectiveScale = 1.0,
     espBoxAspect = 0.52,
     espBoxOutline = true,
+    espBoxFill = true,
+    espBoxFillOpacity = 0.90,
+    espCornerStyle = "Refined",
     -- ESP Builder
     espNamePosition = "Top",
     espHealthPosition = "Left",
@@ -12009,12 +12012,30 @@ end
 function getOrCreateScreenEsp(plr)
     if screenEspCache[plr] then return screenEspCache[plr] end
 
+    local boxFill = Instance.new("Frame", overlayContainer)
+    boxFill.Name = "BoxFill_" .. plr.Name
+    boxFill.BackgroundColor3 = currentTheme.Enemy_Accent
+    boxFill.BackgroundTransparency = 0.9
+    boxFill.BorderSizePixel = 0
+    boxFill.Visible = false
+    boxFill.ZIndex = 5
+    Instance.new("UICorner", boxFill).CornerRadius = UDim.new(0, 4)
+
     local box = Instance.new("Frame", overlayContainer)
     box.Name = "Box_" .. plr.Name
     box.BackgroundTransparency = 1
     box.BorderSizePixel = 0
     box.Visible = false
     box.ZIndex = 7
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 4)
+
+    local boxInline = Instance.new("Frame", overlayContainer)
+    boxInline.Name = "BoxInline_" .. plr.Name
+    boxInline.BackgroundTransparency = 1
+    boxInline.BorderSizePixel = 0
+    boxInline.Visible = false
+    boxInline.ZIndex = 8
+    Instance.new("UICorner", boxInline).CornerRadius = UDim.new(0, 4)
 
     local boxOutline = Instance.new("Frame", overlayContainer)
     boxOutline.Name = "BoxOutline_" .. plr.Name
@@ -12033,6 +12054,21 @@ function getOrCreateScreenEsp(plr)
     stroke.Color = currentTheme.Enemy_Accent
     stroke.Thickness = XCConfig.boxThickness
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    local inlineStroke = Instance.new("UIStroke", boxInline)
+    inlineStroke.Color = Color3.fromRGB(255, 255, 255)
+    inlineStroke.Thickness = 1
+    inlineStroke.Transparency = 0.55
+    inlineStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    local topAccent = Instance.new("Frame", boxFill)
+    topAccent.Name = "TopAccent"
+    topAccent.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    topAccent.BackgroundTransparency = 0.74
+    topAccent.BorderSizePixel = 0
+    topAccent.Size = UDim2.new(1, -4, 0, 1)
+    topAccent.Position = UDim2.new(0, 2, 0, 2)
+    topAccent.ZIndex = 6
 
     local healthBarBg = Instance.new("Frame", overlayContainer)
     healthBarBg.Name = "HealthBg_" .. plr.Name
@@ -12099,10 +12135,17 @@ function getOrCreateScreenEsp(plr)
         hLine.BorderSizePixel = 0
         hLine.Visible = false
         hLine.ZIndex = 7
+        Instance.new("UICorner", hLine).CornerRadius = UDim.new(1, 0)
         local hOutline = Instance.new("UIStroke", hLine)
         hOutline.Color = Color3.fromRGB(5, 7, 9)
         hOutline.Thickness = 1
         hOutline.Transparency = 0.1
+        local hInline = Instance.new("UIStroke", hLine)
+        hInline.Name = "Inline"
+        hInline.Color = Color3.fromRGB(255, 255, 255)
+        hInline.Thickness = 1
+        hInline.Transparency = 0.62
+        hInline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
         local vLine = Instance.new("Frame", overlayContainer)
         vLine.Name = "CornerV_" .. plr.Name .. "_" .. i
@@ -12110,12 +12153,19 @@ function getOrCreateScreenEsp(plr)
         vLine.BorderSizePixel = 0
         vLine.Visible = false
         vLine.ZIndex = 7
+        Instance.new("UICorner", vLine).CornerRadius = UDim.new(1, 0)
         local vOutline = Instance.new("UIStroke", vLine)
         vOutline.Color = Color3.fromRGB(5, 7, 9)
         vOutline.Thickness = 1
         vOutline.Transparency = 0.1
+        local vInline = Instance.new("UIStroke", vLine)
+        vInline.Name = "Inline"
+        vInline.Color = Color3.fromRGB(255, 255, 255)
+        vInline.Thickness = 1
+        vInline.Transparency = 0.62
+        vInline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-        table.insert(corners, {H = hLine, V = vLine, HOutline = hOutline, VOutline = vOutline})
+        table.insert(corners, {H = hLine, V = vLine, HOutline = hOutline, VOutline = vOutline, HInline = hInline, VInline = vInline})
     end
 
     local tagCard = Instance.new("Frame", overlayContainer)
@@ -12157,8 +12207,12 @@ function getOrCreateScreenEsp(plr)
     local skeletonLines = {}
 
     local data = {
+        BoxFill = boxFill,
+        BoxFillAccent = topAccent,
         Box = box,
         BoxStroke = stroke,
+        BoxInline = boxInline,
+        BoxInlineStroke = inlineStroke,
         BoxOutline = boxOutline,
         BoxOutlineStroke = outlineStroke,
         HealthBarBg = healthBarBg,
@@ -12580,6 +12634,8 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
     if cache then
         pcall(function()
             cache.Box:Destroy()
+            cache.BoxFill:Destroy()
+            cache.BoxInline:Destroy()
             cache.BoxOutline:Destroy()
             cache.HealthBarBg:Destroy()
             cache.WeaponCard:Destroy()
@@ -12784,12 +12840,26 @@ function renderTacticalOverlay()
                         esp.BoxStroke.Color = sideColor
                         local boxStrokeWidth = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
                         esp.BoxStroke.Thickness = boxStrokeWidth
-                        esp.BoxStroke.Transparency = 1 - espAlpha
+                        esp.BoxStroke.Transparency = math.clamp((1 - espAlpha) * 0.9, 0, 1)
                         esp.Box.Size = UDim2.new(0, boxWidth, 0, boxHeight)
                         esp.Box.Position = UDim2.new(0, boxPosX, 0, boxPosY)
                         esp.Box.Visible = true
+
+                        esp.BoxFill.Size = UDim2.new(0, math.max(0, boxWidth - 2), 0, math.max(0, boxHeight - 2))
+                        esp.BoxFill.Position = UDim2.new(0, boxPosX + 1, 0, boxPosY + 1)
+                        esp.BoxFill.BackgroundColor3 = sideColor
+                        esp.BoxFill.BackgroundTransparency = math.clamp((tonumber(XCConfig.espBoxFillOpacity) or 0.90) + (1 - espAlpha) * 0.18, 0.72, 0.985)
+                        esp.BoxFill.Visible = XCConfig.espBoxFill == true
+                        esp.BoxFillAccent.BackgroundColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.15)
+                        esp.BoxFillAccent.BackgroundTransparency = math.clamp(0.58 + (1 - espAlpha) * 0.22, 0, 1)
+
+                        esp.BoxInlineStroke.Transparency = math.clamp(0.55 + (1 - espAlpha) * 0.25, 0, 1)
+                        esp.BoxInline.Size = UDim2.new(0, math.max(0, boxWidth - 2), 0, math.max(0, boxHeight - 2))
+                        esp.BoxInline.Position = UDim2.new(0, boxPosX + 1, 0, boxPosY + 1)
+                        esp.BoxInline.Visible = true
+
                         esp.BoxOutlineStroke.Thickness = boxStrokeWidth + 2
-                        esp.BoxOutlineStroke.Transparency = math.clamp(0.12 + (1 - espAlpha), 0, 1)
+                        esp.BoxOutlineStroke.Transparency = math.clamp(0.12 + (1 - espAlpha) * 0.95, 0, 1)
                         esp.BoxOutline.Size = esp.Box.Size
                         esp.BoxOutline.Position = esp.Box.Position
                         esp.BoxOutline.Visible = XCConfig.espBoxOutline
@@ -12798,7 +12868,9 @@ function renderTacticalOverlay()
                             corner.V.Visible = false
                         end
                     elseif XCConfig.cornerBoxEnabled then
+                        esp.BoxFill.Visible = false
                         esp.Box.Visible = false
+                        esp.BoxInline.Visible = false
                         esp.BoxOutline.Visible = false
                         local lengthX = math.min(
                             math.floor(math.clamp(boxWidth * 0.30, 3, 28) + 0.5),
@@ -12810,13 +12882,18 @@ function renderTacticalOverlay()
                         )
                         local thick = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
 
+                        local refinedCorners = tostring(XCConfig.espCornerStyle or "Refined") ~= "Classic"
                         for _, corner in ipairs(esp.Corners) do
                             corner.H.BackgroundColor3 = sideColor
                             corner.V.BackgroundColor3 = sideColor
-                            corner.H.BackgroundTransparency = 1 - espAlpha
-                            corner.V.BackgroundTransparency = 1 - espAlpha
+                            corner.H.BackgroundTransparency = math.clamp((1 - espAlpha) * 0.9, 0, 1)
+                            corner.V.BackgroundTransparency = math.clamp((1 - espAlpha) * 0.9, 0, 1)
                             corner.HOutline.Enabled = XCConfig.espBoxOutline
                             corner.VOutline.Enabled = XCConfig.espBoxOutline
+                            if corner.HInline then corner.HInline.Enabled = refinedCorners end
+                            if corner.VInline then corner.VInline.Enabled = refinedCorners end
+                            if corner.HInline then corner.HInline.Transparency = math.clamp(0.62 + (1 - espAlpha) * 0.18, 0, 1) end
+                            if corner.VInline then corner.VInline.Transparency = math.clamp(0.62 + (1 - espAlpha) * 0.18, 0, 1) end
                         end
 
                         esp.Corners[1].H.Size = UDim2.new(0, lengthX, 0, thick)
@@ -12851,7 +12928,9 @@ function renderTacticalOverlay()
                         esp.Corners[4].V.Position = UDim2.new(0, boxPosX + boxWidth - thick, 0, boxPosY + boxHeight - lengthY)
                         esp.Corners[4].V.Visible = true
                     else
+                        esp.BoxFill.Visible = false
                         esp.Box.Visible = false
+                        esp.BoxInline.Visible = false
                         esp.BoxOutline.Visible = false
                         for _, corner in ipairs(esp.Corners) do
                             corner.H.Visible = false
@@ -12977,7 +13056,9 @@ function renderTacticalOverlay()
                 hideXCSkeleton(esp)
             end
         else
+            esp.BoxFill.Visible = false
             esp.Box.Visible = false
+            esp.BoxInline.Visible = false
             esp.BoxOutline.Visible = false
             esp.HealthBarBg.Visible = false
             esp.WeaponCard.Visible = false
@@ -16677,7 +16758,7 @@ function buildXCUI()
         refreshESPPreview = refreshPreview
         mode.Activated:Connect(function() previewVisible=not previewVisible;refreshPreview() end)
         for _,key in ipairs({"boxEspEnabled","cornerBoxEnabled","healthBarEnabled","nametagsEnabled","chamsEnabled","skeletonEspEnabled",
-            "tracersEnabled","headDotEnabled","weaponEspEnabled","weaponEspStyle","weaponEspShowName","weaponEspScale","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline",
+            "tracersEnabled","headDotEnabled","weaponEspEnabled","weaponEspStyle","weaponEspShowName","weaponEspScale","espPerspectiveScale","espBoxAspect","boxThickness","espBoxOutline","espBoxFill","espBoxFillOpacity","espCornerStyle",
             "espTextSize","espShowDistance","espShowHealth","espShowVisibility","tagShowWeapon","espNamePosition","espHealthPosition","espWeaponPosition",
             "espTextOutline","espDistanceFade","espFadeStart","espMinOpacity","chamsStyle","chamsUseEspPalette","chamsFillTransparency",
             "chamsRoughness","chamsMetal","chamsGlowBrightness","chamsGlowZoneSize","chamsGlowOutlineFill",
