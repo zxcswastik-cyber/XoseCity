@@ -502,24 +502,24 @@ local XCConfig = {
     bulletFlashEnabled = true,
     weaponChamsEnabled = false,
     customScopeEnabled = false,
-    scopeRemoveOriginal = false,
+    scopeRemoveOriginal = true,
     scopeCrosshairEnabled = true,
-    scopePreset = "Neverlose",
+    scopePreset = "Reference",
     scopeDynamicGap = false,
     scopeCrosshairStyle = "Cross",
     scopeLineFade = true,
-    scopeGlowEnabled = true,
-    scopeCenterRingEnabled = true,
-    scopeTicksEnabled = true,
-    scopeVignetteEnabled = true,
+    scopeGlowEnabled = false,
+    scopeCenterRingEnabled = false,
+    scopeTicksEnabled = false,
+    scopeVignetteEnabled = false,
     scopeVignetteStrength = 0.16,
     scopeVignetteRadius = 170,
     scopeCrosshairLeft = true,
     scopeCrosshairRight = true,
     scopeCrosshairTop = true,
     scopeCrosshairBottom = true,
-    scopeCrosshairDot = true,
-    scopeCrosshairOpacity = 0,
+    scopeCrosshairDot = false,
+    scopeCrosshairOpacity = 0.08,
     scopeCrosshairOutline = false,
     scopeCrosshairOutlineThickness = 1,
     scopeCrosshairOutlineR = 0,
@@ -709,6 +709,9 @@ local XCConfig = {
     jumpCircleStyle = "GradientWave",
 
     grenadeMaxDist = 1500,
+    grenadeOffscreenIndicators = true,
+    grenadeWarningDistance = 65,
+    grenadeCompactLabels = true,
     showGrenadePath = true,
     showMolotovRadius = true,
     showSmokeRadius = true,
@@ -865,8 +868,8 @@ local XCConfig = {
     customFovEnabled = false,
     customFov = 90,
     scopeCrosshairLength = 85,
-    scopeCrosshairThickness = 2,
-    scopeCrosshairGap = 8,
+    scopeCrosshairThickness = 1,
+    scopeCrosshairGap = 6,
     scopeCrosshairColorR = 255,
     scopeCrosshairColorG = 255,
     scopeCrosshairColorB = 255,
@@ -9085,8 +9088,11 @@ function XCSetScopeGradient(line, direction, fadeEnabled, opacity)
 end
 
 function XCConfigureScopePreset(preset, len, thick, gap)
-    preset = tostring(preset or "Neverlose")
-    if preset == "GameSense" then
+    preset = tostring(preset or "Reference")
+    if preset == "Reference" then
+        -- Video-reference style: very thin full-screen split scope, no ornaments.
+        return len, 1, math.max(4, math.min(gap, 14)), false, false, false, false
+    elseif preset == "GameSense" then
         return len * 1.75, math.max(1, math.min(thick, 2)), math.max(gap, 9), false, false, false, true
     elseif preset == "Aimware" then
         return len * 1.18, math.max(1, math.min(thick, 2)), math.max(4, gap * 0.8), true, true, false, false
@@ -9124,23 +9130,30 @@ function updateCustomScope()
     local cam = Workspace.CurrentCamera or camera
     local color = rgb(XCConfig.scopeCrosshairColorR, XCConfig.scopeCrosshairColorG, XCConfig.scopeCrosshairColorB)
     local outlineColor = rgb(XCConfig.scopeCrosshairOutlineR, XCConfig.scopeCrosshairOutlineG, XCConfig.scopeCrosshairOutlineB)
-    local len = math.clamp(tonumber(XCConfig.scopeCrosshairLength) or 85, 4, 600)
+    local len = math.clamp(tonumber(XCConfig.scopeCrosshairLength) or 85, 4, 1200)
     local thick = math.clamp(tonumber(XCConfig.scopeCrosshairThickness) or 2, 1, 10)
     local gap = math.clamp(tonumber(XCConfig.scopeCrosshairGap) or 8, 0, 160)
     local opacity = math.clamp(tonumber(XCConfig.scopeCrosshairOpacity) or 0, 0, 0.92)
-    local preset = tostring(XCConfig.scopePreset or "Neverlose")
+    local preset = tostring(XCConfig.scopePreset or "Reference")
     local presetRing, presetTicks, presetGlow, presetFade
     len, thick, gap, presetRing, presetTicks, presetGlow, presetFade = XCConfigureScopePreset(preset, len, thick, gap)
     local viewport = cam and cam.ViewportSize or Vector2.new(1920, 1080)
     local shortSide = math.max(320, math.min(viewport.X, viewport.Y))
-    if preset == "GameSense" then
+    local referenceScope = preset == "Reference"
+    if referenceScope then
+        -- The reference uses a dark, almost black split reticle instead of a bright crosshair.
+        color = color:Lerp(Color3.fromRGB(0, 0, 0), 0.91)
+        outlineColor = Color3.fromRGB(0, 0, 0)
+        thick = 1
+        opacity = math.clamp(math.max(opacity, 0.06), 0.06, 0.42)
+    elseif preset == "GameSense" then
         len = math.max(len, shortSide * 0.22)
     elseif preset == "Neverlose" then
         len = math.max(len, shortSide * 0.15)
     elseif preset == "Aimware" then
         len = math.max(len, shortSide * 0.11)
     end
-    len = math.clamp(len, 4, 600)
+    len = math.clamp(len, 4, 1200)
 
     if XCConfig.scopeDynamicGap and cam then
         gap = gap + math.clamp((70 / math.max(cam.FieldOfView, 1) - 1) * 9, 0, 18)
@@ -9151,6 +9164,7 @@ function updateCustomScope()
     local useGlow = XCConfig.scopeGlowEnabled ~= false and presetGlow
     local useFade = XCConfig.scopeLineFade ~= false and presetFade
     local style = tostring(XCConfig.scopeCrosshairStyle or "Cross")
+    if referenceScope then style = "Cross" end
 
     local l, r = scopeContainer.Left, scopeContainer.Right
     local t, b = scopeContainer.Top, scopeContainer.Bottom
@@ -9167,7 +9181,7 @@ function updateCustomScope()
         line.Visible = false
         local stroke = line:FindFirstChild("ScopeOutline")
         if stroke then
-            stroke.Enabled = XCConfig.scopeCrosshairOutline == true or preset ~= "Minimal"
+            stroke.Enabled = (not referenceScope) and (XCConfig.scopeCrosshairOutline == true or preset ~= "Minimal")
             stroke.Thickness = math.clamp(tonumber(XCConfig.scopeCrosshairOutlineThickness) or 1, 1, 4)
             stroke.Color = outlineColor
             stroke.Transparency = math.clamp(0.08 + opacity * 0.7, 0, 1)
@@ -9197,10 +9211,12 @@ function updateCustomScope()
         end
     end
 
-    local horizontal = UDim2.fromOffset(math.floor(len + 0.5), thick)
-    local horizontalGlow = UDim2.fromOffset(math.floor(len + 0.5), thick + 4)
-    local vertical = UDim2.fromOffset(thick, math.floor(len + 0.5))
-    local verticalGlow = UDim2.fromOffset(thick + 4, math.floor(len + 0.5))
+    local horizontalLength = referenceScope and math.max(12, viewport.X * 0.5 - gap - 2) or len
+    local verticalLength = referenceScope and math.max(12, viewport.Y * 0.5 - gap - 2) or len
+    local horizontal = UDim2.fromOffset(math.floor(horizontalLength + 0.5), thick)
+    local horizontalGlow = UDim2.fromOffset(math.floor(horizontalLength + 0.5), thick + 4)
+    local vertical = UDim2.fromOffset(thick, math.floor(verticalLength + 0.5))
+    local verticalGlow = UDim2.fromOffset(thick + 4, math.floor(verticalLength + 0.5))
 
     if style == "X" then
         local diagonal = math.max(5, len * 0.72)
@@ -9227,7 +9243,7 @@ function updateCustomScope()
 
     local ringSize = preset == "Aimware" and math.max(8, gap * 1.25) or math.max(10, gap * 1.55)
     ring.Size = UDim2.fromOffset(ringSize, ringSize)
-    ring.Visible = useRing and style ~= "Dot"
+    ring.Visible = (not referenceScope) and useRing and style ~= "Dot"
     local ringStroke = ring:FindFirstChild("RingStroke")
     if ringStroke then
         ringStroke.Color = color:Lerp(Color3.new(1, 1, 1), preset == "Neverlose" and 0.20 or 0.06)
@@ -9239,7 +9255,7 @@ function updateCustomScope()
     dot.BackgroundTransparency = opacity
     local dotSize = preset == "Aimware" and math.max(2, thick + 1) or math.max(2, thick)
     dot.Size = UDim2.fromOffset(dotSize, dotSize)
-    dot.Visible = XCConfig.scopeCrosshairDot ~= false or style == "Dot"
+    dot.Visible = (not referenceScope) and (XCConfig.scopeCrosshairDot ~= false or style == "Dot")
     local dotOutline = dot:FindFirstChild("DotOutline")
     if dotOutline then dotOutline.Color = outlineColor end
 
@@ -9247,7 +9263,7 @@ function updateCustomScope()
     for index, tick in ipairs(scopeTicks or {}) do
         tick.BackgroundColor3 = color
         tick.BackgroundTransparency = math.clamp(0.14 + opacity * 0.72, 0, 1)
-        tick.Visible = useTicks and style ~= "Dot"
+        tick.Visible = (not referenceScope) and useTicks and style ~= "Dot"
         if tick.Visible then
             local cardinal = ((index - 1) % 4) + 1
             local outer = index > 4
@@ -9276,7 +9292,7 @@ function updateCustomScope()
     local vp = viewport
     local halfW, halfH = vp.X * 0.5, vp.Y * 0.5
     local shadeTransparency = 1 - shadeStrength
-    local vignetteOn = XCConfig.scopeVignetteEnabled ~= false and shadeStrength > 0
+    local vignetteOn = (not referenceScope) and XCConfig.scopeVignetteEnabled ~= false and shadeStrength > 0
     local vl, vr, vt, vb = scopeVignette.Left, scopeVignette.Right, scopeVignette.Top, scopeVignette.Bottom
     for _, shade in ipairs({vl, vr, vt, vb}) do
         shade.Visible = vignetteOn
@@ -10764,6 +10780,51 @@ function getOrCreateGrenadeUI(nadeInstance)
     lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
     lbl.ZIndex = 13
 
+    local edge = Instance.new("Frame", grenadeContainer)
+    edge.Name = "GrenadeEdgeIndicator"
+    edge.AnchorPoint = Vector2.new(0.5, 0.5)
+    edge.Size = UDim2.fromOffset(78, 24)
+    edge.BackgroundColor3 = Color3.fromRGB(8, 10, 12)
+    edge.BackgroundTransparency = 0.16
+    edge.BorderSizePixel = 0
+    edge.Visible = false
+    edge.ZIndex = 18
+    Instance.new("UICorner", edge).CornerRadius = UDim.new(0, 5)
+    local edgeStroke = Instance.new("UIStroke", edge)
+    edgeStroke.Thickness = 1
+    edgeStroke.Transparency = 0.14
+
+    local edgeAccent = Instance.new("Frame", edge)
+    edgeAccent.Name = "Accent"
+    edgeAccent.Size = UDim2.fromOffset(3, 16)
+    edgeAccent.Position = UDim2.new(0, 4, 0.5, -8)
+    edgeAccent.BorderSizePixel = 0
+    edgeAccent.ZIndex = 19
+    Instance.new("UICorner", edgeAccent).CornerRadius = UDim.new(1, 0)
+
+    local edgeArrow = Instance.new("TextLabel", edge)
+    edgeArrow.Name = "Arrow"
+    edgeArrow.Position = UDim2.fromOffset(10, 0)
+    edgeArrow.Size = UDim2.fromOffset(16, 24)
+    edgeArrow.BackgroundTransparency = 1
+    edgeArrow.Text = "<"
+    edgeArrow.Font = Enum.Font.GothamBold
+    edgeArrow.TextSize = 14
+    edgeArrow.TextColor3 = Color3.new(1, 1, 1)
+    edgeArrow.ZIndex = 19
+
+    local edgeLabel = Instance.new("TextLabel", edge)
+    edgeLabel.Name = "Label"
+    edgeLabel.Position = UDim2.fromOffset(25, 0)
+    edgeLabel.Size = UDim2.new(1, -29, 1, 0)
+    edgeLabel.BackgroundTransparency = 1
+    edgeLabel.Text = "HE  0m"
+    edgeLabel.Font = Enum.Font.GothamBold
+    edgeLabel.TextSize = 10
+    edgeLabel.TextXAlignment = Enum.TextXAlignment.Left
+    edgeLabel.TextColor3 = Color3.new(1, 1, 1)
+    edgeLabel.ZIndex = 19
+
     local radiusCircle = Instance.new("Frame", grenadeContainer)
     radiusCircle.AnchorPoint = Vector2.new(0.5, 0.5)
     radiusCircle.BackgroundTransparency = 1
@@ -10802,6 +10863,11 @@ function getOrCreateGrenadeUI(nadeInstance)
         TagStroke = tagStroke,
         Accent = accent,
         Label = lbl,
+        Edge = edge,
+        EdgeStroke = edgeStroke,
+        EdgeAccent = edgeAccent,
+        EdgeArrow = edgeArrow,
+        EdgeLabel = edgeLabel,
         RadiusCircle = radiusCircle,
         RadiusStroke = radStroke,
         Landing = landing,
@@ -10847,6 +10913,7 @@ end
 
 function hideXCGrenadeUI(ui)
     ui.Tag.Visible = false
+    if ui.Edge then ui.Edge.Visible = false end
     ui.RadiusCircle.Visible = false
     ui.Landing.Visible = false
     ui.LandingGlow.Visible = false
@@ -10860,6 +10927,7 @@ end
 function destroyXCGrenadeUI(ui)
     hideXCGrenadeUI(ui)
     ui.Tag:Destroy()
+    if ui.Edge then ui.Edge:Destroy() end
     ui.RadiusCircle:Destroy()
     ui.Landing:Destroy()
     ui.LandingGlow:Destroy()
@@ -10868,6 +10936,52 @@ function destroyXCGrenadeUI(ui)
         line.Core:Destroy()
     end
     for _, line in ipairs(ui.RadiusLines) do line:Destroy() end
+end
+
+function XCUpdateGrenadeEdgeIndicator(ui, nadeType, nadeColor, distance, screen, onScreen)
+    if not ui or not ui.Edge then return end
+    local enabled = XCConfig.grenadeOffscreenIndicators ~= false
+    local inFront = screen and screen.Z > 0
+    if not enabled or (onScreen and inFront) then
+        ui.Edge.Visible = false
+        return
+    end
+
+    local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
+    local center = viewport * 0.5
+    local sx = screen and screen.X or center.X
+    local sy = screen and screen.Y or center.Y
+    local dx, dy = sx - center.X, sy - center.Y
+    if not inFront then dx, dy = -dx, -dy end
+    if math.abs(dx) < 0.001 and math.abs(dy) < 0.001 then dx = -1 end
+
+    local marginX, marginY = 54, 42
+    local maxX = math.max(10, center.X - marginX)
+    local maxY = math.max(10, center.Y - marginY)
+    local tx = math.abs(dx) > 0.001 and maxX / math.abs(dx) or math.huge
+    local ty = math.abs(dy) > 0.001 and maxY / math.abs(dy) or math.huge
+    local scale = math.min(tx, ty)
+    local px = math.clamp(center.X + dx * scale, marginX, viewport.X - marginX)
+    local py = math.clamp(center.Y + dy * scale, marginY, viewport.Y - marginY)
+
+    local arrow
+    if math.abs(dx) >= math.abs(dy) then arrow = dx < 0 and "<" or ">"
+    else arrow = dy < 0 and "^" or "v" end
+
+    local warningDistance = math.max(1, tonumber(XCConfig.grenadeWarningDistance) or 65)
+    local danger = distance <= warningDistance and (nadeType == "HE" or nadeType == "MOLOTOV" or nadeType == "FLASH")
+    local pulse = danger and (0.08 + (math.sin(os.clock() * 8) + 1) * 0.06) or 0.16
+
+    ui.Edge.Position = UDim2.fromOffset(px, py)
+    ui.Edge.BackgroundTransparency = pulse
+    ui.EdgeStroke.Color = nadeColor
+    ui.EdgeStroke.Transparency = danger and 0.02 or 0.14
+    ui.EdgeAccent.BackgroundColor3 = nadeColor
+    ui.EdgeArrow.Text = arrow
+    ui.EdgeArrow.TextColor3 = nadeColor:Lerp(Color3.new(1, 1, 1), 0.2)
+    ui.EdgeLabel.Text = string.format("%s  %dm", nadeType, math.floor(distance + 0.5))
+    ui.EdgeLabel.TextColor3 = danger and Color3.new(1, 1, 1) or nadeColor:Lerp(Color3.new(1, 1, 1), 0.48)
+    ui.Edge.Visible = true
 end
 
 function renderGrenadeOverlays()
@@ -10908,10 +11022,16 @@ function renderGrenadeOverlays()
                         local screen, onScreen = camera:WorldToViewportPoint(part.Position)
                         ui.Accent.BackgroundColor3 = nadeColor
                         ui.TagStroke.Color = nadeColor
-                        ui.Label.TextColor3 = nadeColor
-                        ui.Label.Text = string.format("%s  ·  %dm", nadeType, math.floor(dist + 0.5))
+                        local closeWarning = dist <= math.max(1, tonumber(XCConfig.grenadeWarningDistance) or 65)
+                        ui.Label.TextColor3 = closeWarning and nadeColor:Lerp(Color3.new(1, 1, 1), 0.35) or nadeColor
+                        if XCConfig.grenadeCompactLabels == false then
+                            ui.Label.Text = string.format("%s  ·  %dm", nadeType, math.floor(dist + 0.5))
+                        else
+                            ui.Label.Text = string.format("%s  %dm", nadeType, math.floor(dist + 0.5))
+                        end
                         ui.Tag.Position = UDim2.fromOffset(screen.X, screen.Y - 9)
                         ui.Tag.Visible = onScreen and screen.Z > 0
+                        XCUpdateGrenadeEdgeIndicator(ui, nadeType, nadeColor, dist, screen, onScreen)
                         ui.RadiusCircle.Visible = false
 
                         grenadeRayParams.FilterDescendantsInstances = {player.Character, item, camera}
@@ -18307,6 +18427,9 @@ function buildXCUI()
     addESPPreview(R)
     section(R, "ESP indicators")
     toggle(R, "Grenade ESP", "grenadeEspEnabled")
+    toggle(R, "Off-screen grenade indicator", "grenadeOffscreenIndicators")
+    toggle(R, "Compact grenade labels", "grenadeCompactLabels")
+    addSlider(R, "Grenade warning distance", "grenadeWarningDistance", 15, 150, 5, " st")
     toggle(R, "Trajectory prediction", "showGrenadePath")
     toggle(R, "Grenade danger zones", "grenadeDangerZonesEnabled")
     toggle(R, "Molotov radius", "showMolotovRadius")
@@ -18527,7 +18650,7 @@ function buildXCUI()
     addSlider(R, "Camera FOV", "customFov", 70, 120, 1, "°")
     toggle(R, "Remove original scope", "scopeRemoveOriginal")
     toggle(R, "Scope crosshair", "scopeCrosshairEnabled")
-    addChoice(R, "Scope preset", "scopePreset", {"Neverlose", "GameSense", "Aimware", "Minimal"}, updateCustomScope)
+    addChoice(R, "Scope preset", "scopePreset", {"Reference", "Neverlose", "GameSense", "Aimware", "Minimal"}, updateCustomScope)
     addChoice(R, "Crosshair style", "scopeCrosshairStyle", {"Cross", "T", "X", "Dot"}, updateCustomScope)
     addColorPicker(R, "Crosshair color", "scopeCrosshairColor", updateCustomScope)
     addColorPicker(R, "Crosshair outline", "scopeCrosshairOutline", updateCustomScope)
@@ -18542,7 +18665,7 @@ function buildXCUI()
     toggle(R, "Scope FOV override", "scopeFovEnabled")
     addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
     addSlider(R, "Crosshair gap", "scopeCrosshairGap", 0, 80, 1, "")
-    addSlider(R, "Crosshair length", "scopeCrosshairLength", 5, 300, 1, "")
+    addSlider(R, "Crosshair length", "scopeCrosshairLength", 5, 1200, 1, "")
     addSlider(R, "Crosshair thickness", "scopeCrosshairThickness", 1, 8, 1, " px")
     addSlider(R, "Crosshair opacity", "scopeCrosshairOpacity", 0, 0.9, 0.05, "")
     section(R, "camera director")
