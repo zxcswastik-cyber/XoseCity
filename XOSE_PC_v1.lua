@@ -2685,29 +2685,47 @@ local XCBloxStrikeCombatTeams = {
 
 function xcBloxStrikeTeamToken(owner)
     if not owner then return nil end
+
+    -- Preferred BloxStrike replication path.
     local team = owner:GetAttribute("Team")
     if type(team) == "string" and XCBloxStrikeCombatTeams[team] then
         return team
     end
+
+    -- Some desktop builds/executors expose the round team only through the
+    -- Roblox Team object. Use this only as a compatibility fallback.
+    local robloxTeam = owner.Team
+    local teamName = robloxTeam and robloxTeam.Name or nil
+    if type(teamName) == "string" and XCBloxStrikeCombatTeams[teamName] then
+        return teamName
+    end
+
     return nil
 end
 
 function xcHasActiveTeam(owner)
     if not owner then return false end
 
-    -- BloxStrike replicates the actual round team through the Player's Team
-    -- attribute. The Roblox Team property can stay populated for users that
-    -- are sitting in the menu/lobby, so it is not a valid combat-state test.
-    local charactersFolder = Workspace:FindFirstChild("Characters")
-    if charactersFolder then
-        return xcBloxStrikeTeamToken(owner) ~= nil
+    local token = xcBloxStrikeTeamToken(owner)
+    if token then return true end
+
+    -- If the local client has the strict replicated Team attribute, absence of
+    -- that same marker on another player means they are not an active combatant.
+    local localStrictTeam = player:GetAttribute("Team")
+    if type(localStrictTeam) == "string" and localStrictTeam ~= "" then
+        if XCBloxStrikeCombatTeams[localStrictTeam] then
+            return false
+        end
+        -- Alternate desktop team tokens (for example short names) still form
+        -- a valid active-player contract when both sides replicate them.
+        local ownerAttributeTeam = owner:GetAttribute("Team")
+        return type(ownerAttributeTeam) == "string" and ownerAttributeTeam ~= ""
     end
 
-    -- Generic fallback for places without BloxStrike's Characters contract.
-    local localTeam = player.Team or player:GetAttribute("Team")
-    if localTeam == nil or tostring(localTeam) == "" then return true end
-    local team = owner.Team or owner:GetAttribute("Team")
-    return team ~= nil and tostring(team) ~= ""
+    -- Desktop compatibility path for clients where the Team attribute is not
+    -- replicated but Player.Team still is.
+    local ownerTeam = owner.Team
+    return ownerTeam ~= nil and ownerTeam.Name ~= nil and ownerTeam.Name ~= ""
 end
 
 function isEntityAlive(char, hum)
@@ -2716,35 +2734,46 @@ function isEntityAlive(char, hum)
     end
 
     local owner = Players:GetPlayerFromCharacter(char)
-    if char:GetAttribute("Dead") == true then return false end
-    if not owner or owner.Character ~= char or owner:GetAttribute("Dead") == true
-        or owner:GetAttribute("IsSpectating") == true then return false end
+    if not owner or owner.Character ~= char then return false end
+
+    -- Reject stale/menu/spectator entities first. Keep the broader attribute
+    -- detector from the mobile branch because PC replication uses more than one
+    -- naming convention across builds.
+    if char:GetAttribute("Dead") == true or xcUnavailableByAttributes(char) then return false end
+    if owner:GetAttribute("Dead") == true or owner:GetAttribute("IsSpectating") == true
+        or xcUnavailableByAttributes(owner) then return false end
 
     local charactersFolder = Workspace:FindFirstChild("Characters")
-    if not charactersFolder then return false end
-    do
-        -- Port the strict matchCharacter contract from govno.lua instead of
-        -- accepting any humanoid-looking model. Active BloxStrike players must
-        -- have all four replicated round markers below. Menu/lobby users often
-        -- retain a 100-HP stand-in character, which is why Humanoid.Health alone
-        -- caused false ESP icons.
-        if not owner or owner.Character ~= char then return false end
+    if charactersFolder then
+        -- When the canonical BloxStrike folder exists, the live character must
+        -- actually be in it. This keeps menu/lobby stand-ins out of ESP.
         if not char:IsDescendantOf(charactersFolder) then return false end
-        if char:GetAttribute("CharacterType") ~= "PlayerCustomCharacter" then return false end
-        if not xcHasActiveTeam(owner) then return false end
 
-        local replicatedHealth = char:GetAttribute("Health")
+        local characterType = char:GetAttribute("CharacterType")
+        if characterType ~= nil and characterType ~= "PlayerCustomCharacter" then return false end
+
+        if not xcHasActiveTeam(owner) then return false end
+    end
+
+    -- Health replication differs between desktop executors. Prefer the game
+    -- attribute, then fall back to Humanoid only when the attribute is absent.
+    local replicatedHealth = char:GetAttribute("Health")
+    if replicatedHealth ~= nil then
+        replicatedHealth = tonumber(replicatedHealth)
         if type(replicatedHealth) ~= "number" or replicatedHealth ~= replicatedHealth
             or replicatedHealth == math.huge or replicatedHealth <= 0 then
             return false
         end
+    elseif hum and hum.Parent then
+        local humanoidHealth = 0
+        pcall(function() humanoidHealth = hum.Health end)
+        if humanoidHealth <= 0 then return false end
+    else
+        local fallbackHealth = getXCHealth(char, owner, hum)
+        if fallbackHealth == nil or fallbackHealth <= 0 then return false end
     end
 
     if hum and hum.Parent then
-        local humanoidHealth = 100
-        pcall(function() humanoidHealth = hum.Health end)
-        if humanoidHealth <= 0 then return false end
-
         local state = nil
         pcall(function() state = hum:GetState() end)
         if state == Enum.HumanoidStateType.Dead then return false end
@@ -12024,9 +12053,9 @@ function getOrCreateScreenEsp(plr)
     boxOutline.ZIndex = 6
 
     local outlineStroke = Instance.new("UIStroke", boxOutline)
-    outlineStroke.Color = Color3.fromRGB(2, 4, 7)
+    outlineStroke.Color = Color3.fromRGB(5, 7, 9)
     outlineStroke.Thickness = XCConfig.boxThickness + 2
-    outlineStroke.Transparency = 0.08
+    outlineStroke.Transparency = 0.12
     outlineStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
     local stroke = Instance.new("UIStroke", box)
@@ -12036,12 +12065,12 @@ function getOrCreateScreenEsp(plr)
 
     local healthBarBg = Instance.new("Frame", overlayContainer)
     healthBarBg.Name = "HealthBg_" .. plr.Name
-    healthBarBg.BackgroundColor3 = Color3.fromRGB(7, 9, 12)
+    healthBarBg.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
     healthBarBg.BorderSizePixel = 0
     healthBarBg.Visible = false
     Instance.new("UICorner", healthBarBg).CornerRadius = UDim.new(0, 2)
     local hbStroke = Instance.new("UIStroke", healthBarBg)
-    hbStroke.Color = Color3.fromRGB(17, 20, 26)
+    hbStroke.Color = Color3.fromRGB(35, 38, 45)
     hbStroke.Thickness = 0.8
 
     local healthBarFill = Instance.new("Frame", healthBarBg)
@@ -12100,9 +12129,9 @@ function getOrCreateScreenEsp(plr)
         hLine.Visible = false
         hLine.ZIndex = 7
         local hOutline = Instance.new("UIStroke", hLine)
-        hOutline.Color = Color3.fromRGB(2, 4, 7)
+        hOutline.Color = Color3.fromRGB(5, 7, 9)
         hOutline.Thickness = 1
-        hOutline.Transparency = 0.06
+        hOutline.Transparency = 0.1
 
         local vLine = Instance.new("Frame", overlayContainer)
         vLine.Name = "CornerV_" .. plr.Name .. "_" .. i
@@ -12111,9 +12140,9 @@ function getOrCreateScreenEsp(plr)
         vLine.Visible = false
         vLine.ZIndex = 7
         local vOutline = Instance.new("UIStroke", vLine)
-        vOutline.Color = Color3.fromRGB(2, 4, 7)
+        vOutline.Color = Color3.fromRGB(5, 7, 9)
         vOutline.Thickness = 1
-        vOutline.Transparency = 0.06
+        vOutline.Transparency = 0.1
 
         table.insert(corners, {H = hLine, V = vLine, HOutline = hOutline, VOutline = vOutline})
     end
@@ -12781,7 +12810,7 @@ function renderTacticalOverlay()
                     local boxPosY = screenRect.Y
 
                     if XCConfig.boxEspEnabled and not XCConfig.cornerBoxEnabled then
-                        esp.BoxStroke.Color = sideColor:Lerp(Color3.new(1, 1, 1), 0.04)
+                        esp.BoxStroke.Color = sideColor
                         local boxStrokeWidth = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
                         esp.BoxStroke.Thickness = boxStrokeWidth
                         esp.BoxStroke.Transparency = 1 - espAlpha
@@ -12801,11 +12830,11 @@ function renderTacticalOverlay()
                         esp.Box.Visible = false
                         esp.BoxOutline.Visible = false
                         local lengthX = math.min(
-                            math.floor(math.clamp(boxWidth * 0.33, 4, 32) + 0.5),
+                            math.floor(math.clamp(boxWidth * 0.30, 3, 28) + 0.5),
                             math.max(2, math.floor(boxWidth * 0.48))
                         )
                         local lengthY = math.min(
-                            math.floor(math.clamp(boxHeight * 0.22, 6, 40) + 0.5),
+                            math.floor(math.clamp(boxHeight * 0.20, 5, 36) + 0.5),
                             math.max(3, math.floor(boxHeight * 0.48))
                         )
                         local thick = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
@@ -12898,7 +12927,7 @@ function renderTacticalOverlay()
                         local detailSize = math.max(8, textSize - 1)
                         esp.TagCard.BackgroundTransparency = 1 - (1 - XCConfig.tagTransparency) * espAlpha
                         esp.TagCardStroke.Enabled = false
-                        esp.TagLabel.TextColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.52)
+                        esp.TagLabel.TextColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.4)
                         esp.TagLabel.TextSize = textSize
                         esp.TagLabel.TextTransparency = 1 - espAlpha
                         esp.TagLabel.TextStrokeTransparency = XCConfig.espTextOutline
@@ -12940,7 +12969,7 @@ function renderTacticalOverlay()
                         esp.TagDetails.Size = UDim2.new(1, 0, 0, detailHeight)
                         esp.TagDetails.Visible = detailHeight > 0
                         esp.TagDetails.TextSize = detailSize
-                        esp.TagDetails.TextColor3 = Color3.fromRGB(202, 210, 224)
+                        esp.TagDetails.TextColor3 = Color3.fromRGB(214, 220, 232)
                         esp.TagDetails.TextTransparency = 1 - espAlpha * 0.88
                         esp.TagDetails.TextStrokeColor3 = Color3.fromRGB(4, 5, 6)
                         esp.TagDetails.TextStrokeTransparency = XCConfig.espTextOutline and 0.3 or 1
