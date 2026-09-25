@@ -12024,28 +12024,25 @@ function getOrCreateScreenEsp(plr)
     boxOutline.ZIndex = 6
 
     local outlineStroke = Instance.new("UIStroke", boxOutline)
-    outlineStroke.Color = Color3.fromRGB(3, 5, 8)
+    outlineStroke.Color = Color3.fromRGB(2, 4, 7)
     outlineStroke.Thickness = XCConfig.boxThickness + 2
-    outlineStroke.Transparency = 0.06
+    outlineStroke.Transparency = 0.08
     outlineStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    outlineStroke.LineJoinMode = Enum.LineJoinMode.Round
 
     local stroke = Instance.new("UIStroke", box)
     stroke.Color = currentTheme.Enemy_Accent
     stroke.Thickness = XCConfig.boxThickness
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.LineJoinMode = Enum.LineJoinMode.Round
 
     local healthBarBg = Instance.new("Frame", overlayContainer)
     healthBarBg.Name = "HealthBg_" .. plr.Name
-    healthBarBg.BackgroundColor3 = Color3.fromRGB(5, 7, 10)
+    healthBarBg.BackgroundColor3 = Color3.fromRGB(7, 9, 12)
     healthBarBg.BorderSizePixel = 0
     healthBarBg.Visible = false
-    Instance.new("UICorner", healthBarBg).CornerRadius = UDim.new(0, 3)
+    Instance.new("UICorner", healthBarBg).CornerRadius = UDim.new(0, 2)
     local hbStroke = Instance.new("UIStroke", healthBarBg)
-    hbStroke.Color = Color3.fromRGB(0, 0, 0)
-    hbStroke.Thickness = 1
-    hbStroke.Transparency = 0.15
+    hbStroke.Color = Color3.fromRGB(17, 20, 26)
+    hbStroke.Thickness = 0.8
 
     local healthBarFill = Instance.new("Frame", healthBarBg)
     healthBarFill.Name = "Fill"
@@ -12054,7 +12051,7 @@ function getOrCreateScreenEsp(plr)
     healthBarFill.Size = UDim2.new(1, 0, 1, 0)
     healthBarFill.BackgroundColor3 = currentTheme.HealthHigh
     healthBarFill.BorderSizePixel = 0
-    Instance.new("UICorner", healthBarFill).CornerRadius = UDim.new(0, 3)
+    Instance.new("UICorner", healthBarFill).CornerRadius = UDim.new(0, 2)
     local healthGradient = Instance.new("UIGradient", healthBarFill)
     healthGradient.Name = "HealthGradient"
     healthGradient.Rotation = 90
@@ -12102,12 +12099,10 @@ function getOrCreateScreenEsp(plr)
         hLine.BorderSizePixel = 0
         hLine.Visible = false
         hLine.ZIndex = 7
-        Instance.new("UICorner", hLine).CornerRadius = UDim.new(1, 0)
         local hOutline = Instance.new("UIStroke", hLine)
         hOutline.Color = Color3.fromRGB(2, 4, 7)
         hOutline.Thickness = 1
-        hOutline.Transparency = 0.05
-        hOutline.LineJoinMode = Enum.LineJoinMode.Round
+        hOutline.Transparency = 0.06
 
         local vLine = Instance.new("Frame", overlayContainer)
         vLine.Name = "CornerV_" .. plr.Name .. "_" .. i
@@ -12115,12 +12110,10 @@ function getOrCreateScreenEsp(plr)
         vLine.BorderSizePixel = 0
         vLine.Visible = false
         vLine.ZIndex = 7
-        Instance.new("UICorner", vLine).CornerRadius = UDim.new(1, 0)
         local vOutline = Instance.new("UIStroke", vLine)
         vOutline.Color = Color3.fromRGB(2, 4, 7)
         vOutline.Thickness = 1
-        vOutline.Transparency = 0.05
-        vOutline.LineJoinMode = Enum.LineJoinMode.Round
+        vOutline.Transparency = 0.06
 
         table.insert(corners, {H = hLine, V = vLine, HOutline = hOutline, VOutline = vOutline})
     end
@@ -12135,11 +12128,10 @@ function getOrCreateScreenEsp(plr)
     tagCard.BorderSizePixel = 0
     tagCard.Visible = false
 
-    Instance.new("UICorner", tagCard).CornerRadius = UDim.new(0, 5)
+    Instance.new("UICorner", tagCard).CornerRadius = UDim.new(0, 4)
     local cardStroke = Instance.new("UIStroke", tagCard)
-    cardStroke.Color = Color3.fromRGB(7, 9, 13)
-    cardStroke.Thickness = 1
-    cardStroke.Transparency = 0.12
+    cardStroke.Color = currentTheme.Border
+    cardStroke.Thickness = 0.8
     cardStroke.Enabled = false
 
     local pad = Instance.new("UIPadding", tagCard)
@@ -12789,15 +12781,15 @@ function renderTacticalOverlay()
                     local boxPosY = screenRect.Y
 
                     if XCConfig.boxEspEnabled and not XCConfig.cornerBoxEnabled then
-                        esp.BoxStroke.Color = sideColor:Lerp(Color3.new(1, 1, 1), 0.06)
+                        esp.BoxStroke.Color = sideColor:Lerp(Color3.new(1, 1, 1), 0.04)
                         local boxStrokeWidth = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
                         esp.BoxStroke.Thickness = boxStrokeWidth
-                        esp.BoxStroke.Transparency = math.clamp((1 - espAlpha) * 0.92, 0, 1)
+                        esp.BoxStroke.Transparency = 1 - espAlpha
                         esp.Box.Size = UDim2.new(0, boxWidth, 0, boxHeight)
                         esp.Box.Position = UDim2.new(0, boxPosX, 0, boxPosY)
                         esp.Box.Visible = true
                         esp.BoxOutlineStroke.Thickness = boxStrokeWidth + 2
-                        esp.BoxOutlineStroke.Transparency = math.clamp(0.06 + (1 - espAlpha) * 0.94, 0, 1)
+                        esp.BoxOutlineStroke.Transparency = math.clamp(0.12 + (1 - espAlpha), 0, 1)
                         esp.BoxOutline.Size = esp.Box.Size
                         esp.BoxOutline.Position = esp.Box.Position
                         esp.BoxOutline.Visible = XCConfig.espBoxOutline
@@ -12809,20 +12801,20 @@ function renderTacticalOverlay()
                         esp.Box.Visible = false
                         esp.BoxOutline.Visible = false
                         local lengthX = math.min(
-                            math.floor(math.clamp(boxWidth * 0.34, 5, 34) + 0.5),
+                            math.floor(math.clamp(boxWidth * 0.33, 4, 32) + 0.5),
                             math.max(2, math.floor(boxWidth * 0.48))
                         )
                         local lengthY = math.min(
-                            math.floor(math.clamp(boxHeight * 0.22, 7, 40) + 0.5),
+                            math.floor(math.clamp(boxHeight * 0.22, 6, 40) + 0.5),
                             math.max(3, math.floor(boxHeight * 0.48))
                         )
                         local thick = math.clamp(math.floor((tonumber(XCConfig.boxThickness) or 1) + 0.5), 1, 2)
 
                         for _, corner in ipairs(esp.Corners) do
-                            corner.H.BackgroundColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.05)
-                            corner.V.BackgroundColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.05)
-                            corner.H.BackgroundTransparency = math.clamp((1 - espAlpha) * 0.92, 0, 1)
-                            corner.V.BackgroundTransparency = math.clamp((1 - espAlpha) * 0.92, 0, 1)
+                            corner.H.BackgroundColor3 = sideColor
+                            corner.V.BackgroundColor3 = sideColor
+                            corner.H.BackgroundTransparency = 1 - espAlpha
+                            corner.V.BackgroundTransparency = 1 - espAlpha
                             corner.HOutline.Enabled = XCConfig.espBoxOutline
                             corner.VOutline.Enabled = XCConfig.espBoxOutline
                         end
@@ -12871,7 +12863,7 @@ function renderTacticalOverlay()
                         local hpPercent = math.clamp(health / maxHealth, 0, 1)
 
                         local barWidth = boxHeight < 32 and 3 or 4
-                        local barGap = boxHeight < 32 and 3 or 4
+                        local barGap = boxHeight < 32 and 2 or 3
                         local healthSide = tostring(XCConfig.espHealthPosition or "Left")
                         local barX = healthSide == "Right"
                             and (boxPosX + boxWidth + barGap)
@@ -12882,7 +12874,7 @@ function renderTacticalOverlay()
                         esp.HealthBarBg.Size = UDim2.new(0, barWidth, 0, boxHeight)
                         esp.HealthBarBg.Position = UDim2.new(0, barX, 0, barY)
                         esp.HealthBarBg.Visible = true
-                        esp.HealthBarBg.BackgroundTransparency = math.clamp(0.02 + (1 - espAlpha) * 0.96, 0, 1)
+                        esp.HealthBarBg.BackgroundTransparency = math.clamp(0.05 + (1 - espAlpha), 0, 1)
 
                         esp.HealthBarFill.Position = UDim2.new(0, 1, 1, -1)
                         esp.HealthBarFill.Size = UDim2.fromOffset(barWidth - 2, fillHeight)
@@ -12906,7 +12898,7 @@ function renderTacticalOverlay()
                         local detailSize = math.max(8, textSize - 1)
                         esp.TagCard.BackgroundTransparency = 1 - (1 - XCConfig.tagTransparency) * espAlpha
                         esp.TagCardStroke.Enabled = false
-                        esp.TagLabel.TextColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.58)
+                        esp.TagLabel.TextColor3 = sideColor:Lerp(Color3.new(1, 1, 1), 0.52)
                         esp.TagLabel.TextSize = textSize
                         esp.TagLabel.TextTransparency = 1 - espAlpha
                         esp.TagLabel.TextStrokeTransparency = XCConfig.espTextOutline
@@ -12948,7 +12940,7 @@ function renderTacticalOverlay()
                         esp.TagDetails.Size = UDim2.new(1, 0, 0, detailHeight)
                         esp.TagDetails.Visible = detailHeight > 0
                         esp.TagDetails.TextSize = detailSize
-                        esp.TagDetails.TextColor3 = Color3.fromRGB(192, 201, 216)
+                        esp.TagDetails.TextColor3 = Color3.fromRGB(202, 210, 224)
                         esp.TagDetails.TextTransparency = 1 - espAlpha * 0.88
                         esp.TagDetails.TextStrokeColor3 = Color3.fromRGB(4, 5, 6)
                         esp.TagDetails.TextStrokeTransparency = XCConfig.espTextOutline and 0.3 or 1
