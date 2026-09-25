@@ -1,6 +1,4 @@
---// XOSE PC BUILD v1 ---------------------------------------------------------
--- Desktop-only branch: mouse/keyboard camera + weapon paths, no touch hooks.
--- Uses a separate config namespace so mobile profiles cannot corrupt PC state.
+--// XOSE v76 | paged skin catalog, on-demand previews and interface refinements
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
     local Players = game:GetService("Players")
@@ -73,7 +71,7 @@ do
     card.Name = "Card"
     card.AnchorPoint = Vector2.new(0.5, 0.5)
     card.Position = UDim2.fromScale(0.5, 0.5)
-    card.Size = UDim2.fromOffset(false and 342 or 382, 250)
+    card.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 342 or 382, 250)
     card.BackgroundColor3 = BG
     card.BackgroundTransparency = 0.03
     card.BorderSizePixel = 0
@@ -129,7 +127,7 @@ do
     subtitle.Size = UDim2.new(1, -48, 0, 18)
     subtitle.BackgroundTransparency = 1
     subtitle.Font = Enum.Font.Gotham
-    subtitle.Text = "Desktop access gateway"
+    subtitle.Text = "Secure access gateway"
     subtitle.TextColor3 = MUTED
     subtitle.TextSize = 11
     subtitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -227,7 +225,7 @@ do
     footer.Size = UDim2.new(1, -48, 0, 14)
     footer.BackgroundTransparency = 1
     footer.Font = Enum.Font.Gotham
-    footer.Text = "XOSE PC  •  protected session"
+    footer.Text = "XOSE  •  protected session"
     footer.TextColor3 = Color3.fromRGB(105, 105, 114)
     footer.TextSize = 9
     footer.TextXAlignment = Enum.TextXAlignment.Left
@@ -356,7 +354,7 @@ end
 --// END XOSE ACCESS GATEWAY ---------------------------------------------------
 
 -- XC Visual Modules 3-4: interface refinement + UI workload optimization
---// XC PC v1 protected-host compatible build
+--// XC v67 protected-host compatible build
 --// Authorization is injected before this protected XOSe payload.
 pcall(function()
     if type(getgenv) == "function" then
@@ -525,7 +523,6 @@ local XCConfig = {
     mapOptimizerEnabled = false,
     mapOptimizerDisableShadows = true,
     mapOptimizerDisableEffects = true,
-    mapOptimizerLowMesh = true,
     mapStyleFlatMaterials = true,
     mapStylePreserveSigns = false,
     mapStyleAffectTransparent = true,
@@ -612,7 +609,7 @@ local XCConfig = {
     -- Stable renderer
     chamsShellScale = 1.012,
     chamsExcludeAccessories = true,
-    chamsAnimationFPS = 60,
+    chamsAnimationFPS = 30,
 
     recoilStrength = 0.85,
     noRecoilEnabled = false,
@@ -720,7 +717,7 @@ local XCConfig = {
     boxThickness = 1.0,
     espBoxSmoothing = 0.42,
     espBoxMode = "Adaptive",
-    visualRefreshFPS = 60,
+    visualRefreshFPS = 30,
     espFixedScale = true,
     espFixedBoxHeight = 36,
     espPerspectiveScale = 1.0,
@@ -1079,7 +1076,7 @@ local VirtualInputManager = nil
 -- A synthetic mouse event changes Roblox's preferred input to desktop and
 -- makes Blox Strike remove its mobile buttons. Never create that path on a
 -- touch device; mobile combat uses native weapon methods instead.
-if not false then
+if not UserInputService.TouchEnabled then
     pcall(function()
         VirtualInputManager = game:GetService("VirtualInputManager")
     end)
@@ -1494,7 +1491,7 @@ local function prepareXCSilentShotPayload(data, forceSendStage)
     -- When the native bullet ray hook is available, the shot has already been
     -- redirected before Fire Rate / InventoryController serialize it. Do not
     -- perform a second target roll or payload rewrite here.
-    if not forceSendStage and (xcNativeSilentHooked or false) then
+    if not forceSendStage and (xcNativeSilentHooked or UserInputService.TouchEnabled) then
         return data, false
     end
     local silentEnabled = forceSendStage and isXCSilentAimRequested() or XCConfig.silentAimEnabled
@@ -2254,14 +2251,14 @@ local noRecoil = {
 
 local fireStartConn = UserInputService.InputBegan:Connect(function(input)
     -- Every mobile control is a Touch. Do not flag movement/menu touches as fire.
-    if not false and input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if not UserInputService.TouchEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 then
         noRecoil.isShooting = true
     end
 end)
 table.insert(connections, fireStartConn)
 
 local fireEndConn = UserInputService.InputEnded:Connect(function(input)
-    if not false and input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if not UserInputService.TouchEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 then
         noRecoil.isShooting = false
     end
 end)
@@ -2719,12 +2716,13 @@ function isEntityAlive(char, hum)
     end
 
     local owner = Players:GetPlayerFromCharacter(char)
-    if char:GetAttribute("Dead") == true or xcUnavailableByAttributes(char) then return false end
-    if owner and (owner.Character ~= char or owner:GetAttribute("Dead") == true
-        or xcUnavailableByAttributes(owner)) then return false end
+    if char:GetAttribute("Dead") == true then return false end
+    if not owner or owner.Character ~= char or owner:GetAttribute("Dead") == true
+        or owner:GetAttribute("IsSpectating") == true then return false end
 
     local charactersFolder = Workspace:FindFirstChild("Characters")
-    if charactersFolder then
+    if not charactersFolder then return false end
+    do
         -- Port the strict matchCharacter contract from govno.lua instead of
         -- accepting any humanoid-looking model. Active BloxStrike players must
         -- have all four replicated round markers below. Menu/lobby users often
@@ -2740,10 +2738,6 @@ function isEntityAlive(char, hum)
             or replicatedHealth == math.huge or replicatedHealth <= 0 then
             return false
         end
-    else
-        -- Keep compatibility outside BloxStrike.
-        local health = getXCHealth(char, owner, hum)
-        if health == nil or health <= 0 then return false end
     end
 
     if hum and hum.Parent then
@@ -2940,7 +2934,7 @@ local function getXCSilentShotContextV31(requireAllowed)
 end
 
 local function wrapXCEquippedShootV31()
-    if not false then return false end
+    if not UserInputService.TouchEnabled then return false end
     local controllers = ReplicatedStorage:FindFirstChild("Controllers")
     local moduleScript = controllers and controllers:FindFirstChild("InventoryController")
     local inventory = moduleScript and require(moduleScript)
@@ -2976,7 +2970,7 @@ end
 function setupSilentAimHooks()
     if silentAimHooked and silentAimCamHooked then return end
 
-    if not silentAimHooked and false then
+    if not silentAimHooked and UserInputService.TouchEnabled then
         -- Native bullet redirection is used on mobile. Do not create/access a
         -- Mouse object because some mobile executors report it as desktop input.
         silentAimHooked = true
@@ -3001,7 +2995,7 @@ function setupSilentAimHooks()
         silentAimHooked = true
     end
 
-    if false and xcNativeSilentHooked then
+    if UserInputService.TouchEnabled and xcNativeSilentHooked then
         silentAimCamHooked = true
     end
 
@@ -3015,7 +3009,7 @@ function setupSilentAimHooks()
                 local activeCamera = Workspace.CurrentCamera or camera
                 if self == activeCamera
                     and (method == "ViewportPointToRay" or method == "ScreenPointToRay") then
-                    if false then
+                    if UserInputService.TouchEnabled then
                         local context = getXCSilentShotContextV31(true)
 
                         -- A v30 namecall hook can survive reinjection. Mask the
@@ -3100,7 +3094,7 @@ function setupSilentAimHooks()
             end)
         end)
         silentAimCamHooked = cameraHookInstalled
-        if false and cameraHookInstalled then
+        if UserInputService.TouchEnabled and cameraHookInstalled then
             xcMobileCameraSilentHooked = true
         end
     end
@@ -3929,7 +3923,7 @@ function setupXCBulletInterceptHookV29()
     if xcBulletInterceptHooked then return true end
     if xcNativeSilentHooked then return false end
     if xcMobileCameraSilentHooked then return false end
-    if not false or type(hookfunction) ~= "function" then return false end
+    if not UserInputService.TouchEnabled or type(hookfunction) ~= "function" then return false end
     local installed = false
     pcall(function()
         local components = ReplicatedStorage:FindFirstChild("Components")
@@ -4207,6 +4201,50 @@ function getXCAllGloveSkinChoices()
         return a:lower() < b:lower()
     end)
     return choices
+end
+
+-- Search and pagination never reorder or mutate the game's skin catalog.
+function xcSkinCatalogPage(choices, query, requestedPage, pageSize)
+    query = tostring(query or ""):lower():match("^%s*(.-)%s*$")
+    local size = math.max(1, math.min(24, math.floor(tonumber(pageSize) or 12)))
+    local matches = {}
+    for _, name in ipairs(choices or {}) do
+        if query == "" or tostring(name):lower():find(query, 1, true) then
+            matches[#matches + 1] = name
+        end
+    end
+    local pages = math.max(1, math.ceil(#matches / size))
+    local page = math.max(1, math.min(pages, math.floor(tonumber(requestedPage) or 1)))
+    local items = {}
+    for index = (page - 1) * size + 1, math.min(page * size, #matches) do
+        items[#items + 1] = matches[index]
+    end
+    return {Items = items, Total = #matches, Pages = pages, Page = page}
+end
+
+function getXCHeldSkinItem()
+    refreshXCSkinData()
+    if type(skinData.GetWeapon) ~= "function" then return nil end
+    local ok, weapon = pcall(skinData.GetWeapon)
+    if not ok or type(weapon) ~= "table" or weapon.IsDestroyed
+        or (weapon.Player ~= nil and weapon.Player ~= player) then return nil end
+    local view = weapon.Viewmodel
+    local name = view and (view.CameraModelWeapon or view.Weapon) or weapon.Name
+    if type(name) ~= "string" then return nil end
+    local melee = skinData.KnifeSet[weapon.Name] or skinData.KnifeSet[name]
+        or (type(weapon.Properties) == "table" and weapon.Properties.Class == "Melee")
+    return melee and "Knife" or "Weapon", name
+end
+
+function xcGuiIsVisible(object)
+    if not object or not object.Parent then return false end
+    local current = object
+    while current do
+        if current:IsA("GuiObject") and not current.Visible then return false end
+        if current:IsA("ScreenGui") then return current.Enabled and current.Parent ~= nil end
+        current = current.Parent
+    end
+    return false
 end
 
 function constructXCKnifeView(view, character, weapon)
@@ -6794,9 +6832,10 @@ function restoreThirdPerson()
     local char = player.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
 
-    if camera and thirdPersonSaved then
-        camera.CameraMinZoomDistance = thirdPersonSaved.minZoom
-        camera.CameraMaxZoomDistance = thirdPersonSaved.maxZoom
+    if player and thirdPersonSaved then
+        player.CameraMinZoomDistance = math.min(thirdPersonSaved.minZoom, player.CameraMaxZoomDistance)
+        player.CameraMaxZoomDistance = thirdPersonSaved.maxZoom
+        player.CameraMinZoomDistance = thirdPersonSaved.minZoom
     end
 
     if player and thirdPersonSaved then
@@ -6840,8 +6879,8 @@ function applyThirdPerson()
     if not isThirdPersonActive then
         thirdPersonSaved = {
             cameraMode = player.CameraMode,
-            minZoom = camera.CameraMinZoomDistance,
-            maxZoom = camera.CameraMaxZoomDistance,
+            minZoom = player.CameraMinZoomDistance,
+            maxZoom = player.CameraMaxZoomDistance,
             cameraOffset = hum.CameraOffset,
         }
         isThirdPersonActive = true
@@ -6861,8 +6900,9 @@ function applyThirdPerson()
         50
     )
 
-    camera.CameraMinZoomDistance = distance
-    camera.CameraMaxZoomDistance = distance
+    player.CameraMinZoomDistance = math.min(distance, player.CameraMaxZoomDistance)
+    player.CameraMaxZoomDistance = distance
+    player.CameraMinZoomDistance = distance
     camera.CameraType = Enum.CameraType.Custom
     camera.CameraSubject = hum
     hum.CameraOffset = Vector3.new(0, math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6), 0)
@@ -6874,8 +6914,6 @@ function setThirdPersonEnabled(enabled)
     if not enabled then
         restoreThirdPerson()
     else
-        isThirdPersonActive = false
-        thirdPersonSaved = nil
         applyThirdPerson()
     end
 end
@@ -7263,7 +7301,7 @@ function updateXCWorldLighting()
     else
         XCWorldSet(Lighting, "Brightness", defaultLighting.Brightness)
         XCWorldSet(Lighting, "ClockTime", defaultLighting.ClockTime)
-        XCWorldSet(Lighting, "GlobalShadows", optimizerKillsShadows and false or defaultLighting.GlobalShadows)
+        XCWorldSet(Lighting, "GlobalShadows", not optimizerKillsShadows and defaultLighting.GlobalShadows)
         XCWorldSet(Lighting, "Ambient", defaultLighting.Ambient)
         XCWorldSet(Lighting, "OutdoorAmbient", defaultLighting.OutdoorAmbient)
         XCWorldSet(Lighting, "ShadowSoftness", defaultLighting.ShadowSoftness)
@@ -7785,7 +7823,7 @@ function XCApplyMapGlobalOptimizer()
         return
     end
     local profile = XCMapOptimizerProfile()
-    pcall(function() Lighting.GlobalShadows = XCConfig.mapOptimizerDisableShadows and false or state.GlobalShadows end)
+    pcall(function() Lighting.GlobalShadows = not XCConfig.mapOptimizerDisableShadows and state.GlobalShadows end)
     if terrain and terrain.Parent then
         if profile.Terrain then
             pcall(function() terrain.Decoration = false end)
@@ -7815,7 +7853,6 @@ function XCApplyMapPart(part)
                 if part:IsA("MeshPart") then
                     if state.TextureContentCaptured then pcall(function() part.TextureContent = state.TextureContent end)
                     elseif state.TextureID ~= nil then part.TextureID = state.TextureID end
-                    if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity = state.RenderFidelity end) end
                 end
             end)
         end
@@ -7833,14 +7870,13 @@ function XCApplyMapPart(part)
         end
     end
     local _, stripColor, _, full = XCMapTexturePolicy()
-    if part:IsA("MeshPart") and (XCConfig.mapOptimizerLowMesh or XCConfig.mapStyleEnabled
+    if part:IsA("MeshPart") and (XCConfig.mapStyleEnabled
         or state.TextureID ~= nil or stripColor or full) then
         if state.TextureID == nil then pcall(function() state.TextureID = part.TextureID end) end
         if state.TextureContentCaptured == nil then
             state.TextureContentCaptured = false
             pcall(function() state.TextureContent = part.TextureContent; state.TextureContentCaptured = true end)
         end
-        if state.RenderFidelity == nil then pcall(function() state.RenderFidelity = part.RenderFidelity end) end
     end
 
     local strength = math.clamp(tonumber(XCConfig.mapStyleStrength) or 0.92, 0, 1)
@@ -7865,7 +7901,8 @@ function XCApplyMapPart(part)
             end
         end
 
-        local desiredShadow = XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerDisableShadows and false or state.CastShadow
+        local desiredShadow = state.CastShadow
+        if XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerDisableShadows then desiredShadow = false end
         if part.CastShadow ~= desiredShadow then part.CastShadow = desiredShadow end
 
         if part:IsA("MeshPart") then
@@ -7879,13 +7916,7 @@ function XCApplyMapPart(part)
             elseif state.TextureID ~= nil and part.TextureID ~= state.TextureID then
                 part.TextureID = state.TextureID
             end
-            if XCConfig.mapOptimizerEnabled and XCConfig.mapOptimizerLowMesh then
-                if part.RenderFidelity ~= Enum.RenderFidelity.Performance then
-                    pcall(function() part.RenderFidelity = Enum.RenderFidelity.Performance end)
-                end
-            elseif state.RenderFidelity ~= nil and part.RenderFidelity ~= state.RenderFidelity then
-                pcall(function() part.RenderFidelity = state.RenderFidelity end)
-            end
+            -- RenderFidelity is asset-authored and cannot be changed at runtime.
         end
     end)
     return true
@@ -8199,7 +8230,6 @@ function XCMapPriorityFlags()
         StripColor = stripColor,
         StripPBR = stripPBR,
         Full = full,
-        LowMesh = optimizer and XCConfig.mapOptimizerLowMesh == true,
         VisualFX = effectsEnabled and profile.Effects == true,
         Lights = effectsEnabled and profile.Lights == true,
     }
@@ -8213,7 +8243,7 @@ function XCMapPriorityObject(object, flags)
     flags = flags or XCMapPriorityFlags()
 
     if object:IsA("MeshPart") then
-        return flags.LowMesh or flags.StripColor or flags.Full
+        return flags.StripColor or flags.Full
     end
     if object:IsA("Decal") or object:IsA("Texture") or object:IsA("SpecialMesh") then
         return flags.StripColor or flags.Full
@@ -8256,7 +8286,7 @@ function XCMapRunPriorityPass(serial)
     local roots = XCConfig.mapOptimizerEnabled and {Lighting, Workspace} or {Workspace}
 
     local flags = XCMapPriorityFlags()
-    local touch = false
+    local touch = UserInputService.TouchEnabled
     local applyBudget = touch and 84 or 220
     local inspectBudget = touch and 700 or 1800
     local maxSlice = touch and 0.0042 or 0.0075
@@ -8300,7 +8330,6 @@ function XCRestoreMapPartEntry(part, state)
         if part:IsA("MeshPart") then
             if state.TextureContentCaptured then pcall(function() part.TextureContent=state.TextureContent end)
             elseif state.TextureID ~= nil then part.TextureID=state.TextureID end
-            if state.RenderFidelity ~= nil then pcall(function() part.RenderFidelity=state.RenderFidelity end) end
         end
     end)
 end
@@ -8362,7 +8391,7 @@ end
 
 local function XCReconcileParkedSurfaces(serial, yielding)
     local count=0
-    local budget=false and 4 or 24
+    local budget=UserInputService.TouchEnabled and 4 or 24
     local _, _, _, full = XCMapTexturePolicy()
     for object,state in pairs(XCMapSurfaceState) do
         if serial and serial ~= XCMapStyleScanSerial then return false end
@@ -8398,7 +8427,7 @@ function restoreXCMapStyle(immediate)
     end
 
     local function restoreAll(yielding)
-        local budget=false and 14 or 80
+        local budget=UserInputService.TouchEnabled and 14 or 80
         local count=0
         local function maybeYield()
             if not yielding then return true end
@@ -8450,7 +8479,7 @@ function restoreXCMapStyle(immediate)
         finishRestore()
     end
 
-    if immediate == true or not false then restoreAll(false)
+    if immediate == true or not UserInputService.TouchEnabled then restoreAll(false)
     else task.spawn(function() restoreAll(true) end) end
 end
 
@@ -8458,7 +8487,7 @@ function XCMapScanBudget()
     local _, stripColor, stripPBR, full = XCMapTexturePolicy()
     -- v70: the priority pass already removes the expensive content first, so
     -- the complete pass can use larger batches without leaving a long backlog.
-    if false then
+    if UserInputService.TouchEnabled then
         if full then return 16 end
         if stripColor or stripPBR then return 24 end
         return tostring(XCConfig.mapOptimizerMode or "Balanced") == "Aggressive" and 32 or 44
@@ -8501,7 +8530,7 @@ function applyXCMapStyle(rescan)
         local processedThisSlice=0
         local sliceStarted=os.clock()
         local budget=XCMapScanBudget()
-        local maxSlice=false and 0.0028 or 0.0055
+        local maxSlice=UserInputService.TouchEnabled and 0.0028 or 0.0055
 
         while #stack > 0 do
             if serial ~= XCMapStyleScanSerial or not XCMapVisualActive() or not xcSessionActive() then return end
@@ -8569,7 +8598,7 @@ function XCQueueStreamMapObject(object)
     task.spawn(function()
         while XCMapStreamHead <= #XCMapStreamQueue and xcSessionActive() do
             local _, stripColor, stripPBR, full = XCMapTexturePolicy()
-            local budget = false
+            local budget = UserInputService.TouchEnabled
                 and (full and 18 or ((stripColor or stripPBR) and 26 or 38))
                 or (full and 48 or ((stripColor or stripPBR) and 72 or 108))
             for _=1,budget do
@@ -9907,7 +9936,7 @@ function setXCCameraMode(mode, enabled)
     XCFeatureState.cameraPitch = pitch
     XCFeatureState.cameraYaw = yaw
     cam.CameraType = Enum.CameraType.Scriptable
-    if not false then
+    if not UserInputService.TouchEnabled then
         UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
         UserInputService.MouseIconEnabled = false
     end
@@ -10000,7 +10029,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         if movement.Magnitude > 0 then
             XCFeatureState.cameraPosition = XCFeatureState.cameraPosition + (rotation:VectorToWorldSpace(movement.Unit) * speed * dt)
         end
-        if false then
+        if UserInputService.TouchEnabled then
             local character = player and player.Character
             local humanoid = character and character:FindFirstChildOfClass("Humanoid")
             if humanoid and humanoid.MoveDirection.Magnitude > 0.05 then
@@ -11681,7 +11710,7 @@ function triggerbotFire(vp, forcedPart, forcedCharacter, forcedPosition, redirec
         end)
         if nativeFired then return end
 
-        if VirtualInputManager and not false then
+        if VirtualInputManager and not UserInputService.TouchEnabled then
             VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, true, game, 0)
             task.wait(0.01)
             VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, false, game, 0)
@@ -14030,7 +14059,7 @@ function setupXCCharacterInputHook()
                         result.Buttons = buttons.with(input.Buttons, buttons.Jump, jump)
                         -- Mobile sticks often report partial magnitude near the rim.
                         -- Normalize only on touch so Bhop does not randomly lose speed.
-                        if false and moveMagnitude > 0.05 then
+                        if UserInputService.TouchEnabled and moveMagnitude > 0.05 then
                             result.Move = input.Move.Unit
                         end
                         xcCharacterInputHook.LastJumpDown = jump
@@ -14223,7 +14252,7 @@ end
 
 function updateMobileSlideVisibility()
     if mobileSlideBtn then
-        mobileSlideBtn.Visible = XCConfig.slideEnabled and false
+        mobileSlideBtn.Visible = XCConfig.slideEnabled and UserInputService.TouchEnabled
         if not XCConfig.slideEnabled then
             mobileSlideToggleActive = false
             isSliding = false
@@ -14282,7 +14311,7 @@ function createMobileSlideButton()
     mobileSlideBtn.TextColor3 = currentTheme.Accent
     mobileSlideBtn.TextSize = 9.5
     mobileSlideBtn.Font = Enum.Font.GothamBold
-    mobileSlideBtn.Visible = XCConfig.slideEnabled and false
+    mobileSlideBtn.Visible = XCConfig.slideEnabled and UserInputService.TouchEnabled
     mobileSlideBtn.ZIndex = 80
     mobileSlideBtn.Active = true
     mobileSlideBtn.AutoButtonColor = false
@@ -14371,7 +14400,9 @@ function hookMobileJumpButton()
     end)
 end
 
--- PC build: touch HUD controls are intentionally not created.
+createMobileSlideButton()
+hookMobileJumpButton()
+
 function hookCharacterWeapons(char)
     if not char then return end
     local childAddedConnection = char.ChildAdded:Connect(function(child)
@@ -14397,24 +14428,8 @@ table.insert(connections, player.CharacterAdded:Connect(function(char)
         defaultHipHeight = hum.HipHeight
         defaultHipHeightCaptured = true
         hum.HipHeight = defaultHipHeight
-
-        -- PC camera guard: BloxStrike can leave the camera Scriptable or
-        -- attached to a pre-round subject after a round transition. Restore
-        -- the native camera only when XC is not intentionally controlling it.
-        if not XCConfig.freecamEnabled and not XCConfig.freelookEnabled
-            and not XCConfig.thirdPersonEnabled then
-            task.defer(function()
-                local activeCamera = Workspace.CurrentCamera
-                if activeCamera and player.Character == char and hum.Parent and hum.Health > 0 then
-                    pcall(function()
-                        activeCamera.CameraType = Enum.CameraType.Custom
-                        activeCamera.CameraSubject = hum
-                    end)
-                end
-            end)
-        end
     end
-    -- PC build: Space/keyboard state is handled by desktop input hooks.
+    hookMobileJumpButton()
     hookCharacterWeapons(char)
     if XCConfig.animationsEnabled then
         task.delay(0.75, function()
@@ -14952,9 +14967,11 @@ local function xcGlassOpacity(role, enabled, intensity, base)
 end
 
 local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedScale, compact, modeOverride)
-    -- PC build: never switch to the one-column touch layout.
-    local mobile = false
-    local width, height = 820, 560
+    local mobile = modeOverride
+    -- Touch input also exists on tablets and landscape phones. Choose the
+    -- column layout from available space instead of the input device.
+    if mobile == nil then mobile = viewportX < 760 and viewportX < viewportY * 1.3 end
+    local width, height = mobile and 430 or 820, mobile and 720 or 560
     local preferred = math.max(0.65, math.min(1.25, tonumber(requestedScale) or 1))
     if compact then preferred = preferred * 0.88 end
     local scale = math.max(0.05, math.min(preferred,
@@ -15004,7 +15021,7 @@ function buildXCUI()
     end
     local initialViewport = getViewportSize()
     local menuLayout = xcMenuLayoutForViewport(initialViewport.X, initialViewport.Y,
-        false, XCConfig.uiScale, XCConfig.settingsCompactMode)
+        UserInputService.TouchEnabled, XCConfig.uiScale, XCConfig.settingsCompactMode)
     local isMobileLayout = menuLayout.mobile
 
     local main = Instance.new("Frame")
@@ -15083,7 +15100,7 @@ function buildXCUI()
         local viewport = getViewportSize()
         if viewport.X <= 0 or viewport.Y <= 0 then return end
         local nextScale = xcMenuLayoutForViewport(viewport.X, viewport.Y,
-            false, XCConfig.uiScale, XCConfig.settingsCompactMode, isMobileLayout).scale
+            UserInputService.TouchEnabled, XCConfig.uiScale, XCConfig.settingsCompactMode, isMobileLayout).scale
         if scale.Scale ~= nextScale then
             scale.Scale = nextScale
             main.Position = UDim2.new(0.5, -menuLayout.width * nextScale/2,
@@ -15246,6 +15263,7 @@ function buildXCUI()
         refreshESPPreview()
         openButtonThemeRefresh()
         refreshNavTheme()
+        if paletteChanged then refreshSkinGallery() end
         updateScale()
     end
 
@@ -15396,7 +15414,6 @@ function buildXCUI()
         mapOptimizerMode = "Safe changes only low-risk rendering settings. Balanced is recommended for phones. Aggressive immediately strips eligible map textures/PBR and disables decorative lights.",
         mapOptimizerDisableShadows = "Disables map/global shadow rendering while the optimizer is active.",
         mapOptimizerDisableEffects = "Balanced removes eligible decorative particles/beams/post effects; Aggressive also removes eligible decorative lights.",
-        mapOptimizerLowMesh = "Requests Performance render fidelity for eligible MeshParts where Roblox allows it.",
         mapStylePreset = "Chooses the minimal map palette. Black & White keeps several soft luminance levels instead of harsh pure black and white.",
         mapStyleStrength = "Blends the original map color toward the selected minimal palette.",
         mapStyleTextureDetail = "Controls how strongly ordinary map decals and image surfaces are faded in Soft Tint/Minimal modes. Full Minimal removes supported image paths regardless of this slider.",
@@ -15448,7 +15465,7 @@ function buildXCUI()
 
     local helpPopup = Instance.new("Frame")
     helpPopup.Name = "ContextHelp"
-    helpPopup.Size = UDim2.fromOffset(false and 260 or 235, 0)
+    helpPopup.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 260 or 235, 0)
     helpPopup.AutomaticSize = Enum.AutomaticSize.Y
     helpPopup.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
     helpPopup.BorderColor3 = C.Lime
@@ -15468,7 +15485,7 @@ function buildXCUI()
     helpText.BackgroundTransparency = 1
     helpText.TextColor3 = C.Text
     helpText.Font = Enum.Font.Code
-    helpText.TextSize = false and 11 or 10
+    helpText.TextSize = UserInputService.TouchEnabled and 11 or 10
     helpText.TextWrapped = true
     helpText.TextXAlignment = Enum.TextXAlignment.Left
     helpText.TextYAlignment = Enum.TextYAlignment.Top
@@ -15742,7 +15759,7 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local row = Instance.new("TextButton")
         row.Name = key
-        row.Size = UDim2.new(1, 0, 0, isMobileLayout and 34 or 29)
+        row.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 40 or 32)
         row.BackgroundTransparency = 1
         row.Text = ""
         row.AutoButtonColor = false
@@ -15818,7 +15835,7 @@ function buildXCUI()
         refreshers[key] = refreshers[key] or {}
         table.insert(refreshers[key], refresh)
         table.insert(moduleStatusRefreshers, function()
-            if row.Parent then refreshStatus() end
+            if xcGuiIsVisible(row) then refreshStatus() end
         end)
         row.Activated:Connect(function()
             if os.clock() < (row:GetAttribute("XCLongPressUntil") or 0) then return end
@@ -15839,7 +15856,7 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
         holder.Name = key
-        holder.Size = UDim2.new(1, 0, 0, isMobileLayout and 40 or 32)
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 44 or 36)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
@@ -15864,7 +15881,7 @@ function buildXCUI()
         valueLabel.Parent = holder
         local bar = Instance.new("Frame")
         bar.Size = UDim2.new(0.38, 0, 0, 20)
-        bar.Position = UDim2.new(0.6, 0, 0, isMobileLayout and 18 or 12)
+        bar.Position = UDim2.new(0.6, 0, 0, UserInputService.TouchEnabled and 20 or 14)
         bar.BackgroundTransparency = 1
         bar.BorderColor3 = C.Black
         bar.BorderSizePixel = 0
@@ -15961,8 +15978,8 @@ function buildXCUI()
         end
         closeDropdown()
 
-        local rowHeight = false and 28 or 23
-        local visibleRows = math.min(#values, false and 5 or 7)
+        local rowHeight = UserInputService.TouchEnabled and 28 or 23
+        local visibleRows = math.min(#values, UserInputService.TouchEnabled and 5 or 7)
         local popupHeight = visibleRows * rowHeight + 2
         local buttonPos, buttonSize = button.AbsolutePosition, button.AbsoluteSize
         local viewport = getViewportSize()
@@ -16005,7 +16022,7 @@ function buildXCUI()
             optionButton.BorderSizePixel = 0
             optionButton.Text = ""
             optionButton.Font = Enum.Font.GothamMedium
-            optionButton.TextSize = false and 13 or 12
+            optionButton.TextSize = UserInputService.TouchEnabled and 13 or 12
             optionButton.AutoButtonColor = false
             optionButton.ZIndex = 201
             optionButton.Parent = popup
@@ -16017,7 +16034,7 @@ function buildXCUI()
             optionText.Text = tostring(option)
             optionText.TextColor3 = selected and C.White or C.Text
             optionText.Font = Enum.Font.GothamMedium
-            optionText.TextSize = false and 13 or 12
+            optionText.TextSize = UserInputService.TouchEnabled and 13 or 12
             optionText.TextTruncate = Enum.TextTruncate.AtEnd
             optionText.TextXAlignment = Enum.TextXAlignment.Left
             optionText.ZIndex = 202
@@ -16060,7 +16077,7 @@ function buildXCUI()
     local function addChoice(parent, label, key, values, onChanged)
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
-        holder.Size = UDim2.new(1, 0, 0, isMobileLayout and 38 or 32)
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 42 or 34)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
@@ -16075,8 +16092,8 @@ function buildXCUI()
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(0.53, 0, 0, isMobileLayout and 30 or 27)
-        button.Position = UDim2.new(0.47, 0, 0, isMobileLayout and 4 or 2)
+        button.Size = UDim2.new(0.53, 0, 0, UserInputService.TouchEnabled and 34 or 28)
+        button.Position = UDim2.new(0.47, 0, 0, 4)
         button.BackgroundColor3 = C.Control
         button.BorderColor3 = C.Black
         button.BorderSizePixel = 0
@@ -16197,7 +16214,7 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
         holder.Name = prefix .. "ColorPicker"
-        holder.Size = UDim2.new(1, 0, 0, false and 32 or 26)
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 32 or 26)
         holder.BackgroundTransparency = 1
         holder.Parent = parent
         local title = Instance.new("TextLabel")
@@ -16219,8 +16236,8 @@ function buildXCUI()
         hexLabel.TextXAlignment = Enum.TextXAlignment.Right
         hexLabel.Parent = holder
         local swatch = Instance.new("TextButton")
-        swatch.Size = UDim2.fromOffset(false and 27 or 23, false and 27 or 19)
-        swatch.Position = UDim2.new(1, -(false and 27 or 23), 0.5, -(false and 13 or 9))
+        swatch.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 27 or 23, UserInputService.TouchEnabled and 27 or 19)
+        swatch.Position = UDim2.new(1, -(UserInputService.TouchEnabled and 27 or 23), 0.5, -(UserInputService.TouchEnabled and 13 or 9))
         swatch.BorderColor3 = C.Black
         swatch.BorderSizePixel = 1
         swatch.Text = ""
@@ -16678,19 +16695,19 @@ function buildXCUI()
 
     local function addSkinGallery(parent)
         parent = activeSectionByParent[parent] or parent
+        local galleryState = {Page = 1, Context = nil, Signature = nil, Revision = 0}
         local holder = Instance.new("Frame", parent)
         holder.Name = "SkinImageGallery"
-        holder.Size = UDim2.new(1, 0, 0, 430)
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 610 or 580)
         holder.BackgroundColor3 = C.Panel
-        holder.BorderColor3 = C.Border
-        holder.BorderSizePixel = 1
+        holder.BorderSizePixel = 0
         local galleryCorner = Instance.new("UICorner", holder)
-        galleryCorner.CornerRadius = UDim.new(0, 6)
+        galleryCorner.CornerRadius = UDim.new(0, 10)
 
         local categoryButtons = {}
         local categoryBar = Instance.new("Frame", holder)
         categoryBar.Position = UDim2.fromOffset(6, 5)
-        categoryBar.Size = UDim2.new(1, -12, 0, 25)
+        categoryBar.Size = UDim2.new(1, -12, 0, 34)
         categoryBar.BackgroundTransparency = 1
         for index, modeName in ipairs({"Weapon", "Knife", "Gloves"}) do
             local button = Instance.new("TextButton", categoryBar)
@@ -16701,8 +16718,9 @@ function buildXCUI()
             button.BorderSizePixel = 1
             button.Text = ({Weapon="WEAPONS",Knife="KNIVES",Gloves="GLOVES"})[modeName]
             button.TextColor3 = C.Muted
-            button.Font = Enum.Font.Code
-            button.TextSize = 9
+            button.Font = Enum.Font.GothamBold
+            button.TextSize = 11
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
             button.AutoButtonColor = false
             categoryButtons[modeName] = button
             button.Activated:Connect(function()
@@ -16713,11 +16731,11 @@ function buildXCUI()
         end
 
         local itemBar = Instance.new("ScrollingFrame", holder)
-        itemBar.Position = UDim2.fromOffset(6, 35)
-        itemBar.Size = UDim2.new(1, -12, 0, false and 36 or 31)
+        itemBar.Position = UDim2.fromOffset(6, 45)
+        itemBar.Size = UDim2.new(1, -12, 0, 40)
         itemBar.BackgroundColor3 = C.Panel
         itemBar.BorderColor3 = C.Border
-        itemBar.BorderSizePixel = 1
+        itemBar.BorderSizePixel = 0
         itemBar.ScrollBarThickness = 2
         itemBar.ScrollBarImageColor3 = C.Lime
         itemBar.ScrollingDirection = Enum.ScrollingDirection.X
@@ -16733,28 +16751,60 @@ function buildXCUI()
         itemPadding.PaddingBottom = UDim.new(0, 3)
 
         local heading = Instance.new("TextLabel", holder)
-        heading.Position = UDim2.fromOffset(7, false and 75 or 70)
-        heading.Size = UDim2.new(1, -14, 0, 20)
+        heading.Position = UDim2.fromOffset(8, 94)
+        heading.Size = UDim2.new(1, -16, 0, 23)
         heading.BackgroundTransparency = 1
         heading.TextColor3 = C.Text
-        heading.Font = Enum.Font.Code
-        heading.TextSize = 9
+        heading.Font = Enum.Font.GothamBold
+        heading.TextSize = 14
+        heading.TextTruncate = Enum.TextTruncate.AtEnd
         heading.TextXAlignment = Enum.TextXAlignment.Left
 
         local hint = Instance.new("TextLabel", holder)
-        hint.Position = UDim2.fromOffset(7, false and 96 or 91)
-        hint.Size = UDim2.new(1, -14, 0, 18)
+        hint.Position = UDim2.fromOffset(8, 119)
+        hint.Size = UDim2.new(1, -16, 0, 20)
         hint.BackgroundTransparency = 1
         hint.Text = "Choose a finish below. Changes apply to the held item."
         hint.TextColor3 = C.Muted
-        hint.Font = Enum.Font.Code
-        hint.TextSize = 9
+        hint.Font = Enum.Font.Gotham
+        hint.TextSize = 11
         hint.TextTruncate = Enum.TextTruncate.AtEnd
         hint.TextXAlignment = Enum.TextXAlignment.Left
 
+        local search = Instance.new("TextBox", holder)
+        search.Name = "SkinSearch"
+        search.Position = UDim2.fromOffset(8, 145)
+        search.Size = UDim2.new(1, -58, 0, 34)
+        search.BackgroundColor3 = C.Control
+        search.BorderSizePixel = 0
+        search.Font = Enum.Font.Gotham
+        search.TextSize = 12
+        search.TextColor3 = C.Text
+        search.PlaceholderColor3 = C.Muted
+        search.PlaceholderText = "Search finishes..."
+        search.ClearTextOnFocus = false
+        search.Text = ""
+        search.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", search).CornerRadius = UDim.new(0, 7)
+        local searchPadding = Instance.new("UIPadding", search)
+        searchPadding.PaddingLeft = UDim.new(0, 10)
+        searchPadding.PaddingRight = UDim.new(0, 10)
+        local clear = Instance.new("TextButton", holder)
+        clear.Size = UDim2.fromOffset(34, 34)
+        clear.Position = UDim2.new(1, -42, 0, 145)
+        clear.BackgroundColor3 = C.Control
+        clear.BorderSizePixel = 0
+        clear.Text = "×"
+        clear.Font = Enum.Font.GothamMedium
+        clear.TextSize = 20
+        clear.TextColor3 = C.Muted
+        Instance.new("UICorner", clear).CornerRadius = UDim.new(0, 7)
+        clear.Activated:Connect(function() search.Text = "" end)
+
         local grid = Instance.new("ScrollingFrame", holder)
-        grid.Position = UDim2.fromOffset(6, false and 116 or 111)
-        grid.Size = UDim2.new(1, -12, 1, false and -122 or -117)
+        grid.Name = "FinishGrid"
+        grid.Position = UDim2.fromOffset(8, 189)
+        grid.Size = UDim2.new(1, -16, 1, -237)
         grid.BackgroundTransparency = 1
         grid.BorderSizePixel = 0
         grid.ScrollBarThickness = 2
@@ -16762,12 +16812,52 @@ function buildXCUI()
         grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
         grid.CanvasSize = UDim2.new()
         local layout = Instance.new("UIGridLayout", grid)
-        layout.CellSize = UDim2.new(false and 0.5 or (1/3), -5, 0, false and 126 or 116)
-        layout.CellPadding = UDim2.fromOffset(5, 5)
+        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 0.5 or 0.25, -6, 0, UserInputService.TouchEnabled and 120 or 108)
+        layout.CellPadding = UDim2.fromOffset(6, 6)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         local padding = Instance.new("UIPadding", grid)
         padding.PaddingRight = UDim.new(0, 2)
         padding.PaddingBottom = UDim.new(0, 4)
+
+        local empty = Instance.new("TextLabel", holder)
+        empty.Name = "EmptyState"
+        empty.Position = UDim2.fromOffset(8, 215)
+        empty.Size = UDim2.new(1, -16, 0, 70)
+        empty.BackgroundTransparency = 1
+        empty.Font = Enum.Font.Gotham
+        empty.TextSize = 13
+        empty.TextColor3 = C.Muted
+        empty.Text = "No finishes found.\nTry another name or clear the search."
+        empty.Visible = false
+        local pageLabel = Instance.new("TextLabel", holder)
+        pageLabel.Name = "PageStatus"
+        pageLabel.Position = UDim2.new(0, 64, 1, -39)
+        pageLabel.Size = UDim2.new(1, -128, 0, 32)
+        pageLabel.BackgroundTransparency = 1
+        pageLabel.TextColor3 = C.Muted
+        pageLabel.Font = Enum.Font.GothamMedium
+        pageLabel.TextSize = 11
+        local pagerButtons = {}
+        for index, delta in ipairs({-1, 1}) do
+            local button = Instance.new("TextButton", holder)
+            button.Name = delta < 0 and "PreviousPage" or "NextPage"
+            button.Position = delta < 0 and UDim2.new(0, 8, 1, -39) or UDim2.new(1, -54, 1, -39)
+            button.Size = UDim2.fromOffset(46, 32)
+            button.BackgroundColor3 = C.Control
+            button.BorderSizePixel = 0
+            button.Font = Enum.Font.GothamBold
+            button.Text = delta < 0 and "‹" or "›"
+            button.TextSize = 22
+            button.TextColor3 = C.Text
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
+            pagerButtons[index] = button
+            button.Activated:Connect(function()
+                local nextPage = math.clamp(galleryState.Page + delta, 1, galleryState.Pages or 1)
+                if nextPage == galleryState.Page then return end
+                galleryState.Page = nextPage
+                refreshSkinGallery()
+            end)
+        end
 
         local function normalizeImage(value)
             if type(value)=="number" and value>0 then return "rbxassetid://"..math.floor(value) end
@@ -16777,7 +16867,9 @@ function buildXCUI()
             return nil
         end
         local skinLibraryPreviewEntries = {}
-        local function findPreviewImage(itemName, skinName)
+        local previewImageCache = {}
+        local previewCacheRoot, previewCacheLibrary
+        local function resolvePreviewImage(itemName, skinName)
             local folder=skinData.SkinsRoot and skinData.SkinsRoot:FindFirstChild(itemName)
             local skinFolder=folder and folder:FindFirstChild(skinName)
             if skinFolder then
@@ -16813,6 +16905,13 @@ function buildXCUI()
                 end end
             end
             return nil
+        end
+        local function findPreviewImage(itemName, skinName)
+            local key = tostring(itemName) .. "\0" .. tostring(skinName)
+            if previewImageCache[key] ~= nil then return previewImageCache[key] or nil end
+            local image = resolvePreviewImage(itemName, skinName)
+            if image or skinData.Ready then previewImageCache[key] = image or false end
+            return image
         end
         local function addGlovePreview(viewport,itemName,skinName)
             local liveCamera=Workspace.CurrentCamera or camera
@@ -17039,36 +17138,68 @@ function buildXCUI()
             local selected=currentSelection(itemName)
             for skinName,card in pairs(cards) do
                 local active=skinName==selected
-                card.BorderColor3=active and C.Lime or C.Border
-                card.BorderSizePixel=active and 2 or 1
+                local stroke=card:FindFirstChild("SelectionStroke")
+                if stroke then stroke.Color=active and C.Lime or C.Border;stroke.Thickness=active and 1.6 or 1 end
                 local check=card:FindFirstChild("Selected")
                 if check then check.Visible=active;check.TextColor3=C.Lime end
             end
         end
         refreshSkinGallery=function()
-            gallerySerial = gallerySerial + (1);local serial=gallerySerial
-            refreshXCSkinData();table.clear(cards);table.clear(skinLibraryPreviewEntries)
+            if not xcSessionActive() or not xcGuiIsVisible(holder) then return end
+            refreshXCSkinData()
+            if previewCacheRoot ~= skinData.SkinsRoot or previewCacheLibrary ~= skinData.SkinLibrary then
+                table.clear(previewImageCache);table.clear(skinLibraryPreviewEntries)
+                previewCacheRoot,previewCacheLibrary=skinData.SkinsRoot,skinData.SkinLibrary
+                galleryState.Signature=nil
+            end
+            local items=categoryItems()
+            local itemName=currentItem()
+            if not table.find(items,itemName) then itemName=items[1] or "Default";selectItem(itemName,false) end
+            local context=XCConfig.skinGalleryMode.."\0"..itemName
+            if galleryState.Context~=context then
+                galleryState.Context=context;galleryState.Page=1
+                -- A weapon/category change starts with its complete catalog.
+                search.Text=""
+            end
+            local choices=XCConfig.skinGalleryMode=="Gloves" and getXCGloveSkinChoices(itemName)
+                or getXCSkinChoicesForWeapon(itemName)
+            local result=xcSkinCatalogPage(choices,search.Text,galleryState.Page,UserInputService.TouchEnabled and 6 or 12)
+            galleryState.Page,galleryState.Pages=result.Page,result.Pages
+            heading.Text=tostring(itemName).."  /  "..tostring(result.Total).." finishes"
+            hint.Text=(XCConfig.skinChangerEnabled and "Selected: " or "Changer off · Saved: ")..tostring(currentSelection(itemName))
+            pageLabel.Text=string.format("%d / %d   ·   %d results",result.Page,result.Pages,result.Total)
+            pagerButtons[1].TextColor3=result.Page>1 and C.Text or C.Muted
+            pagerButtons[2].TextColor3=result.Page<result.Pages and C.Text or C.Muted
+            empty.Visible=result.Total==0
+            local signature=context.."\0"..tostring(XCConfig.skinPreviewMode).."\0"..result.Page
+                .."\0"..table.concat(result.Items,"\0").."\0"..tostring(C.Lime)..tostring(C.Panel)
+            if galleryState.Signature==signature then updateCardSelection(itemName);return end
+            galleryState.Signature=signature
+            gallerySerial = gallerySerial + 1;local serial=gallerySerial
+            table.clear(cards)
             for _,child in ipairs(grid:GetChildren()) do if child~=layout and child~=padding then child:Destroy() end end
-            for _,child in ipairs(itemBar:GetChildren()) do if child~=itemLayout and child~=itemPadding then child:Destroy() end end
+            grid.CanvasPosition=Vector2.new(0,0)
             for modeName,button in pairs(categoryButtons) do
                 local active=modeName==XCConfig.skinGalleryMode
                 button.BackgroundColor3=active and C.Lime:Lerp(C.Panel,0.72) or C.Control
                 button.BorderColor3=active and C.Lime or C.Border
                 button.TextColor3=active and C.White or C.Muted
             end
-            local items=categoryItems()
-            local itemName=currentItem()
-            if not table.find(items,itemName) then itemName=items[1] or "Default";selectItem(itemName,false) end
+            local itemKey=context.."\0"..table.concat(items,"\0").."\0"..tostring(C.Lime)
+            if galleryState.ItemKey~=itemKey then
+            galleryState.ItemKey=itemKey
+            for _,child in ipairs(itemBar:GetChildren()) do if child~=itemLayout and child~=itemPadding then child:Destroy() end end
             local itemWidthTotal=8
             for index,name in ipairs(items) do
                 local width=math.clamp(#tostring(name)*7+20,68,132)
                 local itemButton=Instance.new("TextButton",itemBar)
                 itemButton.Name="Item_"..tostring(name);itemButton.LayoutOrder=index
-                itemButton.Size=UDim2.fromOffset(width,false and 28 or 23)
+                itemButton.Size=UDim2.fromOffset(width,32)
                 itemButton.BackgroundColor3=name==itemName and C.Lime:Lerp(C.Panel,0.72) or C.Control
                 itemButton.BorderColor3=name==itemName and C.Lime or C.Border;itemButton.BorderSizePixel=1
                 itemButton.Text=tostring(name);itemButton.TextColor3=name==itemName and C.White or C.Text
-                itemButton.Font=Enum.Font.Code;itemButton.TextSize=9;itemButton.AutoButtonColor=false
+                itemButton.Font=Enum.Font.GothamMedium;itemButton.TextSize=11;itemButton.AutoButtonColor=false
+                Instance.new("UICorner",itemButton).CornerRadius=UDim.new(0,6)
                 itemButton.Activated:Connect(function()
                     if name==currentItem() then return end
                     selectItem(name,true);refreshSkinGallery();scheduleConfigAutoSave()
@@ -17076,18 +17207,15 @@ function buildXCUI()
                 itemWidthTotal = itemWidthTotal + (width+4)
             end
             itemBar.CanvasSize=UDim2.fromOffset(itemWidthTotal,0)
-            local choices
-            if XCConfig.skinGalleryMode=="Gloves" then choices=getXCGloveSkinChoices(itemName)
-            else choices=getXCSkinChoicesForWeapon(itemName) end
+            end
             local previewJobs={}
-            heading.Text=string.format("%s  /  %d FINISHES",tostring(itemName):upper(),#choices)
-            hint.Text=string.format("Selected: %s  |  Preview: %s",tostring(currentSelection(itemName)),XCConfig.skinPreviewMode or "Icons")
-            for index,skinName in ipairs(choices) do
+            for index,skinName in ipairs(result.Items) do
                 local card=Instance.new("TextButton",grid)
                 card.Name="Skin_"..skinName;card.LayoutOrder=index;card.BackgroundColor3=C.Panel
-                card.BorderColor3=C.Border;card.BorderSizePixel=1;card.Text="";card.AutoButtonColor=false;cards[skinName]=card
-                Instance.new("UICorner",card).CornerRadius=UDim.new(0,4)
-                local imageId=findPreviewImage(itemName,skinName)
+                card.BorderSizePixel=0;card.Text="";card.AutoButtonColor=false;cards[skinName]=card
+                Instance.new("UICorner",card).CornerRadius=UDim.new(0,8)
+                local stroke=Instance.new("UIStroke",card)
+                stroke.Name="SelectionStroke";stroke.Color=C.Border;stroke.Thickness=1
                 local modelPreview=XCConfig.skinPreviewMode=="Models"
                 local visual=Instance.new(modelPreview and "ViewportFrame" or "Frame",card)
                 visual.Name="Preview";visual.Position=UDim2.fromOffset(4,4);visual.Size=UDim2.new(1,-8,1,-28)
@@ -17099,13 +17227,15 @@ function buildXCUI()
                 Instance.new("UICorner",visual).CornerRadius=UDim.new(0,3)
                 local label=Instance.new("TextLabel",card)
                 label.Position=UDim2.new(0,6,1,-23);label.Size=UDim2.new(1,-12,0,19);label.BackgroundTransparency=1
-                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.Code;label.TextSize=10;label.TextTruncate=Enum.TextTruncate.AtEnd
+                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.GothamMedium;label.TextSize=11;label.TextTruncate=Enum.TextTruncate.AtEnd
                 local selected=Instance.new("TextLabel",card)
-                selected.Name="Selected";selected.Position=UDim2.fromOffset(5,4);selected.Size=UDim2.fromOffset(13,13)
-                selected.BackgroundColor3=Color3.fromRGB(4,4,4);selected.BackgroundTransparency=0.2;selected.Text="✓"
-                selected.Font=Enum.Font.Code;selected.TextSize=10;selected.Visible=false;selected.ZIndex=5
+                selected.Name="Selected";selected.Position=UDim2.fromOffset(7,7);selected.Size=UDim2.fromOffset(64,17)
+                selected.BackgroundColor3=C.Main;selected.BackgroundTransparency=0.12;selected.Text="SELECTED"
+                selected.Font=Enum.Font.GothamBold;selected.TextSize=8;selected.Visible=false;selected.ZIndex=5
+                Instance.new("UICorner",selected).CornerRadius=UDim.new(0,4)
                 local function populatePreview()
-                    if serial~=gallerySerial or not visual.Parent then return end
+                    if serial~=gallerySerial or not visual.Parent or not xcGuiIsVisible(holder) then return end
+                    local imageId=findPreviewImage(itemName,skinName)
                     if not modelPreview and imageId then
                         local image=Instance.new("ImageLabel",visual)
                         image.Size=UDim2.new(1,-8,1,-8);image.Position=UDim2.fromOffset(4,4);image.BackgroundTransparency=1
@@ -17123,30 +17253,56 @@ function buildXCUI()
                         return
                     end
                     local fallback=Instance.new("TextLabel",visual);fallback.Size=UDim2.fromScale(1,1);fallback.BackgroundTransparency=1
-                    fallback.Text=skinName=="Default" and "DEFAULT" or itemName;fallback.TextColor3=C.Muted
-                    fallback.Font=Enum.Font.Code;fallback.TextSize=9;fallback.TextWrapped=true
+                    fallback.Text=skinName=="Default" and "ORIGINAL\nFINISH" or "Preview unavailable";fallback.TextColor3=C.Muted
+                    fallback.Font=Enum.Font.Gotham;fallback.TextSize=11;fallback.TextWrapped=true
                 end
-                if modelPreview then previewJobs[#previewJobs+1]=populatePreview else populatePreview() end
+                previewJobs[#previewJobs+1]=populatePreview
                 card.Activated:Connect(function()
                     if XCConfig.skinGalleryMode=="Knife" then XCConfig.selectedSkin=skinName;refreshConfigControls("selectedSkin",skinName);applyXCKnifeChanger()
                     elseif XCConfig.skinGalleryMode=="Gloves" then XCConfig.selectedGloveSkin=skinName;XCConfig.gloveChangerEnabled=true;refreshConfigControls("selectedGloveSkin",skinName);applyXCGloves()
                     else XCConfig.skinEditorFinish=skinName;XCConfig.weaponSkinSelections[itemName]=skinName
                         XCConfig.weaponSkinWear[itemName]=XCConfig.skinWear;refreshConfigControls("skinEditorFinish",skinName);applyXCSelectedWeaponSkin() end
                     updateCardSelection(itemName)
-                    hint.Text=string.format("Selected: %s  |  Preview: %s",tostring(skinName),XCConfig.skinPreviewMode or "Icons")
+                    hint.Text=(XCConfig.skinChangerEnabled and "Selected: " or "Changer off · Saved: ")..tostring(skinName)
                     scheduleConfigAutoSave()
                 end)
+                card.MouseEnter:Connect(function() card.BackgroundColor3=C.Control end)
+                card.MouseLeave:Connect(function() card.BackgroundColor3=C.Panel end)
             end
             updateCardSelection(itemName)
             if #previewJobs>0 then
                 task.spawn(function()
                     for _,job in ipairs(previewJobs) do
                         RunService.Heartbeat:Wait()
-                        if serial~=gallerySerial then return end
-                        job()
+                        if serial~=gallerySerial or not xcSessionActive() or not xcGuiIsVisible(holder) then return end
+                        pcall(job)
                     end
                 end)
             end
+        end
+        search:GetPropertyChangedSignal("Text"):Connect(function()
+            galleryState.Revision=galleryState.Revision+1
+            local revision=galleryState.Revision
+            task.delay(0.14,function()
+                if revision~=galleryState.Revision or not holder.Parent or not xcSessionActive() then return end
+                galleryState.Page=1
+                refreshSkinGallery()
+            end)
+        end)
+        local function visibilityChanged()
+            if xcGuiIsVisible(holder) then task.defer(refreshSkinGallery);return end
+            gallerySerial=gallerySerial+1
+            galleryState.Signature=nil
+            table.clear(cards)
+            for _,child in ipairs(grid:GetChildren()) do
+                if child~=layout and child~=padding then child:Destroy() end
+            end
+        end
+        local ancestor=holder
+        while ancestor do
+            if ancestor:IsA("GuiObject") then ancestor:GetPropertyChangedSignal("Visible"):Connect(visibilityChanged)
+            elseif ancestor:IsA("ScreenGui") then ancestor:GetPropertyChangedSignal("Enabled"):Connect(visibilityChanged);break end
+            ancestor=ancestor.Parent
         end
         task.defer(refreshSkinGallery)
         registerSearch(holder,"skin changer image gallery weapon knife glove previews")
@@ -17173,6 +17329,7 @@ function buildXCUI()
                 restoreXCSelectedWeaponSkin()
                 restoreXCGloves()
             end
+            refreshSkinGallery()
         elseif key == "gloveChangerEnabled" then
             if value then applyXCGloves() else restoreXCGloves() end
         elseif key == "noFallDamageEnabled" then
@@ -17220,7 +17377,7 @@ function buildXCUI()
         elseif key == "mapStyleEnabled" then setXCMapStyleEnabled(value)
         elseif key == "mapOptimizerEnabled" then setXCMapOptimizerEnabled(value); updateWorldChanger()
         elseif key == "mapStyleFlatMaterials" or key == "mapStylePreserveSigns" or key == "mapStyleAffectTransparent"
-            or key == "mapOptimizerDisableShadows" or key == "mapOptimizerDisableEffects" or key == "mapOptimizerLowMesh" then
+            or key == "mapOptimizerDisableShadows" or key == "mapOptimizerDisableEffects" then
             if XCMapVisualActive() then applyXCMapStyle(true) end
             if key == "mapOptimizerDisableShadows" then updateWorldChanger() end
         elseif key == "worldSkyboxEnabled" or key == "worldSkyCelestial" or key == "worldPostFXEnabled"
@@ -17481,18 +17638,23 @@ function buildXCUI()
         Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
         local icon = drawTabIcon(button, info[2], ICON_OFF)
         icon.AnchorPoint = isMobileLayout and Vector2.new(0.5, 0.5) or Vector2.new(0, 0.5)
-        icon.Position = isMobileLayout and UDim2.fromScale(0.5, 0.5) or UDim2.new(0, 9, 0.5, 0)
+        icon.Position = isMobileLayout and UDim2.new(0.5, 0, 0, 14) or UDim2.new(0, 9, 0.5, 0)
         local label = Instance.new("TextLabel", button)
         label.Position = UDim2.fromOffset(37, 0)
         label.Size = UDim2.new(1, -40, 1, 0)
         label.BackgroundTransparency = 1
         label.Text = info[1] == "AntiAim" and "Movement" or info[1]
-        label.Visible = not isMobileLayout
+        label.Visible = true
+        if isMobileLayout then
+            label.Position = UDim2.new(0, 1, 1, -14)
+            label.Size = UDim2.new(1, -2, 0, 12)
+            label.TextXAlignment = Enum.TextXAlignment.Center
+        end
         label.TextColor3 = C.Muted
         label.Font = Enum.Font.GothamMedium
         label.TextSize = isMobileLayout and 9 or 12
         label.TextTruncate = Enum.TextTruncate.AtEnd
-        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.TextXAlignment = isMobileLayout and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
         button.MouseEnter:Connect(function()
             if currentPage ~= info[1] then
                 recolorTabIcon(icon, C.White)
@@ -17829,7 +17991,6 @@ function buildXCUI()
     end)
     toggle(L, "Disable shadows", "mapOptimizerDisableShadows")
     toggle(L, "Disable decorative FX", "mapOptimizerDisableEffects")
-    toggle(L, "Low mesh fidelity", "mapOptimizerLowMesh")
     addButton(L, "RESCAN / OPTIMIZE MAP", function()
         if XCMapVisualActive() then applyXCMapStyle(true) end
         updateWorldChanger()
@@ -17943,11 +18104,30 @@ function buildXCUI()
     addChoice(R, "Freelook bind", "freelookKey", {"LeftAlt", "RightAlt", "F3", "F4", "F5", "F6"})
 
     task.wait()
-    local S = createPanel(pages["Skins"], "Skin changer", 0, 1)
-    section(S, "Skin changer")
-    toggle(S, "Skin changer", "skinChangerEnabled")
-    addNote(S, "Enable the changer, choose a category and item, then click a finish to equip it.")
-    section(S, "Finish gallery")
+    local S = createPanel(pages["Skins"], "Skin studio", 0, 1)
+    section(S, "Loadout")
+    toggle(S, "Apply saved finishes", "skinChangerEnabled")
+    addNote(S, "Choose an item, search its finishes and tap a card. Your choices stay saved while the changer is off.")
+    addButton(S, "OPEN HELD ITEM", function()
+        local mode, itemName = getXCHeldSkinItem()
+        if not itemName or not skinData.SkinSelections[itemName] then
+            XCNotify("Skin studio", "Hold a supported weapon or knife first.", "warning", 2)
+            return
+        end
+        XCConfig.skinGalleryMode = mode
+        if mode == "Knife" then
+            XCConfig.selectedKnifeType = itemName
+            if not table.find(getXCSkinChoicesForWeapon(itemName), XCConfig.selectedSkin) then XCConfig.selectedSkin = "Default" end
+        else
+            XCConfig.skinEditorWeapon = itemName
+            XCConfig.skinEditorFinish = XCConfig.weaponSkinSelections[itemName] or "Default"
+            XCConfig.skinWear = XCConfig.weaponSkinWear[itemName] or 0
+            refreshConfigControls("skinWear", XCConfig.skinWear)
+        end
+        refreshSkinGallery()
+        scheduleConfigAutoSave()
+    end)
+    section(S, "Finish catalog")
     addChoice(S, "Preview style", "skinPreviewMode", {"Icons", "Models"}, function() refreshSkinGallery() end)
     addSkinGallery(S)
     section(S, "Wear and actions")
@@ -17957,20 +18137,6 @@ function buildXCUI()
         applyXCSelectedWeaponSkin()
     end)
     addSlider(S, "Knife wear", "knifeWear", 0, 1, 0.01, "", function() applyXCKnifeChanger() end)
-    addButton(S, "OPEN HELD WEAPON", function()
-        refreshXCSkinData()
-        local ok, weapon = type(skinData.GetWeapon) == "function" and pcall(skinData.GetWeapon)
-        local view = ok and weapon and weapon.Viewmodel
-        local weaponName = view and (view.CameraModelWeapon or view.Weapon) or (weapon and weapon.Name)
-        if weaponName and skinData.SkinSelections[weaponName] then
-            XCConfig.skinGalleryMode = "Weapon"
-            XCConfig.skinEditorWeapon = weaponName
-            XCConfig.skinEditorFinish = XCConfig.weaponSkinSelections[weaponName] or "Default"
-            XCConfig.skinWear = XCConfig.weaponSkinWear[weaponName] or 0
-            refreshConfigControls("skinWear", XCConfig.skinWear)
-            refreshSkinGallery()
-        end
-    end)
     addButton(S, "RESET CURRENT SKIN", function()
         if XCConfig.skinGalleryMode=="Knife" then
             XCConfig.selectedSkin="Default";applyXCKnifeChanger()
@@ -17983,6 +18149,7 @@ function buildXCUI()
             restoreXCSelectedWeaponSkin(weaponName)
         end
         refreshSkinGallery()
+        scheduleConfigAutoSave()
     end)
     addButton(S, "APPLY ALL SKINS", function()
         applyXCSelectedWeaponSkin()
@@ -18000,8 +18167,10 @@ function buildXCUI()
         XCConfig.selectedGloveSkin = "Default"
         restoreXCKnifeModel()
         restoreXCSelectedWeaponSkin()
+        restoreXCGloves()
         refreshConfigControls("skinWear", 0)
         refreshSkinGallery()
+        scheduleConfigAutoSave()
     end)
     task.wait()
     L, R = columns("Misc", "Utilities", "Viewmodel")
@@ -18152,7 +18321,7 @@ function buildXCUI()
     editorType.Size=UDim2.new(1,0,0,17);editorType.BackgroundTransparency=1;editorType.TextColor3=C.Muted
     editorType.Font=Enum.Font.Code;editorType.TextSize=9;editorType.TextXAlignment=Enum.TextXAlignment.Left
     local editorValue=Instance.new("TextBox",editorParent)
-    editorValue.Size=UDim2.new(1,0,0,false and 30 or 24);editorValue.BackgroundColor3=C.Control
+    editorValue.Size=UDim2.new(1,0,0,UserInputService.TouchEnabled and 30 or 24);editorValue.BackgroundColor3=C.Control
     editorValue.BorderColor3=C.Black;editorValue.BorderSizePixel=1;editorValue.ClearTextOnFocus=false
     editorValue.PlaceholderText="Value";editorValue.TextColor3=C.White;editorValue.PlaceholderColor3=C.Muted
     editorValue.Font=Enum.Font.Code;editorValue.TextSize=10
@@ -18204,17 +18373,17 @@ function buildXCUI()
     local status = Instance.new("TextLabel")
     status.Size = UDim2.new(1, 0, 0, 20)
     status.BackgroundTransparency = 1
-    status.Text = "XCConfigs_PC/Default.json"
+    status.Text = "XCConfigs/Default.json"
     status.TextColor3 = C.Muted
     status.Font = Enum.Font.Code
     status.TextSize = 9
     status.TextXAlignment = Enum.TextXAlignment.Left
     status.Parent = activeSectionByParent[ConfigLocal] or ConfigLocal
-    local function configPath() return "XCConfigs_PC/" .. safeName(nameBox.Text) .. ".json" end
+    local function configPath() return "XCConfigs/" .. safeName(nameBox.Text) .. ".json" end
     local autoSaveSerial = 0
     local function saveCurrentConfig(prefix)
         local ok = pcall(function()
-            if type(makefolder) == "function" and type(isfolder) == "function" and not isfolder("XCConfigs_PC") then makefolder("XCConfigs_PC") end
+            if type(makefolder) == "function" and type(isfolder) == "function" and not isfolder("XCConfigs") then makefolder("XCConfigs") end
             assert(type(writefile) == "function", "File API unavailable")
             local saveData = {}
             for key, value in pairs(XCConfig) do saveData[key] = value end
@@ -18647,15 +18816,6 @@ local currentCameraConnection = Workspace:GetPropertyChangedSignal("CurrentCamer
 
     if XCConfig.thirdPersonEnabled and camera then
         applyThirdPerson()
-    elseif camera and not XCConfig.freecamEnabled and not XCConfig.freelookEnabled then
-        local char = player.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if hum and hum.Health > 0 then
-            pcall(function()
-                camera.CameraType = Enum.CameraType.Custom
-                camera.CameraSubject = hum
-            end)
-        end
     end
 end)
 table.insert(connections, currentCameraConnection)
@@ -18839,7 +18999,7 @@ task.spawn(function()
                     -- Undo the broad legacy getgc writer once the equipped
                     -- weapon can be modified through its native Properties.
                     if #xcFireRateObjects > 0 then restoreXCFireRates() end
-                elseif not false then
+                elseif not UserInputService.TouchEnabled then
                     if not xcFireRateScanDone then scanXCFireRateObjects() end
                     if #xcFireRateObjects == 0 then
                         -- The game can create weapon data after injection/respawn.
@@ -19031,7 +19191,7 @@ local xcSilentSendHooked = false
 -- ray. Adjust their already game-built payload only while Send() serializes it,
 -- then restore every field so automatic fire never inherits a modified shot.
 local function beginXCSilentPayloadTransactionV31(data)
-    if xcNativeSilentHooked or not false or not isXCSilentAimRequested()
+    if xcNativeSilentHooked or not UserInputService.TouchEnabled or not isXCSilentAimRequested()
         or type(data) ~= "table" or type(data.Bullets) ~= "table" then return nil end
 
     local context = getXCSilentShotContextV31(false)
@@ -19221,7 +19381,7 @@ function setupXCSilentSendHook()
             if okTransaction and type(restore) == "function" then restorePayload = restore end
         end
 
-        if not restorePayload and false and type(args[1]) == "table" then
+        if not restorePayload and UserInputService.TouchEnabled and type(args[1]) == "table" then
             local beginTransaction = sharedXCEnv and sharedXCEnv.XCBeginSilentPayloadTransactionV31
                 or beginXCSilentPayloadTransactionV31
             local okTransaction, restore = pcall(beginTransaction, args[1])
@@ -19339,7 +19499,7 @@ function XCApplyXCTabAccent(button, active)
 end
 --// XC CONFIG SYSTEM v2 | Named profiles, save/load/delete/reset, export/import. Uses executor file APIs when available.
 local XCConfigSystem = {}
-XCConfigSystem.Folder = "XCConfigs_PC"
+XCConfigSystem.Folder = "XCConfigs"
 XCConfigSystem.ActiveName = "Default"
 
 function cfgFileAPI(operation)
