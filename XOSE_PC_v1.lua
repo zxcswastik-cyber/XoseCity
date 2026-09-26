@@ -2264,11 +2264,44 @@ local fireEndConn = UserInputService.InputEnded:Connect(function(input)
 end)
 table.insert(connections, fireEndConn)
 --// FACTION CHECK & HEALTH CHECK LOGIC -+WORK
+-- Resolve the actual BloxStrike round team before Roblox's Team object.
+-- On PC the Roblox Team property can be the same lobby/placeholder team for
+-- both sides while the replicated Player attribute contains CT/T identity.
+function xcResolveCombatTeam(plr)
+    if not plr then return nil end
+
+    local attr = plr:GetAttribute("Team")
+    if attr == "Counter-Terrorists" or attr == "Terrorists" then
+        return attr
+    end
+
+    -- Fallback only when the Roblox Team itself has a real combat name.
+    local robloxTeam = plr.Team
+    local teamName = robloxTeam and robloxTeam.Name or nil
+    if teamName == "Counter-Terrorists" or teamName == "Terrorists" then
+        return teamName
+    end
+
+    return nil
+end
+
 function isAlly(plr)
     if not plr or plr == player then return true end
 
-    -- Team identity must never depend on a visual-module toggle. Individual
-    -- modules decide for themselves whether they want to filter teammates.
+    local charactersFolder = Workspace:FindFirstChild("Characters")
+    if charactersFolder then
+        local myCombatTeam = xcResolveCombatTeam(player)
+        local theirCombatTeam = xcResolveCombatTeam(plr)
+        if myCombatTeam and theirCombatTeam then
+            return myCombatTeam == theirCombatTeam
+        end
+
+        -- Do not use a shared lobby/placeholder Roblox Team inside BloxStrike.
+        -- Unknown round state is handled by isEntityAlive()/isTargetEnemy().
+        return false
+    end
+
+    -- Generic fallback outside BloxStrike.
     if plr.Team and player.Team then
         return plr.Team == player.Team
     end
@@ -2284,6 +2317,17 @@ end
 function isTargetEnemy(plr, char)
     if not plr or plr == player then return false end
     if char and char == player.Character then return false end
+
+    -- In BloxStrike only players with two resolved combat teams can be
+    -- classified as enemies. This avoids both the old "everyone is ally" PC
+    -- bug and ESP on menu/lobby stand-ins.
+    if Workspace:FindFirstChild("Characters") then
+        local myCombatTeam = xcResolveCombatTeam(player)
+        local theirCombatTeam = xcResolveCombatTeam(plr)
+        return myCombatTeam ~= nil and theirCombatTeam ~= nil
+            and myCombatTeam ~= theirCombatTeam
+    end
+
     return not isAlly(plr)
 end
 
