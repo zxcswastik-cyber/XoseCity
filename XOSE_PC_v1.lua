@@ -694,6 +694,14 @@ local XCConfig = {
     bhopPauseWithMenu = true,
     bhopGroundDelay = 0,
     bhopAcceleration = 12,
+    -- Bhop 2.0: progressive speed + collision-safe momentum preservation.
+    bhopAutoAcceleration = true,
+    bhopGainPerHop = 0.10,
+    bhopMaxSpeed = 3.0,
+    bhopMomentumPreserve = true,
+    bhopWallPreserve = true,
+    bhopCollisionGrace = 0.20,
+    bhopMomentumRestore = 1.0,
     walkMultiplier = 2.0,
     flightSpeed = 50,
 
@@ -9596,6 +9604,14 @@ XCFeatureState = {
     bhopGroundSince = nil,
     bhopLastJump = 0,
     bhopWindowFocused = true,
+    bhopMomentumFactor = nil,
+    bhopMomentumBank = 0,
+    bhopMomentumDirection = Vector3.zero,
+    bhopCollisionUntil = 0,
+    bhopLastActive = 0,
+    bhopRequestedUntil = 0,
+    bhopLastRegisteredHop = 0,
+    bhopLastWallNormal = nil,
     menuOpen = true,
     worldUpdateAccumulator = 0,
     worldAtmosphere = nil,
@@ -14408,6 +14424,9 @@ function setupXCCharacterInputHook()
                     local moving = moveMagnitude > 0.05 or now <= (xcCharacterInputHook.MoveUntil or -math.huge)
                     local requested = XCConfig.bhopMode == "Automatic" or XCConfig.bhopAutoJump or character.JumpInputDown
                         or isMobileJumpHeld or buttons.has(input.Buttons, buttons.Jump)
+                    if requested and moving then
+                        XCFeatureState.bhopRequestedUntil = os.clock() + 0.12
+                    end
                     if requested and (not XCConfig.bhopMovingOnly or moving) then
                         if movementState.OnGround then
                             xcCharacterInputHook.GroundSince = xcCharacterInputHook.GroundSince or now
@@ -14427,7 +14446,10 @@ function setupXCCharacterInputHook()
                             result.Move = input.Move.Unit
                         end
                         xcCharacterInputHook.LastJumpDown = jump
-                        if jump then xcCharacterInputHook.GroundSince = nil end
+                        if jump then
+                            xcCharacterInputHook.GroundSince = nil
+                            if type(XCRegisterBhopHop) == "function" then XCRegisterBhopHop() end
+                        end
                     else
                         xcCharacterInputHook.GroundSince = nil
                         xcCharacterInputHook.LastJumpDown = buttons.has(input.Buttons, buttons.Jump)
@@ -14789,6 +14811,149 @@ function hookMobileJumpButton()
     end)
 end
 
+--// BHOP 2.0 | progressive acceleration + collision-safe momentum preservation
+XCBhopWallRayParams = RaycastParams.new()
+XCBhopWallRayParams.FilterType = Enum.RaycastFilterType.Exclude
+XCBhopWallRayParams.IgnoreWater = true
+
+function XCResetBhopMomentum()
+    local base = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    XCFeatureState.bhopMomentumFactor = base
+    XCFeatureState.bhopMomentumBank = 0
+    XCFeatureState.bhopMomentumDirection = Vector3.zero
+    XCFeatureState.bhopCollisionUntil = 0
+    XCFeatureState.bhopLastActive = 0
+    XCFeatureState.bhopRequestedUntil = 0
+    XCFeatureState.bhopLastRegisteredHop = 0
+    XCFeatureState.bhopLastWallNormal = nil
+end
+
+function XCRegisterBhopHop()
+    local now = os.clock()
+    if now - (XCFeatureState.bhopLastRegisteredHop or 0) < 0.07 then return end
+    XCFeatureState.bhopLastRegisteredHop = now
+    local base = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    local maxFactor = math.max(base, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
+    local factor = tonumber(XCFeatureState.bhopMomentumFactor) or base
+
+    -- A fresh chain starts from the configured base speed. During a live chain,
+    -- each real hop raises the speed ceiling instead of adding velocity per frame.
+    if now - (XCFeatureState.bhopLastActive or 0) > 0.65 then factor = base end
+    if XCConfig.bhopAutoAcceleration then
+        factor = math.min(maxFactor, math.max(base, factor) + math.clamp(tonumber(XCConfig.bhopGainPerHop) or 0.10, 0.01, 0.50))
+    else
+        factor = base
+    end
+
+    XCFeatureState.bhopMomentumFactor = factor
+    XCFeatureState.bhopLastActive = now
+end
+
+function XCGetBhopSpeedFactor()
+    local base = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    if not XCConfig.bhopAutoAcceleration then
+        XCFeatureState.bhopMomentumFactor = base
+        return base
+    end
+    local maxFactor = math.max(base, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
+    local factor = math.clamp(tonumber(XCFeatureState.bhopMomentumFactor) or base, base, maxFactor)
+    XCFeatureState.bhopMomentumFactor = factor
+    return factor
+end
+
+function XCApplyBhopMomentum(char, hrp, desiredDir, currentVel, targetSpeed, dt)
+    local now = os.clock()
+    local horizontal = Vector3.new(currentVel.X, 0, currentVel.Z)
+    local currentSpeed = horizontal.Magnitude
+    local baseFactor = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    local maxFactor = math.max(baseFactor, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
+    local maxSpeed = 16 * maxFactor
+    local restore = math.clamp(tonumber(XCConfig.bhopMomentumRestore) or 1, 0.50, 1.0)
+    local grace = math.clamp(tonumber(XCConfig.bhopCollisionGrace) or 0.20, 0.05, 0.50)
+    local state = XCFeatureState
+
+    if currentSpeed > 0.35 then
+        local horizontalDir = horizontal.Unit
+        if currentSpeed >= (state.bhopMomentumBank or 0) - 0.35 then
+            state.bhopMomentumDirection = horizontalDir
+        end
+        state.bhopMomentumBank = math.min(maxSpeed, math.max(state.bhopMomentumBank or 0, currentSpeed))
+    end
+
+    local bank = math.min(maxSpeed, math.max(0, tonumber(state.bhopMomentumBank) or 0))
+    local preserveBoost = false
+    local wallHit = nil
+
+    -- Probe only while Bhop is actually active. The ray never changes position;
+    -- it only detects a surface so velocity can be redirected along its tangent.
+    if XCConfig.bhopWallPreserve and bank > 1 then
+        local probeDir = currentSpeed > 0.5 and horizontal.Unit or state.bhopMomentumDirection
+        if (not probeDir or probeDir.Magnitude < 0.05) and desiredDir.Magnitude > 0.05 then probeDir = desiredDir.Unit end
+        if probeDir and probeDir.Magnitude > 0.05 then
+            XCBhopWallRayParams.FilterDescendantsInstances = {char, Workspace.CurrentCamera}
+            local probeDistance = math.clamp(1.65 + math.max(currentSpeed, bank) * math.max(dt, 1 / 240) * 2.4, 1.8, 5.5)
+            local origin = hrp.Position + Vector3.new(0, 0.35, 0)
+            wallHit = Workspace:Raycast(origin, probeDir.Unit * probeDistance, XCBhopWallRayParams)
+            if wallHit and math.abs(wallHit.Normal.Y) >= 0.78 then wallHit = nil end
+
+            -- Once momentum has already been redirected along a wall, velocity is
+            -- tangent to the surface and a velocity-only probe can miss it. Probe
+            -- the player's desired movement too so holding W into a wall keeps the
+            -- stable wall-slide instead of oscillating every grace window.
+            if not wallHit and desiredDir.Magnitude > 0.05 then
+                local desiredUnit = desiredDir.Unit
+                if math.abs(desiredUnit:Dot(probeDir.Unit)) < 0.985 then
+                    local desiredHit = Workspace:Raycast(origin, desiredUnit * probeDistance, XCBhopWallRayParams)
+                    if desiredHit and math.abs(desiredHit.Normal.Y) < 0.78 then wallHit = desiredHit end
+                end
+            end
+
+            if wallHit then
+                state.bhopCollisionUntil = now + grace
+                state.bhopLastWallNormal = wallHit.Normal
+            end
+        end
+    end
+
+    -- A sharp horizontal speed drop while the movement key is still held is also
+    -- treated as a collision. This catches corners that a thin forward ray misses.
+    if XCConfig.bhopMomentumPreserve and bank > 8 and currentSpeed < bank * 0.72 then
+        state.bhopCollisionUntil = math.max(state.bhopCollisionUntil or 0, now + grace)
+    end
+
+    if XCConfig.bhopMomentumPreserve and bank > 0 then
+        targetSpeed = math.max(targetSpeed, math.min(maxSpeed, bank * restore))
+        if now <= (state.bhopCollisionUntil or 0) and currentSpeed + 0.5 < bank then
+            preserveBoost = true
+        end
+    end
+
+    local normal = wallHit and wallHit.Normal or ((now <= (state.bhopCollisionUntil or 0)) and state.bhopLastWallNormal or nil)
+    if XCConfig.bhopWallPreserve and normal and math.abs(normal.Y) < 0.78 then
+        local flatNormal = Vector3.new(normal.X, 0, normal.Z)
+        if flatNormal.Magnitude > 0.001 then
+            flatNormal = flatNormal.Unit
+            local sourceDir = desiredDir.Magnitude > 0.05 and desiredDir.Unit or state.bhopMomentumDirection
+            if sourceDir and sourceDir.Magnitude > 0.05 then
+                local tangent = sourceDir - flatNormal * sourceDir:Dot(flatNormal)
+                if tangent.Magnitude < 0.08 then
+                    tangent = Vector3.new(-flatNormal.Z, 0, flatNormal.X)
+                    local reference = state.bhopMomentumDirection
+                    if reference and reference.Magnitude > 0.05 and tangent:Dot(reference) < 0 then tangent = -tangent end
+                end
+                if tangent.Magnitude > 0.001 then
+                    desiredDir = tangent.Unit
+                    targetSpeed = math.max(targetSpeed, math.min(maxSpeed, bank * restore))
+                    preserveBoost = true
+                end
+            end
+        end
+    end
+
+    targetSpeed = math.clamp(targetSpeed, 0, maxSpeed)
+    return desiredDir, targetSpeed, preserveBoost
+end
+
 createMobileSlideButton()
 hookMobileJumpButton()
 
@@ -14812,6 +14977,7 @@ table.insert(connections, player.CharacterAdded:Connect(function(char)
     defaultHipHeightCaptured = false
     XCFeatureState.bhopGroundSince = nil
     XCFeatureState.bhopLastJump = 0
+    XCResetBhopMomentum()
     local hum = char:WaitForChild("Humanoid", 5)
     if hum then
         defaultHipHeight = hum.HipHeight
@@ -15085,10 +15251,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         end
     end
 
-    -- Do not fight the game's movement controller while native input is consumed.
+    -- Native SampleInput owns jump timing when available. Bhop 2.0 still owns
+    -- horizontal momentum on both paths, so PC native jumping can accelerate too.
     local nativeBhopActive = xcCharacterInputHook.Ready
         and os.clock() - (xcCharacterInputHook.LastCall or 0) < 0.5
-    if activeMode == "Normal" and XCConfig.bunnyHopEnabled and not nativeBhopActive then
+    if activeMode == "Normal" and XCConfig.bunnyHopEnabled then
         local paused = not XCFeatureState.bhopWindowFocused
             or UserInputService:GetFocusedTextBox() ~= nil
             or GuiService.MenuIsOpen
@@ -15096,12 +15263,14 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             or (XCConfig.bhopPauseWithMenu and XCFeatureState.menuOpen)
         if paused then
             XCFeatureState.bhopGroundSince = nil
+            XCResetBhopMomentum()
         else
             local now = os.clock()
             local grounded = isPlayerGrounded(char, hrp) or hum.FloorMaterial ~= Enum.Material.Air
             local isSpacePressed = UserInputService:IsKeyDown(Enum.KeyCode.Space)
             local automatic = XCConfig.bhopMode == "Automatic" or XCConfig.bhopAutoJump
             local requested = automatic or isMobileJumpHeld or hum.Jump or isSpacePressed
+                or now <= (XCFeatureState.bhopRequestedUntil or 0)
             local moving = currentMove.Magnitude > 0.05
             local movementAllowed = not XCConfig.bhopMovingOnly or moving
 
@@ -15112,7 +15281,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             end
 
             local groundDelay = math.clamp(tonumber(XCConfig.bhopGroundDelay) or 0, 0, 0.25)
-            local canJump = grounded and requested and movementAllowed
+            local canJump = not nativeBhopActive and grounded and requested and movementAllowed
                 and XCFeatureState.bhopGroundSince
                 and now - XCFeatureState.bhopGroundSince >= groundDelay
                 and now - XCFeatureState.bhopLastJump >= 0.05
@@ -15121,6 +15290,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
                 activeMode = "Bhop"
                 XCFeatureState.bhopLastJump = now
                 XCFeatureState.bhopGroundSince = nil
+                XCRegisterBhopHop()
                 hum.Jump = true
                 finalVelocity = Vector3.new(currentVel.X, math.clamp(tonumber(XCConfig.bhopJumpPower) or 52, 30, 100), currentVel.Z)
                 pcall(function() hum:ChangeState(Enum.HumanoidStateType.Jumping) end)
@@ -15128,52 +15298,54 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
             if requested and moving and (grounded or XCConfig.bhopAirStrafe) then
                 activeMode = canJump and "Bhop" or (grounded and "Bhop accelerate" or "AutoStrafe")
+                XCFeatureState.bhopLastActive = now
 
-                local speedBoost = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+                local speedFactor = XCGetBhopSpeedFactor()
                 local acceleration = math.clamp(tonumber(XCConfig.bhopAcceleration) or 12, 2, 30)
                 local desiredDir = currentMove.Unit
-                local targetSpeed = 16 * speedBoost
+                local targetSpeed = 16 * speedFactor
 
-                -- Strong auto-strafe is intentionally air-only. It keeps the
-                -- normal grounded bhop acceleration unchanged, while making
-                -- airborne steering react much harder without touching Y speed.
                 if not grounded and XCConfig.bhopAirStrafe and XCConfig.bhopStrongAutoStrafe then
                     local strafeStrength = math.clamp(tonumber(XCConfig.bhopStrafeStrength) or 3, 1, 5)
                     local horizontal = Vector3.new(currentVel.X, 0, currentVel.Z)
                     local horizontalSpeed = horizontal.Magnitude
+                    local maxSpeed = 16 * math.max(speedFactor, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
 
-                    -- Preserve existing momentum and allow a strong configurable
-                    -- air-speed ceiling. This avoids losing speed on direction
-                    -- changes while still keeping the result deterministic.
-                    local strongTargetSpeed = 16 * speedBoost * strafeStrength
-                    targetSpeed = math.max(targetSpeed, math.min(horizontalSpeed + (10 * strafeStrength), strongTargetSpeed))
+                    -- Auto-strafe steers existing momentum; progressive hops own
+                    -- long-term speed gain so holding A/D cannot create infinite speed.
+                    targetSpeed = math.min(maxSpeed, math.max(targetSpeed, horizontalSpeed))
                     acceleration = math.min(120, acceleration * (1 + strafeStrength * 1.35))
-
-                    -- Mix a small amount of current momentum into the requested
-                    -- direction so fast 90-degree turns stay smooth instead of
-                    -- snapping the root part sideways in one frame.
                     if horizontalSpeed > 0.05 then
                         local momentumDir = horizontal.Unit
                         local steerWeight = math.clamp(0.30 + strafeStrength * 0.12, 0.42, 0.82)
                         local mixed = momentumDir:Lerp(desiredDir, steerWeight)
-                        if mixed.Magnitude > 0.001 then
-                            desiredDir = mixed.Unit
-                        end
+                        if mixed.Magnitude > 0.001 then desiredDir = mixed.Unit end
                     end
                 end
 
+                local preserveBoost = false
+                desiredDir, targetSpeed, preserveBoost = XCApplyBhopMomentum(
+                    char, hrp, desiredDir, currentVel, targetSpeed, dt
+                )
+                if preserveBoost then acceleration = math.max(acceleration, 82) end
+
                 local targetVel = desiredDir * targetSpeed
                 local blend = 1 - math.exp(-acceleration * math.max(dt, 0))
+                if preserveBoost then blend = math.max(blend, 0.96) end
                 local base = finalVelocity or currentVel
                 finalVelocity = Vector3.new(
                     base.X + (targetVel.X - base.X) * blend,
                     base.Y,
                     base.Z + (targetVel.Z - base.Z) * blend
                 )
+            elseif now - (XCFeatureState.bhopLastActive or 0) > 0.45 then
+                -- Intentional stop ends the chain. Brief wall contacts do not.
+                XCResetBhopMomentum()
             end
         end
     else
         XCFeatureState.bhopGroundSince = nil
+        XCResetBhopMomentum()
     end
 
     if activeMode == "Normal" and XCConfig.speedEnabled and currentMove.Magnitude > 0 then
@@ -15777,8 +15949,15 @@ function buildXCUI()
         bhopMovingOnly = "Prevents automatic jumps while no movement direction is pressed.",
         bhopPauseWithMenu = "Pauses Bhop while the XC menu or a text box is open.",
         bhopGroundDelay = "Delay after touching the ground before the next jump.",
-        bhopAcceleration = "How quickly horizontal velocity approaches the configured Bhop speed.",
-        bhopStrongAutoStrafe = "Greatly increases airborne steering and momentum while Air strafe is enabled.",
+        bhopAcceleration = "How quickly horizontal velocity approaches the current progressive Bhop speed.",
+        bhopAutoAcceleration = "Raises the Bhop speed ceiling after every successful hop instead of using one fixed speed.",
+        bhopGainPerHop = "Speed multiplier added after each successful hop in the current chain.",
+        bhopMaxSpeed = "Hard horizontal Bhop speed ceiling, measured as a multiple of the normal 16-stud movement speed.",
+        bhopMomentumPreserve = "Keeps the best horizontal momentum in the current chain through short physics slowdowns and landings.",
+        bhopWallPreserve = "Redirects preserved momentum along walls/obstacles instead of pushing through them or losing the chain.",
+        bhopCollisionGrace = "How long a collision may recover from the momentum bank before normal reset rules apply.",
+        bhopMomentumRestore = "Fraction of banked speed restored after a collision; 1.0 preserves the full banked speed.",
+        bhopStrongAutoStrafe = "Greatly increases airborne steering while progressive hop speed remains capped by Max speed.",
         bhopStrafeStrength = "Strength of airborne auto-strafe steering and speed gain. Higher values are intentionally aggressive.",
         flightEnabled = "Moves the character along the camera direction.",
         chamsEnabled = "Adds a local highlight to valid player models.",
@@ -18143,7 +18322,14 @@ function buildXCUI()
     toggle(L, "Moving only", "bhopMovingOnly")
     toggle(L, "Pause with menu", "bhopPauseWithMenu")
     addSlider(L, "Bhop power", "bhopJumpPower", 30, 100, 1, "")
-    addSlider(L, "Bhop speed", "bhopSpeedBoost", 1, 3, 0.1, "x")
+    addSlider(L, "Base speed", "bhopSpeedBoost", 1, 3, 0.1, "x")
+    toggle(L, "Auto acceleration", "bhopAutoAcceleration")
+    addSlider(L, "Gain per hop", "bhopGainPerHop", 0.01, 0.50, 0.01, "x")
+    addSlider(L, "Maximum speed", "bhopMaxSpeed", 1, 6, 0.1, "x")
+    toggle(L, "Momentum preservation", "bhopMomentumPreserve")
+    toggle(L, "Wall speed preserve", "bhopWallPreserve")
+    addSlider(L, "Collision grace", "bhopCollisionGrace", 0.05, 0.50, 0.01, "s")
+    addSlider(L, "Momentum restore", "bhopMomentumRestore", 0.50, 1.00, 0.05, "x")
     addSlider(L, "Ground delay", "bhopGroundDelay", 0, 0.25, 0.01, "s")
     addSlider(L, "Acceleration", "bhopAcceleration", 2, 30, 1, "")
     toggle(L, "Air strafe", "bhopAirStrafe")
