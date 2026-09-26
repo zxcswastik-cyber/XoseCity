@@ -1,4 +1,4 @@
---// XOSE v77 | ESP frame synchronization and per-player fault isolation
+--// XOSE v78 | original RenderStepped ESP path, per-frame refresh and player isolation
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
     local Players = game:GetService("Players")
@@ -10043,10 +10043,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 end))
 --// CLEANUP ROUTINES
 function cleanup()
-    if XCFeatureState.espRenderBinding then
-        RunService:UnbindFromRenderStep(XCFeatureState.espRenderBinding)
-        XCFeatureState.espRenderBinding = nil
-    end
     XCFeatureState.applyLoadedConfig = nil
     XCConfig.silentAimEnabled = false
     setXCSilentAimRequested(false)
@@ -13696,6 +13692,21 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local visualRefreshDue = visualOverlayAccumulator >= visualInterval
     if visualRefreshDue then
         visualOverlayAccumulator = visualOverlayAccumulator - visualInterval
+        table.clear(xcEspVisibilityCache)
+    end
+
+    -- Use v76's existing RenderStepped path. Only screen projection runs
+    -- every frame; expensive visibility checks retain their configured cadence.
+    do
+        local overlayOk, overlayErr = pcall(renderTacticalOverlay)
+        if not overlayOk then
+            local now = os.clock()
+            if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+                XCFeatureState.tacticalOverlayErrorAt = now
+                warn("[XOSE] ESP renderer failed: " .. tostring(overlayErr))
+            end
+            hideTacticalOverlay()
+        end
     end
 
     if visualRefreshDue then
@@ -13791,33 +13802,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     -- and map optimizer from fighting over Lighting properties every frame.
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
-
---// ESP SCREEN PASS
--- Screen coordinates must use the final camera every frame, independently
--- of combat callbacks and the slower visibility/chams refresh budget.
-XCFeatureState.espRenderBinding = "XOSE_ESP_" .. tostring(xcSessionToken)
-XCFeatureState.espVisibilityElapsed = 0
-RunService:BindToRenderStep(XCFeatureState.espRenderBinding, Enum.RenderPriority.Last.Value + 1, function(dt)
-    if not xcSessionActive() then return end
-    camera = Workspace.CurrentCamera
-    if not camera then hideTacticalOverlay(); return end
-    XCFeatureState.espVisibilityElapsed = XCFeatureState.espVisibilityElapsed + dt
-    local interval = xcVisualUpdateInterval(XCConfig.visualRefreshFPS)
-    if XCFeatureState.espVisibilityElapsed >= interval then
-        XCFeatureState.espVisibilityElapsed = XCFeatureState.espVisibilityElapsed % interval
-        table.clear(xcEspVisibilityCache)
-    end
-    local ok, err = pcall(renderTacticalOverlay)
-    if not ok then
-        local now = os.clock()
-        if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
-            XCFeatureState.tacticalOverlayErrorAt = now
-            warn("[XOSE] ESP frame failed: " .. tostring(err))
-        end
-        hideTacticalOverlay()
-    end
-end)
---// END ESP SCREEN PASS
 
 -- Late first-person/viewmodel pass. It is intentionally registered after the
 -- main camera loop so the game's native camera/viewmodel pose is already
