@@ -2264,44 +2264,11 @@ local fireEndConn = UserInputService.InputEnded:Connect(function(input)
 end)
 table.insert(connections, fireEndConn)
 --// FACTION CHECK & HEALTH CHECK LOGIC -+WORK
--- Resolve the actual BloxStrike round team before Roblox's Team object.
--- On PC the Roblox Team property can be the same lobby/placeholder team for
--- both sides while the replicated Player attribute contains CT/T identity.
-function xcResolveCombatTeam(plr)
-    if not plr then return nil end
-
-    local attr = plr:GetAttribute("Team")
-    if attr == "Counter-Terrorists" or attr == "Terrorists" then
-        return attr
-    end
-
-    -- Fallback only when the Roblox Team itself has a real combat name.
-    local robloxTeam = plr.Team
-    local teamName = robloxTeam and robloxTeam.Name or nil
-    if teamName == "Counter-Terrorists" or teamName == "Terrorists" then
-        return teamName
-    end
-
-    return nil
-end
-
 function isAlly(plr)
     if not plr or plr == player then return true end
 
-    local charactersFolder = Workspace:FindFirstChild("Characters")
-    if charactersFolder then
-        local myCombatTeam = xcResolveCombatTeam(player)
-        local theirCombatTeam = xcResolveCombatTeam(plr)
-        if myCombatTeam and theirCombatTeam then
-            return myCombatTeam == theirCombatTeam
-        end
-
-        -- Do not use a shared lobby/placeholder Roblox Team inside BloxStrike.
-        -- Unknown round state is handled by isEntityAlive()/isTargetEnemy().
-        return false
-    end
-
-    -- Generic fallback outside BloxStrike.
+    -- Team identity must never depend on a visual-module toggle. Individual
+    -- modules decide for themselves whether they want to filter teammates.
     if plr.Team and player.Team then
         return plr.Team == player.Team
     end
@@ -2317,17 +2284,6 @@ end
 function isTargetEnemy(plr, char)
     if not plr or plr == player then return false end
     if char and char == player.Character then return false end
-
-    -- In BloxStrike only players with two resolved combat teams can be
-    -- classified as enemies. This avoids both the old "everyone is ally" PC
-    -- bug and ESP on menu/lobby stand-ins.
-    if Workspace:FindFirstChild("Characters") then
-        local myCombatTeam = xcResolveCombatTeam(player)
-        local theirCombatTeam = xcResolveCombatTeam(plr)
-        return myCombatTeam ~= nil and theirCombatTeam ~= nil
-            and myCombatTeam ~= theirCombatTeam
-    end
-
     return not isAlly(plr)
 end
 
@@ -12669,6 +12625,173 @@ local function getXCEspVisibility(char, targetPart)
     return visible
 end
 
+--// ESP TARGET RESOLVER 3.0 -------------------------------------------------
+-- Keep visuals independent from combat validation. BloxStrike desktop builds
+-- can expose the active model/team/health through a different replication path
+-- than the weapon modules. Combat stays strict; ESP resolves the live visual
+-- character with compatibility fallbacks and still rejects explicit menu/dead
+-- states.
+XCFeatureState.espCharacterCache = XCFeatureState.espCharacterCache or setmetatable({}, {__mode = "k"})
+
+function xcNormalizeEspTeam(value)
+    if value == nil then return nil end
+    if typeof(value) == "Instance" then
+        local ok, name = pcall(function() return value.Name end)
+        value = ok and name or nil
+    end
+    if value == nil then return nil end
+    local raw = tostring(value)
+    if raw == "" then return nil end
+    local key = raw:lower():gsub("[%s_%-]", "")
+    if key == "ct" or key == "counterterrorist" or key == "counterterrorists"
+        or key == "counter" or key == "blueteam" then
+        return "CT"
+    end
+    if key == "t" or key == "terrorist" or key == "terrorists"
+        or key == "redteam" then
+        return "T"
+    end
+    if key == "spectator" or key == "spectators" or key == "lobby"
+        or key == "none" or key == "neutral" then
+        return nil
+    end
+    return key
+end
+
+function xcEspTeamOf(plr, char)
+    if not plr then return nil end
+    local candidates = {
+        plr:GetAttribute("Team"),
+        plr:GetAttribute("Faction"),
+        plr:GetAttribute("Side"),
+        char and char:GetAttribute("Team") or nil,
+        char and char:GetAttribute("Faction") or nil,
+        char and char:GetAttribute("Side") or nil,
+        plr.Team,
+    }
+    for _, value in pairs(candidates) do
+        local team = xcNormalizeEspTeam(value)
+        if team then return team end
+    end
+    local color = plr.TeamColor
+    if color and color ~= BrickColor.new("White") then
+        return "color:" .. tostring(color.Number)
+    end
+    return nil
+end
+
+function xcEspResolveCharacter(plr)
+    if not plr then return nil end
+    local cached = XCFeatureState.espCharacterCache[plr]
+    if cached and cached.Parent and cached:IsDescendantOf(Workspace) then
+        return cached
+    end
+
+    local direct = plr.Character
+    local folder = Workspace:FindFirstChild("Characters")
+    local localChar = player and player.Character
+    local folderIsCanonical = folder and localChar and localChar:IsDescendantOf(folder)
+
+    if direct and direct.Parent and direct:IsDescendantOf(Workspace)
+        and (not folderIsCanonical or direct:IsDescendantOf(folder)) then
+        XCFeatureState.espCharacterCache[plr] = direct
+        return direct
+    end
+
+    if folder then
+        for _, model in ipairs(folder:GetChildren()) do
+            if model:IsA("Model") then
+                local matched = false
+                local okOwner, owner = pcall(Players.GetPlayerFromCharacter, Players, model)
+                if okOwner and owner == plr then
+                    matched = true
+                else
+                    local userId = model:GetAttribute("UserId") or model:GetAttribute("PlayerUserId")
+                        or model:GetAttribute("OwnerUserId")
+                    local playerName = model:GetAttribute("PlayerName") or model:GetAttribute("OwnerName")
+                    matched = tonumber(userId) == plr.UserId
+                        or tostring(playerName or "") == plr.Name
+                        or model.Name == plr.Name
+                end
+                if matched then
+                    XCFeatureState.espCharacterCache[plr] = model
+                    return model
+                end
+            end
+        end
+    end
+
+    -- If the local player's own model is not inside Workspace.Characters, that
+    -- folder is not the authoritative combat container on this desktop build.
+    if direct and direct.Parent and direct:IsDescendantOf(Workspace) and not folderIsCanonical then
+        XCFeatureState.espCharacterCache[plr] = direct
+        return direct
+    end
+    return nil
+end
+
+function xcEspUnavailable(object)
+    if not object then return false end
+    if object:GetAttribute("Dead") == true or object:GetAttribute("IsSpectating") == true then return true end
+    local ok, unavailable = pcall(function() return xcUnavailableByAttributes(object) end)
+    return ok and unavailable == true
+end
+
+function xcEspEntityAlive(plr, char, hum)
+    if not plr or not char or not char.Parent or not char:IsDescendantOf(Workspace) then return false end
+    if xcEspUnavailable(plr) or xcEspUnavailable(char) then return false end
+
+    local folder = Workspace:FindFirstChild("Characters")
+    local localChar = player and player.Character
+    local folderIsCanonical = folder and localChar and localChar:IsDescendantOf(folder)
+    if folderIsCanonical and not char:IsDescendantOf(folder) then return false end
+
+    local characterType = char:GetAttribute("CharacterType")
+    if characterType ~= nil and characterType ~= "PlayerCustomCharacter" then return false end
+
+    local health = char:GetAttribute("Health")
+    if type(health) ~= "number" then health = tonumber(health) end
+    if type(health) ~= "number" and plr then
+        health = plr:GetAttribute("Health")
+        if type(health) ~= "number" then health = tonumber(health) end
+    end
+    if type(health) ~= "number" and hum and hum.Parent then
+        local ok, value = pcall(function() return hum.Health end)
+        if ok then health = value end
+    end
+    if type(health) == "number" and (health ~= health or health == math.huge or health <= 0) then return false end
+
+    if hum and hum.Parent then
+        local ok, state = pcall(function() return hum:GetState() end)
+        if ok and state == Enum.HumanoidStateType.Dead then return false end
+    end
+
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+    local head = char:FindFirstChild("Head")
+    return root ~= nil or head ~= nil
+end
+
+function xcEspIsEnemy(plr, char)
+    if not plr or plr == player then return false end
+    local myChar = xcEspResolveCharacter(player)
+    local mine = xcEspTeamOf(player, myChar)
+    local theirs = xcEspTeamOf(plr, char)
+    if mine and theirs then return mine ~= theirs end
+
+    -- Team replication is incomplete on some PC clients. At this point the
+    -- character has already passed the active/dead/menu checks, so prefer
+    -- rendering it rather than silently dropping every ESP target.
+    return true
+end
+
+function xcEspIsAlly(plr, char)
+    if not plr or plr == player then return true end
+    local myChar = xcEspResolveCharacter(player)
+    local mine = xcEspTeamOf(player, myChar)
+    local theirs = xcEspTeamOf(plr, char)
+    return mine ~= nil and theirs ~= nil and mine == theirs
+end
+
 --// TACTICAL ESP
 local tacticalOverlayWasActive = false
 function hideXCPlayerOverlay(esp)
@@ -12794,16 +12917,25 @@ function renderTacticalOverlay()
     end
     tacticalOverlayWasActive = true
     local camPos = camera.CFrame.Position
+    local diag = XCFeatureState.espDiagnostics or {}
+    XCFeatureState.espDiagnostics = diag
+    diag.Holders, diag.Resolved, diag.Alive, diag.Enemies, diag.Rects = 0, 0, 0, 0, 0
+    diag.LastUpdate = os.clock()
+    if sharedXCEnv then sharedXCEnv.XOSE_ESP_DIAG = diag end
 
     for plr in pairs(activeEspHolders) do
+        diag.Holders = diag.Holders + 1
         -- Streaming/respawn or a preview failure must not blank every player.
         local playerOk, playerErr = pcall(function()
         repeat
-        local char = plr.Character
+        local char = xcEspResolveCharacter(plr)
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
-        local isEnemy = isTargetEnemy(plr, char)
-        local isAlive = isEntityAlive(char, hum)
+        local isEnemy = xcEspIsEnemy(plr, char)
+        local isAlive = xcEspEntityAlive(plr, char, hum)
+        if char then diag.Resolved = diag.Resolved + 1 end
+        if isAlive then diag.Alive = diag.Alive + 1 end
+        if isEnemy then diag.Enemies = diag.Enemies + 1 end
         local dist = rootPart and (rootPart.Position - camPos).Magnitude or math.huge
         local esp = screenEspCache[plr]
         if not xcShouldAllocateScreenEsp(isEnemy, isAlive, rootPart ~= nil, dist,
@@ -12826,6 +12958,7 @@ function renderTacticalOverlay()
                 local espAlpha = getXCEspDistanceAlpha(dist)
 
                 if screenRect then
+                    diag.Rects = diag.Rects + 1
                     local boxHeight = screenRect.H
                     local boxWidth = screenRect.W
                     local boxPosX = screenRect.X
@@ -13046,6 +13179,7 @@ function renderTacticalOverlay()
             local now = os.clock()
             if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
                 XCFeatureState.tacticalOverlayErrorAt = now
+                diag.LastError = tostring(playerErr)
                 warn("[XOSE] ESP player update failed (" .. tostring(plr.Name) .. "): " .. tostring(playerErr))
             end
         end
@@ -13546,6 +13680,7 @@ function attachEspToPlayer(plr)
     hl.Parent = chamsWorldFolder
 
     local function setupCharacter(char)
+        XCFeatureState.espCharacterCache[plr] = nil
         if not char then return end
         task.spawn(function()
             local head = char:WaitForChild("Head", 3)
@@ -13564,6 +13699,7 @@ function attachEspToPlayer(plr)
     if plr.Character then setupCharacter(plr.Character) end
     local charConn = plr.CharacterAdded:Connect(setupCharacter)
     local charRemConn = plr.CharacterRemoving:Connect(function()
+        XCFeatureState.espCharacterCache[plr] = nil
         if hl then
             hl.Adornee = nil
             hl.Enabled = false
@@ -13603,6 +13739,7 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
             if data.Tracer then data.Tracer:Destroy() end
         end)
         activeEspHolders[plr] = nil
+        XCFeatureState.espCharacterCache[plr] = nil
     end
 end))
 --// MAIN ENGINE RENDER LOOP
@@ -13768,13 +13905,13 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             data.Tracer.Visible = false
             break
         end
-        local char = plr.Character
+        local char = xcEspResolveCharacter(plr)
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
         local head = char and char:FindFirstChild("Head")
         
-        local ally = isAlly(plr)
-        local isAlive = isEntityAlive(char, hum)
+        local ally = xcEspIsAlly(plr, char)
+        local isAlive = xcEspEntityAlive(plr, char, hum)
         local dist = rootPart and (rootPart.Position - localPos).Magnitude or 9999
 
         if char and isAlive and (dist <= XCConfig.espMaxDist) then
@@ -13864,11 +14001,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function()
     if XCConfig.customFovEnabled and XCConfig.tracersEnabled and camera then
         local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
         for plr, data in pairs(activeEspHolders) do
-            local char = plr.Character
+            local char = xcEspResolveCharacter(plr)
             local hum = char and char:FindFirstChildOfClass("Humanoid")
             local root = char and (char:FindFirstChild("HumanoidRootPart")
                 or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
-            if root and isTargetEnemy(plr, char) and isEntityAlive(char, hum) then
+            if root and xcEspIsEnemy(plr, char) and xcEspEntityAlive(plr, char, hum) then
                 local screen, onScreen = camera:WorldToViewportPoint(root.Position)
                 if onScreen and screen.Z > 0 then
                     local dest = Vector2.new(screen.X, screen.Y)
