@@ -225,7 +225,7 @@ do
     footer.Size = UDim2.new(1, -48, 0, 14)
     footer.BackgroundTransparency = 1
     footer.Font = Enum.Font.Gotham
-    footer.Text = "XOSE  •  protected session"
+    footer.Text = "XOSE  |  protected session"
     footer.TextColor3 = Color3.fromRGB(105, 105, 114)
     footer.TextSize = 9
     footer.TextXAlignment = Enum.TextXAlignment.Left
@@ -366,17 +366,17 @@ pcall(function()
 end)
 --// XC UI layer
 local XCIcons = {
-    Combat = "⌁",
-    Visuals = "◉",
-    Players = "♙",
-    World = "◈",
-    Movement = "↯",
-    Misc = "⚙",
-    Config = "▣",
-    Scripts = "⌘",
-    Search = "⌕",
-    Settings = "⚙",
-    Info = "ⓘ",
+    Combat = "C",
+    Visuals = "V",
+    Players = "P",
+    World = "W",
+    Movement = "M",
+    Misc = "M",
+    Config = "CFG",
+    Scripts = "S",
+    Search = "",
+    Settings = "SET",
+    Info = "I",
 }
 
 function XCIcon(parent, glyph, size, color)
@@ -384,7 +384,7 @@ function XCIcon(parent, glyph, size, color)
     label.Name = "XCIcon"
     label.BackgroundTransparency = 1
     label.Size = UDim2.new(0, size or 18, 0, size or 18)
-    label.Text = glyph or "•"
+    label.Text = glyph or "."
     label.Font = Enum.Font.GothamBold
     label.TextSize = math.max(12, math.floor((size or 18) * 0.78))
     label.TextColor3 = color or Color3.fromRGB(152, 204, 0)
@@ -416,15 +416,15 @@ local XCConfig = {
     customHandsYaw = 0,
     customHandsRoll = 0,
     uiScale = 1.0,
-    menuThemePreset = "Liquid Glass",
+    menuThemePreset = "Gamesense",
     visualLookPreset = "Custom",
     menuTransparency = 0,
     menuGlassEnabled = true,
-    menuGlassStrength = 0.7,
-    menuAccentR = 126, menuAccentG = 139, menuAccentB = 255,
-    menuBackgroundR = 16, menuBackgroundG = 17, menuBackgroundB = 26,
-    menuPanelR = 25, menuPanelG = 26, menuPanelB = 38,
-    menuTextR = 238, menuTextG = 239, menuTextB = 249,
+    menuGlassStrength = 0.58,
+    menuAccentR = 152, menuAccentG = 204, menuAccentB = 0,
+    menuBackgroundR = 17, menuBackgroundG = 17, menuBackgroundB = 17,
+    menuPanelR = 12, menuPanelG = 12, menuPanelB = 12,
+    menuTextR = 235, menuTextG = 235, menuTextB = 235,
     linkMenuAndEspColor = false,
     espVisibleR = 152, espVisibleG = 204, espVisibleB = 0,
     espHiddenR = 112, espHiddenG = 116, espHiddenB = 122,
@@ -440,7 +440,10 @@ local XCConfig = {
     watermarkShowFPS = true,
     watermarkShowPing = true,
     watermarkShowName = false,
-    watermarkText = "XC",
+    watermarkText = "XOSE",
+    watermarkScale = 1.0,
+    watermarkOpacity = 0.88,
+    watermarkGlassStrength = 0.86,
     aimbotEnabled = false,
     predictionEnabled = true,
     silentAimEnabled = false,
@@ -917,6 +920,9 @@ local function xcApplyConfigValues(data, skipPublicSelection)
                     if value == value and math.abs(value) <= 1000000 then
                         if key == "uiScale" then value = math.clamp(value, 0.65, 1.25)
                         elseif key == "menuTransparency" then value = math.clamp(value, 0, 0.45)
+                        elseif key == "watermarkScale" then value = math.clamp(value, 0.70, 1.80)
+                        elseif key == "watermarkOpacity" then value = math.clamp(value, 0.35, 1)
+                        elseif key == "watermarkGlassStrength" then value = math.clamp(value, 0, 1)
                         elseif key:match("[RGB]$") and (key:find("Color") or key:find("Accent")
                             or key:find("Background") or key:find("Panel") or key:find("Text")
                             or key:find("Visible") or key:find("Hidden") or key:find("grenade")
@@ -1016,6 +1022,25 @@ if sharedXCEnv then
     else
         sharedXCEnv.XCSharedConfig = XCConfig
     end
+
+    -- One-time migration for the old stock Liquid Glass defaults. Preserve
+    -- deliberate custom themes while making reinjection adopt the new compact
+    -- gamesense-inspired XOSE shell.
+    if rawget(sharedXCEnv, "XOSE_GS_UI_V2") ~= true then
+        local legacyDefault = tostring(XCConfig.menuThemePreset or "") == "Liquid Glass"
+            and tonumber(XCConfig.menuAccentR) == 126
+            and tonumber(XCConfig.menuAccentG) == 139
+            and tonumber(XCConfig.menuAccentB) == 255
+        if legacyDefault then
+            XCConfig.menuThemePreset = "Gamesense"
+            XCConfig.menuAccentR, XCConfig.menuAccentG, XCConfig.menuAccentB = 152, 204, 0
+            XCConfig.menuBackgroundR, XCConfig.menuBackgroundG, XCConfig.menuBackgroundB = 17, 17, 17
+            XCConfig.menuPanelR, XCConfig.menuPanelG, XCConfig.menuPanelB = 12, 12, 12
+            XCConfig.menuTextR, XCConfig.menuTextG, XCConfig.menuTextB = 235, 235, 235
+            XCConfig.menuGlassStrength = 0.58
+        end
+        sharedXCEnv.XOSE_GS_UI_V2 = true
+    end
 end
 
 -- A reinjection must start from safe toggle defaults. Numeric/user settings
@@ -1038,6 +1063,9 @@ end
 XCConfig.weaponEspScale = math.clamp(tonumber(XCConfig.weaponEspScale) or 1, 0.75, 1.5)
 XCConfig.uiScale = math.clamp(tonumber(XCConfig.uiScale) or 1, 0.65, 1.25)
 XCConfig.menuTransparency = math.clamp(tonumber(XCConfig.menuTransparency) or 0, 0, 0.45)
+XCConfig.watermarkScale = math.clamp(tonumber(XCConfig.watermarkScale) or 1, 0.70, 1.80)
+XCConfig.watermarkOpacity = math.clamp(tonumber(XCConfig.watermarkOpacity) or 0.88, 0.35, 1)
+XCConfig.watermarkGlassStrength = math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86, 0, 1)
 for _, colorKey in ipairs({
     "menuAccentR", "menuAccentG", "menuAccentB", "menuBackgroundR", "menuBackgroundG", "menuBackgroundB",
     "menuPanelR", "menuPanelG", "menuPanelB", "menuTextR", "menuTextG", "menuTextB",
@@ -10365,54 +10393,89 @@ watermarkGui.IgnoreGuiInset = true
 watermarkGui.Parent = targetGui
 
 local wmCard = Instance.new("Frame", watermarkGui)
-wmCard.Position = UDim2.new(0, 14, 0, 14)
-wmCard.Size = UDim2.new(0, 0, 0, 22)
+wmCard.Name = "WatermarkCard"
+wmCard.Position = UDim2.new(0, 16, 0, 16)
+wmCard.Size = UDim2.new(0, 0, 0, 32)
 wmCard.AutomaticSize = Enum.AutomaticSize.X
-wmCard.BackgroundColor3 = currentTheme.Background
+wmCard.BackgroundColor3 = currentTheme.Background:Lerp(Color3.new(0, 0, 0), 0.08)
+wmCard.BackgroundTransparency = 0.14
 wmCard.BorderSizePixel = 0
-Instance.new("UICorner", wmCard).CornerRadius = UDim.new(0, 5)
+Instance.new("UICorner", wmCard).CornerRadius = UDim.new(0, 7)
 
 local wmStroke = Instance.new("UIStroke", wmCard)
-wmStroke.Color = currentTheme.Border
-wmStroke.Thickness = 1.0
+wmStroke.Name = "GlassRim"
+wmStroke.Color = currentTheme.TextPrimary:Lerp(currentTheme.Accent, 0.28)
+wmStroke.Thickness = 1
+wmStroke.Transparency = 0.48
+
+do
+    local glass = Instance.new("UIGradient", wmCard)
+    glass.Name = "WatermarkGlass"
+    glass.Rotation = 88
+    glass.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(0.48, Color3.fromRGB(228, 232, 238)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(184, 190, 198)),
+    })
+    glass.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.18),
+        NumberSequenceKeypoint.new(0.22, 0.38),
+        NumberSequenceKeypoint.new(0.68, 0.70),
+        NumberSequenceKeypoint.new(1, 0.84),
+    })
+end
+
+do
+    local scaleObject = Instance.new("UIScale", wmCard)
+    scaleObject.Name = "WatermarkScale"
+    scaleObject.Scale = 1
+end
 
 local wmPad = Instance.new("UIPadding", wmCard)
-wmPad.PaddingLeft = UDim.new(0, 8)
-wmPad.PaddingRight = UDim.new(0, 8)
+wmPad.PaddingLeft = UDim.new(0, 11)
+wmPad.PaddingRight = UDim.new(0, 11)
 
 local wmLayout = Instance.new("UIListLayout", wmCard)
 wmLayout.FillDirection = Enum.FillDirection.Horizontal
 wmLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-wmLayout.Padding = UDim.new(0, 5)
+wmLayout.Padding = UDim.new(0, 7)
 
 local wmDot = Instance.new("Frame", wmCard)
-wmDot.Size = UDim2.new(0, 5, 0, 5)
+wmDot.Name = "StatusDot"
+wmDot.Size = UDim2.fromOffset(6, 6)
 wmDot.BackgroundColor3 = currentTheme.Accent
 wmDot.BorderSizePixel = 0
 Instance.new("UICorner", wmDot).CornerRadius = UDim.new(1, 0)
+do
+    local dotStroke = Instance.new("UIStroke", wmDot)
+    dotStroke.Color = currentTheme.Accent:Lerp(Color3.new(1, 1, 1), 0.30)
+    dotStroke.Transparency = 0.30
+    dotStroke.Thickness = 1
+end
 
 local wmTitle = Instance.new("TextLabel", wmCard)
 wmTitle.AutomaticSize = Enum.AutomaticSize.X
 wmTitle.Size = UDim2.new(0, 0, 1, 0)
 wmTitle.BackgroundTransparency = 1
-wmTitle.Text = "XC"
-wmTitle.TextColor3 = currentTheme.Accent
-wmTitle.TextSize = 9
+wmTitle.Text = "XOSE"
+wmTitle.TextColor3 = currentTheme.TextPrimary
+wmTitle.TextSize = 11
 wmTitle.Font = Enum.Font.GothamBold
 
 local wmDivider = Instance.new("Frame", wmCard)
-wmDivider.Size = UDim2.new(0, 1, 0, 10)
+wmDivider.Size = UDim2.fromOffset(1, 14)
 wmDivider.BackgroundColor3 = currentTheme.Border
+wmDivider.BackgroundTransparency = 0.20
 wmDivider.BorderSizePixel = 0
 
 local wmMetrics = Instance.new("TextLabel", wmCard)
 wmMetrics.AutomaticSize = Enum.AutomaticSize.X
 wmMetrics.Size = UDim2.new(0, 0, 1, 0)
 wmMetrics.BackgroundTransparency = 1
-wmMetrics.Text = "FPS: 60 | PING: 0ms"
+wmMetrics.Text = "60 FPS   0 MS"
 wmMetrics.TextColor3 = currentTheme.TextSecondary
-wmMetrics.TextSize = 8.5
-wmMetrics.Font = Enum.Font.GothamBold
+wmMetrics.TextSize = 10
+wmMetrics.Font = Enum.Font.GothamMedium
 
 local fpsCounter = 0
 local lastFpsUpdate = tick()
@@ -13996,9 +14059,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             end)
         end
         local parts = {}
-        if XCConfig.watermarkShowFPS then table.insert(parts, string.format("FPS: %d", currentFps)) end
-        if XCConfig.watermarkShowPing then table.insert(parts, string.format("PING: %dms", pingVal)) end
-        wmMetrics.Text = table.concat(parts, " | ")
+        if XCConfig.watermarkShowFPS then table.insert(parts, string.format("%d FPS", currentFps)) end
+        if XCConfig.watermarkShowPing then table.insert(parts, string.format("%d MS", pingVal)) end
+        wmMetrics.Text = table.concat(parts, "   ")
         fpsCounter = 0
         lastFpsUpdate = nowTick
     end
@@ -14008,12 +14071,26 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if interfaceRefreshAccumulator >= 0.1 then
         interfaceRefreshAccumulator = 0
         wmCard.Visible = XCConfig.watermarkEnabled
-        wmTitle.Text = XCConfig.watermarkText or "XC"
+        wmTitle.Text = XCConfig.watermarkText or "XOSE"
         if XCConfig.watermarkShowName then
-            wmTitle.Text = (XCConfig.watermarkText or "XC") .. " • " .. player.Name
+            wmTitle.Text = (XCConfig.watermarkText or "XOSE") .. "  |  " .. player.Name
         end
         wmMetrics.Visible = XCConfig.watermarkShowFPS or XCConfig.watermarkShowPing
         wmDivider.Visible = wmMetrics.Visible
+
+        local watermarkScale = wmCard:FindFirstChild("WatermarkScale")
+        if watermarkScale and watermarkScale:IsA("UIScale") then
+            watermarkScale.Scale = math.clamp(tonumber(XCConfig.watermarkScale) or 1, 0.70, 1.80)
+        end
+        local watermarkGlass = math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86, 0, 1)
+        local watermarkOpacity = math.clamp(tonumber(XCConfig.watermarkOpacity) or 0.88, 0.35, 1)
+        wmCard.BackgroundColor3 = currentTheme.Background:Lerp(Color3.new(0, 0, 0), 0.08)
+        wmCard.BackgroundTransparency = math.clamp((1 - watermarkOpacity) + watermarkGlass * 0.09, 0.04, 0.58)
+        wmStroke.Color = currentTheme.TextPrimary:Lerp(currentTheme.Accent, 0.28)
+        wmStroke.Transparency = math.clamp(0.82 - watermarkGlass * 0.43, 0.28, 0.82)
+        wmDot.BackgroundColor3 = currentTheme.Accent
+        wmTitle.TextColor3 = currentTheme.TextPrimary
+        wmMetrics.TextColor3 = currentTheme.TextSecondary
 
         if fovFrame then
             local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
@@ -14103,8 +14180,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     end
 
     -- Mobile keeps the proven generic RenderStepped path. Desktop projection
-    -- is rendered by the camera-priority binding below so mouse-look cannot
-    -- leave 2D ESP one camera frame behind.
+    -- is rendered by the Last-priority binding below so firearm camera/recoil
+    -- callbacks cannot leave 2D ESP on an earlier camera sample.
     if UserInputService.TouchEnabled then
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
@@ -14189,12 +14266,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
 
--- ESP SYNC V2 FINAL PROJECTION -----------------------------------------------
--- BloxStrike can still adjust Camera.CFrame/FOV from ordinary RenderStepped
--- callbacks after Roblox's Camera-priority callbacks.  A Camera+1 binding can
--- therefore project ESP from an earlier camera state.  The final desktop pass
--- is registered after XOSE's main camera/aim loop and reads CurrentCamera again
--- immediately before projection.
+-- ESP SYNC V3 WEAPON CAMERA FIX ---------------------------------------------
+-- Firearm viewmodels can attach camera/recoil callbacks after XOSE is injected.
+-- Registration order then makes an ordinary RenderStepped "final" pass stop
+-- being final when a gun is equipped.  Desktop projection is bound at Roblox's
+-- Last render priority so knife/gun/viewmodel camera changes settle first.
 function resetXCEspProjectionCache()
     for _, esp in pairs(screenEspCache) do
         esp.SmoothRect = nil
@@ -14251,7 +14327,7 @@ if not UserInputService.TouchEnabled then
     -- Remove a renderer left by an older injected build before installing v2.
     pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
 
-    table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Last.Value, function(dt)
         if not xcSessionActive() then return end
 
         local finalCamera = Workspace.CurrentCamera or camera
@@ -14269,18 +14345,23 @@ if not UserInputService.TouchEnabled then
             XCFeatureState.espProjectionViewport = Vector2.new(viewport.X, viewport.Y)
         end
 
-        -- One authoritative desktop order: use the game's latest camera sample,
-        -- then apply every XOSE camera transform before any screen projection.
+        -- Firearm camera/recoil code is allowed to settle before this priority.
+        -- Camera controllers are isolated from ESP so one weapon-specific error
+        -- cannot freeze every overlay object.
         local nativeFov = camera.FieldOfView
-        applyXCCameraFov(dt, nativeFov)
-        applyThirdPerson(dt)
-
-        -- Triggerbot uses the same final camera transform as the visible frame.
-        pcall(runXCTriggerbot)
-
-        if XCConfig.customScopeEnabled then
-            pcall(updateCustomScope)
+        local fovOk, fovErr = pcall(applyXCCameraFov, dt, nativeFov)
+        if not fovOk then
+            local now = os.clock()
+            if now - (XCFeatureState.pcCameraErrorAt or -math.huge) >= 2 then
+                XCFeatureState.pcCameraErrorAt = now
+                warn("[XOSE] PC FOV stage failed: " .. tostring(fovErr))
+            end
         end
+        pcall(applyThirdPerson, dt)
+
+        -- Triggerbot and custom scope read exactly the same settled camera.
+        pcall(runXCTriggerbot)
+        if XCConfig.customScopeEnabled then pcall(updateCustomScope) end
 
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
@@ -14292,12 +14373,10 @@ if not UserInputService.TouchEnabled then
             hideTacticalOverlay()
         end
 
-        -- Tracers are screen-space ESP as well; project them from this exact
-        -- camera frame instead of the 30-FPS heavy visual/chams refresh.
         pcall(renderXCTracersFrame)
-    end))
+    end)
 end
---// END ESP SYNC V2 ----------------------------------------------------------
+--// END ESP SYNC V3 ----------------------------------------------------------
 
 -- Late first-person/viewmodel pass. It is intentionally registered after the
 -- main camera loop so the game's native camera/viewmodel pose is already
@@ -15823,14 +15902,14 @@ function buildXCUI()
     main.BorderColor3 = C.Border
     main.BorderSizePixel = 0
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 12)
+    mainCorner.CornerRadius = UDim.new(0, 5)
     mainCorner.Parent = main
     main.Active = true
     main.Parent = screenGui
 
     local mainStroke = Instance.new("UIStroke")
     mainStroke.Color = C.Black
-    mainStroke.Thickness = 2
+    mainStroke.Thickness = 1
     mainStroke.Parent = main
 
     -- Static layered highlights: no per-frame blur or viewport captures.
@@ -15904,8 +15983,8 @@ function buildXCUI()
     end
 
     local topLine = Instance.new("Frame")
-    topLine.Size = UDim2.new(1, -24, 0, 1)
-    topLine.Position = UDim2.fromOffset(12, 3)
+    topLine.Size = UDim2.new(1, -16, 0, 2)
+    topLine.Position = UDim2.fromOffset(8, 2)
     topLine.BorderSizePixel = 0
     topLine.BackgroundColor3 = C.Lime
     topLine.ZIndex = 40
@@ -15926,10 +16005,10 @@ function buildXCUI()
     brand.Position = UDim2.fromOffset(16, 12)
     brand.Size = UDim2.fromOffset(isMobileLayout and 106 or 136, 28)
     brand.BackgroundTransparency = 1
-    brand.Text = isMobileLayout and "XC /" or "XC  /  PRISM"
-    brand.TextColor3 = C.White
+    brand.Text = "XOSE"
+    brand.TextColor3 = C.Lime
     brand.Font = Enum.Font.GothamBold
-    brand.TextSize = 16
+    brand.TextSize = 15
     brand.TextXAlignment = Enum.TextXAlignment.Left
     brand.Parent = header
     local brandAccent = Instance.new("Frame")
@@ -15944,7 +16023,7 @@ function buildXCUI()
     pageTitle.BackgroundTransparency = 1
     pageTitle.TextColor3 = C.White
     pageTitle.Font = Enum.Font.GothamBold
-    pageTitle.TextSize = 16
+    pageTitle.TextSize = 14
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.Parent = header
     local pageSubtitle = Instance.new("TextLabel")
@@ -15953,7 +16032,7 @@ function buildXCUI()
     pageSubtitle.BackgroundTransparency = 1
     pageSubtitle.TextColor3 = C.Muted
     pageSubtitle.Font = Enum.Font.GothamMedium
-    pageSubtitle.TextSize = 11
+    pageSubtitle.TextSize = 9.5
     pageSubtitle.TextTruncate = Enum.TextTruncate.AtEnd
     pageSubtitle.TextXAlignment = Enum.TextXAlignment.Left
     pageSubtitle.Parent = header
@@ -15963,13 +16042,13 @@ function buildXCUI()
     closeMenuButton.Size = UDim2.fromOffset(25, 25)
     closeMenuButton.BackgroundColor3 = C.Control2
     closeMenuButton.BorderSizePixel = 0
-    closeMenuButton.Text = "×"
+    closeMenuButton.Text = "X"
     closeMenuButton.TextColor3 = C.Muted
     closeMenuButton.Font = Enum.Font.GothamBold
     closeMenuButton.TextSize = 16
     closeMenuButton.ZIndex = 30
     closeMenuButton.Parent = header
-    Instance.new("UICorner", closeMenuButton).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", closeMenuButton).CornerRadius = UDim.new(0, 3)
 
     local dragBar = Instance.new("Frame")
     dragBar.Name = "DragBar"
@@ -15992,7 +16071,7 @@ function buildXCUI()
     sidebar.ScrollBarImageColor3 = C.Lime
     sidebar.CanvasSize = UDim2.new()
     sidebar.Parent = main
-    Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 4)
     local sidebarRim = Instance.new("UIStroke", sidebar)
     registerGlassSurface(sidebar, "chrome", sidebarRim)
 
@@ -16078,7 +16157,7 @@ function buildXCUI()
     footer.Size = UDim2.new(1, -28, 0, 18)
     footer.Position = UDim2.new(0, 14, 1, -22)
     footer.BackgroundTransparency = 1
-    footer.Text = "XC PRISM    •    LOCAL SESSION                                          CUSTOM GLASS  /  QUICK SEARCH"
+    footer.Text = "XOSE    LOCAL SESSION                                           GLASS UI    QUICK SEARCH"
     footer.TextColor3 = C.Muted
     footer.Font = Enum.Font.Gotham
     footer.TextSize = 9
@@ -16111,7 +16190,7 @@ function buildXCUI()
     local searchIcon = Instance.new("TextLabel")
     searchIcon.Size = UDim2.fromOffset(30, 30)
     searchIcon.BackgroundTransparency = 1
-    searchIcon.Text = "⌕"
+    searchIcon.Text = ""
     searchIcon.TextColor3 = C.Lime
     searchIcon.Font = Enum.Font.GothamBold
     searchIcon.TextSize = 19
@@ -16133,7 +16212,7 @@ function buildXCUI()
     clearSearch.Size = UDim2.fromOffset(30, 30)
     clearSearch.Position = UDim2.new(1, -31, 0, 0)
     clearSearch.BackgroundTransparency = 1
-    clearSearch.Text = "×"
+    clearSearch.Text = "X"
     clearSearch.TextColor3 = C.Muted
     clearSearch.Font = Enum.Font.GothamBold
     clearSearch.TextSize = 15
@@ -17095,7 +17174,7 @@ function buildXCUI()
             close.Size = UDim2.fromOffset(22, 20)
             close.Position = UDim2.new(1, -25, 0, 2)
             close.BackgroundTransparency = 1
-            close.Text = "×"
+            close.Text = "X"
             close.TextColor3 = C.Muted
             close.Font = Enum.Font.Code
             close.TextSize = 16
@@ -17568,7 +17647,7 @@ function buildXCUI()
             button.TextColor3 = C.Muted
             button.Font = Enum.Font.GothamBold
             button.TextSize = 10
-            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
             button.AutoButtonColor = false
             categoryButtons[modeName] = button
             button.Activated:Connect(function()
@@ -17644,7 +17723,7 @@ function buildXCUI()
         clear.Position = UDim2.new(1, -258, 0, 141)
         clear.BackgroundColor3 = C.Control
         clear.BorderSizePixel = 0
-        clear.Text = "×"
+        clear.Text = "X"
         clear.Font = Enum.Font.GothamMedium
         clear.TextSize = 18
         clear.TextColor3 = C.Muted
@@ -17805,7 +17884,7 @@ function buildXCUI()
             button.Text = delta < 0 and "‹" or "›"
             button.TextSize = 18
             button.TextColor3 = C.Text
-            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
             pagerButtons[index] = button
             button.Activated:Connect(function()
                 local nextPage = math.clamp(galleryState.Page + delta, 1, galleryState.Pages or 1)
@@ -18594,9 +18673,11 @@ function buildXCUI()
         scheduleConfigAutoSave(); return true
     end
 
-    local ICON_OFF = Color3.fromRGB(88, 88, 88)
-    local ICON_HOVER = Color3.fromRGB(155, 155, 155)
-    local ICON_ON = C.White
+    -- XOSE_GS_NAV_V2: compact competitive line-art navigation inspired by
+    -- classic skeet/game UI proportions without copying branded image assets.
+    local ICON_OFF = Color3.fromRGB(92, 92, 92)
+    local ICON_HOVER = Color3.fromRGB(178, 178, 178)
+    local ICON_ON = C.Lime
 
     local function iconLine(parent, x, y, w, h, color, rotation)
         local line = Instance.new("Frame")
@@ -18619,14 +18700,11 @@ function buildXCUI()
         circle.BackgroundTransparency = filled and 0 or 1
         circle.BorderSizePixel = 0
         circle.Parent = parent
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(1, 0)
-        corner.Parent = circle
+        Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
         if not filled then
-            local stroke = Instance.new("UIStroke")
+            local stroke = Instance.new("UIStroke", circle)
             stroke.Color = color
-            stroke.Thickness = 1.4
-            stroke.Parent = circle
+            stroke.Thickness = 1.25
         end
         return circle
     end
@@ -18634,69 +18712,85 @@ function buildXCUI()
     local function drawTabIcon(parent, kind, color)
         local root = Instance.new("Frame")
         root.Name = "VectorIcon"
-        root.Size = UDim2.fromOffset(22, 22)
+        root.Size = UDim2.fromOffset(24, 24)
         root.Position = UDim2.fromScale(0.5, 0.5)
         root.AnchorPoint = Vector2.new(0.5, 0.5)
         root.BackgroundTransparency = 1
         root.Parent = parent
-        local cx, cy = 11, 11
+        local cx, cy = 12, 12
 
         if kind == "target" then
-            iconCircle(root, cx, cy, 14, color, false)
-            iconCircle(root, cx, cy, 5, color, false)
-            iconLine(root, cx, 2.5, 1.5, 5, color)
-            iconLine(root, cx, 19.5, 1.5, 5, color)
-            iconLine(root, 2.5, cy, 5, 1.5, color)
-            iconLine(root, 19.5, cy, 5, 1.5, color)
+            -- Four bracket reticle + center point.
+            iconLine(root, 5.2, 6.2, 6, 1.3, color)
+            iconLine(root, 4.8, 8.5, 1.3, 5.6, color)
+            iconLine(root, 18.8, 6.2, 6, 1.3, color)
+            iconLine(root, 19.2, 8.5, 1.3, 5.6, color)
+            iconLine(root, 5.2, 17.8, 6, 1.3, color)
+            iconLine(root, 4.8, 15.5, 1.3, 5.6, color)
+            iconLine(root, 18.8, 17.8, 6, 1.3, color)
+            iconLine(root, 19.2, 15.5, 1.3, 5.6, color)
+            iconCircle(root, cx, cy, 3.2, color, true)
         elseif kind == "antiaim" then
-            iconCircle(root, cx, cy, 15, color, false)
-            iconLine(root, 7, 9, 7, 1.5, color, -32)
-            iconLine(root, 15, 9, 7, 1.5, color, 32)
-            iconLine(root, cx, 15, 1.5, 7, color)
+            -- Mirrored movement/desync chevrons.
+            iconLine(root, 7.0, 9.0, 8.0, 1.5, color, -38)
+            iconLine(root, 7.0, 14.5, 8.0, 1.5, color, 38)
+            iconLine(root, 17.0, 9.0, 8.0, 1.5, color, 38)
+            iconLine(root, 17.0, 14.5, 8.0, 1.5, color, -38)
+            iconLine(root, cx, cy, 1.3, 13, color)
         elseif kind == "visuals" then
-            iconCircle(root, cx, cy, 7, color, false)
-            for _, angle in ipairs({0, 45, 90, 135}) do
-                iconLine(root, cx, 2, 1.5, 4, color, angle)
-                iconLine(root, cx, 20, 1.5, 4, color, angle)
-            end
-        elseif kind == "world" then
-            iconCircle(root, cx, cy, 15, color, false)
-            iconLine(root, cx, cy, 1.5, 13, color)
-            iconLine(root, cx, cy, 13, 1.5, color)
-            iconCircle(root, cx, cy, 8, color, false)
-        elseif kind == "misc" then
-            iconCircle(root, cx, cy, 9, color, false)
-            iconCircle(root, cx, cy, 3, color, false)
-            for _, angle in ipairs({0, 45, 90, 135}) do iconLine(root, cx, 2, 3, 5, color, angle) end
-        elseif kind == "settings" then
-            iconLine(root, 11, 5, 16, 1.5, color)
-            iconLine(root, 11, 11, 16, 1.5, color)
-            iconLine(root, 11, 17, 16, 1.5, color)
-            iconCircle(root, 7, 5, 4, color, true)
-            iconCircle(root, 16, 11, 4, color, true)
-            iconCircle(root, 10, 17, 4, color, true)
-        elseif kind == "skins" then
-            iconLine(root, 12, 10, 14, 2, color, -42)
-            iconLine(root, 6, 16, 7, 2, color, 42)
-            iconLine(root, 8, 17.5, 6, 2, color, -42)
+            -- Eye silhouette.
+            iconLine(root, 8.0, 7.3, 8.5, 1.35, color, -20)
+            iconLine(root, 16.0, 7.3, 8.5, 1.35, color, 20)
+            iconLine(root, 8.0, 16.7, 8.5, 1.35, color, 20)
+            iconLine(root, 16.0, 16.7, 8.5, 1.35, color, -20)
+            iconCircle(root, cx, cy, 6.2, color, false)
+            iconCircle(root, cx, cy, 2.3, color, true)
         elseif kind == "players" then
-            iconCircle(root, cx, 6, 7, color, false)
-            iconLine(root, cx, 14, 10, 1.6, color)
-            iconLine(root, 7, 17, 1.7, 7, color, 18)
-            iconLine(root, 15, 17, 1.7, 7, color, -18)
+            iconCircle(root, cx, 7.0, 6.5, color, false)
+            iconLine(root, cx, 13.3, 10.5, 1.35, color)
+            iconLine(root, 8.2, 17.0, 1.4, 7.5, color, 28)
+            iconLine(root, 15.8, 17.0, 1.4, 7.5, color, -28)
+        elseif kind == "world" then
+            iconCircle(root, cx, cy, 15.5, color, false)
+            iconLine(root, cx, cy, 1.2, 14.2, color)
+            iconLine(root, cx, cy, 14.2, 1.2, color)
+            iconLine(root, 7.2, cy, 1.1, 12.5, color, -24)
+            iconLine(root, 16.8, cy, 1.1, 12.5, color, 24)
+        elseif kind == "skins" then
+            -- Slim knife silhouette.
+            iconLine(root, 14.2, 8.7, 13.5, 2.0, color, -42)
+            iconLine(root, 7.0, 16.1, 7.2, 2.1, color, -42)
+            iconLine(root, 5.3, 18.4, 5.3, 1.3, color, 48)
+            iconLine(root, 9.2, 14.1, 5.5, 1.2, color, 48)
+        elseif kind == "misc" then
+            iconCircle(root, cx, cy, 8.5, color, false)
+            iconCircle(root, cx, cy, 2.7, color, false)
+            for _, angle in ipairs({0, 45, 90, 135}) do
+                iconLine(root, cx, 3.2, 2.4, 4.1, color, angle)
+                iconLine(root, cx, 20.8, 2.4, 4.1, color, angle)
+            end
+        elseif kind == "settings" then
+            iconLine(root, cx, 6.0, 16.0, 1.25, color)
+            iconLine(root, cx, 12.0, 16.0, 1.25, color)
+            iconLine(root, cx, 18.0, 16.0, 1.25, color)
+            iconCircle(root, 8.0, 6.0, 4.0, color, true)
+            iconCircle(root, 16.5, 12.0, 4.0, color, true)
+            iconCircle(root, 10.5, 18.0, 4.0, color, true)
         elseif kind == "configs" then
             local box = Instance.new("Frame")
-            box.Size = UDim2.fromOffset(14, 16)
-            box.Position = UDim2.fromOffset(4, 3)
+            box.AnchorPoint = Vector2.new(0.5, 0.5)
+            box.Position = UDim2.fromOffset(cx, cy)
+            box.Size = UDim2.fromOffset(14.5, 17.5)
             box.BackgroundTransparency = 1
+            box.BorderSizePixel = 0
             box.Parent = root
-            local stroke = Instance.new("UIStroke")
+            Instance.new("UICorner", box).CornerRadius = UDim.new(0, 1)
+            local stroke = Instance.new("UIStroke", box)
             stroke.Color = color
-            stroke.Thickness = 1.4
-            stroke.Parent = box
-            iconLine(root, 8, 8, 7, 1.4, color)
-            iconLine(root, 8, 12, 7, 1.4, color)
-            iconLine(root, 8, 16, 7, 1.4, color)
+            stroke.Thickness = 1.25
+            iconLine(root, 10.0, 8.3, 6.5, 1.25, color)
+            iconLine(root, 12.0, 12.0, 10.0, 1.25, color)
+            iconLine(root, 12.0, 15.7, 10.0, 1.25, color)
         end
         return root
     end
@@ -18732,7 +18826,7 @@ function buildXCUI()
         for pageName, page in pairs(pages) do page.Visible = pageName == name end
         for tabName, data in pairs(tabData) do
             data.active.Visible = tabName == name
-            data.button.BackgroundColor3 = tabName == name and C.Lime:Lerp(C.Control, 0.84) or C.Sidebar
+            data.button.BackgroundColor3 = tabName == name and C.Control2:Lerp(C.Lime, 0.08) or C.Sidebar
             data.button.BackgroundTransparency = tabName == name and 0 or 1
             data.label.TextColor3 = tabName == name and C.White or C.Muted
             recolorTabIcon(data.icon, tabName == name and C.Lime or C.Muted)
@@ -18759,8 +18853,8 @@ function buildXCUI()
         holder.BackgroundTransparency = 1
         holder.Parent = sidebar
         local active = Instance.new("Frame")
-        active.Size = UDim2.fromOffset(3, 24)
-        active.Position = UDim2.new(0, 0, 0.5, -12)
+        active.Size = UDim2.fromOffset(2, 22)
+        active.Position = UDim2.new(0, 0, 0.5, -11)
         active.BackgroundColor3 = C.Lime
         active.BorderSizePixel = 0
         active.Visible = false
@@ -18772,7 +18866,7 @@ function buildXCUI()
         button.Text = ""
         button.AutoButtonColor = false
         button.Parent = holder
-        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
         local icon = drawTabIcon(button, info[2], ICON_OFF)
         icon.AnchorPoint = isMobileLayout and Vector2.new(0.5, 0.5) or Vector2.new(0, 0.5)
         icon.Position = isMobileLayout and UDim2.new(0.5, 0, 0, 14) or UDim2.new(0, 9, 0.5, 0)
@@ -18780,7 +18874,7 @@ function buildXCUI()
         label.Position = UDim2.fromOffset(37, 0)
         label.Size = UDim2.new(1, -40, 1, 0)
         label.BackgroundTransparency = 1
-        label.Text = info[1] == "AntiAim" and "Movement" or info[1]
+        label.Text = string.lower(info[1] == "AntiAim" and "Movement" or info[1])
         label.Visible = true
         if isMobileLayout then
             label.Position = UDim2.new(0, 1, 1, -14)
@@ -19418,6 +19512,9 @@ function buildXCUI()
     toggle(L, "Show FPS", "watermarkShowFPS")
     toggle(L, "Show ping", "watermarkShowPing")
     toggle(L, "Show name", "watermarkShowName")
+    addSlider(L, "Watermark size", "watermarkScale", 0.70, 1.80, 0.05, "x")
+    addSlider(L, "Watermark opacity", "watermarkOpacity", 0.35, 1.00, 0.05, "")
+    addSlider(L, "Watermark glass", "watermarkGlassStrength", 0, 1, 0.05, "")
     addChoice(L, "Menu key", "menuKey", {"RightShift", "LeftControl", "RightControl", "F6", "F7", "F8", "F9", "F10"})
     addNote(L, "Status badges appear only for WAIT, FALL or ERR; active modules use the blue switch.")
 
@@ -19441,18 +19538,18 @@ function buildXCUI()
     local editorPadding=Instance.new("UIPadding",editorValue);editorPadding.PaddingLeft=UDim.new(0,7);editorPadding.PaddingRight=UDim.new(0,7)
     refreshAdvancedEditor=function()
         local key=XCConfig.advancedSettingKey;local value=XCConfig[key]
-        editorType.Text=string.format("%s  •  %s",tostring(key),type(value):upper());editorValue.Text=tostring(value)
+        editorType.Text=string.format("%s  |  %s",tostring(key),type(value):upper());editorValue.Text=tostring(value)
     end
     refreshers.advancedCategory=refreshers.advancedCategory or {};refreshers.advancedSettingKey=refreshers.advancedSettingKey or {}
     table.insert(refreshers.advancedCategory,refreshAdvancedEditor);table.insert(refreshers.advancedSettingKey,refreshAdvancedEditor)
     local function commitAdvancedEditor()
         local key=XCConfig.advancedSettingKey;local current=XCConfig[key];local valueType=type(current)
         local raw=editorValue.Text:match("^%s*(.-)%s*$");local parsed
-        if valueType=="number" then parsed=tonumber(raw);if not parsed then editorType.Text=key.."  •  INVALID NUMBER";return end
+        if valueType=="number" then parsed=tonumber(raw);if not parsed then editorType.Text=key.."  |  INVALID NUMBER";return end
         elseif valueType=="boolean" then local lower=raw:lower()
             if lower=="true" or lower=="1" or lower=="on" then parsed=true
             elseif lower=="false" or lower=="0" or lower=="off" then parsed=false
-            else editorType.Text=key.."  •  USE TRUE / FALSE";return end
+            else editorType.Text=key.."  |  USE TRUE / FALSE";return end
         else parsed=raw end
         if applyXCSettingRuntime(key,parsed) then refreshAdvancedEditor();XCNotify("Setting updated",key.." = "..tostring(XCConfig[key]),"success",1.4) end
     end
