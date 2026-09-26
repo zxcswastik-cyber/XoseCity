@@ -1,4 +1,4 @@
---// XOSE v76 | paged skin catalog, on-demand previews and interface refinements
+--// XOSE v77 | ESP frame synchronization and per-player fault isolation
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
     local Players = game:GetService("Players")
@@ -502,24 +502,16 @@ local XCConfig = {
     bulletFlashEnabled = true,
     weaponChamsEnabled = false,
     customScopeEnabled = false,
-    scopeRemoveOriginal = true,
+    scopeRemoveOriginal = false,
     scopeCrosshairEnabled = true,
-    scopePreset = "Reference",
     scopeDynamicGap = false,
     scopeCrosshairStyle = "Cross",
-    scopeLineFade = true,
-    scopeGlowEnabled = false,
-    scopeCenterRingEnabled = false,
-    scopeTicksEnabled = false,
-    scopeVignetteEnabled = false,
-    scopeVignetteStrength = 0.16,
-    scopeVignetteRadius = 170,
     scopeCrosshairLeft = true,
     scopeCrosshairRight = true,
     scopeCrosshairTop = true,
     scopeCrosshairBottom = true,
-    scopeCrosshairDot = false,
-    scopeCrosshairOpacity = 0.08,
+    scopeCrosshairDot = true,
+    scopeCrosshairOpacity = 0,
     scopeCrosshairOutline = false,
     scopeCrosshairOutlineThickness = 1,
     scopeCrosshairOutlineR = 0,
@@ -656,7 +648,6 @@ local XCConfig = {
 
     hitSoundPreset = "Skeet",
     hitSoundVolume = 1,
-    hitSoundPitch = 1.0,
 
     -- Kill fireflies.
     killEffectCount = 95,
@@ -709,9 +700,6 @@ local XCConfig = {
     jumpCircleStyle = "GradientWave",
 
     grenadeMaxDist = 1500,
-    grenadeOffscreenIndicators = true,
-    grenadeWarningDistance = 65,
-    grenadeCompactLabels = true,
     showGrenadePath = true,
     showMolotovRadius = true,
     showSmokeRadius = true,
@@ -868,8 +856,8 @@ local XCConfig = {
     customFovEnabled = false,
     customFov = 90,
     scopeCrosshairLength = 85,
-    scopeCrosshairThickness = 1,
-    scopeCrosshairGap = 6,
+    scopeCrosshairThickness = 2,
+    scopeCrosshairGap = 8,
     scopeCrosshairColorR = 255,
     scopeCrosshairColorG = 255,
     scopeCrosshairColorB = 255,
@@ -2452,37 +2440,11 @@ registerXCLocalHitCandidate = function(hitInstance)
         end
     end
 
-    local function emitDamage(value)
-        value = tonumber(value)
-        if value == nil or pending.KillConfirmed then return end
-        local previous = tonumber(pending.Health) or tonumber(pending.LastObservedHealth) or value
-        pending.LastObservedHealth = value
-        if value < previous then
-            local damage = previous - value
-            pending.SawDamage = true
-            pending.Health = value
-            rememberPosition()
-            if type(showHitmarker) == "function" then
-                showHitmarker(
-                    damage,
-                    pending.LastHitPosition or pending.LastPosition,
-                    pending.Player,
-                    value
-                )
-            end
-        elseif value > previous then
-            -- Healing/respawn changes the baseline so the next damage event is
-            -- never interpreted as one giant stale hit.
-            pending.Health = value
-        end
-    end
-
     if hum then
         pending.Connections[
             #pending.Connections + 1
         ] = hum.Died:Connect(function()
             rememberPosition()
-            emitDamage(hum.Health)
             XCConfirmPendingLocalKill(
                 healthKey,
                 pending,
@@ -2495,8 +2457,20 @@ registerXCLocalHitCandidate = function(hitInstance)
         ] = hum.HealthChanged:Connect(function(value)
             rememberPosition()
             value = tonumber(value)
+
             if value then
-                emitDamage(value)
+                if value
+                    < (
+                        tonumber(
+                            pending.LastObservedHealth
+                        )
+                        or value
+                    ) then
+                    pending.SawDamage = true
+                end
+
+                pending.LastObservedHealth = value
+
                 if value <= 0 then
                     XCConfirmPendingLocalKill(
                         healthKey,
@@ -2514,9 +2488,23 @@ registerXCLocalHitCandidate = function(hitInstance)
         "Health"
     ):Connect(function()
         rememberPosition()
-        local value = tonumber(targetCharacter:GetAttribute("Health"))
+
+        local value = tonumber(
+            targetCharacter:GetAttribute("Health")
+        )
         if value then
-            emitDamage(value)
+            if value
+                < (
+                    tonumber(
+                        pending.LastObservedHealth
+                    )
+                    or value
+                ) then
+                pending.SawDamage = true
+            end
+
+            pending.LastObservedHealth = value
+
             if value <= 0 then
                 XCConfirmPendingLocalKill(
                     healthKey,
@@ -2535,7 +2523,6 @@ registerXCLocalHitCandidate = function(hitInstance)
         rememberPosition()
 
         if targetCharacter:GetAttribute("Dead") == true then
-            emitDamage(getXCHealth(targetCharacter, targetPlayer, hum))
             XCConfirmPendingLocalKill(
                 healthKey,
                 pending,
@@ -2549,10 +2536,22 @@ registerXCLocalHitCandidate = function(hitInstance)
     ] = targetPlayer:GetAttributeChangedSignal(
         "Health"
     ):Connect(function()
-        rememberPosition()
-        local value = tonumber(targetPlayer:GetAttribute("Health"))
+        local value = tonumber(
+            targetPlayer:GetAttribute("Health")
+        )
         if value then
-            emitDamage(value)
+            if value
+                < (
+                    tonumber(
+                        pending.LastObservedHealth
+                    )
+                    or value
+                ) then
+                pending.SawDamage = true
+            end
+
+            pending.LastObservedHealth = value
+
             if value <= 0 then
                 XCConfirmPendingLocalKill(
                     healthKey,
@@ -2570,7 +2569,6 @@ registerXCLocalHitCandidate = function(hitInstance)
     ):Connect(function()
         if targetPlayer:GetAttribute("Dead") == true then
             rememberPosition()
-            emitDamage(getXCHealth(targetCharacter, targetPlayer, hum))
             XCConfirmPendingLocalKill(
                 healthKey,
                 pending,
@@ -2687,47 +2685,29 @@ local XCBloxStrikeCombatTeams = {
 
 function xcBloxStrikeTeamToken(owner)
     if not owner then return nil end
-
-    -- Preferred BloxStrike replication path.
     local team = owner:GetAttribute("Team")
     if type(team) == "string" and XCBloxStrikeCombatTeams[team] then
         return team
     end
-
-    -- Some desktop builds/executors expose the round team only through the
-    -- Roblox Team object. Use this only as a compatibility fallback.
-    local robloxTeam = owner.Team
-    local teamName = robloxTeam and robloxTeam.Name or nil
-    if type(teamName) == "string" and XCBloxStrikeCombatTeams[teamName] then
-        return teamName
-    end
-
     return nil
 end
 
 function xcHasActiveTeam(owner)
     if not owner then return false end
 
-    local token = xcBloxStrikeTeamToken(owner)
-    if token then return true end
-
-    -- If the local client has the strict replicated Team attribute, absence of
-    -- that same marker on another player means they are not an active combatant.
-    local localStrictTeam = player:GetAttribute("Team")
-    if type(localStrictTeam) == "string" and localStrictTeam ~= "" then
-        if XCBloxStrikeCombatTeams[localStrictTeam] then
-            return false
-        end
-        -- Alternate desktop team tokens (for example short names) still form
-        -- a valid active-player contract when both sides replicate them.
-        local ownerAttributeTeam = owner:GetAttribute("Team")
-        return type(ownerAttributeTeam) == "string" and ownerAttributeTeam ~= ""
+    -- BloxStrike replicates the actual round team through the Player's Team
+    -- attribute. The Roblox Team property can stay populated for users that
+    -- are sitting in the menu/lobby, so it is not a valid combat-state test.
+    local charactersFolder = Workspace:FindFirstChild("Characters")
+    if charactersFolder then
+        return xcBloxStrikeTeamToken(owner) ~= nil
     end
 
-    -- Desktop compatibility path for clients where the Team attribute is not
-    -- replicated but Player.Team still is.
-    local ownerTeam = owner.Team
-    return ownerTeam ~= nil and ownerTeam.Name ~= nil and ownerTeam.Name ~= ""
+    -- Generic fallback for places without BloxStrike's Characters contract.
+    local localTeam = player.Team or player:GetAttribute("Team")
+    if localTeam == nil or tostring(localTeam) == "" then return true end
+    local team = owner.Team or owner:GetAttribute("Team")
+    return team ~= nil and tostring(team) ~= ""
 end
 
 function isEntityAlive(char, hum)
@@ -2736,46 +2716,35 @@ function isEntityAlive(char, hum)
     end
 
     local owner = Players:GetPlayerFromCharacter(char)
-    if not owner or owner.Character ~= char then return false end
-
-    -- Reject stale/menu/spectator entities first. Keep the broader attribute
-    -- detector from the mobile branch because PC replication uses more than one
-    -- naming convention across builds.
-    if char:GetAttribute("Dead") == true or xcUnavailableByAttributes(char) then return false end
-    if owner:GetAttribute("Dead") == true or owner:GetAttribute("IsSpectating") == true
-        or xcUnavailableByAttributes(owner) then return false end
+    if char:GetAttribute("Dead") == true then return false end
+    if not owner or owner.Character ~= char or owner:GetAttribute("Dead") == true
+        or owner:GetAttribute("IsSpectating") == true then return false end
 
     local charactersFolder = Workspace:FindFirstChild("Characters")
-    if charactersFolder then
-        -- When the canonical BloxStrike folder exists, the live character must
-        -- actually be in it. This keeps menu/lobby stand-ins out of ESP.
+    if not charactersFolder then return false end
+    do
+        -- Port the strict matchCharacter contract from govno.lua instead of
+        -- accepting any humanoid-looking model. Active BloxStrike players must
+        -- have all four replicated round markers below. Menu/lobby users often
+        -- retain a 100-HP stand-in character, which is why Humanoid.Health alone
+        -- caused false ESP icons.
+        if not owner or owner.Character ~= char then return false end
         if not char:IsDescendantOf(charactersFolder) then return false end
-
-        local characterType = char:GetAttribute("CharacterType")
-        if characterType ~= nil and characterType ~= "PlayerCustomCharacter" then return false end
-
+        if char:GetAttribute("CharacterType") ~= "PlayerCustomCharacter" then return false end
         if not xcHasActiveTeam(owner) then return false end
-    end
 
-    -- Health replication differs between desktop executors. Prefer the game
-    -- attribute, then fall back to Humanoid only when the attribute is absent.
-    local replicatedHealth = char:GetAttribute("Health")
-    if replicatedHealth ~= nil then
-        replicatedHealth = tonumber(replicatedHealth)
+        local replicatedHealth = char:GetAttribute("Health")
         if type(replicatedHealth) ~= "number" or replicatedHealth ~= replicatedHealth
             or replicatedHealth == math.huge or replicatedHealth <= 0 then
             return false
         end
-    elseif hum and hum.Parent then
-        local humanoidHealth = 0
-        pcall(function() humanoidHealth = hum.Health end)
-        if humanoidHealth <= 0 then return false end
-    else
-        local fallbackHealth = getXCHealth(char, owner, hum)
-        if fallbackHealth == nil or fallbackHealth <= 0 then return false end
     end
 
     if hum and hum.Parent then
+        local humanoidHealth = 100
+        pcall(function() humanoidHealth = hum.Health end)
+        if humanoidHealth <= 0 then return false end
+
         local state = nil
         pcall(function() state = hum:GetState() end)
         if state == Enum.HumanoidStateType.Dead then return false end
@@ -2826,22 +2795,16 @@ getSilentAimTarget = function()
         --       enabled, additionally rejects walls the equipped weapon cannot
         --       actually penetrate with its native penetration budget.
         local visible = isVisibleThroughWalls(part, char)
-        if not visible then
-            if XCConfig.silentAimVisibleCheck then
+        if XCConfig.silentAimVisibleCheck and not visible then
+            break
+        end
+        if not visible and not XCConfig.silentAimVisibleCheck
+            and XCConfig.silentAimAutoWallEnabled
+            and not XCConfig.wallbangEnabled and not XCConfig.extremeWallbangEnabled then
+            local origin = cam.CFrame.Position
+            if type(canXCSilentAutoWallTarget) ~= "function"
+                or not canXCSilentAutoWallTarget(origin, part, char) then
                 break
-            end
-            -- Do not silently lock an unreachable player behind geometry.
-            -- With no wall mode this used to redirect the bullet into the wall,
-            -- which looked like random Silent Aim misses.
-            if not XCConfig.wallbangEnabled and not XCConfig.extremeWallbangEnabled then
-                if not XCConfig.silentAimAutoWallEnabled then
-                    break
-                end
-                local origin = cam.CFrame.Position
-                if type(canXCSilentAutoWallTarget) ~= "function"
-                    or not canXCSilentAutoWallTarget(origin, part, char) then
-                    break
-                end
             end
         end
         local hitscanPos = part.Position
@@ -3498,18 +3461,6 @@ local function castXCNativeSilentShot(origin, direction, properties)
     if type(first) ~= "table" or not first.instance then return result end
     if typeof(first.position) == "Vector3" then
         result.Distance = (first.position - origin).Magnitude
-        -- The first native cast is itself a real entry hit. Older XC builds
-        -- only copied castThrough() results, so a directly visible target could
-        -- receive a redirected Direction but an incomplete Hits payload.
-        local firstMaterial = first.material
-        table.insert(result.Hits, {
-            Position = first.position,
-            Instance = first.instance,
-            Material = typeof(firstMaterial) == "EnumItem" and firstMaterial.Name
-                or tostring(firstMaterial or "Plastic"),
-            Normal = first.normal or Vector3.zero,
-            Exit = false,
-        })
     end
 
     -- Penetration is a MATERIAL BUDGET, not the ray length. The old code
@@ -3530,19 +3481,13 @@ local function castXCNativeSilentShot(origin, direction, properties)
         if index > maxSurfaces * 2 then break end
         if type(hit) == "table" and hit.instance and hit.material and typeof(hit.position) == "Vector3" then
             if (hit.position - origin).Magnitude > range + 0.01 then break end
-            local duplicateFirst = hit.instance == first.instance
-                and typeof(first.position) == "Vector3"
-                and (hit.position - first.position).Magnitude <= 0.01
-                and index == 1
-            if not duplicateFirst then
-                table.insert(result.Hits, {
-                    Position = hit.position,
-                    Instance = hit.instance,
-                    Material = hit.material.Name,
-                    Normal = hit.normal or Vector3.zero,
-                    Exit = index % 2 == 0,
-                })
-            end
+            table.insert(result.Hits, {
+                Position = hit.position,
+                Instance = hit.instance,
+                Material = hit.material.Name,
+                Normal = hit.normal or Vector3.zero,
+                Exit = index % 2 == 0,
+            })
         end
     end
     return result
@@ -3668,11 +3613,12 @@ local function selectXCNativeSilentTarget(origin, properties)
             break
         end
 
-        -- No wall mode means an obstructed candidate cannot be hit. Skip it
-        -- and continue to the next candidate instead of redirecting into a wall.
-        -- This also prevents a hidden player near the crosshair from stealing
-        -- shots from a visible player slightly farther away in the FOV.
-        break
+        -- Without a wall mode, Silent Aim may still select through geometry
+        -- when Visible Check is OFF. Minimum Damage, if enabled, correctly
+        -- blocks that shot because the unmodified bullet cannot reach target.
+        if not XCConfig.minimumDamageEnabled then
+            return candidate
+        end
         until true
     end
     return nil
@@ -8864,451 +8810,124 @@ do
     table.insert(connections, cubeRenderConnection)
 end
 
---// XC CUSTOM SCOPE 3.0 — COMPETITIVE RETICLE ENGINE
--- Geometric presets inspired by common competitive cheat HUD conventions.
--- No external images are used; every element is rendered with Roblox UI.
+-- Scope overlay adapted from XC: FOV override, removable scope and configurable crosshair.
 function findSniperScope()
     local pg = player and player:FindFirstChildOfClass("PlayerGui")
     if not pg then return nil end
     local main = pg:FindFirstChild("MainGui")
     local gameplay = main and main:FindFirstChild("Gameplay")
     local middle = gameplay and gameplay:FindFirstChild("Middle")
-    local exact = middle and middle:FindFirstChild("SniperScope")
-    if exact then return exact end
-    exact = pg:FindFirstChild("SniperScope", true)
-    if exact and exact:IsA("GuiObject") then return exact end
-    for _, object in ipairs(pg:GetDescendants()) do
-        if object:IsA("GuiObject") then
-            local name = object.Name:lower()
-            if name == "sniperscope" or name == "sniper_scope" or name == "scopeoverlay" then
-                return object
-            end
-        end
-    end
-    return nil
-end
-
-function XCIsScopeGuiVisible(gui)
-    if not gui or not gui:IsA("GuiObject") or gui.Visible ~= true then return false end
-    local cursor = gui.Parent
-    while cursor and cursor ~= game do
-        if cursor:IsA("GuiObject") and cursor.Visible == false then return false end
-        if cursor:IsA("ScreenGui") and cursor.Enabled == false then return false end
-        cursor = cursor.Parent
-    end
-    return true
-end
-
-function isXCScoped()
-    local native = findSniperScope()
-    if native and XCIsScopeGuiVisible(native) then return true, native end
-    local cam = Workspace.CurrentCamera or camera
-    return cam and cam.FieldOfView < 68, native
-end
-
-function XCMakeScopeLine(parent, name, anchor, zindex)
-    local line = Instance.new("Frame")
-    line.Name = name
-    line.AnchorPoint = anchor
-    line.BorderSizePixel = 0
-    line.BackgroundColor3 = Color3.new(1, 1, 1)
-    line.ZIndex = zindex or 42
-    line.Visible = false
-    line.Parent = parent
-
-    local stroke = Instance.new("UIStroke")
-    stroke.Name = "ScopeOutline"
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.Thickness = 1
-    stroke.Color = Color3.new(0, 0, 0)
-    stroke.Transparency = 0.1
-    stroke.Parent = line
-
-    local gradient = Instance.new("UIGradient")
-    gradient.Name = "ScopeFade"
-    gradient.Parent = line
-    return line
-end
-
-function XCMakeScopeGlow(parent, name, anchor)
-    local glow = Instance.new("Frame")
-    glow.Name = "Glow" .. name
-    glow.AnchorPoint = anchor
-    glow.BorderSizePixel = 0
-    glow.BackgroundColor3 = Color3.new(1, 1, 1)
-    glow.BackgroundTransparency = 0.84
-    glow.ZIndex = 40
-    glow.Visible = false
-    glow.Parent = parent
-    return glow
+    return middle and middle:FindFirstChild("SniperScope") or nil
 end
 
 function ensureScopeGui()
-    if scopeGui and scopeGui.Parent and scopeContainer and scopeContainer.Parent then return end
-
-    if scopeGui then pcall(function() scopeGui:Destroy() end) end
+    if scopeGui and scopeGui.Parent then return end
     scopeGui = Instance.new("ScreenGui")
     scopeGui.Name = "XCCustomScope"
     scopeGui.ResetOnSpawn = false
     scopeGui.IgnoreGuiInset = true
-    scopeGui.DisplayOrder = 32
-    scopeGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     pcall(function() scopeGui.Parent = targetGui end)
     if not scopeGui.Parent then scopeGui.Parent = CoreGui end
-
-    scopeRoot = Instance.new("Frame")
-    scopeRoot.Name = "Root"
-    scopeRoot.Size = UDim2.fromScale(1, 1)
-    scopeRoot.BackgroundTransparency = 1
-    scopeRoot.BorderSizePixel = 0
-    scopeRoot.Visible = false
-    scopeRoot.Parent = scopeGui
-
-    scopeVignette = Instance.new("Frame")
-    scopeVignette.Name = "Vignette"
-    scopeVignette.Size = UDim2.fromScale(1, 1)
-    scopeVignette.BackgroundTransparency = 1
-    scopeVignette.BorderSizePixel = 0
-    scopeVignette.ZIndex = 35
-    scopeVignette.Parent = scopeRoot
-    for _, name in ipairs({"Left", "Right", "Top", "Bottom"}) do
-        local shade = Instance.new("Frame")
-        shade.Name = name
-        shade.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        shade.BackgroundTransparency = 1
-        shade.BorderSizePixel = 0
-        shade.ZIndex = 35
-        shade.Parent = scopeVignette
-    end
-
     scopeContainer = Instance.new("Frame")
-    scopeContainer.Name = "Reticle"
     scopeContainer.BackgroundTransparency = 1
-    scopeContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-    scopeContainer.Position = UDim2.fromScale(0.5, 0.5)
-    scopeContainer.Size = UDim2.fromOffset(0, 0)
-    scopeContainer.ZIndex = 42
-    scopeContainer.Parent = scopeRoot
-
-    XCMakeScopeLine(scopeContainer, "Left", Vector2.new(1, .5), 43)
-    XCMakeScopeLine(scopeContainer, "Right", Vector2.new(0, .5), 43)
-    XCMakeScopeLine(scopeContainer, "Top", Vector2.new(.5, 1), 43)
-    XCMakeScopeLine(scopeContainer, "Bottom", Vector2.new(.5, 0), 43)
-
-    XCMakeScopeGlow(scopeContainer, "Left", Vector2.new(1, .5))
-    XCMakeScopeGlow(scopeContainer, "Right", Vector2.new(0, .5))
-    XCMakeScopeGlow(scopeContainer, "Top", Vector2.new(.5, 1))
-    XCMakeScopeGlow(scopeContainer, "Bottom", Vector2.new(.5, 0))
-
-    local ring = Instance.new("Frame")
-    ring.Name = "CenterRing"
-    ring.AnchorPoint = Vector2.new(.5, .5)
-    ring.Position = UDim2.fromOffset(0, 0)
-    ring.BackgroundTransparency = 1
-    ring.BorderSizePixel = 0
-    ring.ZIndex = 44
-    ring.Parent = scopeContainer
-    local ringCorner = Instance.new("UICorner")
-    ringCorner.CornerRadius = UDim.new(1, 0)
-    ringCorner.Parent = ring
-    local ringStroke = Instance.new("UIStroke")
-    ringStroke.Name = "RingStroke"
-    ringStroke.Thickness = 1
-    ringStroke.Transparency = 0.28
-    ringStroke.Parent = ring
-
-    local dot = Instance.new("Frame")
-    dot.Name = "Dot"
-    dot.AnchorPoint = Vector2.new(.5, .5)
-    dot.Position = UDim2.fromOffset(0, 0)
-    dot.BorderSizePixel = 0
-    dot.ZIndex = 46
-    dot.Parent = scopeContainer
-    local dotCorner = Instance.new("UICorner")
-    dotCorner.CornerRadius = UDim.new(1, 0)
-    dotCorner.Parent = dot
-    local dotStroke = Instance.new("UIStroke")
-    dotStroke.Name = "DotOutline"
-    dotStroke.Color = Color3.fromRGB(0, 0, 0)
-    dotStroke.Thickness = 1
-    dotStroke.Transparency = 0.16
-    dotStroke.Parent = dot
-
-    scopeTicks = {}
-    for index = 1, 8 do
-        local tick = Instance.new("Frame")
-        tick.Name = "Tick" .. index
-        tick.AnchorPoint = Vector2.new(.5, .5)
-        tick.BorderSizePixel = 0
-        tick.ZIndex = 45
-        tick.Parent = scopeContainer
-        scopeTicks[index] = tick
+    scopeContainer.AnchorPoint = Vector2.new(0.5,0.5)
+    scopeContainer.Position = UDim2.fromScale(0.5,0.5)
+    scopeContainer.Size = UDim2.fromOffset(0,0)
+    scopeContainer.Parent = scopeGui
+    for name,anchor in pairs({Left=Vector2.new(1,.5),Right=Vector2.new(0,.5),Top=Vector2.new(.5,1),Bottom=Vector2.new(.5,0)}) do
+        local f=Instance.new("Frame")
+        f.Name=name; f.AnchorPoint=anchor; f.BorderSizePixel=0; f.Parent=scopeContainer
     end
-end
-
-function XCSetScopeGradient(line, direction, fadeEnabled, opacity)
-    local gradient = line and line:FindFirstChild("ScopeFade")
-    if not gradient then return end
-    if not fadeEnabled then
-        gradient.Transparency = NumberSequence.new(0)
-        return
-    end
-
-    local outer = math.clamp(0.88 + opacity * 0.1, 0, 0.98)
-    local inner = math.clamp(opacity * 0.15, 0, 0.55)
-    if direction == "Left" then
-        gradient.Rotation = 0
-        gradient.Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, outer),
-            NumberSequenceKeypoint.new(0.62, 0.18 + opacity * 0.25),
-            NumberSequenceKeypoint.new(1, inner),
-        })
-    elseif direction == "Right" then
-        gradient.Rotation = 0
-        gradient.Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, inner),
-            NumberSequenceKeypoint.new(0.38, 0.18 + opacity * 0.25),
-            NumberSequenceKeypoint.new(1, outer),
-        })
-    elseif direction == "Top" then
-        gradient.Rotation = 90
-        gradient.Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, outer),
-            NumberSequenceKeypoint.new(0.62, 0.18 + opacity * 0.25),
-            NumberSequenceKeypoint.new(1, inner),
-        })
-    else
-        gradient.Rotation = 90
-        gradient.Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, inner),
-            NumberSequenceKeypoint.new(0.38, 0.18 + opacity * 0.25),
-            NumberSequenceKeypoint.new(1, outer),
-        })
-    end
-end
-
-function XCConfigureScopePreset(preset, len, thick, gap)
-    preset = tostring(preset or "Reference")
-    if preset == "Reference" then
-        -- Video-reference style: very thin full-screen split scope, no ornaments.
-        return len, 1, math.max(4, math.min(gap, 14)), false, false, false, false
-    elseif preset == "GameSense" then
-        return len * 1.75, math.max(1, math.min(thick, 2)), math.max(gap, 9), false, false, false, true
-    elseif preset == "Aimware" then
-        return len * 1.18, math.max(1, math.min(thick, 2)), math.max(4, gap * 0.8), true, true, false, false
-    elseif preset == "Minimal" then
-        return len * 0.92, math.max(1, math.min(thick, 2)), math.max(4, gap), false, false, false, false
-    end
-    -- Neverlose: brighter center, long fading arms, ring and subtle glow.
-    return len * 1.35, math.max(1, thick), math.max(gap, 7), true, true, true, true
+    local dot=Instance.new("Frame")
+    dot.Name="Dot"; dot.AnchorPoint=Vector2.new(.5,.5); dot.BorderSizePixel=0; dot.Parent=scopeContainer
 end
 
 function updateCustomScope()
     ensureScopeGui()
-    local scoped, nativeScope = isXCScoped()
+    local scope = findSniperScope()
+    local scoped = scope and scope.Visible == true
+    if scope and scopeSavedSize == nil then scopeSavedSize = scope.Size end
 
-    if nativeScope then
-        if XCFeatureState.scopeNative ~= nativeScope then
-            XCFeatureState.scopeNative = nativeScope
-            scopeSavedSize = nativeScope.Size
-        end
+    -- Never permanently alter the game's original scope size.
+    if scope then
         if XCConfig.scopeRemoveOriginal and scoped then
-            nativeScope.Size = UDim2.fromOffset(0, 0)
+            scope.Size = UDim2.fromOffset(0,0)
         elseif scopeSavedSize then
-            nativeScope.Size = scopeSavedSize
+            scope.Size = scopeSavedSize
         end
     end
-
-    if not (XCConfig.customScopeEnabled and scoped) then
-        if scopeRoot then scopeRoot.Visible = false end
-        return
-    end
-
-    scopeRoot.Visible = XCConfig.scopeCrosshairEnabled ~= false
-    if not scopeRoot.Visible then return end
 
     local cam = Workspace.CurrentCamera or camera
-    local color = rgb(XCConfig.scopeCrosshairColorR, XCConfig.scopeCrosshairColorG, XCConfig.scopeCrosshairColorB)
-    local outlineColor = rgb(XCConfig.scopeCrosshairOutlineR, XCConfig.scopeCrosshairOutlineG, XCConfig.scopeCrosshairOutlineB)
-    local len = math.clamp(tonumber(XCConfig.scopeCrosshairLength) or 85, 4, 1200)
-    local thick = math.clamp(tonumber(XCConfig.scopeCrosshairThickness) or 2, 1, 10)
-    local gap = math.clamp(tonumber(XCConfig.scopeCrosshairGap) or 8, 0, 160)
-    local opacity = math.clamp(tonumber(XCConfig.scopeCrosshairOpacity) or 0, 0, 0.92)
-    local preset = tostring(XCConfig.scopePreset or "Reference")
-    local presetRing, presetTicks, presetGlow, presetFade
-    len, thick, gap, presetRing, presetTicks, presetGlow, presetFade = XCConfigureScopePreset(preset, len, thick, gap)
-    local viewport = cam and cam.ViewportSize or Vector2.new(1920, 1080)
-    local shortSide = math.max(320, math.min(viewport.X, viewport.Y))
-    local referenceScope = preset == "Reference"
-    if referenceScope then
-        -- The reference uses a dark, almost black split reticle instead of a bright crosshair.
-        color = color:Lerp(Color3.fromRGB(0, 0, 0), 0.91)
-        outlineColor = Color3.fromRGB(0, 0, 0)
-        thick = 1
-        opacity = math.clamp(math.max(opacity, 0.06), 0.06, 0.42)
-    elseif preset == "GameSense" then
-        len = math.max(len, shortSide * 0.22)
-    elseif preset == "Neverlose" then
-        len = math.max(len, shortSide * 0.15)
-    elseif preset == "Aimware" then
-        len = math.max(len, shortSide * 0.11)
-    end
-    len = math.clamp(len, 4, 1200)
+    if XCConfig.customScopeEnabled and scoped then
+        -- FOV is owned by applyXCCameraFov() so Custom FOV and Scope FOV
+        -- cannot overwrite each other in different RenderStepped callbacks.
+        local enabled = XCConfig.scopeCrosshairEnabled ~= false
+        scopeContainer.Visible = enabled
+        if not enabled then return end
 
-    if XCConfig.scopeDynamicGap and cam then
-        gap = gap + math.clamp((70 / math.max(cam.FieldOfView, 1) - 1) * 9, 0, 18)
-    end
+        local col = rgb(XCConfig.scopeCrosshairColorR, XCConfig.scopeCrosshairColorG, XCConfig.scopeCrosshairColorB)
+        local len = math.clamp(tonumber(XCConfig.scopeCrosshairLength) or 85, 2, 500)
+        local thick = math.clamp(tonumber(XCConfig.scopeCrosshairThickness) or 2, 1, 12)
+        local gap = math.clamp(tonumber(XCConfig.scopeCrosshairGap) or 8, 0, 150)
+        local dynamic = XCConfig.scopeDynamicGap and math.clamp((1/(cam and cam.FieldOfView or 70))*700, 2, 30) or 0
+        gap = gap + dynamic
+        local opacity = math.clamp(tonumber(XCConfig.scopeCrosshairOpacity) or 0, 0, 1)
+        local style = XCConfig.scopeCrosshairStyle or "Cross"
 
-    local useRing = XCConfig.scopeCenterRingEnabled ~= false and presetRing
-    local useTicks = XCConfig.scopeTicksEnabled ~= false and presetTicks
-    local useGlow = XCConfig.scopeGlowEnabled ~= false and presetGlow
-    local useFade = XCConfig.scopeLineFade ~= false and presetFade
-    local style = tostring(XCConfig.scopeCrosshairStyle or "Cross")
-    if referenceScope then style = "Cross" end
+        local l=scopeContainer.Left; local r=scopeContainer.Right
+        local t=scopeContainer.Top; local b=scopeContainer.Bottom; local d=scopeContainer.Dot
+        local arms = {l,r,t,b,d}
 
-    local l, r = scopeContainer.Left, scopeContainer.Right
-    local t, b = scopeContainer.Top, scopeContainer.Bottom
-    local gl, gr = scopeContainer.GlowLeft, scopeContainer.GlowRight
-    local gt, gb = scopeContainer.GlowTop, scopeContainer.GlowBottom
-    local dot, ring = scopeContainer.Dot, scopeContainer.CenterRing
-    local arms = {l, r, t, b}
-    local glows = {gl, gr, gt, gb}
-
-    for _, line in ipairs(arms) do
-        line.BackgroundColor3 = color
-        line.BackgroundTransparency = opacity
-        line.BorderSizePixel = 0
-        line.Visible = false
-        local stroke = line:FindFirstChild("ScopeOutline")
-        if stroke then
-            stroke.Enabled = (not referenceScope) and (XCConfig.scopeCrosshairOutline == true or preset ~= "Minimal")
-            stroke.Thickness = math.clamp(tonumber(XCConfig.scopeCrosshairOutlineThickness) or 1, 1, 4)
-            stroke.Color = outlineColor
-            stroke.Transparency = math.clamp(0.08 + opacity * 0.7, 0, 1)
-        end
-    end
-    for _, glow in ipairs(glows) do
-        glow.BackgroundColor3 = color
-        glow.BackgroundTransparency = math.clamp(0.80 + opacity * 0.12, 0, 0.97)
-        glow.Visible = false
-    end
-
-    XCSetScopeGradient(l, "Left", useFade, opacity)
-    XCSetScopeGradient(r, "Right", useFade, opacity)
-    XCSetScopeGradient(t, "Top", useFade, opacity)
-    XCSetScopeGradient(b, "Bottom", useFade, opacity)
-
-    local function show(line, glow, size, glowSize, position, rotation)
-        line.Size = size
-        line.Position = position
-        line.Rotation = rotation or 0
-        line.Visible = true
-        if glow then
-            glow.Size = glowSize or size
-            glow.Position = position
-            glow.Rotation = rotation or 0
-            glow.Visible = useGlow
-        end
-    end
-
-    local horizontalLength = referenceScope and math.max(12, viewport.X * 0.5 - gap - 2) or len
-    local verticalLength = referenceScope and math.max(12, viewport.Y * 0.5 - gap - 2) or len
-    local horizontal = UDim2.fromOffset(math.floor(horizontalLength + 0.5), thick)
-    local horizontalGlow = UDim2.fromOffset(math.floor(horizontalLength + 0.5), thick + 4)
-    local vertical = UDim2.fromOffset(thick, math.floor(verticalLength + 0.5))
-    local verticalGlow = UDim2.fromOffset(thick + 4, math.floor(verticalLength + 0.5))
-
-    if style == "X" then
-        local diagonal = math.max(5, len * 0.72)
-        local diagSize = UDim2.fromOffset(diagonal, thick)
-        local diagGlow = UDim2.fromOffset(diagonal, thick + 4)
-        if XCConfig.scopeCrosshairLeft ~= false then show(l, gl, diagSize, diagGlow, UDim2.fromOffset(-gap, -gap), 45) end
-        if XCConfig.scopeCrosshairRight ~= false then show(r, gr, diagSize, diagGlow, UDim2.fromOffset(gap, -gap), -45) end
-        if XCConfig.scopeCrosshairTop ~= false then show(t, gt, diagSize, diagGlow, UDim2.fromOffset(-gap, gap), -45) end
-        if XCConfig.scopeCrosshairBottom ~= false then show(b, gb, diagSize, diagGlow, UDim2.fromOffset(gap, gap), 45) end
-    elseif style == "T" then
-        if XCConfig.scopeCrosshairTop ~= false then show(t, gt, vertical, verticalGlow, UDim2.fromOffset(0, -gap), 0) end
-        if XCConfig.scopeCrosshairLeft ~= false then show(l, gl, horizontal, horizontalGlow, UDim2.fromOffset(-gap, 0), 0) end
-        if XCConfig.scopeCrosshairRight ~= false then show(r, gr, horizontal, horizontalGlow, UDim2.fromOffset(gap, 0), 0) end
-        if XCConfig.scopeCrosshairBottom ~= false then
-            local lowerLen = math.max(4, len * 0.42)
-            show(b, gb, UDim2.fromOffset(thick, lowerLen), UDim2.fromOffset(thick + 4, lowerLen), UDim2.fromOffset(0, gap), 0)
-        end
-    elseif style ~= "Dot" then
-        if XCConfig.scopeCrosshairLeft ~= false then show(l, gl, horizontal, horizontalGlow, UDim2.fromOffset(-gap, 0), 0) end
-        if XCConfig.scopeCrosshairRight ~= false then show(r, gr, horizontal, horizontalGlow, UDim2.fromOffset(gap, 0), 0) end
-        if XCConfig.scopeCrosshairTop ~= false then show(t, gt, vertical, verticalGlow, UDim2.fromOffset(0, -gap), 0) end
-        if XCConfig.scopeCrosshairBottom ~= false then show(b, gb, vertical, verticalGlow, UDim2.fromOffset(0, gap), 0) end
-    end
-
-    local ringSize = preset == "Aimware" and math.max(8, gap * 1.25) or math.max(10, gap * 1.55)
-    ring.Size = UDim2.fromOffset(ringSize, ringSize)
-    ring.Visible = (not referenceScope) and useRing and style ~= "Dot"
-    local ringStroke = ring:FindFirstChild("RingStroke")
-    if ringStroke then
-        ringStroke.Color = color:Lerp(Color3.new(1, 1, 1), preset == "Neverlose" and 0.20 or 0.06)
-        ringStroke.Thickness = preset == "Neverlose" and math.max(1, thick * 0.65) or 1
-        ringStroke.Transparency = math.clamp(0.22 + opacity * 0.6, 0, 1)
-    end
-
-    dot.BackgroundColor3 = color
-    dot.BackgroundTransparency = opacity
-    local dotSize = preset == "Aimware" and math.max(2, thick + 1) or math.max(2, thick)
-    dot.Size = UDim2.fromOffset(dotSize, dotSize)
-    dot.Visible = (not referenceScope) and (XCConfig.scopeCrosshairDot ~= false or style == "Dot")
-    local dotOutline = dot:FindFirstChild("DotOutline")
-    if dotOutline then dotOutline.Color = outlineColor end
-
-    local tickRadius = ringSize * 0.5 + 6
-    for index, tick in ipairs(scopeTicks or {}) do
-        tick.BackgroundColor3 = color
-        tick.BackgroundTransparency = math.clamp(0.14 + opacity * 0.72, 0, 1)
-        tick.Visible = (not referenceScope) and useTicks and style ~= "Dot"
-        if tick.Visible then
-            local cardinal = ((index - 1) % 4) + 1
-            local outer = index > 4
-            local distance = tickRadius + (outer and 6 or 0)
-            local tickLen = outer and 3 or 5
-            if cardinal == 1 then
-                tick.Size = UDim2.fromOffset(tickLen, 1)
-                tick.Position = UDim2.fromOffset(-distance, 0)
-            elseif cardinal == 2 then
-                tick.Size = UDim2.fromOffset(tickLen, 1)
-                tick.Position = UDim2.fromOffset(distance, 0)
-            elseif cardinal == 3 then
-                tick.Size = UDim2.fromOffset(1, tickLen)
-                tick.Position = UDim2.fromOffset(0, -distance)
-            else
-                tick.Size = UDim2.fromOffset(1, tickLen)
-                tick.Position = UDim2.fromOffset(0, distance)
+        for _,f in ipairs(arms) do
+            f.BackgroundColor3 = col
+            f.BackgroundTransparency = opacity
+            f.BorderSizePixel = 0
+            f.Visible = false
+            local st = f:FindFirstChild("ScopeOutline")
+            if not st then
+                st = Instance.new("UIStroke")
+                st.Name = "ScopeOutline"
+                st.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                st.Parent = f
             end
+            st.Enabled = XCConfig.scopeCrosshairOutline == true
+            st.Thickness = math.clamp(tonumber(XCConfig.scopeCrosshairOutlineThickness) or 1, 1, 6)
+            st.Color = rgb(XCConfig.scopeCrosshairOutlineR,XCConfig.scopeCrosshairOutlineG,XCConfig.scopeCrosshairOutlineB)
+            st.Transparency = opacity
         end
-    end
 
-    -- Subtle edge dimming. This keeps the center fully readable and avoids the
-    -- crude opaque circular mask used by many scope replacements.
-    local shadeStrength = math.clamp(tonumber(XCConfig.scopeVignetteStrength) or 0.16, 0, 0.65)
-    local radius = math.clamp(tonumber(XCConfig.scopeVignetteRadius) or 170, 80, 420)
-    local vp = viewport
-    local halfW, halfH = vp.X * 0.5, vp.Y * 0.5
-    local shadeTransparency = 1 - shadeStrength
-    local vignetteOn = (not referenceScope) and XCConfig.scopeVignetteEnabled ~= false and shadeStrength > 0
-    local vl, vr, vt, vb = scopeVignette.Left, scopeVignette.Right, scopeVignette.Top, scopeVignette.Bottom
-    for _, shade in ipairs({vl, vr, vt, vb}) do
-        shade.Visible = vignetteOn
-        shade.BackgroundTransparency = shadeTransparency
-    end
-    if vignetteOn then
-        vl.Size = UDim2.fromOffset(math.max(0, halfW - radius), vp.Y)
-        vl.Position = UDim2.fromOffset(0, 0)
-        vr.AnchorPoint = Vector2.new(1, 0)
-        vr.Size = vl.Size
-        vr.Position = UDim2.fromOffset(vp.X, 0)
-        vt.Size = UDim2.fromOffset(radius * 2, math.max(0, halfH - radius))
-        vt.Position = UDim2.fromOffset(halfW - radius, 0)
-        vb.AnchorPoint = Vector2.new(0, 1)
-        vb.Size = vt.Size
-        vb.Position = UDim2.fromOffset(halfW - radius, vp.Y)
+        local function show(f, size, pos, rotation)
+            f.Size=size; f.Position=pos; f.Rotation=rotation or 0; f.Visible=true
+        end
+
+        -- Style presets: Cross, T, X and Dot. Individual arms still remain toggleable.
+        if style == "X" then
+            local xLen = math.max(2, len * 0.72)
+            if XCConfig.scopeCrosshairLeft ~= false then show(l,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(-gap,-gap),45) end
+            if XCConfig.scopeCrosshairRight ~= false then show(r,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(gap,-gap),-45) end
+            if XCConfig.scopeCrosshairTop ~= false then show(t,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(-gap,gap),-45) end
+            if XCConfig.scopeCrosshairBottom ~= false then show(b,UDim2.fromOffset(xLen,thick),UDim2.fromOffset(gap,gap),45) end
+        elseif style == "T" then
+            if XCConfig.scopeCrosshairTop ~= false then show(t,UDim2.fromOffset(thick,len),UDim2.fromOffset(0,gap),0) end
+            if XCConfig.scopeCrosshairLeft ~= false then show(l,UDim2.fromOffset(len,thick),UDim2.fromOffset(-gap,0),0) end
+            if XCConfig.scopeCrosshairRight ~= false then show(r,UDim2.fromOffset(len,thick),UDim2.fromOffset(gap,0),0) end
+            -- Bottom can be independently disabled/enabled; enabled means a short lower arm.
+            if XCConfig.scopeCrosshairBottom ~= false then show(b,UDim2.fromOffset(thick,math.max(2,len*0.55)),UDim2.fromOffset(0,gap),0) end
+        elseif style == "Dot" then
+            -- Only the center dot is drawn for Dot style.
+        else -- Cross
+            if XCConfig.scopeCrosshairLeft ~= false then show(l,UDim2.fromOffset(len,thick),UDim2.fromOffset(-gap,0),0) end
+            if XCConfig.scopeCrosshairRight ~= false then show(r,UDim2.fromOffset(len,thick),UDim2.fromOffset(gap,0),0) end
+            if XCConfig.scopeCrosshairTop ~= false then show(t,UDim2.fromOffset(thick,len),UDim2.fromOffset(0,-gap),0) end
+            if XCConfig.scopeCrosshairBottom ~= false then show(b,UDim2.fromOffset(thick,len),UDim2.fromOffset(0,gap),0) end
+        end
+
+        d.Size=UDim2.fromOffset(math.max(1,thick*2),math.max(1,thick*2))
+        d.Position=UDim2.fromOffset(0,0)
+        d.Rotation=0
+        d.Visible = XCConfig.scopeCrosshairDot ~= false
+    else
+        scopeContainer.Visible=false
     end
 end
 
@@ -9329,7 +8948,8 @@ function applyXCCameraFov()
         state.Controlled = false
     end
 
-    local scoped = isXCScoped()
+    local scope = findSniperScope()
+    local scoped = scope and scope.Visible == true
     local desired
     if XCConfig.customScopeEnabled and scoped and XCConfig.scopeFovEnabled then
         desired = math.clamp(tonumber(XCConfig.scopeFov) or 70, 10, 120)
@@ -9979,30 +9599,18 @@ XCFeatureState = {
         Noir = Color3.fromRGB(205, 205, 205),
     },
     hitSounds = {
-        Skeet = "rbxassetid://5633695679",
-        Neverlose = "rbxassetid://6534948092",
-        Bell = "rbxassetid://6534947240",
-        Bubble = "rbxassetid://6534947588",
+        Skeet = "rbxassetid://83717596220569",
+        Neverlose = "rbxassetid://139452805868562",
+        Bell = "rbxassetid://96481309571950",
+        Bell2 = "rbxassetid://124010691633262",
+        Bubble = "rbxassetid://104824514322839",
         Rust = "rbxassetid://1255040462",
-        Pick = "rbxassetid://1347140027",
-        Fatality = "rbxassetid://6534947869",
-        Bonk = "rbxassetid://5766898159",
-        Pop = "rbxassetid://198598793",
+        Coins = "rbxassetid://5613553529",
+        Agro1 = "rbxassetid://132463144859699",
+        Agro2 = "rbxassetid://102651850556408",
+        Schaater = "rbxassetid://17405655409",
+        Pick = "rbxassetid://8616930816",
     },
-    hitSoundFallbacks = {
-        Skeet = "rbxassetid://9117605735",
-        Neverlose = "rbxassetid://9119574826",
-        Bell = "rbxassetid://6534947240",
-        Bubble = "rbxassetid://6534947588",
-        Rust = "rbxassetid://1255040462",
-        Pick = "rbxassetid://1347140027",
-        Fatality = "rbxassetid://6534947869",
-        Bonk = "rbxassetid://5766898159",
-        Pop = "rbxassetid://198598793",
-    },
-    hitSoundPool = {},
-    hitSoundPoolIndex = 0,
-    hitSoundLastPreset = nil,
     skeletonEdges = {
         {"Head", "Neck"}, {"Neck", "Waist"},
         {"Neck", "LeftShoulder"}, {"LeftShoulder", "LeftHand"},
@@ -10065,72 +9673,26 @@ function applyXCSmokeState()
     end)
 end
 
-function ensureXCHitSoundPool()
-    XCFeatureState.hitSoundPool = XCFeatureState.hitSoundPool or {}
-    for index = #XCFeatureState.hitSoundPool + 1, 6 do
-        local sound = Instance.new("Sound")
-        sound.Name = "XCHitSound"
-        sound.Volume = 1
-        sound.PlaybackSpeed = 1
-        sound.Looped = false
-        sound.PlayOnRemove = false
-        sound.Parent = SoundService
-        XCFeatureState.hitSoundPool[index] = sound
-    end
-end
-
 function playXCHitSound(force)
     if not force and not XCConfig.hitSoundEnabled then return end
-    ensureXCHitSoundPool()
-
-    local preset = tostring(XCConfig.hitSoundPreset or "Skeet")
-    local soundId = XCFeatureState.hitSounds[preset] or XCFeatureState.hitSounds.Skeet
-    XCFeatureState.hitSoundPoolIndex = (tonumber(XCFeatureState.hitSoundPoolIndex) or 0) % #XCFeatureState.hitSoundPool + 1
-    local voice = XCFeatureState.hitSoundPool[XCFeatureState.hitSoundPoolIndex]
-    if not voice then return end
-
-    pcall(function()
-        voice:Stop()
-        voice.SoundId = soundId
-        voice.Volume = math.clamp(tonumber(XCConfig.hitSoundVolume) or 1, 0.05, 5)
-        voice.PlaybackSpeed = math.clamp(tonumber(XCConfig.hitSoundPitch) or 1, 0.5, 2)
-        voice.TimePosition = 0
-        voice:Play()
-    end)
-
-    -- Prime the selected asset once in the background. If Roblox rejects or
-    -- fails to load it, try the legacy fallback ID for the same preset.
-    if XCFeatureState.hitSoundLastPreset ~= preset then
-        XCFeatureState.hitSoundLastPreset = preset
-        task.spawn(function()
-            pcall(function()
-                game:GetService("ContentProvider"):PreloadAsync({voice})
-            end)
-            task.wait(0.1)
-            if voice.Parent and not voice.IsLoaded then
-                local fallback = XCFeatureState.hitSoundFallbacks
-                    and XCFeatureState.hitSoundFallbacks[preset]
-                if fallback and fallback ~= soundId then
-                    pcall(function()
-                        voice.SoundId = fallback
-                        game:GetService("ContentProvider"):PreloadAsync({voice})
-                        voice.TimePosition = 0
-                        voice:Play()
-                    end)
-                    task.wait(0.08)
-                end
-                if voice.Parent and not voice.IsLoaded then
-                    -- Built-in client asset: final fallback when Roblox audio
-                    -- permissions reject every cloud preset.
-                    pcall(function()
-                        voice.SoundId = "rbxasset://sounds/electronicpingshort.wav"
-                        voice.TimePosition = 0
-                        voice:Play()
-                    end)
-                end
-            end
+    task.spawn(function()
+        pcall(function()
+            local sound = Instance.new("Sound")
+            sound.Name = "XCHitSound"
+            sound.SoundId = XCFeatureState.hitSounds[XCConfig.hitSoundPreset] or XCFeatureState.hitSounds.Skeet
+            sound.Volume = math.clamp(tonumber(XCConfig.hitSoundVolume) or 1, 0.1, 3)
+            sound.PlaybackSpeed = 1
+            sound.Looped = false
+            sound.PlayOnRemove = false
+            sound.Parent = SoundService
+            -- Do not preload on mobile/injection. Some mobile clients wake the
+            -- audio route while PreloadAsync touches Sound assets. The asset is
+            -- requested only when an actual hit sound is intentionally played.
+            local played = pcall(function() SoundService:PlayLocalSound(sound) end)
+            if not played then sound:Play() end
+            Debris:AddItem(sound, 5)
         end)
-    end
+    end)
 end
 
 table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
@@ -10481,6 +10043,10 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 end))
 --// CLEANUP ROUTINES
 function cleanup()
+    if XCFeatureState.espRenderBinding then
+        RunService:UnbindFromRenderStep(XCFeatureState.espRenderBinding)
+        XCFeatureState.espRenderBinding = nil
+    end
     XCFeatureState.applyLoadedConfig = nil
     XCConfig.silentAimEnabled = false
     setXCSilentAimRequested(false)
@@ -10544,18 +10110,6 @@ function cleanup()
                 sound:Destroy()
             end
         end
-        XCFeatureState.hitSoundPool = {}
-        XCFeatureState.hitSoundPoolIndex = 0
-    end)
-    pcall(function()
-        local nativeScope = XCFeatureState and XCFeatureState.scopeNative
-        if nativeScope and nativeScope.Parent and scopeSavedSize then
-            nativeScope.Size = scopeSavedSize
-        end
-        if scopeGui then scopeGui:Destroy() end
-        scopeGui, scopeRoot, scopeContainer, scopeVignette, scopeTicks = nil, nil, nil, nil, nil
-        scopeSavedSize = nil
-        if XCFeatureState then XCFeatureState.scopeNative = nil end
     end)
     clearActiveJumpCircle()
     pcall(function() jumpCircleFolder:Destroy() end)
@@ -10780,51 +10334,6 @@ function getOrCreateGrenadeUI(nadeInstance)
     lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
     lbl.ZIndex = 13
 
-    local edge = Instance.new("Frame", grenadeContainer)
-    edge.Name = "GrenadeEdgeIndicator"
-    edge.AnchorPoint = Vector2.new(0.5, 0.5)
-    edge.Size = UDim2.fromOffset(78, 24)
-    edge.BackgroundColor3 = Color3.fromRGB(8, 10, 12)
-    edge.BackgroundTransparency = 0.16
-    edge.BorderSizePixel = 0
-    edge.Visible = false
-    edge.ZIndex = 18
-    Instance.new("UICorner", edge).CornerRadius = UDim.new(0, 5)
-    local edgeStroke = Instance.new("UIStroke", edge)
-    edgeStroke.Thickness = 1
-    edgeStroke.Transparency = 0.14
-
-    local edgeAccent = Instance.new("Frame", edge)
-    edgeAccent.Name = "Accent"
-    edgeAccent.Size = UDim2.fromOffset(3, 16)
-    edgeAccent.Position = UDim2.new(0, 4, 0.5, -8)
-    edgeAccent.BorderSizePixel = 0
-    edgeAccent.ZIndex = 19
-    Instance.new("UICorner", edgeAccent).CornerRadius = UDim.new(1, 0)
-
-    local edgeArrow = Instance.new("TextLabel", edge)
-    edgeArrow.Name = "Arrow"
-    edgeArrow.Position = UDim2.fromOffset(10, 0)
-    edgeArrow.Size = UDim2.fromOffset(16, 24)
-    edgeArrow.BackgroundTransparency = 1
-    edgeArrow.Text = "<"
-    edgeArrow.Font = Enum.Font.GothamBold
-    edgeArrow.TextSize = 14
-    edgeArrow.TextColor3 = Color3.new(1, 1, 1)
-    edgeArrow.ZIndex = 19
-
-    local edgeLabel = Instance.new("TextLabel", edge)
-    edgeLabel.Name = "Label"
-    edgeLabel.Position = UDim2.fromOffset(25, 0)
-    edgeLabel.Size = UDim2.new(1, -29, 1, 0)
-    edgeLabel.BackgroundTransparency = 1
-    edgeLabel.Text = "HE  0m"
-    edgeLabel.Font = Enum.Font.GothamBold
-    edgeLabel.TextSize = 10
-    edgeLabel.TextXAlignment = Enum.TextXAlignment.Left
-    edgeLabel.TextColor3 = Color3.new(1, 1, 1)
-    edgeLabel.ZIndex = 19
-
     local radiusCircle = Instance.new("Frame", grenadeContainer)
     radiusCircle.AnchorPoint = Vector2.new(0.5, 0.5)
     radiusCircle.BackgroundTransparency = 1
@@ -10863,11 +10372,6 @@ function getOrCreateGrenadeUI(nadeInstance)
         TagStroke = tagStroke,
         Accent = accent,
         Label = lbl,
-        Edge = edge,
-        EdgeStroke = edgeStroke,
-        EdgeAccent = edgeAccent,
-        EdgeArrow = edgeArrow,
-        EdgeLabel = edgeLabel,
         RadiusCircle = radiusCircle,
         RadiusStroke = radStroke,
         Landing = landing,
@@ -10913,7 +10417,6 @@ end
 
 function hideXCGrenadeUI(ui)
     ui.Tag.Visible = false
-    if ui.Edge then ui.Edge.Visible = false end
     ui.RadiusCircle.Visible = false
     ui.Landing.Visible = false
     ui.LandingGlow.Visible = false
@@ -10927,7 +10430,6 @@ end
 function destroyXCGrenadeUI(ui)
     hideXCGrenadeUI(ui)
     ui.Tag:Destroy()
-    if ui.Edge then ui.Edge:Destroy() end
     ui.RadiusCircle:Destroy()
     ui.Landing:Destroy()
     ui.LandingGlow:Destroy()
@@ -10936,52 +10438,6 @@ function destroyXCGrenadeUI(ui)
         line.Core:Destroy()
     end
     for _, line in ipairs(ui.RadiusLines) do line:Destroy() end
-end
-
-function XCUpdateGrenadeEdgeIndicator(ui, nadeType, nadeColor, distance, screen, onScreen)
-    if not ui or not ui.Edge then return end
-    local enabled = XCConfig.grenadeOffscreenIndicators ~= false
-    local inFront = screen and screen.Z > 0
-    if not enabled or (onScreen and inFront) then
-        ui.Edge.Visible = false
-        return
-    end
-
-    local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
-    local center = viewport * 0.5
-    local sx = screen and screen.X or center.X
-    local sy = screen and screen.Y or center.Y
-    local dx, dy = sx - center.X, sy - center.Y
-    if not inFront then dx, dy = -dx, -dy end
-    if math.abs(dx) < 0.001 and math.abs(dy) < 0.001 then dx = -1 end
-
-    local marginX, marginY = 54, 42
-    local maxX = math.max(10, center.X - marginX)
-    local maxY = math.max(10, center.Y - marginY)
-    local tx = math.abs(dx) > 0.001 and maxX / math.abs(dx) or math.huge
-    local ty = math.abs(dy) > 0.001 and maxY / math.abs(dy) or math.huge
-    local scale = math.min(tx, ty)
-    local px = math.clamp(center.X + dx * scale, marginX, viewport.X - marginX)
-    local py = math.clamp(center.Y + dy * scale, marginY, viewport.Y - marginY)
-
-    local arrow
-    if math.abs(dx) >= math.abs(dy) then arrow = dx < 0 and "<" or ">"
-    else arrow = dy < 0 and "^" or "v" end
-
-    local warningDistance = math.max(1, tonumber(XCConfig.grenadeWarningDistance) or 65)
-    local danger = distance <= warningDistance and (nadeType == "HE" or nadeType == "MOLOTOV" or nadeType == "FLASH")
-    local pulse = danger and (0.08 + (math.sin(os.clock() * 8) + 1) * 0.06) or 0.16
-
-    ui.Edge.Position = UDim2.fromOffset(px, py)
-    ui.Edge.BackgroundTransparency = pulse
-    ui.EdgeStroke.Color = nadeColor
-    ui.EdgeStroke.Transparency = danger and 0.02 or 0.14
-    ui.EdgeAccent.BackgroundColor3 = nadeColor
-    ui.EdgeArrow.Text = arrow
-    ui.EdgeArrow.TextColor3 = nadeColor:Lerp(Color3.new(1, 1, 1), 0.2)
-    ui.EdgeLabel.Text = string.format("%s  %dm", nadeType, math.floor(distance + 0.5))
-    ui.EdgeLabel.TextColor3 = danger and Color3.new(1, 1, 1) or nadeColor:Lerp(Color3.new(1, 1, 1), 0.48)
-    ui.Edge.Visible = true
 end
 
 function renderGrenadeOverlays()
@@ -11022,16 +10478,10 @@ function renderGrenadeOverlays()
                         local screen, onScreen = camera:WorldToViewportPoint(part.Position)
                         ui.Accent.BackgroundColor3 = nadeColor
                         ui.TagStroke.Color = nadeColor
-                        local closeWarning = dist <= math.max(1, tonumber(XCConfig.grenadeWarningDistance) or 65)
-                        ui.Label.TextColor3 = closeWarning and nadeColor:Lerp(Color3.new(1, 1, 1), 0.35) or nadeColor
-                        if XCConfig.grenadeCompactLabels == false then
-                            ui.Label.Text = string.format("%s  ·  %dm", nadeType, math.floor(dist + 0.5))
-                        else
-                            ui.Label.Text = string.format("%s  %dm", nadeType, math.floor(dist + 0.5))
-                        end
+                        ui.Label.TextColor3 = nadeColor
+                        ui.Label.Text = string.format("%s  ·  %dm", nadeType, math.floor(dist + 0.5))
                         ui.Tag.Position = UDim2.fromOffset(screen.X, screen.Y - 9)
                         ui.Tag.Visible = onScreen and screen.Z > 0
-                        XCUpdateGrenadeEdgeIndicator(ui, nadeType, nadeColor, dist, screen, onScreen)
                         ui.RadiusCircle.Visible = false
 
                         grenadeRayParams.FilterDescendantsInstances = {player.Character, item, camera}
@@ -13181,22 +12631,27 @@ end
 
 --// TACTICAL ESP
 local tacticalOverlayWasActive = false
+function hideXCPlayerOverlay(esp)
+    if not esp then return end
+    esp.Box.Visible = false
+    esp.BoxOutline.Visible = false
+    esp.HealthBarBg.Visible = false
+    esp.WeaponCard.Visible = false
+    if not XCConfig.weaponEspEnabled and esp.WeaponRaw ~= nil then
+        clearXCWeaponPreview(esp)
+        esp.WeaponRaw = nil
+    end
+    esp.TagCard.Visible = false
+    for _, corner in ipairs(esp.Corners) do
+        corner.H.Visible = false
+        corner.V.Visible = false
+    end
+    hideXCSkeleton(esp)
+end
+
 function hideTacticalOverlay()
     for _, esp in pairs(screenEspCache) do
-        esp.Box.Visible = false
-        esp.BoxOutline.Visible = false
-        esp.HealthBarBg.Visible = false
-        esp.WeaponCard.Visible = false
-        if not XCConfig.weaponEspEnabled and esp.WeaponRaw ~= nil then
-            clearXCWeaponPreview(esp)
-            esp.WeaponRaw = nil
-        end
-        esp.TagCard.Visible = false
-        for _, corner in ipairs(esp.Corners) do
-            corner.H.Visible = false
-            corner.V.Visible = false
-        end
-        hideXCSkeleton(esp)
+        hideXCPlayerOverlay(esp)
     end
 end
 
@@ -13301,6 +12756,8 @@ function renderTacticalOverlay()
     local camPos = camera.CFrame.Position
 
     for plr in pairs(activeEspHolders) do
+        -- Streaming/respawn or a preview failure must not blank every player.
+        local playerOk, playerErr = pcall(function()
         repeat
         local char = plr.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
@@ -13543,6 +13000,15 @@ function renderTacticalOverlay()
             hideXCSkeleton(esp)
         end
         until true
+        end)
+        if not playerOk then
+            pcall(hideXCPlayerOverlay, screenEspCache[plr])
+            local now = os.clock()
+            if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+                XCFeatureState.tacticalOverlayErrorAt = now
+                warn("[XOSE] ESP player update failed (" .. tostring(plr.Name) .. "): " .. tostring(playerErr))
+            end
+        end
     end
 end
 --// CHAMS 4.1 — STABLE MATERIAL SHELL ENGINE
@@ -14230,25 +13696,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local visualRefreshDue = visualOverlayAccumulator >= visualInterval
     if visualRefreshDue then
         visualOverlayAccumulator = visualOverlayAccumulator - visualInterval
-        table.clear(xcEspVisibilityCache)
-    end
-
-    -- At custom FOV the camera projection changes every rendered frame. A
-    -- 30-FPS ESP update visibly trails while rotating, even though
-    -- WorldToViewportPoint itself is correct. Refresh only the screen-space
-    -- overlay every frame; visibility/weapon lookup stay cached at the user's
-    -- normal visualRefreshFPS cadence.
-    if visualRefreshDue or XCConfig.customFovEnabled then
-        local overlayOk, overlayErr = pcall(renderTacticalOverlay)
-        if not overlayOk then
-            XCFeatureState.tacticalOverlayErrorAt = XCFeatureState.tacticalOverlayErrorAt or 0
-            local now = os.clock()
-            if now - XCFeatureState.tacticalOverlayErrorAt > 2 then
-                XCFeatureState.tacticalOverlayErrorAt = now
-                warn("[XOSE] ESP renderer paused this frame: " .. tostring(overlayErr))
-            end
-            hideTacticalOverlay()
-        end
     end
 
     if visualRefreshDue then
@@ -14344,6 +13791,33 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     -- and map optimizer from fighting over Lighting properties every frame.
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
+
+--// ESP SCREEN PASS
+-- Screen coordinates must use the final camera every frame, independently
+-- of combat callbacks and the slower visibility/chams refresh budget.
+XCFeatureState.espRenderBinding = "XOSE_ESP_" .. tostring(xcSessionToken)
+XCFeatureState.espVisibilityElapsed = 0
+RunService:BindToRenderStep(XCFeatureState.espRenderBinding, Enum.RenderPriority.Last.Value + 1, function(dt)
+    if not xcSessionActive() then return end
+    camera = Workspace.CurrentCamera
+    if not camera then hideTacticalOverlay(); return end
+    XCFeatureState.espVisibilityElapsed = XCFeatureState.espVisibilityElapsed + dt
+    local interval = xcVisualUpdateInterval(XCConfig.visualRefreshFPS)
+    if XCFeatureState.espVisibilityElapsed >= interval then
+        XCFeatureState.espVisibilityElapsed = XCFeatureState.espVisibilityElapsed % interval
+        table.clear(xcEspVisibilityCache)
+    end
+    local ok, err = pcall(renderTacticalOverlay)
+    if not ok then
+        local now = os.clock()
+        if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+            XCFeatureState.tacticalOverlayErrorAt = now
+            warn("[XOSE] ESP frame failed: " .. tostring(err))
+        end
+        hideTacticalOverlay()
+    end
+end)
+--// END ESP SCREEN PASS
 
 -- Late first-person/viewmodel pass. It is intentionally registered after the
 -- main camera loop so the game's native camera/viewmodel pose is already
@@ -15930,7 +15404,7 @@ function buildXCUI()
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
         fireRateEnabled = "Adjusts the active supported weapon's fire interval. WAIT means no supported active weapon; FALL means a legacy table fallback.",
-        fireRate = "Requested seconds between shots. PC v77 applies the selected interval directly (minimum 0.01 s).",
+        fireRate = "Requested seconds between shots. The effective minimum is 0.03 s or 40% of the original interval, whichever is greater.",
         menuGlassEnabled = "Applies translucent layered navigation and static glass highlights without full-screen blur.",
         menuGlassStrength = "Controls the transparency and highlight strength of the menu glass surfaces.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
@@ -15947,9 +15421,9 @@ function buildXCUI()
         bhopStrafeStrength = "Strength of airborne auto-strafe steering and speed gain. Higher values are intentionally aggressive.",
         flightEnabled = "Moves the character along the camera direction.",
         chamsEnabled = "Adds a local highlight to valid player models.",
-        skeletonEspEnabled = "Draws a lightweight R6/R15 skeleton at 30 updates per second.",
+        skeletonEspEnabled = "Draws a lightweight R6/R15 skeleton synchronized with the camera each frame.",
         espShowVisibility = "Adds a VIS or WALL flag to the nametag using the existing ESP visibility check.",
-        visualRefreshFPS = "Controls how often 2D ESP, chams, grenade and sound visuals refresh; lower values reduce work.",
+        visualRefreshFPS = "Controls visibility checks, chams, grenade and sound refresh; 2D ESP follows the camera every frame.",
         espBoxMode = "Adaptive follows head and feet while crouching or jumping; Classic uses distance and camera FOV.",
         skeletonDistanceFade = "Gradually fades skeleton lines at long distances.",
         noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
@@ -18427,9 +17901,6 @@ function buildXCUI()
     addESPPreview(R)
     section(R, "ESP indicators")
     toggle(R, "Grenade ESP", "grenadeEspEnabled")
-    toggle(R, "Off-screen grenade indicator", "grenadeOffscreenIndicators")
-    toggle(R, "Compact grenade labels", "grenadeCompactLabels")
-    addSlider(R, "Grenade warning distance", "grenadeWarningDistance", 15, 150, 5, " st")
     toggle(R, "Trajectory prediction", "showGrenadePath")
     toggle(R, "Grenade danger zones", "grenadeDangerZonesEnabled")
     toggle(R, "Molotov radius", "showMolotovRadius")
@@ -18459,16 +17930,11 @@ function buildXCUI()
     addSlider(R, "Hit log duration", "hitmarkerLogDuration", 0.5, 6, 0.1, "s")
     addSlider(R, "Maximum logs", "hitmarkerMaxLogs", 1, 8, 1, "")
     toggle(R, "Hit sound", "hitSoundEnabled")
-    addChoice(R, "Hit sound preset", "hitSoundPreset", {"Skeet", "Neverlose", "Bell", "Bubble", "Rust", "Pick", "Fatality", "Bonk", "Pop"}, function()
-        XCFeatureState.hitSoundLastPreset = nil
+    addChoice(R, "Hit sound preset", "hitSoundPreset", {"Skeet", "Neverlose", "Bell", "Bell2", "Bubble", "Rust", "Agro1", "Agro2", "Coins", "Schaater", "Pick"}, function()
         playXCHitSound(true)
     end)
-    addSlider(R, "Hit sound volume", "hitSoundVolume", 0.05, 5, 0.05, "x")
-    addSlider(R, "Hit sound pitch", "hitSoundPitch", 0.5, 2, 0.05, "x")
-    addButton(R, "TEST HIT SOUND", function()
-        XCFeatureState.hitSoundLastPreset = nil
-        playXCHitSound(true)
-    end)
+    addSlider(R, "Hit sound volume", "hitSoundVolume", 0.1, 3, 0.1, "x")
+    addButton(R, "TEST HIT SOUND", function() playXCHitSound(true) end)
     toggle(R, "Kill effects", "killEffectEnabled")
     addChoice(R, "Kill effect style", "killEffectStyle", {
         "Fireflies", "Lightning Strike", "Dissolve", "Soul", "Black Hole",
@@ -18650,24 +18116,12 @@ function buildXCUI()
     addSlider(R, "Camera FOV", "customFov", 70, 120, 1, "°")
     toggle(R, "Remove original scope", "scopeRemoveOriginal")
     toggle(R, "Scope crosshair", "scopeCrosshairEnabled")
-    addChoice(R, "Scope preset", "scopePreset", {"Reference", "Neverlose", "GameSense", "Aimware", "Minimal"}, updateCustomScope)
-    addChoice(R, "Crosshair style", "scopeCrosshairStyle", {"Cross", "T", "X", "Dot"}, updateCustomScope)
-    addColorPicker(R, "Crosshair color", "scopeCrosshairColor", updateCustomScope)
-    addColorPicker(R, "Crosshair outline", "scopeCrosshairOutline", updateCustomScope)
-    toggle(R, "Dynamic gap", "scopeDynamicGap")
-    toggle(R, "Line fade", "scopeLineFade")
-    toggle(R, "Reticle glow", "scopeGlowEnabled")
-    toggle(R, "Center ring", "scopeCenterRingEnabled")
-    toggle(R, "Range ticks", "scopeTicksEnabled")
-    toggle(R, "Edge vignette", "scopeVignetteEnabled")
-    addSlider(R, "Vignette strength", "scopeVignetteStrength", 0, 0.65, 0.01, "")
-    addSlider(R, "Vignette radius", "scopeVignetteRadius", 80, 420, 5, " px")
-    toggle(R, "Scope FOV override", "scopeFovEnabled")
+    addChoice(R, "Crosshair style", "scopeCrosshairStyle", {"Cross", "T", "X", "Dot"})
+    addColorPicker(R, "Crosshair color", "scopeCrosshairColor")
+    addColorPicker(R, "Crosshair outline", "scopeCrosshairOutline")
     addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
     addSlider(R, "Crosshair gap", "scopeCrosshairGap", 0, 80, 1, "")
-    addSlider(R, "Crosshair length", "scopeCrosshairLength", 5, 1200, 1, "")
-    addSlider(R, "Crosshair thickness", "scopeCrosshairThickness", 1, 8, 1, " px")
-    addSlider(R, "Crosshair opacity", "scopeCrosshairOpacity", 0, 0.9, 0.05, "")
+    addSlider(R, "Crosshair length", "scopeCrosshairLength", 5, 300, 1, "")
     section(R, "camera director")
     toggle(R, "Freecam", "freecamEnabled")
     addSlider(R, "Freecam speed", "freecamSpeed", 5, 180, 1, "")
@@ -19464,7 +18918,8 @@ local function applyXCNativeFireRate()
     end
 
     local requested = math.max(tonumber(XCConfig.fireRate) or 0.03, 0.01)
-    local stableRate = requested
+    local originalRate = tonumber(record.OriginalFireRate) or requested
+    local stableRate = math.max(requested, 0.03, originalRate * 0.40)
     if record.Rate == stableRate
         and rawget(record.Properties, "FireRate") == stableRate then
         return true
@@ -19549,7 +19004,11 @@ function applyXCFireRate()
     for _, obj in ipairs(xcFireRateObjects) do
         pcall(function()
             if type(setreadonly) == "function" then setreadonly(obj, false) end
-            rawset(obj, "FireRate", requested)
+            local original = tonumber(xcFireRateOriginal[obj]) or requested
+            -- Limit acceleration to a stable interval. Extremely small values
+            -- flood ShootWeapon and are rejected after the first few rounds.
+            local stableMinimum = math.max(0.03, original * 0.40)
+            rawset(obj, "FireRate", math.max(requested, stableMinimum))
             if type(setreadonly) == "function" and xcFireRateReadonly[obj] ~= nil then
                 setreadonly(obj, xcFireRateReadonly[obj])
             end
@@ -19559,7 +19018,7 @@ end
 
 task.spawn(function()
     local wasEnabled = false
-    while xcSessionActive() and task.wait(0.03) do
+    while xcSessionActive() and task.wait(0.1) do
         pcall(function()
             if XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate then
                 local nativeApplied = applyXCNativeFireRate()
@@ -19593,8 +19052,8 @@ end)
 
 -- Native hold-to-fire for semi-automatic weapons. This replaces the old
 -- 10 ms polling loop with the engine heartbeat, avoiding ~100 wakeups/sec.
--- The native property path can run below one rendered frame. Heartbeat is
--- only used to synthesize hold-to-fire for semi-auto weapons.
+-- The supported fire-rate floor is 30 ms, so one heartbeat check is precise
+-- enough while also being automatically cleaned up with the other connections.
 do
     local heldLast = false
     local heldWeapon = nil
@@ -19616,14 +19075,14 @@ do
         end
         if weapon ~= heldWeapon or not heldLast then
             heldWeapon, heldLast = weapon, true
-            nextShot = os.clock() + math.max(tonumber(record.Rate) or 0.08, 0.01)
+            nextShot = os.clock() + math.max(tonumber(record.Rate) or 0.08, 0.03)
             return
         end
 
         local now = os.clock()
         if now >= nextShot and type(weapon.shoot) == "function"
             and not weapon.IsShooting and not weapon.IsBurstShooting then
-            nextShot = now + math.max(tonumber(record.Rate) or 0.08, 0.01)
+            nextShot = now + math.max(tonumber(record.Rate) or 0.08, 0.03)
             pcall(function() weapon:shoot() end)
         end
     end))
