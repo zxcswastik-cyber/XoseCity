@@ -10247,6 +10247,8 @@ function cleanup()
     pcall(restoreXCCameraFov)
 
     pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_CAMERA_SYNC") end)
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_FRAME_BEGIN") end)
+    pcall(disconnectXCEspCameraSignals)
     for _, c in pairs(connections) do 
         pcall(function() c:Disconnect() end) 
     end
@@ -14266,11 +14268,17 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
 
--- ESP SYNC V3 WEAPON CAMERA FIX ---------------------------------------------
--- Firearm viewmodels can attach camera/recoil callbacks after XOSE is injected.
--- Registration order then makes an ordinary RenderStepped "final" pass stop
--- being final when a gun is equipped.  Desktop projection is bound at Roblox's
--- Last render priority so knife/gun/viewmodel camera changes settle first.
+-- ESP SYNC V4 WEAPON CAMERA FIX ---------------------------------------------
+-- BindToRenderStep(Last) is still allowed to run before ordinary
+-- RenderStepped/PreRender listeners created by a firearm viewmodel.  That is
+-- why the old v3 renderer could be correct with a knife yet freeze in screen
+-- space as soon as a gun's recoil/sway callback started moving CurrentCamera.
+--
+-- v4 renders once at Last as the normal path, then listens to the *actual*
+-- camera properties.  A small begin-frame gate ignores normal camera changes
+-- that happen before Last; only camera/FOV mutations that occur AFTER the Last
+-- projection (weapon recoil/sway, late scope code, etc.) trigger one corrective
+-- ESP projection using the new final camera state.
 function resetXCEspProjectionCache()
     for _, esp in pairs(screenEspCache) do
         esp.SmoothRect = nil
@@ -14323,16 +14331,94 @@ function renderXCTracersFrame()
     end
 end
 
+function renderXCEspLateProjection()
+    if UserInputService.TouchEnabled or not xcSessionActive() then return end
+    if XCFeatureState.espLateProjectionBusy then return end
+
+    local finalCamera = Workspace.CurrentCamera or camera
+    if not finalCamera then return end
+    camera = finalCamera
+
+    XCFeatureState.espLateProjectionBusy = true
+    local overlayOk, overlayErr = pcall(renderTacticalOverlay)
+    if not overlayOk then
+        local now = os.clock()
+        if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+            XCFeatureState.tacticalOverlayErrorAt = now
+            warn("[XOSE] late weapon-camera ESP projection failed: " .. tostring(overlayErr))
+        end
+        hideTacticalOverlay()
+    end
+    pcall(renderXCTracersFrame)
+    XCFeatureState.espLateProjectionBusy = false
+    XCFeatureState.espLateProjectionAt = os.clock()
+    if XCFeatureState.espDiagnostics then
+        XCFeatureState.espDiagnostics.LateCorrections = (XCFeatureState.espDiagnostics.LateCorrections or 0) + 1
+        XCFeatureState.espDiagnostics.LateCorrectionAt = XCFeatureState.espLateProjectionAt
+    end
+end
+
+function disconnectXCEspCameraSignals()
+    for _, key in ipairs({"espCameraCFrameConnection", "espCameraFovConnection"}) do
+        local connection = XCFeatureState[key]
+        if connection then pcall(function() connection:Disconnect() end) end
+        XCFeatureState[key] = nil
+    end
+    XCFeatureState.espBoundCamera = nil
+end
+
+function bindXCEspCameraSignals(cam)
+    if UserInputService.TouchEnabled then return end
+    if XCFeatureState.espBoundCamera == cam
+        and XCFeatureState.espCameraCFrameConnection
+        and XCFeatureState.espCameraFovConnection then
+        return
+    end
+
+    disconnectXCEspCameraSignals()
+    if not cam then return end
+    XCFeatureState.espBoundCamera = cam
+
+    local cframeConnection = cam:GetPropertyChangedSignal("CFrame"):Connect(function()
+        if XCFeatureState.espCameraMutationGuard then return end
+        if XCFeatureState.espAcceptLateCameraSignal ~= true then return end
+        renderXCEspLateProjection()
+    end)
+    local fovConnection = cam:GetPropertyChangedSignal("FieldOfView"):Connect(function()
+        if XCFeatureState.espCameraMutationGuard then return end
+        if XCFeatureState.espAcceptLateCameraSignal ~= true then return end
+        resetXCEspProjectionCache()
+        renderXCEspLateProjection()
+    end)
+    XCFeatureState.espCameraCFrameConnection = cframeConnection
+    XCFeatureState.espCameraFovConnection = fovConnection
+    table.insert(connections, cframeConnection)
+    table.insert(connections, fovConnection)
+end
+
 if not UserInputService.TouchEnabled then
-    -- Remove a renderer left by an older injected build before installing v2.
+    -- Clear render bindings left by previous injected builds.
     pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_FRAME_BEGIN") end)
+
+    -- Normal native camera work occurs between these two priorities.  Camera
+    -- property signals are ignored until the Last projection completes.
+    RunService:BindToRenderStep("XOSE_PC_ESP_FRAME_BEGIN", Enum.RenderPriority.Camera.Value - 1, function()
+        XCFeatureState.espAcceptLateCameraSignal = false
+    end)
+
+    bindXCEspCameraSignals(Workspace.CurrentCamera or camera)
 
     RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Last.Value, function(dt)
-        if not xcSessionActive() then return end
+        if not xcSessionActive() then
+            XCFeatureState.espAcceptLateCameraSignal = false
+            return
+        end
 
         local finalCamera = Workspace.CurrentCamera or camera
         if not finalCamera then return end
         camera = finalCamera
+        bindXCEspCameraSignals(camera)
 
         local viewport = camera.ViewportSize
         local previousViewport = XCFeatureState.espProjectionViewport
@@ -14345,9 +14431,9 @@ if not UserInputService.TouchEnabled then
             XCFeatureState.espProjectionViewport = Vector2.new(viewport.X, viewport.Y)
         end
 
-        -- Firearm camera/recoil code is allowed to settle before this priority.
-        -- Camera controllers are isolated from ESP so one weapon-specific error
-        -- cannot freeze every overlay object.
+        -- Ignore the property events produced by XOSE's own FOV/third-person
+        -- writes.  The normal projection below already uses their final state.
+        XCFeatureState.espCameraMutationGuard = true
         local nativeFov = camera.FieldOfView
         local fovOk, fovErr = pcall(applyXCCameraFov, dt, nativeFov)
         if not fovOk then
@@ -14358,8 +14444,9 @@ if not UserInputService.TouchEnabled then
             end
         end
         pcall(applyThirdPerson, dt)
+        XCFeatureState.espCameraMutationGuard = false
 
-        -- Triggerbot and custom scope read exactly the same settled camera.
+        -- Triggerbot and custom scope read the same camera sample as ESP.
         pcall(runXCTriggerbot)
         if XCConfig.customScopeEnabled then pcall(updateCustomScope) end
 
@@ -14372,11 +14459,14 @@ if not UserInputService.TouchEnabled then
             end
             hideTacticalOverlay()
         end
-
         pcall(renderXCTracersFrame)
+
+        -- From this point until next frame's Camera-1 gate, any CFrame/FOV
+        -- change is late weapon/viewmodel work and receives a corrective pass.
+        XCFeatureState.espAcceptLateCameraSignal = true
     end)
 end
---// END ESP SYNC V3 ----------------------------------------------------------
+--// END ESP SYNC V4 ----------------------------------------------------------
 
 -- Late first-person/viewmodel pass. It is intentionally registered after the
 -- main camera loop so the game's native camera/viewmodel pose is already
@@ -20023,6 +20113,10 @@ reconnectThirdPersonCamera()
 local currentCameraConnection = Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
     camera = Workspace.CurrentCamera or camera
     reconnectThirdPersonCamera()
+    if type(bindXCEspCameraSignals) == "function" then
+        bindXCEspCameraSignals(camera)
+        resetXCEspProjectionCache()
+    end
 
     if XCConfig.thirdPersonEnabled and camera then
         applyThirdPerson()
