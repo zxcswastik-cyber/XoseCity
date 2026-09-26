@@ -580,6 +580,7 @@ local XCConfig = {
     chamsTeamCheck = true,
     chamsShowTeammates = false,
     chamsOcclusion = true,
+    chamsThroughWallsEnabled = true,
     -- Chams 2.0
     chamsStyle = "Solid",
     chamsUseEspPalette = true,
@@ -13759,89 +13760,64 @@ end
 local function applyXCChamsStyle(data, char, ally, isVisible, now)
     if not data or not data.Highlight or not char then return end
 
-    local primary = data.Highlight
+    local through = data.Highlight
+    local visible = data.VisibleHighlight
     local style = tostring(XCConfig.chamsStyle or "Shaded")
-
     if style == "Pulse" then style = "Glow" end
     if style == "Wire" or style == "Outline" then style = "Glow Outline" end
-
     if not XC_CHAM_STYLES[style] then style = "Shaded" end
 
-    if primary.Parent ~= chamsWorldFolder then
-        primary.Parent = chamsWorldFolder
-    end
-    if primary.Adornee ~= char then
-        primary.Adornee = char
+    if through.Parent ~= chamsWorldFolder then through.Parent = chamsWorldFolder end
+    if through.Adornee ~= char then through.Adornee = char end
+    if visible then
+        if visible.Parent ~= chamsWorldFolder then visible.Parent = chamsWorldFolder end
+        if visible.Adornee ~= char then visible.Adornee = char end
     end
 
-    local color = getXCChamsColor(ally, isVisible)
+    local visibleColor = getXCChamsColor(ally, true)
+    local hiddenColor = getXCChamsColor(ally, false)
+    local throughColor = XCConfig.chamsOcclusion and hiddenColor or visibleColor
     local fill = xcClamp01(XCConfig.chamsFillTransparency)
     local outline = xcClamp01(XCConfig.chamsOutlineTransparency)
-    local glowStrength = math.clamp(
-        tonumber(XCConfig.chamsSoftGlowStrength) or 0.85,
-        0,
-        2.5
-    )
+    local glowStrength = math.clamp(tonumber(XCConfig.chamsSoftGlowStrength) or 0.85, 0, 2.5)
 
-    syncXCChamMaterialShells(data, char, style, color, now or os.clock())
+    -- Physical shells are the high-detail visible layer. Walls naturally occlude
+    -- them; the AlwaysOnTop highlight below is dedicated to through-wall readout.
+    syncXCChamMaterialShells(data, char, style, isVisible and visibleColor or throughColor, now or os.clock())
 
-    primary.Enabled = true
-    primary.FillColor = color
-    primary.OutlineColor = color
-    primary.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    through.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    through.Enabled = XCConfig.chamsThroughWallsEnabled ~= false
+    through.FillColor = throughColor
+    through.OutlineColor = (style == "Glow" or style == "Glow Outline")
+        and xcScaleColor(throughColor, 1.12) or throughColor
+    through.FillTransparency = math.clamp(fill + 0.08, 0.22, 0.88)
+    through.OutlineTransparency = math.clamp(outline + 0.02, 0.02, 0.78)
 
-    if isVisible then
-        if style == "Glow" then
-            primary.FillTransparency = 0.95
-            primary.OutlineTransparency = math.clamp(
-                0.11 - glowStrength * 0.035,
-                0.018,
-                0.11
-            )
-            primary.OutlineColor = xcScaleColor(color, 1.16)
+    if not visible then return end
+    visible.DepthMode = Enum.HighlightDepthMode.Occluded
+    visible.Enabled = true
+    visible.FillColor = visibleColor
+    visible.OutlineColor = visibleColor
 
-        elseif style == "Glow Outline" then
-            primary.FillTransparency = XCConfig.chamsGlowOutlineFill and 0.92 or 1
-            primary.OutlineTransparency = math.clamp(
-                0.065 - glowStrength * 0.022,
-                0.012,
-                0.065
-            )
-            primary.OutlineColor = xcScaleColor(color, 1.20)
-
-        elseif style == "Iridescent" or style == "Water Flow" then
-            primary.FillTransparency = 0.985
-            primary.OutlineTransparency = 0.10
-
-        elseif style == "Glossy" then
-            local edge = xcClamp01(XCConfig.chamsGlossEdgeFalloff)
-            primary.FillTransparency = 0.99
-            primary.OutlineTransparency = math.clamp(
-                0.22 - edge * 0.18,
-                0.025,
-                0.22
-            )
-            primary.OutlineColor = xcScaleColor(color, 1.08)
-
-        else
-            primary.FillTransparency = 0.985
-            primary.OutlineTransparency = math.clamp(
-                outline + 0.10,
-                0.08,
-                0.72
-            )
-        end
+    if style == "Glow" then
+        visible.FillTransparency = 0.95
+        visible.OutlineTransparency = math.clamp(0.11 - glowStrength * 0.035, 0.018, 0.11)
+        visible.OutlineColor = xcScaleColor(visibleColor, 1.16)
+    elseif style == "Glow Outline" then
+        visible.FillTransparency = XCConfig.chamsGlowOutlineFill and 0.92 or 1
+        visible.OutlineTransparency = math.clamp(0.065 - glowStrength * 0.022, 0.012, 0.065)
+        visible.OutlineColor = xcScaleColor(visibleColor, 1.20)
+    elseif style == "Iridescent" or style == "Water Flow" then
+        visible.FillTransparency = 0.985
+        visible.OutlineTransparency = 0.10
+    elseif style == "Glossy" then
+        local edge = xcClamp01(XCConfig.chamsGlossEdgeFalloff)
+        visible.FillTransparency = 0.99
+        visible.OutlineTransparency = math.clamp(0.22 - edge * 0.18, 0.025, 0.22)
+        visible.OutlineColor = xcScaleColor(visibleColor, 1.08)
     else
-        primary.FillTransparency = math.clamp(fill, 0.12, 0.88)
-        primary.OutlineTransparency = math.clamp(outline, 0.015, 0.76)
-
-        if style == "Glow" or style == "Glow Outline" then
-            primary.OutlineColor = xcScaleColor(color, 1.14)
-            primary.OutlineTransparency = math.min(
-                primary.OutlineTransparency,
-                0.055
-            )
-        end
+        visible.FillTransparency = 0.985
+        visible.OutlineTransparency = math.clamp(outline + 0.10, 0.08, 0.72)
     end
 end
 
@@ -13850,9 +13826,11 @@ local function disableXCChamsForData(data, clearAdornee)
 
     if data.Highlight then
         data.Highlight.Enabled = false
-        if clearAdornee then
-            data.Highlight.Adornee = nil
-        end
+        if clearAdornee then data.Highlight.Adornee = nil end
+    end
+    if data.VisibleHighlight then
+        data.VisibleHighlight.Enabled = false
+        if clearAdornee then data.VisibleHighlight.Adornee = nil end
     end
 
     if clearAdornee then
@@ -13888,15 +13866,28 @@ function attachEspToPlayer(plr)
     tracerLine.BackgroundColor3 = currentTheme.Enemy_Accent
     tracerLine.Visible = false
 
+    -- Two-layer chams: the through-wall layer is always-on-top, while the
+    -- visible layer is depth-tested. This keeps enemies readable behind map
+    -- geometry without sacrificing the richer visible material style.
     local hl = Instance.new("Highlight")
-    hl.Name = "XCChams_" .. plr.Name
+    hl.Name = "XCChamsHidden_" .. plr.Name
     hl.FillTransparency = XCConfig.chamsFillTransparency
     hl.OutlineTransparency = XCConfig.chamsOutlineTransparency
     hl.Enabled = false
-    hl.FillColor = currentTheme.Enemy_Accent
-    hl.OutlineColor = currentTheme.TextPrimary
+    hl.FillColor = currentTheme.Enemy_Hidden
+    hl.OutlineColor = currentTheme.Enemy_Hidden
     hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     hl.Parent = chamsWorldFolder
+
+    local visibleHl = Instance.new("Highlight")
+    visibleHl.Name = "XCChamsVisible_" .. plr.Name
+    visibleHl.FillTransparency = 1
+    visibleHl.OutlineTransparency = XCConfig.chamsOutlineTransparency
+    visibleHl.Enabled = false
+    visibleHl.FillColor = currentTheme.Enemy_Accent
+    visibleHl.OutlineColor = currentTheme.Enemy_Accent
+    visibleHl.DepthMode = Enum.HighlightDepthMode.Occluded
+    visibleHl.Parent = chamsWorldFolder
 
     local function setupCharacter(char)
         XCFeatureState.espCharacterCache[plr] = nil
@@ -13908,9 +13899,11 @@ function attachEspToPlayer(plr)
             end
             if hl then
                 hl.Adornee = char
-                if hl.Parent ~= chamsWorldFolder then
-                    hl.Parent = chamsWorldFolder
-                end
+                if hl.Parent ~= chamsWorldFolder then hl.Parent = chamsWorldFolder end
+            end
+            if visibleHl then
+                visibleHl.Adornee = char
+                if visibleHl.Parent ~= chamsWorldFolder then visibleHl.Parent = chamsWorldFolder end
             end
         end)
     end
@@ -13922,6 +13915,10 @@ function attachEspToPlayer(plr)
         if hl then
             hl.Adornee = nil
             hl.Enabled = false
+        end
+        if visibleHl then
+            visibleHl.Adornee = nil
+            visibleHl.Enabled = false
         end
         local holderData = activeEspHolders[plr]
         if holderData then
@@ -13937,6 +13934,7 @@ function attachEspToPlayer(plr)
         DotFrame = dotFrame,
         Tracer = tracerLine,
         Highlight = hl,
+        VisibleHighlight = visibleHl,
         ChamShellFolder = nil,
         ChamShells = {},
         ChamShellCharacter = nil,
@@ -13952,6 +13950,7 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
         destroyXCChamShells(data)
         pcall(function()
             if data.Highlight then data.Highlight:Destroy() end
+            if data.VisibleHighlight then data.VisibleHighlight:Destroy() end
         end)
         pcall(function()
             if data.Holder then data.Holder:Destroy() end
@@ -14123,14 +14122,13 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         renderXCGrenadeDangerZones()
         renderXCSoundPositionEsp()
 
-        local threeDEspActive = XCConfig.chamsEnabled or XCConfig.headDotEnabled or XCConfig.tracersEnabled
+        local threeDEspActive = XCConfig.chamsEnabled or XCConfig.headDotEnabled
         if threeDEspActive or threeDEspWasActive then
         for plr, data in pairs(activeEspHolders) do
             repeat
         if not threeDEspActive then
             data.HeadDot.Enabled = false
             disableXCChamsForData(data, false)
-            data.Tracer.Visible = false
             break
         end
         local char = xcEspResolveCharacter(plr)
@@ -14151,11 +14149,12 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
                     disableXCChamsForData(data, false)
                 else
                     if data.Highlight.Adornee ~= char then data.Highlight.Adornee = char end
-                    if data.Highlight.Parent ~= chamsWorldFolder then
-                        data.Highlight.Parent = chamsWorldFolder
+                    if data.Highlight.Parent ~= chamsWorldFolder then data.Highlight.Parent = chamsWorldFolder end
+                    if data.VisibleHighlight then
+                        if data.VisibleHighlight.Adornee ~= char then data.VisibleHighlight.Adornee = char end
+                        if data.VisibleHighlight.Parent ~= chamsWorldFolder then data.VisibleHighlight.Parent = chamsWorldFolder end
                     end
-                    local styleVisible = XCConfig.chamsOcclusion and isVisible or true
-                    applyXCChamsStyle(data, char, chamsAlly, styleVisible, os.clock())
+                    applyXCChamsStyle(data, char, chamsAlly, isVisible, os.clock())
                 end
             else
                 disableXCChamsForData(data, false)
@@ -14170,34 +14169,12 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
                 data.DotFrame.BackgroundColor3 = activeAccent
                 data.HeadDot.Enabled = XCConfig.headDotEnabled
 
-                if XCConfig.tracersEnabled and rootPart then
-                    local scrPos, onScreen = camera:WorldToViewportPoint(rootPart.Position)
-                    if onScreen and scrPos.Z > 0 then
-                        local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
-                        local dest = Vector2.new(scrPos.X, scrPos.Y)
-                        local lineDist = (dest - origin).Magnitude
-                        local center = (origin + dest) * 0.5
-                        local angle = math.deg(math.atan2(dest.Y - origin.Y, dest.X - origin.X))
-
-                        data.Tracer.BackgroundColor3 = activeAccent
-                        data.Tracer.Size = UDim2.new(0, lineDist, 0, 1.5)
-                        data.Tracer.Position = UDim2.new(0, center.X, 0, center.Y)
-                        data.Tracer.Rotation = angle
-                        data.Tracer.Visible = true
-                    else
-                        data.Tracer.Visible = false
-                    end
-                else
-                    data.Tracer.Visible = false
-                end
             else
                 data.HeadDot.Enabled = false
-                data.Tracer.Visible = false
             end
         else
             data.HeadDot.Enabled = false
             disableXCChamsForData(data, true)
-            data.Tracer.Visible = false
             if data.HeadDot.Adornee then data.HeadDot.Adornee = nil end
         end
             until true
@@ -14212,25 +14189,93 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
 
--- Desktop 2D ESP projection is synchronized directly after Roblox's camera
--- update. The native camera runs at RenderPriority.Camera; +1 means the current
--- frame CFrame/viewport is final before WorldToViewportPoint is evaluated.
-if not UserInputService.TouchEnabled then
-    pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
-    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Camera.Value + 1, function(dt)
-        if not xcSessionActive() then return end
-        camera = Workspace.CurrentCamera or camera
-        if not camera then return end
+-- ESP SYNC V2 FINAL PROJECTION -----------------------------------------------
+-- BloxStrike can still adjust Camera.CFrame/FOV from ordinary RenderStepped
+-- callbacks after Roblox's Camera-priority callbacks.  A Camera+1 binding can
+-- therefore project ESP from an earlier camera state.  The final desktop pass
+-- is registered after XOSE's main camera/aim loop and reads CurrentCamera again
+-- immediately before projection.
+function resetXCEspProjectionCache()
+    for _, esp in pairs(screenEspCache) do
+        esp.SmoothRect = nil
+        esp.LastProjectionFov = nil
+    end
+end
 
-        -- Sample the game's final camera FOV first, then make FOV + third person
-        -- authoritative before projecting ESP. This ordering prevents ADS/custom
-        -- FOV from moving boxes away from characters.
+function renderXCTracersFrame()
+    if not camera then return end
+    if not XCConfig.tracersEnabled then
+        for _, data in pairs(activeEspHolders) do
+            data.Tracer.Visible = false
+        end
+        return
+    end
+
+    local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
+    local camPos = camera.CFrame.Position
+    for plr, data in pairs(activeEspHolders) do
+        local char = xcEspResolveCharacter(plr)
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local root = char and (char:FindFirstChild("HumanoidRootPart")
+            or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
+        local enemy = char and xcEspIsEnemy(plr, char)
+        local alive = char and xcEspEntityAlive(plr, char, hum)
+        local distance = root and (root.Position - camPos).Magnitude or math.huge
+
+        if root and enemy and alive and distance <= XCConfig.espMaxDist then
+            local screen, onScreen = camera:WorldToViewportPoint(root.Position)
+            if onScreen and screen.Z > 0 then
+                local head = char:FindFirstChild("Head")
+                local visible = getXCEspVisibility(char, head or root)
+                local accent = visible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
+                local dest = Vector2.new(screen.X, screen.Y)
+                local delta = dest - origin
+                data.Tracer.BackgroundColor3 = accent
+                data.Tracer.Size = UDim2.fromOffset(delta.Magnitude, 1.5)
+                data.Tracer.Position = UDim2.fromOffset(
+                    (origin.X + dest.X) * 0.5,
+                    (origin.Y + dest.Y) * 0.5
+                )
+                data.Tracer.Rotation = math.deg(math.atan2(delta.Y, delta.X))
+                data.Tracer.Visible = true
+            else
+                data.Tracer.Visible = false
+            end
+        else
+            data.Tracer.Visible = false
+        end
+    end
+end
+
+if not UserInputService.TouchEnabled then
+    -- Remove a renderer left by an older injected build before installing v2.
+    pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
+
+    table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+        if not xcSessionActive() then return end
+
+        local finalCamera = Workspace.CurrentCamera or camera
+        if not finalCamera then return end
+        camera = finalCamera
+
+        local viewport = camera.ViewportSize
+        local previousViewport = XCFeatureState.espProjectionViewport
+        if XCFeatureState.espProjectionCamera ~= camera
+            or not previousViewport
+            or previousViewport.X ~= viewport.X
+            or previousViewport.Y ~= viewport.Y then
+            resetXCEspProjectionCache()
+            XCFeatureState.espProjectionCamera = camera
+            XCFeatureState.espProjectionViewport = Vector2.new(viewport.X, viewport.Y)
+        end
+
+        -- One authoritative desktop order: use the game's latest camera sample,
+        -- then apply every XOSE camera transform before any screen projection.
         local nativeFov = camera.FieldOfView
         applyXCCameraFov(dt, nativeFov)
         applyThirdPerson(dt)
 
-        -- Triggerbot 2.0 runs immediately after the final camera/FOV transform,
-        -- before cosmetic scope/ESP work, minimizing target-to-fire latency.
+        -- Triggerbot uses the same final camera transform as the visible frame.
         pcall(runXCTriggerbot)
 
         if XCConfig.customScopeEnabled then
@@ -14246,8 +14291,13 @@ if not UserInputService.TouchEnabled then
             end
             hideTacticalOverlay()
         end
-    end)
+
+        -- Tracers are screen-space ESP as well; project them from this exact
+        -- camera frame instead of the 30-FPS heavy visual/chams refresh.
+        pcall(renderXCTracersFrame)
+    end))
 end
+--// END ESP SYNC V2 ----------------------------------------------------------
 
 -- Late first-person/viewmodel pass. It is intentionally registered after the
 -- main camera loop so the game's native camera/viewmodel pose is already
@@ -14261,32 +14311,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function()
         pcall(restoreXCCustomHands)
     end
 
-    -- Tracers are screen-space too. Keep their endpoints glued to the current
-    -- camera while Custom FOV is active without rerunning chams/visibility.
-    if XCConfig.customFovEnabled and XCConfig.tracersEnabled and camera then
-        local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
-        for plr, data in pairs(activeEspHolders) do
-            local char = xcEspResolveCharacter(plr)
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            local root = char and (char:FindFirstChild("HumanoidRootPart")
-                or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
-            if root and xcEspIsEnemy(plr, char) and xcEspEntityAlive(plr, char, hum) then
-                local screen, onScreen = camera:WorldToViewportPoint(root.Position)
-                if onScreen and screen.Z > 0 then
-                    local dest = Vector2.new(screen.X, screen.Y)
-                    local delta = dest - origin
-                    data.Tracer.Size = UDim2.fromOffset(delta.Magnitude, 1.5)
-                    data.Tracer.Position = UDim2.fromOffset((origin.X + dest.X) * 0.5, (origin.Y + dest.Y) * 0.5)
-                    data.Tracer.Rotation = math.deg(math.atan2(delta.Y, delta.X))
-                    data.Tracer.Visible = true
-                else
-                    data.Tracer.Visible = false
-                end
-            else
-                data.Tracer.Visible = false
-            end
-        end
-    end
 end))
 
 -- Stateful anti-flash: preserve the game's original Enabled values instead
@@ -17473,18 +17497,65 @@ function buildXCUI()
     local function addSkinGallery(parent)
         parent = activeSectionByParent[parent] or parent
         local galleryState = {Page = 1, Context = nil, Signature = nil, Revision = 0}
+        local studio = {}
         local holder = Instance.new("Frame", parent)
-        holder.Name = "SkinImageGallery"
-        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 610 or 580)
-        holder.BackgroundColor3 = C.Panel
+        holder.Name = "SkinStudio2"
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 650 or 640)
+        holder.BackgroundColor3 = C.Main:Lerp(C.Panel, 0.42)
         holder.BorderSizePixel = 0
         local galleryCorner = Instance.new("UICorner", holder)
         galleryCorner.CornerRadius = UDim.new(0, 10)
+        local studioStroke = Instance.new("UIStroke", holder)
+        studioStroke.Color = C.Border
+        studioStroke.Thickness = 1
+        studioStroke.Transparency = 0.18
+
+        do
+        local header = Instance.new("Frame", holder)
+        header.Name = "StudioHeader"
+        header.Position = UDim2.fromOffset(8, 8)
+        header.Size = UDim2.new(1, -16, 0, 44)
+        header.BackgroundColor3 = C.Panel
+        header.BorderSizePixel = 0
+        Instance.new("UICorner", header).CornerRadius = UDim.new(0, 8)
+
+        local title = Instance.new("TextLabel", header)
+        title.Position = UDim2.fromOffset(12, 5)
+        title.Size = UDim2.new(1, -142, 0, 19)
+        title.BackgroundTransparency = 1
+        title.Text = "SKIN STUDIO"
+        title.TextColor3 = C.White
+        title.Font = Enum.Font.GothamBold
+        title.TextSize = 14
+        title.TextXAlignment = Enum.TextXAlignment.Left
+
+        local subtitle = Instance.new("TextLabel", header)
+        subtitle.Position = UDim2.fromOffset(12, 23)
+        subtitle.Size = UDim2.new(1, -142, 0, 15)
+        subtitle.BackgroundTransparency = 1
+        subtitle.Text = "Loadout browser · instant preview · saved selections"
+        subtitle.TextColor3 = C.Muted
+        subtitle.Font = Enum.Font.Gotham
+        subtitle.TextSize = 9
+        subtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.EnableButton = Instance.new("TextButton", header)
+        studio.EnableButton.Name = "ChangerStatus"
+        studio.EnableButton.AnchorPoint = Vector2.new(1, 0.5)
+        studio.EnableButton.Position = UDim2.new(1, -8, 0.5, 0)
+        studio.EnableButton.Size = UDim2.fromOffset(112, 28)
+        studio.EnableButton.BackgroundColor3 = C.Control
+        studio.EnableButton.BorderSizePixel = 0
+        studio.EnableButton.Font = Enum.Font.GothamBold
+        studio.EnableButton.TextSize = 10
+        studio.EnableButton.AutoButtonColor = false
+        Instance.new("UICorner", studio.EnableButton).CornerRadius = UDim.new(0, 7)
+        end
 
         local categoryButtons = {}
         local categoryBar = Instance.new("Frame", holder)
-        categoryBar.Position = UDim2.fromOffset(6, 5)
-        categoryBar.Size = UDim2.new(1, -12, 0, 34)
+        categoryBar.Position = UDim2.fromOffset(8, 58)
+        categoryBar.Size = UDim2.new(1, -16, 0, 34)
         categoryBar.BackgroundTransparency = 1
         for index, modeName in ipairs({"Weapon", "Knife", "Gloves"}) do
             local button = Instance.new("TextButton", categoryBar)
@@ -17496,7 +17567,7 @@ function buildXCUI()
             button.Text = ({Weapon="WEAPONS",Knife="KNIVES",Gloves="GLOVES"})[modeName]
             button.TextColor3 = C.Muted
             button.Font = Enum.Font.GothamBold
-            button.TextSize = 11
+            button.TextSize = 10
             Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
             button.AutoButtonColor = false
             categoryButtons[modeName] = button
@@ -17508,54 +17579,55 @@ function buildXCUI()
         end
 
         local itemBar = Instance.new("ScrollingFrame", holder)
-        itemBar.Position = UDim2.fromOffset(6, 45)
-        itemBar.Size = UDim2.new(1, -12, 0, 40)
+        itemBar.Name = "ItemRail"
+        itemBar.Position = UDim2.fromOffset(8, 102)
+        itemBar.Size = UDim2.new(0, 146, 1, -164)
         itemBar.BackgroundColor3 = C.Panel
-        itemBar.BorderColor3 = C.Border
         itemBar.BorderSizePixel = 0
         itemBar.ScrollBarThickness = 2
         itemBar.ScrollBarImageColor3 = C.Lime
-        itemBar.ScrollingDirection = Enum.ScrollingDirection.X
+        itemBar.ScrollingDirection = Enum.ScrollingDirection.Y
         itemBar.CanvasSize = UDim2.new()
+        Instance.new("UICorner", itemBar).CornerRadius = UDim.new(0, 8)
         local itemLayout = Instance.new("UIListLayout", itemBar)
-        itemLayout.FillDirection = Enum.FillDirection.Horizontal
+        itemLayout.FillDirection = Enum.FillDirection.Vertical
         itemLayout.Padding = UDim.new(0, 4)
         itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
         local itemPadding = Instance.new("UIPadding", itemBar)
-        itemPadding.PaddingLeft = UDim.new(0, 4)
-        itemPadding.PaddingRight = UDim.new(0, 4)
-        itemPadding.PaddingTop = UDim.new(0, 3)
-        itemPadding.PaddingBottom = UDim.new(0, 3)
+        itemPadding.PaddingLeft = UDim.new(0, 5)
+        itemPadding.PaddingRight = UDim.new(0, 5)
+        itemPadding.PaddingTop = UDim.new(0, 5)
+        itemPadding.PaddingBottom = UDim.new(0, 5)
 
         local heading = Instance.new("TextLabel", holder)
-        heading.Position = UDim2.fromOffset(8, 94)
-        heading.Size = UDim2.new(1, -16, 0, 23)
+        heading.Position = UDim2.fromOffset(164, 101)
+        heading.Size = UDim2.new(1, -390, 0, 20)
         heading.BackgroundTransparency = 1
-        heading.TextColor3 = C.Text
+        heading.TextColor3 = C.White
         heading.Font = Enum.Font.GothamBold
-        heading.TextSize = 14
+        heading.TextSize = 12
         heading.TextTruncate = Enum.TextTruncate.AtEnd
         heading.TextXAlignment = Enum.TextXAlignment.Left
 
         local hint = Instance.new("TextLabel", holder)
-        hint.Position = UDim2.fromOffset(8, 119)
-        hint.Size = UDim2.new(1, -16, 0, 20)
+        hint.Position = UDim2.fromOffset(164, 120)
+        hint.Size = UDim2.new(1, -390, 0, 15)
         hint.BackgroundTransparency = 1
-        hint.Text = "Choose a finish below. Changes apply to the held item."
+        hint.Text = "Pick a finish. Selection is saved even while the changer is disabled."
         hint.TextColor3 = C.Muted
         hint.Font = Enum.Font.Gotham
-        hint.TextSize = 11
+        hint.TextSize = 9
         hint.TextTruncate = Enum.TextTruncate.AtEnd
         hint.TextXAlignment = Enum.TextXAlignment.Left
 
         local search = Instance.new("TextBox", holder)
         search.Name = "SkinSearch"
-        search.Position = UDim2.fromOffset(8, 145)
-        search.Size = UDim2.new(1, -58, 0, 34)
+        search.Position = UDim2.fromOffset(164, 141)
+        search.Size = UDim2.new(1, -430, 0, 32)
         search.BackgroundColor3 = C.Control
         search.BorderSizePixel = 0
-        search.Font = Enum.Font.Gotham
-        search.TextSize = 12
+        search.Font = Enum.Font.GothamMedium
+        search.TextSize = 10
         search.TextColor3 = C.Text
         search.PlaceholderColor3 = C.Muted
         search.PlaceholderText = "Search finishes..."
@@ -17566,22 +17638,23 @@ function buildXCUI()
         local searchPadding = Instance.new("UIPadding", search)
         searchPadding.PaddingLeft = UDim.new(0, 10)
         searchPadding.PaddingRight = UDim.new(0, 10)
+
         local clear = Instance.new("TextButton", holder)
-        clear.Size = UDim2.fromOffset(34, 34)
-        clear.Position = UDim2.new(1, -42, 0, 145)
+        clear.Size = UDim2.fromOffset(32, 32)
+        clear.Position = UDim2.new(1, -258, 0, 141)
         clear.BackgroundColor3 = C.Control
         clear.BorderSizePixel = 0
         clear.Text = "×"
         clear.Font = Enum.Font.GothamMedium
-        clear.TextSize = 20
+        clear.TextSize = 18
         clear.TextColor3 = C.Muted
         Instance.new("UICorner", clear).CornerRadius = UDim.new(0, 7)
         clear.Activated:Connect(function() search.Text = "" end)
 
         local grid = Instance.new("ScrollingFrame", holder)
         grid.Name = "FinishGrid"
-        grid.Position = UDim2.fromOffset(8, 189)
-        grid.Size = UDim2.new(1, -16, 1, -237)
+        grid.Position = UDim2.fromOffset(164, 181)
+        grid.Size = UDim2.new(1, -382, 1, -286)
         grid.BackgroundTransparency = 1
         grid.BorderSizePixel = 0
         grid.ScrollBarThickness = 2
@@ -17589,42 +17662,148 @@ function buildXCUI()
         grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
         grid.CanvasSize = UDim2.new()
         local layout = Instance.new("UIGridLayout", grid)
-        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 0.5 or 0.25, -6, 0, UserInputService.TouchEnabled and 120 or 108)
+        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 1 or 0.5, -5, 0, UserInputService.TouchEnabled and 124 or 118)
         layout.CellPadding = UDim2.fromOffset(6, 6)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         local padding = Instance.new("UIPadding", grid)
-        padding.PaddingRight = UDim.new(0, 2)
+        padding.PaddingRight = UDim.new(0, 3)
         padding.PaddingBottom = UDim.new(0, 4)
 
         local empty = Instance.new("TextLabel", holder)
         empty.Name = "EmptyState"
-        empty.Position = UDim2.fromOffset(8, 215)
-        empty.Size = UDim2.new(1, -16, 0, 70)
+        empty.Position = UDim2.fromOffset(164, 215)
+        empty.Size = UDim2.new(1, -390, 0, 70)
         empty.BackgroundTransparency = 1
         empty.Font = Enum.Font.Gotham
-        empty.TextSize = 13
+        empty.TextSize = 12
         empty.TextColor3 = C.Muted
-        empty.Text = "No finishes found.\nTry another name or clear the search."
+        empty.Text = "No finishes found.\nTry another search."
         empty.Visible = false
+
+        do
+        local selectedPanel = Instance.new("Frame", holder)
+        selectedPanel.Name = "SelectedSkinPanel"
+        selectedPanel.Position = UDim2.new(1, -210, 0, 102)
+        selectedPanel.Size = UDim2.new(0, 202, 1, -164)
+        selectedPanel.BackgroundColor3 = C.Panel
+        selectedPanel.BorderSizePixel = 0
+        Instance.new("UICorner", selectedPanel).CornerRadius = UDim.new(0, 8)
+        studio.SelectedStroke = Instance.new("UIStroke", selectedPanel)
+        studio.SelectedStroke.Color = C.Border
+        studio.SelectedStroke.Thickness = 1
+
+        local selectedTitle = Instance.new("TextLabel", selectedPanel)
+        selectedTitle.Position = UDim2.fromOffset(10, 9)
+        selectedTitle.Size = UDim2.new(1, -20, 0, 18)
+        selectedTitle.BackgroundTransparency = 1
+        selectedTitle.Text = "Selected skin"
+        selectedTitle.TextColor3 = C.Muted
+        selectedTitle.Font = Enum.Font.GothamBold
+        selectedTitle.TextSize = 9
+        selectedTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.SelectedName = Instance.new("TextLabel", selectedPanel)
+        studio.SelectedName.Position = UDim2.fromOffset(10, 28)
+        studio.SelectedName.Size = UDim2.new(1, -20, 0, 36)
+        studio.SelectedName.BackgroundTransparency = 1
+        studio.SelectedName.Text = "Default"
+        studio.SelectedName.TextColor3 = C.White
+        studio.SelectedName.Font = Enum.Font.GothamBold
+        studio.SelectedName.TextSize = 13
+        studio.SelectedName.TextWrapped = true
+        studio.SelectedName.TextXAlignment = Enum.TextXAlignment.Left
+        studio.SelectedName.TextYAlignment = Enum.TextYAlignment.Top
+
+        studio.SelectedItem = Instance.new("TextLabel", selectedPanel)
+        studio.SelectedItem.Position = UDim2.fromOffset(10, 65)
+        studio.SelectedItem.Size = UDim2.new(1, -20, 0, 16)
+        studio.SelectedItem.BackgroundTransparency = 1
+        studio.SelectedItem.Text = "Weapon"
+        studio.SelectedItem.TextColor3 = C.Lime
+        studio.SelectedItem.Font = Enum.Font.GothamMedium
+        studio.SelectedItem.TextSize = 9
+        studio.SelectedItem.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.SelectedVisual = Instance.new("Frame", selectedPanel)
+        studio.SelectedVisual.Name = "LargePreview"
+        studio.SelectedVisual.Position = UDim2.fromOffset(10, 88)
+        studio.SelectedVisual.Size = UDim2.new(1, -20, 0, 152)
+        studio.SelectedVisual.BackgroundColor3 = C.Control
+        studio.SelectedVisual.BorderSizePixel = 0
+        studio.SelectedVisual.ClipsDescendants = true
+        Instance.new("UICorner", studio.SelectedVisual).CornerRadius = UDim.new(0, 6)
+
+        studio.WearTitle = Instance.new("TextLabel", selectedPanel)
+        studio.WearTitle.Position = UDim2.fromOffset(10, 251)
+        studio.WearTitle.Size = UDim2.new(1, -20, 0, 16)
+        studio.WearTitle.BackgroundTransparency = 1
+        studio.WearTitle.Text = "WEAR"
+        studio.WearTitle.TextColor3 = C.Muted
+        studio.WearTitle.Font = Enum.Font.GothamBold
+        studio.WearTitle.TextSize = 8
+        studio.WearTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.WearValue = Instance.new("TextLabel", selectedPanel)
+        studio.WearValue.Position = UDim2.fromOffset(10, 269)
+        studio.WearValue.Size = UDim2.new(1, -20, 0, 22)
+        studio.WearValue.BackgroundColor3 = C.Control
+        studio.WearValue.BorderSizePixel = 0
+        studio.WearValue.TextColor3 = C.Text
+        studio.WearValue.Font = Enum.Font.GothamBold
+        studio.WearValue.TextSize = 10
+        Instance.new("UICorner", studio.WearValue).CornerRadius = UDim.new(0, 6)
+
+        studio.WearMinus = Instance.new("TextButton", selectedPanel)
+        studio.WearMinus.Position = UDim2.fromOffset(10, 297)
+        studio.WearMinus.Size = UDim2.new(0.5, -13, 0, 27)
+        studio.WearMinus.BackgroundColor3 = C.Control
+        studio.WearMinus.BorderSizePixel = 0
+        studio.WearMinus.Text = "−"
+        studio.WearMinus.TextColor3 = C.Text
+        studio.WearMinus.Font = Enum.Font.GothamBold
+        studio.WearMinus.TextSize = 15
+        Instance.new("UICorner", studio.WearMinus).CornerRadius = UDim.new(0, 6)
+        studio.WearPlus = Instance.new("TextButton", selectedPanel)
+        studio.WearPlus.Position = UDim2.new(0.5, 3, 0, 297)
+        studio.WearPlus.Size = UDim2.new(0.5, -13, 0, 27)
+        studio.WearPlus.BackgroundColor3 = C.Control
+        studio.WearPlus.BorderSizePixel = 0
+        studio.WearPlus.Text = "+"
+        studio.WearPlus.TextColor3 = C.Text
+        studio.WearPlus.Font = Enum.Font.GothamBold
+        studio.WearPlus.TextSize = 14
+        Instance.new("UICorner", studio.WearPlus).CornerRadius = UDim.new(0, 6)
+
+        studio.PreviewModeButton = Instance.new("TextButton", selectedPanel)
+        studio.PreviewModeButton.Position = UDim2.fromOffset(10, 334)
+        studio.PreviewModeButton.Size = UDim2.new(1, -20, 0, 28)
+        studio.PreviewModeButton.BackgroundColor3 = C.Control
+        studio.PreviewModeButton.BorderSizePixel = 0
+        studio.PreviewModeButton.TextColor3 = C.Muted
+        studio.PreviewModeButton.Font = Enum.Font.GothamBold
+        studio.PreviewModeButton.TextSize = 9
+        Instance.new("UICorner", studio.PreviewModeButton).CornerRadius = UDim.new(0, 6)
+        end
+
         local pageLabel = Instance.new("TextLabel", holder)
         pageLabel.Name = "PageStatus"
-        pageLabel.Position = UDim2.new(0, 64, 1, -39)
-        pageLabel.Size = UDim2.new(1, -128, 0, 32)
+        pageLabel.Position = UDim2.new(0, 210, 1, -90)
+        pageLabel.Size = UDim2.new(1, -472, 0, 30)
         pageLabel.BackgroundTransparency = 1
         pageLabel.TextColor3 = C.Muted
         pageLabel.Font = Enum.Font.GothamMedium
-        pageLabel.TextSize = 11
+        pageLabel.TextSize = 9
         local pagerButtons = {}
         for index, delta in ipairs({-1, 1}) do
             local button = Instance.new("TextButton", holder)
             button.Name = delta < 0 and "PreviousPage" or "NextPage"
-            button.Position = delta < 0 and UDim2.new(0, 8, 1, -39) or UDim2.new(1, -54, 1, -39)
-            button.Size = UDim2.fromOffset(46, 32)
+            button.Position = delta < 0 and UDim2.new(0, 164, 1, -90) or UDim2.new(1, -256, 1, -90)
+            button.Size = UDim2.fromOffset(38, 30)
             button.BackgroundColor3 = C.Control
             button.BorderSizePixel = 0
             button.Font = Enum.Font.GothamBold
             button.Text = delta < 0 and "‹" or "›"
-            button.TextSize = 22
+            button.TextSize = 18
             button.TextColor3 = C.Text
             Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
             pagerButtons[index] = button
@@ -17634,6 +17813,35 @@ function buildXCUI()
                 galleryState.Page = nextPage
                 refreshSkinGallery()
             end)
+        end
+
+        do
+        local actionBar = Instance.new("Frame", holder)
+        actionBar.Name = "SkinActionBar"
+        actionBar.Position = UDim2.new(0, 8, 1, -46)
+        actionBar.Size = UDim2.new(1, -16, 0, 38)
+        actionBar.BackgroundTransparency = 1
+        local actionLayout = Instance.new("UIListLayout", actionBar)
+        actionLayout.FillDirection = Enum.FillDirection.Horizontal
+        actionLayout.Padding = UDim.new(0, 6)
+        local function studioAction(text, accent)
+            local b = Instance.new("TextButton", actionBar)
+            b.Size = UDim2.new(0.25, -5, 1, 0)
+            b.BackgroundColor3 = accent and C.Lime:Lerp(C.Panel, 0.70) or C.Control
+            b.BorderColor3 = accent and C.Lime or C.Border
+            b.BorderSizePixel = 1
+            b.Text = text
+            b.TextColor3 = accent and C.White or C.Text
+            b.Font = Enum.Font.GothamBold
+            b.TextSize = 9
+            b.AutoButtonColor = false
+            Instance.new("UICorner", b).CornerRadius = UDim.new(0, 7)
+            return b
+        end
+        studio.OpenHeldButton = studioAction("OPEN HELD", false)
+        studio.ResetCurrentButton = studioAction("RESET CURRENT", false)
+        studio.ApplyAllButton = studioAction("APPLY ALL", true)
+        studio.ResetAllButton = studioAction("RESET ALL", false)
         end
 
         local function normalizeImage(value)
@@ -17911,6 +18119,155 @@ function buildXCUI()
                 refreshConfigControls("skinWear",XCConfig.skinWear)
             end
         end
+        local function updateStudioStatus()
+            local enabled = XCConfig.skinChangerEnabled == true
+            studio.EnableButton.Text = enabled and "●  ENABLED" or "○  DISABLED"
+            studio.EnableButton.TextColor3 = enabled and C.White or C.Muted
+            studio.EnableButton.BackgroundColor3 = enabled and C.Lime:Lerp(C.Panel, 0.72) or C.Control
+            studio.SelectedStroke.Color = enabled and C.Lime:Lerp(C.Border, 0.25) or C.Border
+        end
+
+        local function refreshSelectedPanel(itemName)
+            itemName = itemName or currentItem()
+            local selected = currentSelection(itemName)
+            studio.SelectedName.Text = tostring(selected or "Default")
+            studio.SelectedItem.Text = string.upper(tostring(XCConfig.skinGalleryMode or "Weapon")) .. "  ·  " .. tostring(itemName)
+            studio.PreviewModeButton.Text = "PREVIEW  ·  " .. string.upper(tostring(XCConfig.skinPreviewMode or "Icons"))
+
+            local wear
+            if XCConfig.skinGalleryMode == "Knife" then
+                wear = math.clamp(tonumber(XCConfig.knifeWear) or 0, 0, 1)
+            elseif XCConfig.skinGalleryMode == "Weapon" then
+                wear = math.clamp(tonumber(XCConfig.weaponSkinWear[itemName]) or tonumber(XCConfig.skinWear) or 0, 0, 1)
+            end
+            local showWear = wear ~= nil
+            studio.WearTitle.Visible = showWear; studio.WearValue.Visible = showWear
+            studio.WearMinus.Visible = showWear; studio.WearPlus.Visible = showWear
+            if showWear then studio.WearValue.Text = string.format("%.2f  ·  %d%%", wear, math.floor(wear * 100 + 0.5)) end
+
+            for _, child in ipairs(studio.SelectedVisual:GetChildren()) do
+                if not child:IsA("UICorner") then child:Destroy() end
+            end
+            local previewHost
+            if XCConfig.skinPreviewMode == "Models" then
+                previewHost = Instance.new("ViewportFrame", studio.SelectedVisual)
+                previewHost.Size = UDim2.new(1, -8, 1, -8)
+                previewHost.Position = UDim2.fromOffset(4, 4)
+                previewHost.BackgroundTransparency = 1
+                previewHost.Ambient = Color3.fromRGB(190,190,190)
+                previewHost.LightColor = Color3.fromRGB(255,255,255)
+                previewHost.LightDirection = Vector3.new(-1,-0.5,-1)
+                local ok = XCConfig.skinGalleryMode == "Gloves"
+                    and addGlovePreview(previewHost, itemName, selected)
+                    or addModelPreview(previewHost, itemName, selected)
+                if ok then updateStudioStatus(); return end
+                previewHost:Destroy(); previewHost = nil
+            end
+            local imageId = findPreviewImage(itemName, selected)
+            if imageId then
+                local image = Instance.new("ImageLabel", studio.SelectedVisual)
+                image.Size = UDim2.new(1, -10, 1, -10)
+                image.Position = UDim2.fromOffset(5, 5)
+                image.BackgroundTransparency = 1
+                image.Image = imageId
+                image.ScaleType = Enum.ScaleType.Fit
+            else
+                local fallback = Instance.new("TextLabel", studio.SelectedVisual)
+                fallback.Size = UDim2.fromScale(1,1)
+                fallback.BackgroundTransparency = 1
+                fallback.Text = selected == "Default" and "ORIGINAL\nFINISH" or "PREVIEW\nUNAVAILABLE"
+                fallback.TextColor3 = C.Muted
+                fallback.Font = Enum.Font.GothamBold
+                fallback.TextSize = 10
+                fallback.TextWrapped = true
+            end
+            updateStudioStatus()
+        end
+
+        local function setStudioEnabled(enabled)
+            XCConfig.skinChangerEnabled = enabled == true
+            XCConfig.gloveChangerEnabled = enabled == true
+            refreshConfigControls("skinChangerEnabled", XCConfig.skinChangerEnabled)
+            refreshConfigControls("gloveChangerEnabled", XCConfig.gloveChangerEnabled)
+            if enabled then
+                applyXCSelectedWeaponSkin(); applyXCKnifeChanger(); applyXCGloves()
+            else
+                restoreXCSelectedWeaponSkin(); restoreXCKnifeModel(); restoreXCGloves()
+            end
+            updateStudioStatus(); scheduleConfigAutoSave()
+        end
+
+        local function changeStudioWear(delta)
+            local itemName = currentItem()
+            if XCConfig.skinGalleryMode == "Knife" then
+                XCConfig.knifeWear = math.clamp((tonumber(XCConfig.knifeWear) or 0) + delta, 0, 1)
+                applyXCKnifeChanger()
+            elseif XCConfig.skinGalleryMode == "Weapon" then
+                local value = math.clamp((tonumber(XCConfig.weaponSkinWear[itemName]) or tonumber(XCConfig.skinWear) or 0) + delta, 0, 1)
+                XCConfig.weaponSkinWear[itemName] = value
+                XCConfig.skinWear = value
+                refreshConfigControls("skinWear", value)
+                applyXCSelectedWeaponSkin()
+            end
+            refreshSelectedPanel(itemName); scheduleConfigAutoSave()
+        end
+
+        studio.EnableButton.Activated:Connect(function() setStudioEnabled(not XCConfig.skinChangerEnabled) end)
+        studio.WearMinus.Activated:Connect(function() changeStudioWear(-0.05) end)
+        studio.WearPlus.Activated:Connect(function() changeStudioWear(0.05) end)
+        studio.PreviewModeButton.Activated:Connect(function()
+            XCConfig.skinPreviewMode = XCConfig.skinPreviewMode == "Models" and "Icons" or "Models"
+            refreshConfigControls("skinPreviewMode", XCConfig.skinPreviewMode)
+            galleryState.Signature = nil
+            refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+        studio.OpenHeldButton.Activated:Connect(function()
+            local mode, heldItem = getXCHeldSkinItem()
+            if not heldItem or not skinData.SkinSelections[heldItem] then
+                XCNotify("Skin studio", "Hold a supported weapon or knife first.", "warning", 2)
+                return
+            end
+            XCConfig.skinGalleryMode = mode
+            if mode == "Knife" then
+                XCConfig.selectedKnifeType = heldItem
+                if not table.find(getXCSkinChoicesForWeapon(heldItem), XCConfig.selectedSkin) then XCConfig.selectedSkin = "Default" end
+            else
+                XCConfig.skinEditorWeapon = heldItem
+                XCConfig.skinEditorFinish = XCConfig.weaponSkinSelections[heldItem] or "Default"
+                XCConfig.skinWear = XCConfig.weaponSkinWear[heldItem] or 0
+                refreshConfigControls("skinWear", XCConfig.skinWear)
+            end
+            galleryState.Signature = nil; refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+        studio.ResetCurrentButton.Activated:Connect(function()
+            if XCConfig.skinGalleryMode == "Knife" then
+                XCConfig.selectedSkin = "Default"; XCConfig.knifeWear = 0; applyXCKnifeChanger()
+            elseif XCConfig.skinGalleryMode == "Gloves" then
+                XCConfig.selectedGloveSkin = "Default"; applyXCGloves()
+            else
+                local itemName = currentItem()
+                XCConfig.weaponSkinSelections[itemName] = "Default"
+                XCConfig.weaponSkinWear[itemName] = 0
+                XCConfig.skinEditorFinish = "Default"; XCConfig.skinWear = 0
+                restoreXCSelectedWeaponSkin(itemName)
+            end
+            galleryState.Signature = nil; refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+        studio.ApplyAllButton.Activated:Connect(function()
+            setStudioEnabled(true)
+            applyXCSelectedWeaponSkin(); applyXCKnifeChanger(); applyXCGloves()
+            XCNotify("Skin studio", "Saved loadout applied", "success", 1.5)
+        end)
+        studio.ResetAllButton.Activated:Connect(function()
+            table.clear(XCConfig.weaponSkinSelections); table.clear(XCConfig.weaponSkinWear)
+            XCConfig.skinEditorFinish = "Default"; XCConfig.skinWear = 0
+            XCConfig.selectedKnifeType = "Default"; XCConfig.selectedSkin = "Default"; XCConfig.knifeWear = 0
+            XCConfig.selectedGloveModel = "Default"; XCConfig.selectedGloveSkin = "Default"
+            restoreXCKnifeModel(); restoreXCSelectedWeaponSkin(); restoreXCGloves()
+            refreshConfigControls("skinWear", 0); refreshConfigControls("knifeWear", 0)
+            galleryState.Signature = nil; refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+
         local function updateCardSelection(itemName)
             local selected=currentSelection(itemName)
             for skinName,card in pairs(cards) do
@@ -17940,17 +18297,18 @@ function buildXCUI()
             end
             local choices=XCConfig.skinGalleryMode=="Gloves" and getXCGloveSkinChoices(itemName)
                 or getXCSkinChoicesForWeapon(itemName)
-            local result=xcSkinCatalogPage(choices,search.Text,galleryState.Page,UserInputService.TouchEnabled and 6 or 12)
+            local result=xcSkinCatalogPage(choices,search.Text,galleryState.Page,UserInputService.TouchEnabled and 6 or 8)
             galleryState.Page,galleryState.Pages=result.Page,result.Pages
             heading.Text=tostring(itemName).."  /  "..tostring(result.Total).." finishes"
-            hint.Text=(XCConfig.skinChangerEnabled and "Selected: " or "Changer off · Saved: ")..tostring(currentSelection(itemName))
+            hint.Text=XCConfig.skinChangerEnabled and "Loadout enabled · changes apply instantly" or "Loadout disabled · selections are still saved"
+            refreshSelectedPanel(itemName)
             pageLabel.Text=string.format("%d / %d   ·   %d results",result.Page,result.Pages,result.Total)
             pagerButtons[1].TextColor3=result.Page>1 and C.Text or C.Muted
             pagerButtons[2].TextColor3=result.Page<result.Pages and C.Text or C.Muted
             empty.Visible=result.Total==0
             local signature=context.."\0"..tostring(XCConfig.skinPreviewMode).."\0"..result.Page
                 .."\0"..table.concat(result.Items,"\0").."\0"..tostring(C.Lime)..tostring(C.Panel)
-            if galleryState.Signature==signature then updateCardSelection(itemName);return end
+            if galleryState.Signature==signature then updateCardSelection(itemName);refreshSelectedPanel(itemName);return end
             galleryState.Signature=signature
             gallerySerial = gallerySerial + 1;local serial=gallerySerial
             table.clear(cards)
@@ -17966,24 +18324,24 @@ function buildXCUI()
             if galleryState.ItemKey~=itemKey then
             galleryState.ItemKey=itemKey
             for _,child in ipairs(itemBar:GetChildren()) do if child~=itemLayout and child~=itemPadding then child:Destroy() end end
-            local itemWidthTotal=8
+            local itemHeightTotal=10
             for index,name in ipairs(items) do
-                local width=math.clamp(#tostring(name)*7+20,68,132)
                 local itemButton=Instance.new("TextButton",itemBar)
                 itemButton.Name="Item_"..tostring(name);itemButton.LayoutOrder=index
-                itemButton.Size=UDim2.fromOffset(width,32)
-                itemButton.BackgroundColor3=name==itemName and C.Lime:Lerp(C.Panel,0.72) or C.Control
+                itemButton.Size=UDim2.new(1,-10,0,32)
+                itemButton.BackgroundColor3=name==itemName and C.Lime:Lerp(C.Panel,0.76) or C.Control
                 itemButton.BorderColor3=name==itemName and C.Lime or C.Border;itemButton.BorderSizePixel=1
-                itemButton.Text=tostring(name);itemButton.TextColor3=name==itemName and C.White or C.Text
-                itemButton.Font=Enum.Font.GothamMedium;itemButton.TextSize=11;itemButton.AutoButtonColor=false
+                itemButton.Text="  "..tostring(name);itemButton.TextColor3=name==itemName and C.White or C.Text
+                itemButton.TextXAlignment=Enum.TextXAlignment.Left
+                itemButton.Font=Enum.Font.GothamMedium;itemButton.TextSize=10;itemButton.AutoButtonColor=false
                 Instance.new("UICorner",itemButton).CornerRadius=UDim.new(0,6)
                 itemButton.Activated:Connect(function()
                     if name==currentItem() then return end
-                    selectItem(name,true);refreshSkinGallery();scheduleConfigAutoSave()
+                    selectItem(name,true);galleryState.Signature=nil;refreshSkinGallery();scheduleConfigAutoSave()
                 end)
-                itemWidthTotal = itemWidthTotal + (width+4)
+                itemHeightTotal = itemHeightTotal + 36
             end
-            itemBar.CanvasSize=UDim2.fromOffset(itemWidthTotal,0)
+            itemBar.CanvasSize=UDim2.new(0,0,0,itemHeightTotal)
             end
             local previewJobs={}
             for index,skinName in ipairs(result.Items) do
@@ -18007,7 +18365,7 @@ function buildXCUI()
                 label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.GothamMedium;label.TextSize=11;label.TextTruncate=Enum.TextTruncate.AtEnd
                 local selected=Instance.new("TextLabel",card)
                 selected.Name="Selected";selected.Position=UDim2.fromOffset(7,7);selected.Size=UDim2.fromOffset(64,17)
-                selected.BackgroundColor3=C.Main;selected.BackgroundTransparency=0.12;selected.Text="SELECTED"
+                selected.BackgroundColor3=C.Main;selected.BackgroundTransparency=0.08;selected.Text="EQUIPPED"
                 selected.Font=Enum.Font.GothamBold;selected.TextSize=8;selected.Visible=false;selected.ZIndex=5
                 Instance.new("UICorner",selected).CornerRadius=UDim.new(0,4)
                 local function populatePreview()
@@ -18040,13 +18398,15 @@ function buildXCUI()
                     else XCConfig.skinEditorFinish=skinName;XCConfig.weaponSkinSelections[itemName]=skinName
                         XCConfig.weaponSkinWear[itemName]=XCConfig.skinWear;refreshConfigControls("skinEditorFinish",skinName);applyXCSelectedWeaponSkin() end
                     updateCardSelection(itemName)
-                    hint.Text=(XCConfig.skinChangerEnabled and "Selected: " or "Changer off · Saved: ")..tostring(skinName)
+                    refreshSelectedPanel(itemName)
+                    hint.Text=XCConfig.skinChangerEnabled and "Equipped · applied to current loadout" or "Saved · enable Skin Studio to apply"
                     scheduleConfigAutoSave()
                 end)
                 card.MouseEnter:Connect(function() card.BackgroundColor3=C.Control end)
                 card.MouseLeave:Connect(function() card.BackgroundColor3=C.Panel end)
             end
             updateCardSelection(itemName)
+            refreshSelectedPanel(itemName)
             if #previewJobs>0 then
                 task.spawn(function()
                     for _,job in ipairs(previewJobs) do
@@ -18598,6 +18958,7 @@ function buildXCUI()
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
     section(L, "Chams 4.1 Stable")
     toggle(L, "Chams", "chamsEnabled")
+    toggle(L, "Through walls", "chamsThroughWallsEnabled")
     addChoice(L, "Material", "chamsStyle", {"Shaded", "Solid", "Glow", "Glow Outline", "Iridescent", "Water Flow", "Glossy"}, refreshESPPreview)
     toggle(L, "Use ESP palette", "chamsUseEspPalette")
 
@@ -18670,6 +19031,29 @@ function buildXCUI()
     addSlider(R, "Sound marker duration", "soundEspDuration", 0.4, 2.5, 0.05, "s")
     toggle(R, "Tracers", "tracersEnabled")
     toggle(R, "Head dot", "headDotEnabled")
+
+    section(R, "Bullet FX")
+    toggle(R, "Bullet trail", "bulletTrailEnabled")
+    toggle(R, "Bullet flash", "bulletFlashEnabled")
+    toggle(R, "Rainbow trail", "bulletTracerRainbow")
+    addChoice(R, "Trail style", "bulletTracerStyle", {
+        "Neverlose", "Laser", "Glow", "Dual", "Electric", "Comet",
+        "Beam", "Pulse", "Block", "Cylinder"
+    })
+    addColorPicker(R, "Primary color", "bulletTracerColor")
+    addColorPicker(R, "Secondary color", "bulletTracerSecondary")
+    addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
+    addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
+    addSlider(R, "Glow strength", "bulletTracerGlowStrength", 0, 2, 0.05, "x")
+    addSlider(R, "Core brightness", "bulletTracerCoreBrightness", 0.5, 2.5, 0.05, "x")
+    addSlider(R, "Taper", "bulletTracerTaper", 0, 1, 0.05, "")
+    addSlider(R, "Dual gap", "bulletTracerDualGap", 0.02, 0.45, 0.01, "")
+    toggle(R, "Bullet impacts", "bulletImpactEnabled")
+    addChoice(R, "Impact style", "bulletImpactStyle", {"Glow Ring", "Cross", "Pulse", "Dot"})
+    addSlider(R, "Impact size", "bulletImpactSize", 0.05, 2, 0.05, "")
+    addSlider(R, "Impact duration", "bulletImpactDuration", 0.08, 1.5, 0.05, "s")
+    toggle(R, "Impact glow", "bulletImpactGlow")
+
     section(R, "Hit Feedback 2.0")
     toggle(R, "Screen hitmarker", "hitmarkerEnabled")
     addChoice(R, "Hitmarker style", "hitmarkerStyle", {"Neverlose", "Classic", "Cross", "Dot", "Ring"})
@@ -18920,74 +19304,9 @@ function buildXCUI()
     addChoice(R, "Freelook bind", "freelookKey", {"LeftAlt", "RightAlt", "F3", "F4", "F5", "F6"})
 
     task.wait()
-    local S = createPanel(pages["Skins"], "Skin studio", 0, 1)
-    section(S, "Loadout")
-    toggle(S, "Apply saved finishes", "skinChangerEnabled")
-    addNote(S, "Choose an item, search its finishes and tap a card. Your choices stay saved while the changer is off.")
-    addButton(S, "OPEN HELD ITEM", function()
-        local mode, itemName = getXCHeldSkinItem()
-        if not itemName or not skinData.SkinSelections[itemName] then
-            XCNotify("Skin studio", "Hold a supported weapon or knife first.", "warning", 2)
-            return
-        end
-        XCConfig.skinGalleryMode = mode
-        if mode == "Knife" then
-            XCConfig.selectedKnifeType = itemName
-            if not table.find(getXCSkinChoicesForWeapon(itemName), XCConfig.selectedSkin) then XCConfig.selectedSkin = "Default" end
-        else
-            XCConfig.skinEditorWeapon = itemName
-            XCConfig.skinEditorFinish = XCConfig.weaponSkinSelections[itemName] or "Default"
-            XCConfig.skinWear = XCConfig.weaponSkinWear[itemName] or 0
-            refreshConfigControls("skinWear", XCConfig.skinWear)
-        end
-        refreshSkinGallery()
-        scheduleConfigAutoSave()
-    end)
-    section(S, "Finish catalog")
-    addChoice(S, "Preview style", "skinPreviewMode", {"Icons", "Models"}, function() refreshSkinGallery() end)
+    local S = createPanel(pages["Skins"], "Skin Studio 2.0", 0, 1)
     addSkinGallery(S)
-    section(S, "Wear and actions")
-    addSlider(S, "Weapon wear", "skinWear", 0, 1, 0.01, "", function(value)
-        local weaponName = XCConfig.skinEditorWeapon
-        XCConfig.weaponSkinWear[weaponName] = value
-        applyXCSelectedWeaponSkin()
-    end)
-    addSlider(S, "Knife wear", "knifeWear", 0, 1, 0.01, "", function() applyXCKnifeChanger() end)
-    addButton(S, "RESET CURRENT SKIN", function()
-        if XCConfig.skinGalleryMode=="Knife" then
-            XCConfig.selectedSkin="Default";applyXCKnifeChanger()
-        elseif XCConfig.skinGalleryMode=="Gloves" then
-            XCConfig.selectedGloveSkin="Default";applyXCGloves()
-        else
-            local weaponName=XCConfig.skinEditorWeapon
-            XCConfig.weaponSkinSelections[weaponName]="Default";XCConfig.weaponSkinWear[weaponName]=0
-            XCConfig.skinEditorFinish="Default";XCConfig.skinWear=0;refreshConfigControls("skinWear",0)
-            restoreXCSelectedWeaponSkin(weaponName)
-        end
-        refreshSkinGallery()
-        scheduleConfigAutoSave()
-    end)
-    addButton(S, "APPLY ALL SKINS", function()
-        applyXCSelectedWeaponSkin()
-        applyXCKnifeChanger()
-        applyXCGloves()
-    end)
-    addButton(S, "RESET ALL SKINS", function()
-        table.clear(XCConfig.weaponSkinSelections)
-        table.clear(XCConfig.weaponSkinWear)
-        XCConfig.skinEditorFinish = "Default"
-        XCConfig.skinWear = 0
-        XCConfig.selectedKnifeType = "Default"
-        XCConfig.selectedSkin = "Default"
-        XCConfig.selectedGloveModel = "Default"
-        XCConfig.selectedGloveSkin = "Default"
-        restoreXCKnifeModel()
-        restoreXCSelectedWeaponSkin()
-        restoreXCGloves()
-        refreshConfigControls("skinWear", 0)
-        refreshSkinGallery()
-        scheduleConfigAutoSave()
-    end)
+
     task.wait()
     L, R = columns("Misc", "Utilities", "Viewmodel")
     section(L, "Session")
@@ -19013,29 +19332,6 @@ function buildXCUI()
     toggle(R, "Weapon chams", "weaponChamsEnabled")
     addChoice(R, "Weapon material", "weaponChamsMode", {"Glass", "ForceField", "Metal", "Highlight", "Neon"})
     addColorPicker(R, "Weapon color", "weaponChamsColor", function() setWeaponVisuals() end)
-    section(R, "Tracers 2.0")
-    toggle(R, "Bullet trail", "bulletTrailEnabled")
-    toggle(R, "Bullet flash", "bulletFlashEnabled")
-    toggle(R, "Rainbow trail", "bulletTracerRainbow")
-    addChoice(R, "Trail style", "bulletTracerStyle", {
-        "Neverlose", "Laser", "Glow", "Dual", "Electric", "Comet",
-        "Beam", "Pulse", "Block", "Cylinder"
-    })
-    addColorPicker(R, "Primary color", "bulletTracerColor")
-    addColorPicker(R, "Secondary color", "bulletTracerSecondary")
-    addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
-    addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
-    addSlider(R, "Glow strength", "bulletTracerGlowStrength", 0, 2, 0.05, "x")
-    addSlider(R, "Core brightness", "bulletTracerCoreBrightness", 0.5, 2.5, 0.05, "x")
-    addSlider(R, "Taper", "bulletTracerTaper", 0, 1, 0.05, "")
-    addSlider(R, "Dual gap", "bulletTracerDualGap", 0.02, 0.45, 0.01, "")
-
-    section(R, "Bullet impacts 2.0")
-    toggle(R, "Bullet impacts", "bulletImpactEnabled")
-    addChoice(R, "Impact style", "bulletImpactStyle", {"Glow Ring", "Cross", "Pulse", "Dot"})
-    addSlider(R, "Impact size", "bulletImpactSize", 0.05, 2, 0.05, "")
-    addSlider(R, "Impact duration", "bulletImpactDuration", 0.08, 1.5, 0.05, "s")
-    toggle(R, "Impact glow", "bulletImpactGlow")
     section(R, "Penetration checker")
     toggle(R, "Cube checker", "cubeCheckerEnabled")
     addSlider(R, "Cube distance", "cubeCheckerDistance", 1, 100, 1, "")
@@ -19049,7 +19345,8 @@ function buildXCUI()
     section(L, "Chams rules")
     toggle(L, "Show teammates", "chamsShowTeammates")
     toggle(L, "Chams team check", "chamsTeamCheck")
-    toggle(L, "Chams occlusion", "chamsOcclusion")
+    toggle(L, "Through walls", "chamsThroughWallsEnabled")
+    toggle(L, "Hidden color by visibility", "chamsOcclusion")
     addSlider(L, "Chams fill", "chamsFillTransparency", 0, 1, 0.05, "")
     addSlider(L, "Chams outline", "chamsOutlineTransparency", 0, 1, 0.05, "")
     addColorPicker(L, "Chams visible", "chamsVisible", refreshESPPreview)
