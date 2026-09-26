@@ -459,6 +459,7 @@ local XCConfig = {
     skinChangerEnabled = false,
     triggerbotEnabled = false,
     triggerbotMode = "Crosshair",
+    triggerbotReactionMode = "Instant",
     antiAimEnabled = false,
     antiAimMode = "Desync",
     bunnyHopEnabled = false,
@@ -552,7 +553,7 @@ local XCConfig = {
     priorityPlayerName = "None",
     aimFov = 160,
     triggerbotFov = 160,
-    triggerbotDelay = 0.075,
+    triggerbotDelay = 0.0,
     triggerbotScopedOnly = false,
     triggerbotHeadOnly = false,
     aimbotSpeed = 35.0,
@@ -866,9 +867,14 @@ local XCConfig = {
     weaponChamsColorG = 45,
     weaponChamsColorB = 55,
     scopeFovEnabled = false,
-    scopeFov = 70,
+    scopeFov = 55,
     customFovEnabled = false,
-    customFov = 90,
+    customFov = 100,
+    customFovMode = "Preserve ADS",
+    customAdsFov = 76,
+    customFovSmoothEnabled = true,
+    customFovTransitionSpeed = 14,
+    customFovPreset = "Custom",
     scopeCrosshairLength = 85,
     scopeCrosshairThickness = 2,
     scopeCrosshairGap = 8,
@@ -5158,6 +5164,9 @@ end))
 --// TRIGGERBOT NO WORK & MOVEMENT STATE NO WORK
 local triggerbotMobileAutoFire = true
 local lastTriggerTick = 0
+-- Triggerbot 2.0 runtime cache is stored in getgenv/_G through a helper
+-- instead of new top-level locals, avoiding protected-build local pressure.
+if sharedXCEnv then sharedXCEnv.XCTriggerRuntimeV2 = nil else _G.XCTriggerRuntimeV2 = nil end
 
 local currentSpinAngle = 0
 local isMobileJumpHeld = false
@@ -8958,52 +8967,154 @@ function updateCustomScope()
     end
 end
 
--- Central FOV owner. All camera projection consumers see one final FOV value
--- for the current frame. Scope FOV takes priority only while actually scoped.
-function applyXCCameraFov()
+-- Central FOV owner. Desktop calls this from the same post-camera callback
+-- that projects 2D ESP, so FOV, third person and WorldToViewportPoint always
+-- consume one authoritative camera state for the rendered frame.
+function xcIsAdsActive(cam, nativeFov, state, scoped)
+    if scoped then return true end
+
+    local rightMouse = false
+    if not UserInputService.TouchEnabled then
+        pcall(function()
+            rightMouse = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+        end)
+    end
+    if rightMouse then return true end
+
+    -- Some BloxStrike weapons toggle ADS without continuously holding RMB.
+    -- Detect their native camera zoom only when the value did not come from XC.
+    local nativeHip = tonumber(state and state.NativeHipFov) or 70
+    local lastApplied = tonumber(state and state.AppliedFov)
+    local looksNative = not lastApplied or math.abs((tonumber(nativeFov) or nativeHip) - lastApplied) > 0.35
+    return looksNative and (tonumber(nativeFov) or nativeHip) < (nativeHip - 1.25)
+end
+
+function restoreXCCameraFov()
     local cam = Workspace.CurrentCamera or camera
-    if not cam then return nil end
+    local state = XCFeatureState.cameraFovState
+    if not cam or type(state) ~= "table" then return end
+
+    local restore = tonumber(state.LastNativeFov) or tonumber(state.NativeHipFov) or tonumber(state.BaseFov)
+    if restore then
+        pcall(function() cam.FieldOfView = math.clamp(restore, 1, 120) end)
+    end
+    state.Controlled = false
+    state.AppliedFov = nil
+    state.TargetFov = nil
+end
+
+function applyXCCameraFov(dt, sampledNativeFov)
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil, false, false end
 
     local state = XCFeatureState.cameraFovState
     if type(state) ~= "table" then
-        state = {Camera = nil, BaseFov = nil, Controlled = false}
+        state = {
+            Camera = nil,
+            BaseFov = nil,
+            NativeHipFov = nil,
+            LastNativeFov = nil,
+            LastNativeAdsFov = nil,
+            AppliedFov = nil,
+            TargetFov = nil,
+            Controlled = false,
+        }
         XCFeatureState.cameraFovState = state
     end
     if state.Camera ~= cam then
         state.Camera = cam
         state.BaseFov = cam.FieldOfView
+        state.NativeHipFov = cam.FieldOfView
+        state.LastNativeFov = cam.FieldOfView
+        state.LastNativeAdsFov = nil
+        state.AppliedFov = nil
+        state.TargetFov = nil
         state.Controlled = false
     end
 
+    local nativeFov = math.clamp(tonumber(sampledNativeFov) or tonumber(cam.FieldOfView) or 70, 10, 120)
     local scope = findSniperScope()
     local scoped = scope and scope.Visible == true
-    local desired
-    if XCConfig.customScopeEnabled and scoped and XCConfig.scopeFovEnabled then
-        desired = math.clamp(tonumber(XCConfig.scopeFov) or 70, 10, 120)
+
+    -- A value matching our previous smoothed FOV may simply be XC's value left
+    -- over from the prior frame. Only learn native baselines from values that
+    -- appear to have been written by the game camera.
+    local lastApplied = tonumber(state.AppliedFov)
+    local nativeObservation = not lastApplied or math.abs(nativeFov - lastApplied) > 0.35
+    local ads = xcIsAdsActive(cam, nativeFov, state, scoped)
+
+    if nativeObservation then
+        state.LastNativeFov = nativeFov
+        if ads then
+            state.LastNativeAdsFov = nativeFov
+        else
+            state.NativeHipFov = nativeFov
+            state.BaseFov = nativeFov
+        end
+    end
+
+    local desired = nil
+    local mode = tostring(XCConfig.customFovMode or "Preserve ADS")
+    local hipFov = math.clamp(tonumber(XCConfig.customFov) or 100, 70, 120)
+    local adsFov = math.clamp(tonumber(XCConfig.customAdsFov) or 76, 20, 120)
+
+    -- Scope FOV is independent of Custom Scope. The native scope being visible
+    -- is enough to select it, fixing the old customScopeEnabled dependency.
+    if scoped and XCConfig.scopeFovEnabled then
+        desired = math.clamp(tonumber(XCConfig.scopeFov) or 55, 10, 120)
     elseif XCConfig.customFovEnabled then
-        desired = math.clamp(tonumber(XCConfig.customFov) or 90, 70, 120)
+        if not ads then
+            desired = hipFov
+        elseif mode == "Override ADS" then
+            desired = adsFov
+        elseif mode == "Preserve ADS" then
+            local nativeHip = math.clamp(tonumber(state.NativeHipFov) or 70, 10, 120)
+            local nativeAds = nativeObservation and nativeFov or tonumber(state.LastNativeAdsFov)
+            if nativeAds and nativeAds < nativeHip - 0.5 then
+                -- Preserve the game's zoom ratio while moving the hip FOV.
+                desired = math.clamp(hipFov * (nativeAds / nativeHip), 10, 120)
+            else
+                desired = adsFov
+            end
+        else -- Hip only: release FOV ownership while aiming.
+            desired = nil
+        end
     end
 
     if desired then
-        -- BaseFov is sampled continuously while XC is not controlling FOV.
-        -- Do not overwrite it on the first scoped frame because BloxStrike may
-        -- already have applied its native zoom by then.
-        if state.BaseFov == nil then state.BaseFov = cam.FieldOfView end
-        state.Controlled = true
-        if math.abs((cam.FieldOfView or desired) - desired) > 0.001 then
-            cam.FieldOfView = desired
+        local nextFov = desired
+        if XCConfig.customFovSmoothEnabled ~= false then
+            local speed = math.clamp(tonumber(XCConfig.customFovTransitionSpeed) or 14, 1, 40)
+            local frameDt = math.clamp(tonumber(dt) or (1 / 60), 0, 0.1)
+            local from = tonumber(state.AppliedFov) or nativeFov
+            local alpha = 1 - math.exp(-speed * frameDt)
+            nextFov = from + (desired - from) * alpha
+            if math.abs(nextFov - desired) < 0.015 then nextFov = desired end
         end
-    elseif state.Controlled then
-        local restore = math.clamp(tonumber(state.BaseFov) or 70, 1, 120)
-        state.Controlled = false
-        cam.FieldOfView = restore
-        state.BaseFov = restore
-    else
-        -- Follow the game's own FOV while XC is not controlling it so a later
-        -- enable restores to the correct weapon/round baseline, not hardcoded 70.
-        state.BaseFov = cam.FieldOfView
+        state.Controlled = true
+        state.TargetFov = desired
+        state.AppliedFov = nextFov
+        if math.abs((cam.FieldOfView or nextFov) - nextFov) > 0.001 then
+            cam.FieldOfView = nextFov
+        end
+        return nextFov, ads, scoped
     end
-    return desired
+
+    -- When Hip only / disabled releases ownership, prefer the native value that
+    -- the game wrote this frame. If the game has not written yet, use the last
+    -- known native ADS/hip value instead of snapping to XC's previous FOV.
+    if state.Controlled then
+        local releaseFov = nativeFov
+        if lastApplied and math.abs(nativeFov - lastApplied) <= 0.35 then
+            releaseFov = ads and (tonumber(state.LastNativeAdsFov) or tonumber(state.NativeHipFov) or 70)
+                or (tonumber(state.NativeHipFov) or tonumber(state.BaseFov) or 70)
+        end
+        cam.FieldOfView = math.clamp(releaseFov, 1, 120)
+    end
+    state.Controlled = false
+    state.AppliedFov = nil
+    state.TargetFov = nil
+    return nil, ads, scoped
 end
 
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
@@ -9019,7 +9130,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     end
     pcall(function()
         if XCConfig.weaponChamsEnabled then setWeaponVisuals() end
-        if XCConfig.customScopeEnabled then updateCustomScope() end
+        -- Desktop custom scope is refreshed in the same post-camera callback as
+        -- FOV/ESP. Mobile retains the existing RenderStepped path.
+        if XCConfig.customScopeEnabled and UserInputService.TouchEnabled then updateCustomScope() end
         if worldVisualActive then
             XCFeatureState.worldUpdateAccumulator = XCFeatureState.worldUpdateAccumulator + (dt)
             if XCFeatureState.worldUpdateAccumulator >= 0.2 then
@@ -10102,6 +10215,7 @@ function cleanup()
     pcall(restoreXCGloves)
     pcall(function() updateXCAntiFlashState(false) end)
     restoreXCCharacterInputHook()
+    pcall(restoreXCCameraFov)
 
     pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_CAMERA_SYNC") end)
     for _, c in pairs(connections) do 
@@ -11686,83 +11800,204 @@ function triggerFindTargetAlongRay(origin, direction, targetModel)
     return nil
 end
 
+function xcTriggerRuntime()
+    local store = sharedXCEnv or _G
+    local state = store.XCTriggerRuntimeV2
+    if type(state) ~= "table" then
+        state = {InventoryScript = nil, WeaponGetter = nil, MouseReleaseSerial = 0}
+        store.XCTriggerRuntimeV2 = state
+    end
+    return state
+end
+
+function xcTriggerDelaySeconds()
+    if tostring(XCConfig.triggerbotReactionMode or "Instant") == "Instant" then
+        return 0
+    end
+    return math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0, 0.5)
+end
+
+function resolveXCTriggerWeapon()
+    local runtime = xcTriggerRuntime()
+    local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+    local scriptObject = controllers and controllers:FindFirstChild("InventoryController")
+    if not scriptObject then
+        runtime.InventoryScript = nil
+        runtime.WeaponGetter = nil
+        return nil
+    end
+
+    if scriptObject ~= runtime.InventoryScript or type(runtime.WeaponGetter) ~= "function" then
+        runtime.InventoryScript = scriptObject
+        runtime.WeaponGetter = nil
+        pcall(function()
+            local inventory = require(scriptObject)
+            local getter = type(inventory) == "table" and inventory.peekCurrentEquippedForMovement or nil
+            if type(getter) == "function" then
+                runtime.WeaponGetter = getter
+            end
+        end)
+    end
+
+    if type(runtime.WeaponGetter) ~= "function" then return nil end
+    local ok, weapon = pcall(runtime.WeaponGetter)
+    if not ok or type(weapon) ~= "table" or weapon.IsDestroyed then return nil end
+    return weapon
+end
+
+function xcTriggerWeaponReady(weapon)
+    if type(weapon) ~= "table" or weapon.IsDestroyed then return false end
+    if type(weapon.shoot) ~= "function" then return false end
+    if weapon.IsShooting == true or weapon.IsBurstShooting == true
+        or weapon.IsReloading == true or weapon.Reloading == true then
+        return false
+    end
+    return true
+end
+
+function xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+    local redirectStore = sharedXCEnv or _G
+    if not redirectStore then return nil end
+    if typeof(forcedPart) ~= "Instance" or not forcedPart:IsA("BasePart") or not forcedPart.Parent then
+        redirectStore.XCTriggerRedirectV38 = nil
+        return nil
+    end
+
+    local ticket = {
+        Part = forcedPart,
+        Character = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model"),
+        Position = typeof(forcedPosition) == "Vector3" and forcedPosition or forcedPart.Position,
+        Mode = redirectMode,
+        Expires = os.clock() + 0.35,
+    }
+    redirectStore.XCTriggerRedirectV38 = ticket
+    task.delay(0.4, function()
+        if redirectStore.XCTriggerRedirectV38 == ticket then
+            redirectStore.XCTriggerRedirectV38 = nil
+        end
+    end)
+    return ticket
+end
+
+function xcClearTriggerRedirect(ticket)
+    local redirectStore = sharedXCEnv or _G
+    if redirectStore and (ticket == nil or redirectStore.XCTriggerRedirectV38 == ticket) then
+        redirectStore.XCTriggerRedirectV38 = nil
+    end
+end
+
 function triggerbotFire(vp, forcedPart, forcedCharacter, forcedPosition, redirectMode)
-    -- The selected character may die or respawn between selection and firing.
+    -- The selected character may die/respawn between selection and the actual
+    -- shot. Reject stale targets before arming the native Bullet redirect.
     if forcedPart then
         local targetCharacter = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model")
         if not targetCharacter or not forcedPart:IsDescendantOf(targetCharacter)
             or not isEntityAlive(targetCharacter, targetCharacter:FindFirstChildOfClass("Humanoid")) then
-            local store = sharedXCEnv or _G
-            store.XCTriggerRedirectV38 = nil
+            xcClearTriggerRedirect(nil)
             return false
         end
     end
-    -- Queue the exact trigger target for the next real local Bullet raycast.
-    -- Keeping the queue in getgenv also lets persistent v36 wrappers from a
-    -- reinjection consume the CURRENT session's target callback/state.
-    local redirectStore = sharedXCEnv or _G
-    local ticket = nil
-    if redirectStore then
-        if typeof(forcedPart) == "Instance" and forcedPart:IsA("BasePart") and forcedPart.Parent then
-            ticket = {
-                Part = forcedPart,
-                Character = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model"),
-                Position = typeof(forcedPosition) == "Vector3" and forcedPosition or forcedPart.Position,
-                Mode = redirectMode,
-                Expires = os.clock() + 0.35,
-            }
-            redirectStore.XCTriggerRedirectV38 = ticket
-            task.delay(0.4, function()
-                if redirectStore.XCTriggerRedirectV38 == ticket then
-                    redirectStore.XCTriggerRedirectV38 = nil
-                end
-            end)
-        else
-            redirectStore.XCTriggerRedirectV38 = nil
-        end
+
+    -- Blox Strike native path first: no require/controller lookup per shot and
+    -- no synthetic input latency. If the weapon reports a busy state, retry on
+    -- the next camera frame instead of flooding shoot() calls the game rejects.
+    local weapon = resolveXCTriggerWeapon()
+    if weapon then
+        if not xcTriggerWeaponReady(weapon) then return false end
+        local ticket = xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+        local ok = pcall(function() weapon:shoot() end)
+        if ok then return true end
+        xcClearTriggerRedirect(ticket)
+        return false
     end
 
-    pcall(function()
-        local myChar = player.Character
-        local equippedTool = myChar and myChar:FindFirstChildOfClass("Tool")
-        if equippedTool then
-            equippedTool:Activate()
-            return
-        end
+    -- Compatibility path for experiences using Roblox Tools.
+    local myChar = player.Character
+    local equippedTool = myChar and myChar:FindFirstChildOfClass("Tool")
+    if equippedTool then
+        local ticket = xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+        local ok = pcall(function() equippedTool:Activate() end)
+        if ok then return true end
+        xcClearTriggerRedirect(ticket)
+    end
 
-        -- Blox Strike keeps weapons outside Roblox Tool instances. Invoke its
-        -- native shoot method so mobile input mode is not changed to Mouse.
-        local nativeFired = false
-        pcall(function()
-            local controllers = ReplicatedStorage:FindFirstChild("Controllers")
-            local scriptObject = controllers and controllers:FindFirstChild("InventoryController")
-            local inventory = scriptObject and require(scriptObject)
-            local getter = inventory and inventory.peekCurrentEquippedForMovement
-            local weapon = type(getter) == "function" and getter() or nil
-            if weapon and type(weapon.shoot) == "function" then
-                weapon:shoot()
-                nativeFired = true
-            end
+    -- Last-resort desktop mouse path. Release is deferred rather than sleeping
+    -- for 10 ms inside the render callback, so Instant mode never blocks a frame.
+    if VirtualInputManager and not UserInputService.TouchEnabled then
+        local ticket = xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+        local x, y = vp.X * 0.5, vp.Y * 0.5
+        local ok = pcall(function()
+            VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
         end)
-        if nativeFired then return end
-
-        if VirtualInputManager and not UserInputService.TouchEnabled then
-            VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, true, game, 0)
-            task.wait(0.01)
-            VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, false, game, 0)
+        if ok then
+            local runtime = xcTriggerRuntime()
+            runtime.MouseReleaseSerial = (tonumber(runtime.MouseReleaseSerial) or 0) + 1
+            local serial = runtime.MouseReleaseSerial
+            task.defer(function()
+                -- Always send the release; serial exists only for diagnostics and
+                -- keeps future extensions from accidentally cancelling mouse-up.
+                pcall(function()
+                    VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
+                end)
+                if serial == runtime.MouseReleaseSerial then
+                    -- no persistent mouse-down state is kept
+                end
+            end)
+            return true
         end
-    end)
+        xcClearTriggerRedirect(ticket)
+    end
+    return false
 end
 
-function runMobileTriggerbot()
+-- Cheap screen-space candidate pass used by Trigger FOV and wall fallback.
+-- Penetration/min-damage work is deliberately deferred until one best point is
+-- chosen, avoiding weapon/path simulation for every player and multipoint.
+function xcTriggerSelectFovCandidate(cam, vp, radius, headOnly)
+    local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
+    local best, bestDist = nil, math.huge
+    radius = math.max(1, tonumber(radius) or 160)
+
+    for _, targetPlayer in ipairs(Players:GetPlayers()) do
+        if targetPlayer ~= player and isTargetEnemy(targetPlayer, targetPlayer.Character) then
+            local char = targetPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if char and hum and hum.Health > 0
+                and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
+                local part = char:FindFirstChild("Head")
+                    or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
+                if part and (not headOnly or part.Name == "Head") then
+                    for _, multipoint in ipairs(XCBuildMultipoints(part)) do
+                        local point, onScreen = cam:WorldToViewportPoint(multipoint.Position)
+                        if onScreen and point.Z > 0 then
+                            local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
+                            if dist <= radius and dist < bestDist then
+                                bestDist = dist
+                                best = {
+                                    Part = part,
+                                    Character = char,
+                                    Position = multipoint.Position,
+                                    Player = targetPlayer,
+                                    ScreenDistance = dist,
+                                }
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return best
+end
+
+function runXCTriggerbot()
     if not XCConfig.triggerbotEnabled then return end
     local localCharacter = player.Character
     local localHumanoid = localCharacter and localCharacter:FindFirstChildOfClass("Humanoid")
     if not isEntityAlive(localCharacter, localHumanoid)
         or GuiService.MenuIsOpen or XCFeatureState.menuOpen
         or player:GetAttribute("IsSpectating") == true then return end
-    -- Do not run a second standalone trigger loop while Ragebot owns firing.
-    -- The Triggerbot toggle itself is untouched and resumes when Ragebot is off.
+    -- Ragebot owns firing while enabled; never run a second trigger loop.
     if XCConfig.rageBotEnabled then return end
 
     local cam = Workspace.CurrentCamera or camera
@@ -11774,183 +12009,131 @@ function runMobileTriggerbot()
     end
 
     local now = tick()
-    local delay = math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5)
-    if (now - lastTriggerTick) < delay then return end
+    local delay = xcTriggerDelaySeconds()
+    if delay > 0 and (now - lastTriggerTick) < delay then return end
 
     local vp = cam.ViewportSize
     local origin = cam.CFrame.Position
     local rayDirection = cam.CFrame.LookVector * 1000
     local triggerMode = tostring(XCConfig.triggerbotMode or "Crosshair")
 
-    -- Silent FOV mode deliberately shares Silent Aim's target selector/FOV/team/visibility settings.
     if triggerMode == "Silent FOV" then
-        local targetPart = getSilentAimTarget and getSilentAimTarget() or nil
+        -- Reuse Silent Aim's already-resolved target when possible. A fallback
+        -- selector is only paid when no valid cached target exists.
+        local targetPart = silentAimResolved
+        if not (targetPart and targetPart.Parent) then
+            targetPart = getSilentAimTarget and getSilentAimTarget() or nil
+        end
         if targetPart and targetPart.Parent then
             local targetCharacter = targetPart:FindFirstAncestorOfClass("Model")
             if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
-                local visible = targetCharacter and isVisibleThroughWalls(targetPart, targetCharacter) or false
                 local properties = resolveXCAutoWallProperties() or {}
                 local path = XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPart.Position)
                 local allowed = path.Visible
                     or XCConfig.extremeWallbangEnabled
                     or XCConfig.wallbangEnabled
                     or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
-                local minDamageOk = XCPassesMinimumDamage(
+                local minDamageOk = allowed and XCPassesMinimumDamage(
                     origin, targetPart, targetCharacter, properties, targetPart.Position, path
                 )
-                if allowed and minDamageOk then
+                if allowed and minDamageOk
+                    and triggerbotMobileAutoFire
+                    and triggerbotFire(vp, targetPart, targetCharacter, targetPart.Position, "Silent FOV") then
                     lastTriggerTick = now
-                    if triggerbotMobileAutoFire then
-                        triggerbotFire(vp, targetPart, targetCharacter, targetPart.Position)
-                    end
                 end
             end
         end
         return
     end
 
-    -- Trigger FOV mode fires on the closest valid enemy inside Trigger FOV,
-    -- without requiring the center ray to already touch the character.
     if triggerMode == "Trigger FOV" then
-        local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
-        local radius = math.max(1, tonumber(XCConfig.triggerbotFov) or 160)
+        local best = xcTriggerSelectFovCandidate(
+            cam, vp, tonumber(XCConfig.triggerbotFov) or 160, XCConfig.triggerbotHeadOnly
+        )
+        if not best then return end
+
         local properties = resolveXCAutoWallProperties() or {}
-        local best = nil
-        local bestDist = math.huge
-
-        for _, targetPlayer in ipairs(Players:GetPlayers()) do
-            if targetPlayer ~= player and isTargetEnemy(targetPlayer, targetPlayer.Character) then
-                local char = targetPlayer.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
-                    local part = char:FindFirstChild("Head")
-                        or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
-                    if part and (not XCConfig.triggerbotHeadOnly or part.Name == "Head") then
-                        for _, multipoint in ipairs(XCBuildMultipoints(part)) do
-                            local point, onScreen = cam:WorldToViewportPoint(multipoint.Position)
-                            if onScreen and point.Z > 0 then
-                                local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
-                                if dist <= radius and dist < bestDist then
-                                    local path = XCInspectShotPath(
-                                        origin, part, char, properties, multipoint.Position
-                                    )
-                                    local allowed = path.Visible
-                                        or XCConfig.extremeWallbangEnabled
-                                        or XCConfig.wallbangEnabled
-                                        or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
-                                    local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
-                                        origin, part, char, properties, multipoint.Position, path
-                                    )
-                                    if allowed and minDamageOk then
-                                        bestDist = dist
-                                        best = {
-                                            Part = part,
-                                            Character = char,
-                                            Position = multipoint.Position,
-                                            Damage = estimatedDamage,
-                                        }
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        if best then
+        local path = XCInspectShotPath(origin, best.Part, best.Character, properties, best.Position)
+        local allowed = path.Visible
+            or XCConfig.extremeWallbangEnabled
+            or XCConfig.wallbangEnabled
+            or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+        local minDamageOk = allowed and XCPassesMinimumDamage(
+            origin, best.Part, best.Character, properties, best.Position, path
+        )
+        if allowed and minDamageOk
+            and triggerbotMobileAutoFire
+            and triggerbotFire(vp, best.Part, best.Character, best.Position, "Trigger FOV") then
             lastTriggerTick = now
-            if triggerbotMobileAutoFire then
-                triggerbotFire(vp, best.Part, best.Character, best.Position)
-            end
         end
         return
     end
 
-    -- First pass: only consider whatever is actually under the FOV center.
+    -- Instant Crosshair path: one center ray and, for a directly visible enemy,
+    -- no penetration simulation unless Minimum Damage is actually enabled.
     triggerRayParams.FilterDescendantsInstances = {player.Character}
     local first = Workspace:Raycast(origin, rayDirection, triggerRayParams)
     if not first or not first.Instance then return end
 
     local firstModel = first.Instance:FindFirstAncestorOfClass("Model")
     local firstPlayer = firstModel and Players:GetPlayerFromCharacter(firstModel)
-
     if firstPlayer and firstPlayer ~= player then
-        local _, onScreen = cam:WorldToViewportPoint(first.Instance.Position)
-        if not onScreen then return end
         if firstModel:GetAttribute("Dead") or firstModel:GetAttribute("Invincible") then return end
         local hum = firstModel:FindFirstChildOfClass("Humanoid")
         if hum and hum.Health <= 0 then return end
         if not isTargetEnemy(firstPlayer, firstModel) then return end
         if XCConfig.triggerbotHeadOnly and first.Instance.Name ~= "Head" then return end
 
-        local properties = resolveXCAutoWallProperties() or {}
-        local path = XCInspectShotPath(origin, first.Instance, firstModel, properties, first.Instance.Position)
-        local minDamageOk = XCPassesMinimumDamage(
-            origin, first.Instance, firstModel, properties, first.Instance.Position, path
-        )
-        if not minDamageOk then return end
+        if XCConfig.minimumDamageEnabled then
+            local properties = resolveXCAutoWallProperties() or {}
+            local minDamageOk = XCPassesMinimumDamage(
+                origin, first.Instance, firstModel, properties, first.Instance.Position, {Visible = true, Reachable = true, Thickness = 0, Surfaces = 0}
+            )
+            if not minDamageOk then return end
+        end
 
-        lastTriggerTick = now
-        if triggerbotMobileAutoFire then
-            triggerbotFire(vp, first.Instance, firstModel, first.Instance.Position)
+        if triggerbotMobileAutoFire
+            and triggerbotFire(vp, first.Instance, firstModel, first.Instance.Position, "Crosshair") then
+            lastTriggerTick = now
         end
         return
     end
 
-    -- Wall hit: find enemy candidates near the FOV center, then test the
-    -- exact camera -> candidate line for material + physical penetration.
-    local bestTarget, bestScreenDistance = nil, math.huge
-    for _, hitPlayer in ipairs(Players:GetPlayers()) do
-        if hitPlayer ~= player and isTargetEnemy(hitPlayer, hitPlayer.Character) then
-            local char = hitPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
-                local targetPart = char:FindFirstChild("Head") or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
-                if targetPart then
-                    if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
-                        local screenPos, onScreen = cam:WorldToViewportPoint(targetPart.Position)
-                        if onScreen and screenPos.Z > 0 then
-                            local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
-                            local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
-                            local fovRadius = tonumber(XCConfig.triggerbotFov) or tonumber(XCConfig.aimFov) or 160
-                            if dist <= fovRadius and dist < bestScreenDistance then
-                                bestScreenDistance = dist
-                                bestTarget = {Player = hitPlayer, Model = char, Part = targetPart}
-                            end
-                        end
-                    end
-                end
-            end
-        end
+    -- A wall/prop occupies the crosshair. Only perform the more expensive path
+    -- check if a wall feature is enabled; otherwise an instant trigger has no
+    -- valid target and exits here.
+    if not (XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled or XCConfig.silentAimAutoWallEnabled) then
+        return
     end
 
+    local bestTarget = xcTriggerSelectFovCandidate(
+        cam, vp,
+        tonumber(XCConfig.triggerbotFov) or tonumber(XCConfig.aimFov) or 160,
+        XCConfig.triggerbotHeadOnly
+    )
     if not bestTarget then return end
 
-    -- Auto Wall is weapon-aware now. Do not use the old generic material
-    -- thickness table here: validate the exact camera -> target path with the
-    -- equipped weapon's native Bullet.Properties.Penetration. Forced wallbang
-    -- modes intentionally bypass this budget.
     local canShootThrough = XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled
     if not canShootThrough and XCConfig.silentAimAutoWallEnabled then
-        canShootThrough = canXCAutoWallReach(origin, bestTarget.Part, bestTarget.Model)
+        canShootThrough = canXCAutoWallReach(origin, bestTarget.Part, bestTarget.Character)
     end
     if not canShootThrough then return end
 
     local wallProperties = resolveXCAutoWallProperties() or {}
     local wallPath = XCInspectShotPath(
-        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position
+        origin, bestTarget.Part, bestTarget.Character, wallProperties, bestTarget.Position
     )
     local minDamageOk = XCPassesMinimumDamage(
-        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position, wallPath
+        origin, bestTarget.Part, bestTarget.Character, wallProperties, bestTarget.Position, wallPath
     )
     if not minDamageOk then return end
 
-    lastTriggerTick = now
-    if triggerbotMobileAutoFire then
-        triggerbotFire(vp, bestTarget.Part, bestTarget.Model, bestTarget.Part.Position)
+    if triggerbotMobileAutoFire
+        and triggerbotFire(vp, bestTarget.Part, bestTarget.Character, bestTarget.Position, "Crosshair Wall") then
+        lastTriggerTick = now
     end
 end
+
 --// 2D ESP
 function hideXCSkeleton(esp)
     if not esp or not esp.SkeletonLines then return end
@@ -13790,9 +13973,13 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     camera = Workspace.CurrentCamera or camera
     if not camera then return end
 
-    -- Lock the final projection before any same-frame camera/ESP math.
-    applyXCCameraFov()
-    applyThirdPerson(dt)
+    -- Mobile keeps the original RenderStepped camera path. Desktop FOV, third
+    -- person and 2D ESP are owned by the post-camera bind below so projection
+    -- cannot observe a different FOV from the frame the player sees.
+    if UserInputService.TouchEnabled then
+        applyXCCameraFov(dt, camera.FieldOfView)
+        applyThirdPerson(dt)
+    end
 
     local localPos = camera.CFrame.Position
 
@@ -13871,16 +14058,17 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             and XCConfig.rageAutoFire
             and tick() - lastTriggerTick > math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5) then
 
-            lastTriggerTick = tick()
             pcall(function()
                 local vp = camera.ViewportSize
-                triggerbotFire(
+                if triggerbotFire(
                     vp,
                     target.Part,
                     target.Char,
                     target.AimPosition or target.ShotPosition or target.Position,
                     "Rage"
-                )
+                ) then
+                    lastTriggerTick = tick()
+                end
             end)
         end
     elseif XCConfig.aimbotEnabled then
@@ -13903,7 +14091,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         currentAimTarget = nil
     end
 
-    runMobileTriggerbot()
+    if UserInputService.TouchEnabled then
+        runXCTriggerbot()
+    end
 
     local visualInterval = xcVisualUpdateInterval(XCConfig.visualRefreshFPS)
     visualOverlayAccumulator = math.min(visualOverlayAccumulator + dt, visualInterval * 2)
@@ -14027,10 +14217,25 @@ end))
 -- frame CFrame/viewport is final before WorldToViewportPoint is evaluated.
 if not UserInputService.TouchEnabled then
     pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
-    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Camera.Value + 1, function()
+    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Camera.Value + 1, function(dt)
         if not xcSessionActive() then return end
         camera = Workspace.CurrentCamera or camera
         if not camera then return end
+
+        -- Sample the game's final camera FOV first, then make FOV + third person
+        -- authoritative before projecting ESP. This ordering prevents ADS/custom
+        -- FOV from moving boxes away from characters.
+        local nativeFov = camera.FieldOfView
+        applyXCCameraFov(dt, nativeFov)
+        applyThirdPerson(dt)
+
+        -- Triggerbot 2.0 runs immediately after the final camera/FOV transform,
+        -- before cosmetic scope/ESP work, minimizing target-to-fire latency.
+        pcall(runXCTriggerbot)
+
+        if XCConfig.customScopeEnabled then
+            pcall(updateCustomScope)
+        end
 
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
@@ -15916,7 +16121,8 @@ function buildXCUI()
         silentAimEnabled = "Redirects supported shot data without visibly snapping the camera.",
         triggerbotEnabled = "Automatically fires when the selected Triggerbot mode finds a valid enemy.",
         triggerbotMode = "Crosshair uses the center ray; Trigger FOV scans the Trigger FOV; Silent FOV shares Silent Aim target selection and FOV.",
-        triggerbotDelay = "Minimum delay between automatic trigger shots.",
+        triggerbotReactionMode = "Instant removes XOSE's artificial trigger delay; Humanized uses the Trigger delay slider.",
+        triggerbotDelay = "Delay used only by Humanized reaction mode. Instant mode reacts on the next eligible camera frame.",
         triggerbotScopedOnly = "Allows Triggerbot to fire only while a native scope is active.",
         triggerbotHeadOnly = "Triggerbot fires only when the detected hit part is the head.",
         rageBotEnabled = "Combines Silent Aim bullet redirection with Triggerbot-style firing while keeping both standalone modules independent.",
@@ -17942,7 +18148,7 @@ function buildXCUI()
         elseif key == "soundPositionEspEnabled" then setXCSoundPositionEspEnabled(value)
         elseif key == "customScopeEnabled" then updateCustomScope()
         elseif key == "customFovEnabled" then
-            applyXCCameraFov()
+            if UserInputService.TouchEnabled then applyXCCameraFov(1 / 60, camera and camera.FieldOfView) end
         elseif key == "weatherEnabled" then applyXCWeather(); updateWorldChanger()
         elseif key == "noSmokeEnabled" then applyXCSmokeState()
         elseif key == "mapStyleEnabled" then setXCMapStyleEnabled(value)
@@ -18296,8 +18502,9 @@ function buildXCUI()
     section(R, "Triggerbot")
     toggle(R, "Triggerbot", "triggerbotEnabled")
     addChoice(R, "Trigger mode", "triggerbotMode", {"Crosshair", "Trigger FOV", "Silent FOV"})
+    addChoice(R, "Reaction", "triggerbotReactionMode", {"Instant", "Humanized"})
     addSlider(R, "Trigger FOV", "triggerbotFov", 10, 360, 1, "px")
-    addSlider(R, "Trigger delay", "triggerbotDelay", 0.01, 0.5, 0.005, "s")
+    addSlider(R, "Trigger delay", "triggerbotDelay", 0, 0.5, 0.005, "s")
     toggle(R, "Scoped only", "triggerbotScopedOnly")
     toggle(R, "Head only", "triggerbotHeadOnly")
     toggle(R, "Minimum damage", "minimumDamageEnabled")
@@ -18663,16 +18870,44 @@ function buildXCUI()
     addChoice(L, "Weather type", "weatherMode", {"Rain", "Snow", "Fog", "Ash", "Hell Fire"}, function() applyXCWeather(); updateWorldChanger() end)
     addSlider(L, "Weather intensity", "weatherIntensity", 1, 100, 1, "%", function() applyXCWeather() end)
     addSlider(L, "Wind", "weatherWind", -40, 40, 1, "", function() applyXCWeather() end)
+    section(R, "custom fov")
+    toggle(R, "Custom FOV", "customFovEnabled")
+    addChoice(R, "FOV mode", "customFovMode", {"Preserve ADS", "Override ADS", "Hip only"})
+    addChoice(R, "FOV preset", "customFovPreset", {"Custom", "Competitive 90", "Wide 100", "HVH 110", "Ultra 120"}, function(value)
+        local presets = {
+            ["Competitive 90"] = {90, 68},
+            ["Wide 100"] = {100, 76},
+            ["HVH 110"] = {110, 82},
+            ["Ultra 120"] = {120, 88},
+        }
+        local preset = presets[value]
+        if preset then
+            XCConfig.customFov = preset[1]
+            XCConfig.customAdsFov = preset[2]
+            refreshConfigControls("customFov", XCConfig.customFov)
+            refreshConfigControls("customAdsFov", XCConfig.customAdsFov)
+        end
+    end)
+    addSlider(R, "Hip FOV", "customFov", 70, 120, 1, "°", function()
+        XCConfig.customFovPreset = "Custom"
+        refreshConfigControls("customFovPreset", "Custom")
+    end)
+    addSlider(R, "ADS FOV", "customAdsFov", 20, 120, 1, "°", function()
+        XCConfig.customFovPreset = "Custom"
+        refreshConfigControls("customFovPreset", "Custom")
+    end)
+    toggle(R, "Smooth transition", "customFovSmoothEnabled")
+    addSlider(R, "Transition speed", "customFovTransitionSpeed", 1, 40, 1, "")
+
     section(R, "scope")
     toggle(R, "Custom scope", "customScopeEnabled")
-    toggle(R, "Custom FOV", "customFovEnabled")
-    addSlider(R, "Camera FOV", "customFov", 70, 120, 1, "°")
+    toggle(R, "Scope FOV override", "scopeFovEnabled")
+    addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
     toggle(R, "Remove original scope", "scopeRemoveOriginal")
     toggle(R, "Scope crosshair", "scopeCrosshairEnabled")
     addChoice(R, "Crosshair style", "scopeCrosshairStyle", {"Cross", "T", "X", "Dot"})
     addColorPicker(R, "Crosshair color", "scopeCrosshairColor")
     addColorPicker(R, "Crosshair outline", "scopeCrosshairOutline")
-    addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
     addSlider(R, "Crosshair gap", "scopeCrosshairGap", 0, 80, 1, "")
     addSlider(R, "Crosshair length", "scopeCrosshairLength", 5, 300, 1, "")
     section(R, "camera director")
@@ -19058,7 +19293,7 @@ function buildXCUI()
         end
         stopXCCameraMode()
         setThirdPersonEnabled(false)
-        applyXCCameraFov()
+        restoreXCCameraFov()
         XCNotify("Camera", "Camera state restored", "success", 1.5)
     end)
     addButton(ConfigLocal, "SAVE CONFIG", function()
