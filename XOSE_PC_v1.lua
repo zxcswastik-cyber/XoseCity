@@ -9997,6 +9997,10 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         destroyXCWeather()
     end
 
+    if UserInputService.TouchEnabled then updateXCCameraDirector(dt) end
+end))
+
+function updateXCCameraDirector(dt)
     if not XCFeatureState.cameraMode then return end
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
@@ -10040,7 +10044,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
     XCFeatureState.cameraFrame = CFrame.new(XCFeatureState.cameraPosition) * rotation
     cam.CFrame = XCFeatureState.cameraFrame
-end))
+end
 --// CLEANUP ROUTINES
 function cleanup()
     XCFeatureState.applyLoadedConfig = nil
@@ -10069,6 +10073,7 @@ function cleanup()
     restoreXCCharacterInputHook()
 
     pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_CAMERA_SYNC") end)
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_CAMERA_PREPARE") end)
     for _, c in pairs(connections) do 
         pcall(function() c:Disconnect() end) 
     end
@@ -12633,6 +12638,7 @@ end
 -- character with compatibility fallbacks and still rejects explicit menu/dead
 -- states.
 XCFeatureState.espCharacterCache = XCFeatureState.espCharacterCache or setmetatable({}, {__mode = "k"})
+XCFeatureState.espCharacterScanAt = setmetatable({}, {__mode = "k"})
 
 function xcNormalizeEspTeam(value)
     if value == nil then return nil end
@@ -12668,12 +12674,13 @@ function xcEspTeamOf(plr, char)
         char and char:GetAttribute("Team") or nil,
         char and char:GetAttribute("Faction") or nil,
         char and char:GetAttribute("Side") or nil,
-        plr.Team,
+        not plr.Neutral and plr.Team or nil,
     }
     for _, value in pairs(candidates) do
         local team = xcNormalizeEspTeam(value)
         if team then return team end
     end
+    if plr.Neutral then return nil end
     local color = plr.TeamColor
     if color and color ~= BrickColor.new("White") then
         return "color:" .. tostring(color.Number)
@@ -12684,10 +12691,6 @@ end
 function xcEspResolveCharacter(plr)
     if not plr then return nil end
     local cached = XCFeatureState.espCharacterCache[plr]
-    if cached and cached.Parent and cached:IsDescendantOf(Workspace) then
-        return cached
-    end
-
     local direct = plr.Character
     local folder = Workspace:FindFirstChild("Characters")
     local localChar = player and player.Character
@@ -12699,7 +12702,16 @@ function xcEspResolveCharacter(plr)
         return direct
     end
 
+    -- Prefer the current Character over a cached corpse during respawn.
+    if folder and cached and cached.Parent and cached:IsDescendantOf(folder) then
+        return cached
+    end
+    XCFeatureState.espCharacterCache[plr] = nil
     if folder then
+        local now = os.clock()
+        local scans = XCFeatureState.espCharacterScanAt
+        if now < (scans[plr] or 0) then return nil end
+        scans[plr] = now + 0.25
         for _, model in ipairs(folder:GetChildren()) do
             if model:IsA("Model") then
                 local matched = false
@@ -13682,6 +13694,7 @@ function attachEspToPlayer(plr)
 
     local function setupCharacter(char)
         XCFeatureState.espCharacterCache[plr] = nil
+        XCFeatureState.espCharacterScanAt[plr] = nil
         if not char then return end
         task.spawn(function()
             local head = char:WaitForChild("Head", 3)
@@ -13755,9 +13768,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     camera = Workspace.CurrentCamera or camera
     if not camera then return end
 
-    -- Lock the final projection before any same-frame camera/ESP math.
-    applyXCCameraFov()
-    applyThirdPerson(dt)
+    -- Desktop camera setup/projection is ordered by the bindings below.
+    if UserInputService.TouchEnabled then
+        applyXCCameraFov()
+        applyThirdPerson(dt)
+    end
 
     local localPos = camera.CFrame.Position
 
@@ -13987,16 +14002,29 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
 
--- Desktop 2D ESP projection is synchronized directly after Roblox's camera
--- update. The native camera runs at RenderPriority.Camera; +1 means the current
--- frame CFrame/viewport is final before WorldToViewportPoint is evaluated.
+-- Desktop 2D ESP projection follows the native camera and XC camera director.
+-- Third-person inputs must be ready before the native camera reads them.
 if not UserInputService.TouchEnabled then
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_CAMERA_PREPARE") end)
+    RunService:BindToRenderStep("XOSE_PC_CAMERA_PREPARE", Enum.RenderPriority.Camera.Value - 1, function(dt)
+        if not xcSessionActive() then return end
+        camera = Workspace.CurrentCamera or camera
+        if camera then
+            local ok, err = pcall(applyThirdPerson, dt)
+            if not ok then XCFeatureState.cameraPrepareError = tostring(err) end
+        end
+    end)
     pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
-    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Camera.Value + 1, function()
+    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Last.Value + 1, function(dt)
         if not xcSessionActive() then return end
         camera = Workspace.CurrentCamera or camera
         if not camera then return end
 
+        local cameraOk, cameraErr = pcall(function()
+            applyXCCameraFov()
+            updateXCCameraDirector(dt)
+        end)
+        if not cameraOk then XCFeatureState.cameraPrepareError = tostring(cameraErr) end
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
             local now = os.clock()
@@ -15180,8 +15208,8 @@ local function xcGlassOpacity(role, enabled, intensity, base)
     if not enabled then return base end
     local amount = math.max(0, math.min(1, tonumber(intensity) or 0.7))
     -- Keep the game visible through the shell without washing out small text.
-    local layer = role == "chrome" and 0.27 or role == "main" and 0.12 or 0.055
-    return math.min(0.62, base + layer * amount)
+    local layer = role == "chrome" and 0.08 or role == "main" and 0.04 or 0.02
+    return math.min(0.48, base + layer * amount)
 end
 
 local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedScale, compact, modeOverride)
@@ -15189,7 +15217,7 @@ local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedSca
     -- Touch input also exists on tablets and landscape phones. Choose the
     -- column layout from available space instead of the input device.
     if mobile == nil then mobile = viewportX < 760 and viewportX < viewportY * 1.3 end
-    local width, height = mobile and 430 or 820, mobile and 720 or 560
+    local width, height = mobile and 430 or 960, mobile and 720 or 640
     local preferred = math.max(0.65, math.min(1.25, tonumber(requestedScale) or 1))
     if compact then preferred = preferred * 0.88 end
     local scale = math.max(0.05, math.min(preferred,
@@ -15215,7 +15243,7 @@ function buildXCUI()
         Lime = configColor("menuAccent", Color3.fromRGB(152, 204, 0)),
         White = initialText,
         Text = initialText:Lerp(initialMain, 0.14),
-        Muted = initialText:Lerp(initialMain, 0.53),
+        Muted = initialText:Lerp(initialMain, 0.36),
     }
 
     local toggleGui = Instance.new("ScreenGui")
@@ -15354,7 +15382,7 @@ function buildXCUI()
     brand.Position = UDim2.fromOffset(16, 12)
     brand.Size = UDim2.fromOffset(isMobileLayout and 106 or 136, 28)
     brand.BackgroundTransparency = 1
-    brand.Text = isMobileLayout and "XC /" or "XC  /  PRISM"
+    brand.Text = isMobileLayout and "XC /" or "XC / STUDIO"
     brand.TextColor3 = C.White
     brand.Font = Enum.Font.GothamBold
     brand.TextSize = 16
@@ -15441,7 +15469,7 @@ function buildXCUI()
             Main=newMain, Sidebar=newMain:Lerp(Color3.new(0,0,0),0.24), Panel=newPanel,
             Control=newPanel:Lerp(newText,0.06), Control2=newPanel:Lerp(newText,0.11),
             Border=newPanel:Lerp(newText,0.17), Lime=configColor("menuAccent",old.Lime),
-            White=newText, Text=newText:Lerp(newMain,0.14), Muted=newText:Lerp(newMain,0.53),
+            White=newText, Text=newText:Lerp(newMain,0.14), Muted=newText:Lerp(newMain,0.36),
         }
         local function replaceColor(value)
             for role, previous in pairs(old) do if value == previous then return nextColors[role] end end
@@ -15506,7 +15534,7 @@ function buildXCUI()
     footer.Size = UDim2.new(1, -28, 0, 18)
     footer.Position = UDim2.new(0, 14, 1, -22)
     footer.BackgroundTransparency = 1
-    footer.Text = "XC PRISM    •    LOCAL SESSION                                          CUSTOM GLASS  /  QUICK SEARCH"
+    footer.Text = "XC STUDIO    •    LOCAL SESSION                                          SKIN CATALOG  /  QUICK SEARCH"
     footer.TextColor3 = C.Muted
     footer.Font = Enum.Font.Gotham
     footer.TextSize = 9
@@ -15813,7 +15841,7 @@ function buildXCUI()
         titleLabel.Text = title
         titleLabel.TextColor3 = C.Text
         titleLabel.Font = Enum.Font.GothamBold
-        titleLabel.TextSize = 12
+        titleLabel.TextSize = 14
         titleLabel.TextXAlignment = Enum.TextXAlignment.Left
         titleLabel.Parent = panel
         local titleDivider = Instance.new("Frame", panel)
@@ -15989,7 +16017,7 @@ function buildXCUI()
         text.Text = label
         text.TextColor3 = C.Text
         text.Font = Enum.Font.GothamMedium
-        text.TextSize = 12
+        text.TextSize = 13
         text.TextXAlignment = Enum.TextXAlignment.Left
         text.TextTruncate = Enum.TextTruncate.AtEnd
         text.Parent = row
@@ -16084,7 +16112,7 @@ function buildXCUI()
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.GothamMedium
-        name.TextSize = 12
+        name.TextSize = 13
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
@@ -16305,7 +16333,7 @@ function buildXCUI()
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.GothamMedium
-        name.TextSize = 12
+        name.TextSize = 13
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
@@ -16405,7 +16433,7 @@ function buildXCUI()
         note.Text = message
         note.TextColor3 = C.Muted
         note.Font = Enum.Font.Gotham
-        note.TextSize = 10
+        note.TextSize = 12
         note.TextWrapped = true
         note.TextXAlignment = Enum.TextXAlignment.Left
         note.Parent = parent
@@ -16916,7 +16944,7 @@ function buildXCUI()
         local galleryState = {Page = 1, Context = nil, Signature = nil, Revision = 0}
         local holder = Instance.new("Frame", parent)
         holder.Name = "SkinImageGallery"
-        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 610 or 580)
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 610 or 660)
         holder.BackgroundColor3 = C.Panel
         holder.BorderSizePixel = 0
         local galleryCorner = Instance.new("UICorner", holder)
@@ -16974,7 +17002,7 @@ function buildXCUI()
         heading.BackgroundTransparency = 1
         heading.TextColor3 = C.Text
         heading.Font = Enum.Font.GothamBold
-        heading.TextSize = 14
+        heading.TextSize = 17
         heading.TextTruncate = Enum.TextTruncate.AtEnd
         heading.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -16985,7 +17013,7 @@ function buildXCUI()
         hint.Text = "Choose a finish below. Changes apply to the held item."
         hint.TextColor3 = C.Muted
         hint.Font = Enum.Font.Gotham
-        hint.TextSize = 11
+        hint.TextSize = 13
         hint.TextTruncate = Enum.TextTruncate.AtEnd
         hint.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -16999,7 +17027,7 @@ function buildXCUI()
         search.TextSize = 12
         search.TextColor3 = C.Text
         search.PlaceholderColor3 = C.Muted
-        search.PlaceholderText = "Search finishes..."
+        search.PlaceholderText = "Search this item's finishes..."
         search.ClearTextOnFocus = false
         search.Text = ""
         search.TextXAlignment = Enum.TextXAlignment.Left
@@ -17030,8 +17058,14 @@ function buildXCUI()
         grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
         grid.CanvasSize = UDim2.new()
         local layout = Instance.new("UIGridLayout", grid)
-        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 0.5 or 0.25, -6, 0, UserInputService.TouchEnabled and 120 or 108)
-        layout.CellPadding = UDim2.fromOffset(6, 6)
+        local function updateGalleryColumns()
+            local width = grid.AbsoluteSize.X / math.max(0.05, scale.Scale)
+            local columns = math.clamp(math.floor((width + 10) / 160), 1, 4)
+            layout.CellSize = UDim2.new(1 / columns, -10, 0, 148)
+        end
+        updateGalleryColumns()
+        table.insert(connections, grid:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateGalleryColumns))
+        layout.CellPadding = UDim2.fromOffset(10, 10)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         local padding = Instance.new("UIPadding", grid)
         padding.PaddingRight = UDim.new(0, 2)
@@ -17357,7 +17391,8 @@ function buildXCUI()
             for skinName,card in pairs(cards) do
                 local active=skinName==selected
                 local stroke=card:FindFirstChild("SelectionStroke")
-                if stroke then stroke.Color=active and C.Lime or C.Border;stroke.Thickness=active and 1.6 or 1 end
+                if stroke then stroke.Color=active and C.Lime or C.Border;stroke.Thickness=active and 2 or 1 end
+                card.BackgroundColor3=active and C.Lime:Lerp(C.Panel,0.88) or C.Panel
                 local check=card:FindFirstChild("Selected")
                 if check then check.Visible=active;check.TextColor3=C.Lime end
             end
@@ -17436,7 +17471,7 @@ function buildXCUI()
                 stroke.Name="SelectionStroke";stroke.Color=C.Border;stroke.Thickness=1
                 local modelPreview=XCConfig.skinPreviewMode=="Models"
                 local visual=Instance.new(modelPreview and "ViewportFrame" or "Frame",card)
-                visual.Name="Preview";visual.Position=UDim2.fromOffset(4,4);visual.Size=UDim2.new(1,-8,1,-28)
+                visual.Name="Preview";visual.Position=UDim2.fromOffset(6,6);visual.Size=UDim2.new(1,-12,1,-44)
                 visual.BackgroundColor3=C.Control;visual.BorderSizePixel=0
                 if modelPreview then
                     visual.Ambient=Color3.fromRGB(190,190,190)
@@ -17444,12 +17479,12 @@ function buildXCUI()
                 end
                 Instance.new("UICorner",visual).CornerRadius=UDim.new(0,3)
                 local label=Instance.new("TextLabel",card)
-                label.Position=UDim2.new(0,6,1,-23);label.Size=UDim2.new(1,-12,0,19);label.BackgroundTransparency=1
-                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.GothamMedium;label.TextSize=11;label.TextTruncate=Enum.TextTruncate.AtEnd
+                label.Position=UDim2.new(0,8,1,-36);label.Size=UDim2.new(1,-16,0,32);label.BackgroundTransparency=1
+                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.GothamMedium;label.TextSize=12;label.TextWrapped=true
                 local selected=Instance.new("TextLabel",card)
-                selected.Name="Selected";selected.Position=UDim2.fromOffset(7,7);selected.Size=UDim2.fromOffset(64,17)
+                selected.Name="Selected";selected.Position=UDim2.fromOffset(10,10);selected.Size=UDim2.fromOffset(76,21)
                 selected.BackgroundColor3=C.Main;selected.BackgroundTransparency=0.12;selected.Text="SELECTED"
-                selected.Font=Enum.Font.GothamBold;selected.TextSize=8;selected.Visible=false;selected.ZIndex=5
+                selected.Font=Enum.Font.GothamBold;selected.TextSize=10;selected.Visible=false;selected.ZIndex=5
                 Instance.new("UICorner",selected).CornerRadius=UDim.new(0,4)
                 local function populatePreview()
                     if serial~=gallerySerial or not visual.Parent or not xcGuiIsVisible(holder) then return end
@@ -17485,7 +17520,7 @@ function buildXCUI()
                     scheduleConfigAutoSave()
                 end)
                 card.MouseEnter:Connect(function() card.BackgroundColor3=C.Control end)
-                card.MouseLeave:Connect(function() card.BackgroundColor3=C.Panel end)
+                card.MouseLeave:Connect(function() updateCardSelection(itemName) end)
             end
             updateCardSelection(itemName)
             if #previewJobs>0 then
@@ -17870,7 +17905,7 @@ function buildXCUI()
         end
         label.TextColor3 = C.Muted
         label.Font = Enum.Font.GothamMedium
-        label.TextSize = isMobileLayout and 9 or 12
+        label.TextSize = isMobileLayout and 9 or 13
         label.TextTruncate = Enum.TextTruncate.AtEnd
         label.TextXAlignment = isMobileLayout and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
         button.MouseEnter:Connect(function()
