@@ -10068,6 +10068,7 @@ function cleanup()
     pcall(function() updateXCAntiFlashState(false) end)
     restoreXCCharacterInputHook()
 
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_CAMERA_SYNC") end)
     for _, c in pairs(connections) do 
         pcall(function() c:Disconnect() end) 
     end
@@ -13749,6 +13750,7 @@ end
 local visualOverlayAccumulator = 0
 local interfaceRefreshAccumulator = 0
 local threeDEspWasActive = false
+local XC_PC_ESP_RENDER_BIND = "XOSE_PC_ESP_CAMERA_SYNC"
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     camera = Workspace.CurrentCamera or camera
     if not camera then return end
@@ -13876,9 +13878,10 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         table.clear(xcEspVisibilityCache)
     end
 
-    -- Use v76's existing RenderStepped path. Only screen projection runs
-    -- every frame; expensive visibility checks retain their configured cadence.
-    do
+    -- Mobile keeps the proven generic RenderStepped path. Desktop projection
+    -- is rendered by the camera-priority binding below so mouse-look cannot
+    -- leave 2D ESP one camera frame behind.
+    if UserInputService.TouchEnabled then
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
             local now = os.clock()
@@ -13983,6 +13986,28 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     -- and map optimizer from fighting over Lighting properties every frame.
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
+
+-- Desktop 2D ESP projection is synchronized directly after Roblox's camera
+-- update. The native camera runs at RenderPriority.Camera; +1 means the current
+-- frame CFrame/viewport is final before WorldToViewportPoint is evaluated.
+if not UserInputService.TouchEnabled then
+    pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
+    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Camera.Value + 1, function()
+        if not xcSessionActive() then return end
+        camera = Workspace.CurrentCamera or camera
+        if not camera then return end
+
+        local overlayOk, overlayErr = pcall(renderTacticalOverlay)
+        if not overlayOk then
+            local now = os.clock()
+            if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+                XCFeatureState.tacticalOverlayErrorAt = now
+                warn("[XOSE] PC ESP renderer failed: " .. tostring(overlayErr))
+            end
+            hideTacticalOverlay()
+        end
+    end)
+end
 
 -- Late first-person/viewmodel pass. It is intentionally registered after the
 -- main camera loop so the game's native camera/viewmodel pose is already
