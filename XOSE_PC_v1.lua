@@ -460,7 +460,7 @@ local XCConfig = {
     triggerbotEnabled = false,
     triggerbotMode = "Crosshair",
     antiAimEnabled = false,
-    antiAimMode = "Vector Shift",
+    antiAimMode = "Desync",
     bunnyHopEnabled = false,
     slideEnabled = false,
     speedEnabled = false,
@@ -676,6 +676,12 @@ local XCConfig = {
     antiAimYaw = 180,
     antiAimJitter = 60,
     antiAimInterval = 0.15,
+    -- Anti-Aim 2.0: native SampleInput desync controls.
+    antiAimFreestandEnabled = true,
+    antiAimAntiBruteforceEnabled = true,
+    antiAimShotSafeEnabled = true,
+    antiAimDesyncSpeed = 30,
+    antiAimDesyncRange = 112,
     skeletonThickness = 1.5,
     bhopJumpPower = 52,
     bhopSpeedBoost = 1.35,
@@ -1037,6 +1043,7 @@ for _, colorKey in ipairs({
     XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
 end
 local XC_NEW_ANTIAIM_MODES = {
+    ["Desync"] = true,
     ["Vector Shift"] = true,
     ["Pendulum Snap"] = true,
     ["Crosswind"] = true,
@@ -1047,7 +1054,7 @@ local XC_NEW_ANTIAIM_MODES = {
     ["Reverse Step"] = true,
 }
 if not XC_NEW_ANTIAIM_MODES[tostring(XCConfig.antiAimMode or "")] then
-    XCConfig.antiAimMode = "Vector Shift"
+    XCConfig.antiAimMode = "Desync"
 end
 
 local UI_Bind_Registry = {}
@@ -5160,7 +5167,19 @@ local xcCharacterInputHook = {
     AntiStarted = nil,
     AntiLastStep = nil,
     RandomYaw = nil,
-    AntiFireUntil = 0,
+    AntiFireUntil = 0, -- legacy field retained for reinjection compatibility
+    AntiLastYaw = nil,
+    AntiShotHeldYaw = nil,
+    AntiShotHoldUntil = 0,
+    AntiWasFiring = false,
+    AntiLastHealth = nil,
+    AntiBruteforcePhase = 0,
+    AntiBruteforceSide = 1,
+    AntiDamageSwitchUntil = 0,
+    AntiThreatYaw = nil,
+    AntiThreatNext = 0,
+    AntiThreatPlayer = nil,
+    AntiRayParams = nil,
     Calls = 0,
     LastCall = 0,
     LastError = nil,
@@ -9997,10 +10016,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         destroyXCWeather()
     end
 
-    if UserInputService.TouchEnabled then updateXCCameraDirector(dt) end
-end))
-
-function updateXCCameraDirector(dt)
     if not XCFeatureState.cameraMode then return end
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
@@ -10044,7 +10059,7 @@ function updateXCCameraDirector(dt)
 
     XCFeatureState.cameraFrame = CFrame.new(XCFeatureState.cameraPosition) * rotation
     cam.CFrame = XCFeatureState.cameraFrame
-end
+end))
 --// CLEANUP ROUTINES
 function cleanup()
     XCFeatureState.applyLoadedConfig = nil
@@ -10073,7 +10088,6 @@ function cleanup()
     restoreXCCharacterInputHook()
 
     pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_CAMERA_SYNC") end)
-    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_CAMERA_PREPARE") end)
     for _, c in pairs(connections) do 
         pcall(function() c:Disconnect() end) 
     end
@@ -12638,7 +12652,6 @@ end
 -- character with compatibility fallbacks and still rejects explicit menu/dead
 -- states.
 XCFeatureState.espCharacterCache = XCFeatureState.espCharacterCache or setmetatable({}, {__mode = "k"})
-XCFeatureState.espCharacterScanAt = setmetatable({}, {__mode = "k"})
 
 function xcNormalizeEspTeam(value)
     if value == nil then return nil end
@@ -12674,13 +12687,12 @@ function xcEspTeamOf(plr, char)
         char and char:GetAttribute("Team") or nil,
         char and char:GetAttribute("Faction") or nil,
         char and char:GetAttribute("Side") or nil,
-        not plr.Neutral and plr.Team or nil,
+        plr.Team,
     }
     for _, value in pairs(candidates) do
         local team = xcNormalizeEspTeam(value)
         if team then return team end
     end
-    if plr.Neutral then return nil end
     local color = plr.TeamColor
     if color and color ~= BrickColor.new("White") then
         return "color:" .. tostring(color.Number)
@@ -12691,6 +12703,10 @@ end
 function xcEspResolveCharacter(plr)
     if not plr then return nil end
     local cached = XCFeatureState.espCharacterCache[plr]
+    if cached and cached.Parent and cached:IsDescendantOf(Workspace) then
+        return cached
+    end
+
     local direct = plr.Character
     local folder = Workspace:FindFirstChild("Characters")
     local localChar = player and player.Character
@@ -12702,16 +12718,7 @@ function xcEspResolveCharacter(plr)
         return direct
     end
 
-    -- Prefer the current Character over a cached corpse during respawn.
-    if folder and cached and cached.Parent and cached:IsDescendantOf(folder) then
-        return cached
-    end
-    XCFeatureState.espCharacterCache[plr] = nil
     if folder then
-        local now = os.clock()
-        local scans = XCFeatureState.espCharacterScanAt
-        if now < (scans[plr] or 0) then return nil end
-        scans[plr] = now + 0.25
         for _, model in ipairs(folder:GetChildren()) do
             if model:IsA("Model") then
                 local matched = false
@@ -13694,7 +13701,6 @@ function attachEspToPlayer(plr)
 
     local function setupCharacter(char)
         XCFeatureState.espCharacterCache[plr] = nil
-        XCFeatureState.espCharacterScanAt[plr] = nil
         if not char then return end
         task.spawn(function()
             local head = char:WaitForChild("Head", 3)
@@ -13768,11 +13774,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     camera = Workspace.CurrentCamera or camera
     if not camera then return end
 
-    -- Desktop camera setup/projection is ordered by the bindings below.
-    if UserInputService.TouchEnabled then
-        applyXCCameraFov()
-        applyThirdPerson(dt)
-    end
+    -- Lock the final projection before any same-frame camera/ESP math.
+    applyXCCameraFov()
+    applyThirdPerson(dt)
 
     local localPos = camera.CFrame.Position
 
@@ -14002,29 +14006,16 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
 
--- Desktop 2D ESP projection follows the native camera and XC camera director.
--- Third-person inputs must be ready before the native camera reads them.
+-- Desktop 2D ESP projection is synchronized directly after Roblox's camera
+-- update. The native camera runs at RenderPriority.Camera; +1 means the current
+-- frame CFrame/viewport is final before WorldToViewportPoint is evaluated.
 if not UserInputService.TouchEnabled then
-    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_CAMERA_PREPARE") end)
-    RunService:BindToRenderStep("XOSE_PC_CAMERA_PREPARE", Enum.RenderPriority.Camera.Value - 1, function(dt)
-        if not xcSessionActive() then return end
-        camera = Workspace.CurrentCamera or camera
-        if camera then
-            local ok, err = pcall(applyThirdPerson, dt)
-            if not ok then XCFeatureState.cameraPrepareError = tostring(err) end
-        end
-    end)
     pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
-    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Last.Value + 1, function(dt)
+    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Camera.Value + 1, function()
         if not xcSessionActive() then return end
         camera = Workspace.CurrentCamera or camera
         if not camera then return end
 
-        local cameraOk, cameraErr = pcall(function()
-            applyXCCameraFov()
-            updateXCCameraDirector(dt)
-        end)
-        if not cameraOk then XCFeatureState.cameraPrepareError = tostring(cameraErr) end
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
             local now = os.clock()
@@ -14123,6 +14114,17 @@ function resetXCCharacterInputState()
     xcCharacterInputHook.AntiComputedStep = nil
     xcCharacterInputHook.AntiComputedRandomYaw = nil
     xcCharacterInputHook.AntiFireUntil = 0
+    xcCharacterInputHook.AntiLastYaw = nil
+    xcCharacterInputHook.AntiShotHeldYaw = nil
+    xcCharacterInputHook.AntiShotHoldUntil = 0
+    xcCharacterInputHook.AntiWasFiring = false
+    xcCharacterInputHook.AntiLastHealth = nil
+    xcCharacterInputHook.AntiBruteforcePhase = 0
+    xcCharacterInputHook.AntiBruteforceSide = 1
+    xcCharacterInputHook.AntiDamageSwitchUntil = 0
+    xcCharacterInputHook.AntiThreatYaw = nil
+    xcCharacterInputHook.AntiThreatNext = 0
+    xcCharacterInputHook.AntiThreatPlayer = nil
 end
 
 function restoreXCCharacterInputHook()
@@ -14137,10 +14139,115 @@ function restoreXCCharacterInputHook()
     resetXCCharacterInputState()
 end
 
+-- Anti-Aim 2.0 keeps native movement input authoritative. Freestand and
+-- anti-bruteforce alter replicated LookYaw only; camera aim stays untouched.
+XCAntiAimDesyncSequence = {1.00, -0.73, 0.39, -1.00, 0.17, 0.86, -0.48, 0.61, -0.91}
+
+function XCWrapAntiAimYaw(yaw)
+    return (yaw + math.pi) % (math.pi * 2) - math.pi
+end
+
+function XCReadAntiAimHealth(model)
+    if not model then return nil end
+    local health = model:GetAttribute("Health")
+    if type(health) ~= "number" then
+        local hum = model:FindFirstChildOfClass("Humanoid")
+        health = hum and hum.Health or nil
+    end
+    if type(health) ~= "number" or health ~= health then return nil end
+    return health
+end
+
+function XCUpdateAntiAimDamageState(model, wallNow, state)
+    local health = XCReadAntiAimHealth(model)
+    if not health then return end
+    local previous = state.AntiLastHealth
+    state.AntiLastHealth = health
+    if not XCConfig.antiAimAntiBruteforceEnabled or previous == nil then return end
+    if health < previous - 0.01 then
+        state.AntiBruteforcePhase = ((state.AntiBruteforcePhase or 0) + 1) % 97
+        state.AntiBruteforceSide = -(state.AntiBruteforceSide or 1)
+        state.AntiThreatNext = 0
+        state.AntiDamageSwitchUntil = wallNow + 0.22
+    end
+end
+
+function resolveXCAntiAimThreatYaw(rootPart, originalYaw, wallNow, state)
+    if not XCConfig.antiAimFreestandEnabled or not rootPart or not rootPart.Parent then
+        return originalYaw + math.pi
+    end
+    if wallNow < (state.AntiThreatNext or 0) and type(state.AntiThreatYaw) == "number" then
+        return state.AntiThreatYaw
+    end
+
+    state.AntiThreatNext = wallNow + 0.10
+    local rootPos = rootPart.Position
+    local nearestPlayer, nearestChar, nearestRoot, nearestDist = nil, nil, nil, math.huge
+    for _, other in ipairs(Players:GetPlayers()) do
+        if other ~= player then
+            local char = xcEspResolveCharacter(other)
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            local root = char and (char:FindFirstChild("HumanoidRootPart")
+                or char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso"))
+            if root and xcEspIsEnemy(other, char) and xcEspEntityAlive(other, char, hum) then
+                local dist = (root.Position - rootPos).Magnitude
+                if dist < nearestDist then
+                    nearestPlayer, nearestChar, nearestRoot, nearestDist = other, char, root, dist
+                end
+            end
+        end
+    end
+
+    if not nearestRoot then
+        state.AntiThreatPlayer = nil
+        state.AntiThreatYaw = XCWrapAntiAimYaw(originalYaw + math.pi)
+        return state.AntiThreatYaw
+    end
+
+    state.AntiThreatPlayer = nearestPlayer
+    local flat = nearestRoot.Position - rootPos
+    flat = Vector3.new(flat.X, 0, flat.Z)
+    if flat.Magnitude < 0.01 then
+        state.AntiThreatYaw = XCWrapAntiAimYaw(originalYaw + math.pi)
+        return state.AntiThreatYaw
+    end
+
+    local towardYaw = math.atan2(-flat.X, -flat.Z)
+    local awayYaw = towardYaw + math.pi
+    local side = state.AntiBruteforceSide or 1
+
+    -- Cover-aware side selection runs at 10 Hz, never on every input sample.
+    local params = state.AntiRayParams
+    if not params then
+        params = RaycastParams.new()
+        params.FilterType = Enum.RaycastFilterType.Exclude
+        params.IgnoreWater = true
+        state.AntiRayParams = params
+    end
+    local rayFilter = {nearestChar}
+    if player.Character then rayFilter[#rayFilter + 1] = player.Character end
+    local activeCamera = Workspace.CurrentCamera or camera
+    if activeCamera then rayFilter[#rayFilter + 1] = activeCamera end
+    params.FilterDescendantsInstances = rayFilter
+    local right = CFrame.Angles(0, awayYaw, 0).RightVector
+    local probeDistance = math.clamp(nearestDist * 0.015, 1.6, 3.2)
+    local leftProbe = rootPos - right * probeDistance + Vector3.new(0, 1.45, 0)
+    local rightProbe = rootPos + right * probeDistance + Vector3.new(0, 1.45, 0)
+    local origin = nearestRoot.Position + Vector3.new(0, 1.1, 0)
+    local leftHit = Workspace:Raycast(origin, leftProbe - origin, params)
+    local rightHit = Workspace:Raycast(origin, rightProbe - origin, params)
+    if leftHit and not rightHit then side = -1
+    elseif rightHit and not leftHit then side = 1 end
+
+    -- Nearly side-on to the nearest threat, with damage able to flip the side.
+    state.AntiThreatYaw = XCWrapAntiAimYaw(awayYaw + math.rad(88 * side))
+    return state.AntiThreatYaw
+end
+
 -- One resolver is shared by the native input hook and the compatibility
 -- fallback. This keeps every preset visually identical on both paths and
 -- avoids running a second anti-aim engine.
-local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart)
+local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart, wallNow)
     local baseDegrees = tonumber(XCConfig.antiAimYaw) or 180
     local rangeDegrees = math.clamp(tonumber(XCConfig.antiAimJitter) or 60, 0, 180)
     local patternRate = math.clamp(tonumber(XCConfig.spinSpeed) or 50, 10, 150)
@@ -14162,7 +14269,18 @@ local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, root
         return math.atan2(-horizontalVelocity.X, -horizontalVelocity.Z)
     end
 
-    if mode == "Vector Shift" then
+    if mode == "Desync" then
+        local desyncSpeed = math.clamp(tonumber(XCConfig.antiAimDesyncSpeed) or 30, 8, 60)
+        local desyncRange = math.clamp(tonumber(XCConfig.antiAimDesyncRange) or 112, 20, 180)
+        local desyncStep = math.floor(elapsed * desyncSpeed)
+        local phaseBias = (state.AntiBruteforcePhase or 0) * 3
+        local sequence = XCAntiAimDesyncSequence
+        local value = sequence[((desyncStep + phaseBias) % #sequence) + 1]
+        local anchor = resolveXCAntiAimThreatYaw(rootPart, originalYaw, wallNow or os.clock(), state)
+        if wallNow and wallNow < (state.AntiDamageSwitchUntil or 0) then value = -value end
+        return anchor + math.rad(desyncRange * value)
+
+    elseif mode == "Vector Shift" then
         -- Movement-aware: face against travel while continually crossing the
         -- movement vector. At low speed it becomes a compact alternating hold.
         if speed > 1.5 then
@@ -14321,9 +14439,9 @@ function setupXCCharacterInputHook()
                     xcCharacterInputHook.LastJumpDown = false
                 end
 
-                -- Pause anti-aim only for the tiny server-input window of a
-                -- local shot. The visual spin resumes immediately afterwards,
-                -- while bullet ray calculation remains camera-based.
+                -- Shot-safe never exposes real yaw. On the first firing sample
+                -- hold the previous fake/desync yaw through the weapon transition.
+                local wallNow = os.clock()
                 local weaponIsFiring = false
                 if skinData and type(skinData.GetWeapon) == "function" then
                     pcall(function()
@@ -14331,29 +14449,43 @@ function setupXCCharacterInputHook()
                         weaponIsFiring = weapon and (weapon.IsFireHeld or weapon.IsShooting or weapon.IsBurstShooting) == true
                     end)
                 end
-                if weaponIsFiring then
-                    xcCharacterInputHook.AntiFireUntil = os.clock() + 0.16
+                if XCConfig.antiAimShotSafeEnabled and weaponIsFiring and not xcCharacterInputHook.AntiWasFiring
+                    and type(xcCharacterInputHook.AntiLastYaw) == "number" then
+                    xcCharacterInputHook.AntiShotHeldYaw = xcCharacterInputHook.AntiLastYaw
+                    xcCharacterInputHook.AntiShotHoldUntil = wallNow + 0.035
                 end
-                local antiAimPausedForShot = os.clock() < (xcCharacterInputHook.AntiFireUntil or 0)
+                xcCharacterInputHook.AntiWasFiring = weaponIsFiring
 
-                if XCConfig.antiAimEnabled and not antiAimPausedForShot then
+                if XCConfig.antiAimEnabled then
                     if xcCharacterInputHook.AntiCharacter ~= character or not xcCharacterInputHook.AntiStarted then
                         xcCharacterInputHook.AntiCharacter = character
                         xcCharacterInputHook.AntiStarted = now
                         xcCharacterInputHook.AntiLastStep = nil
                         xcCharacterInputHook.RandomYaw = nil
+                        xcCharacterInputHook.AntiLastHealth = XCReadAntiAimHealth(model)
+                        xcCharacterInputHook.AntiBruteforcePhase = 0
+                        xcCharacterInputHook.AntiBruteforceSide = 1
+                        xcCharacterInputHook.AntiDamageSwitchUntil = 0
+                        xcCharacterInputHook.AntiThreatNext = 0
+                        xcCharacterInputHook.AntiThreatYaw = nil
+                    else
+                        XCUpdateAntiAimDamageState(model, wallNow, xcCharacterInputHook)
                     end
                     local elapsed = math.max(0, now - xcCharacterInputHook.AntiStarted)
                     local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
                     local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
                     local step = math.floor(elapsed / interval)
                     local originalYaw = tonumber(result.LookYaw) or 0
-                    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
+                    local mode = tostring(XCConfig.antiAimMode or "Desync")
                     local rootPart = model:FindFirstChild("HumanoidRootPart")
                     local yaw = resolveXCAntiAimYaw(
-                        mode, originalYaw, elapsed, step, xcCharacterInputHook, rootPart
+                        mode, originalYaw, elapsed, step, xcCharacterInputHook, rootPart, wallNow
                     )
-                    yaw = (yaw + math.pi) % (math.pi * 2) - math.pi
+                    if XCConfig.antiAimShotSafeEnabled and wallNow < (xcCharacterInputHook.AntiShotHoldUntil or 0)
+                        and type(xcCharacterInputHook.AntiShotHeldYaw) == "number" then
+                        yaw = xcCharacterInputHook.AntiShotHeldYaw
+                    end
+                    yaw = XCWrapAntiAimYaw(yaw)
                     local move = result.Move or Vector2.zero
                     if move.Magnitude > 1 then move = move.Unit end
                     local delta = yaw - originalYaw
@@ -14362,9 +14494,14 @@ function setupXCCharacterInputHook()
                     result.Move = Vector2.new(move.X * cosine - move.Y * sine, move.X * sine + move.Y * cosine)
                     result.LookYaw = yaw
                     xcCharacterInputHook.AntiLastStep = step
+                    xcCharacterInputHook.AntiLastYaw = yaw
                 elseif not XCConfig.antiAimEnabled then
                     xcCharacterInputHook.AntiCharacter = nil
                     xcCharacterInputHook.AntiStarted = nil
+                    xcCharacterInputHook.AntiLastYaw = nil
+                    xcCharacterInputHook.AntiShotHeldYaw = nil
+                    xcCharacterInputHook.AntiShotHoldUntil = 0
+                    xcCharacterInputHook.AntiWasFiring = false
                 end
                 return result
             end)
@@ -14394,6 +14531,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         XCFeatureState.antiAimStarted = nil
         XCFeatureState.AntiComputedStep = nil
         XCFeatureState.AntiComputedRandomYaw = nil
+        XCFeatureState.AntiLastHealth = nil
+        XCFeatureState.AntiBruteforcePhase = 0
+        XCFeatureState.AntiBruteforceSide = 1
+        XCFeatureState.AntiThreatNext = 0
+        XCFeatureState.AntiThreatYaw = nil
         if hum and savedAutoRotate ~= nil then
             hum.AutoRotate = savedAutoRotate
             savedAutoRotate = nil
@@ -14420,14 +14562,15 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if not activeCamera then return end
     local _, cameraYaw = activeCamera.CFrame:ToOrientation()
     local now = os.clock()
+    XCUpdateAntiAimDamageState(char, now, XCFeatureState)
     XCFeatureState.antiAimStarted = XCFeatureState.antiAimStarted or now
     local elapsed = now - XCFeatureState.antiAimStarted
     local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
     local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
     local step = math.floor(elapsed / interval)
-    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
-    local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp)
-    targetYaw = (targetYaw + math.pi) % (math.pi * 2) - math.pi
+    local mode = tostring(XCConfig.antiAimMode or "Desync")
+    local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp, now)
+    targetYaw = XCWrapAntiAimYaw(targetYaw)
     hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, targetYaw, 0)
 end))
 
@@ -15208,8 +15351,8 @@ local function xcGlassOpacity(role, enabled, intensity, base)
     if not enabled then return base end
     local amount = math.max(0, math.min(1, tonumber(intensity) or 0.7))
     -- Keep the game visible through the shell without washing out small text.
-    local layer = role == "chrome" and 0.08 or role == "main" and 0.04 or 0.02
-    return math.min(0.48, base + layer * amount)
+    local layer = role == "chrome" and 0.27 or role == "main" and 0.12 or 0.055
+    return math.min(0.62, base + layer * amount)
 end
 
 local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedScale, compact, modeOverride)
@@ -15217,7 +15360,7 @@ local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedSca
     -- Touch input also exists on tablets and landscape phones. Choose the
     -- column layout from available space instead of the input device.
     if mobile == nil then mobile = viewportX < 760 and viewportX < viewportY * 1.3 end
-    local width, height = mobile and 430 or 960, mobile and 720 or 640
+    local width, height = mobile and 430 or 820, mobile and 720 or 560
     local preferred = math.max(0.65, math.min(1.25, tonumber(requestedScale) or 1))
     if compact then preferred = preferred * 0.88 end
     local scale = math.max(0.05, math.min(preferred,
@@ -15243,7 +15386,7 @@ function buildXCUI()
         Lime = configColor("menuAccent", Color3.fromRGB(152, 204, 0)),
         White = initialText,
         Text = initialText:Lerp(initialMain, 0.14),
-        Muted = initialText:Lerp(initialMain, 0.36),
+        Muted = initialText:Lerp(initialMain, 0.53),
     }
 
     local toggleGui = Instance.new("ScreenGui")
@@ -15382,7 +15525,7 @@ function buildXCUI()
     brand.Position = UDim2.fromOffset(16, 12)
     brand.Size = UDim2.fromOffset(isMobileLayout and 106 or 136, 28)
     brand.BackgroundTransparency = 1
-    brand.Text = isMobileLayout and "XC /" or "XC / STUDIO"
+    brand.Text = isMobileLayout and "XC /" or "XC  /  PRISM"
     brand.TextColor3 = C.White
     brand.Font = Enum.Font.GothamBold
     brand.TextSize = 16
@@ -15469,7 +15612,7 @@ function buildXCUI()
             Main=newMain, Sidebar=newMain:Lerp(Color3.new(0,0,0),0.24), Panel=newPanel,
             Control=newPanel:Lerp(newText,0.06), Control2=newPanel:Lerp(newText,0.11),
             Border=newPanel:Lerp(newText,0.17), Lime=configColor("menuAccent",old.Lime),
-            White=newText, Text=newText:Lerp(newMain,0.14), Muted=newText:Lerp(newMain,0.36),
+            White=newText, Text=newText:Lerp(newMain,0.14), Muted=newText:Lerp(newMain,0.53),
         }
         local function replaceColor(value)
             for role, previous in pairs(old) do if value == previous then return nextColors[role] end end
@@ -15534,7 +15677,7 @@ function buildXCUI()
     footer.Size = UDim2.new(1, -28, 0, 18)
     footer.Position = UDim2.new(0, 14, 1, -22)
     footer.BackgroundTransparency = 1
-    footer.Text = "XC STUDIO    •    LOCAL SESSION                                          SKIN CATALOG  /  QUICK SEARCH"
+    footer.Text = "XC PRISM    •    LOCAL SESSION                                          CUSTOM GLASS  /  QUICK SEARCH"
     footer.TextColor3 = C.Muted
     footer.Font = Enum.Font.Gotham
     footer.TextSize = 9
@@ -15646,7 +15789,10 @@ function buildXCUI()
         skeletonDistanceFade = "Gradually fades skeleton lines at long distances.",
         noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
         hitSoundEnabled = "Plays the selected local sound when enemy health decreases.",
-        antiAimMode = "Selects an XC-native anti-aim pattern. Several modes react to movement velocity; others use deterministic asymmetric phase sequences.",
+        antiAimMode = "Desync uses native SampleInput replication with freestand and anti-bruteforce. Legacy patterns remain available for compatibility.",
+        antiAimFreestandEnabled = "Faces a narrow side away from the nearest active threat and prefers cover when one side is blocked.",
+        antiAimAntiBruteforceEnabled = "Changes desync phase immediately after local damage so repeated shots do not see the same pattern.",
+        antiAimShotSafeEnabled = "Holds the current fake yaw through the first firing sample instead of exposing the real yaw.",
         nightModeEnabled = "World Changer lighting layer: time, brightness, ambient, shadow softness, diffuse/specular response and color shift.",
         worldFogEnabled = "Uses XC custom classic fog. Enabling it automatically turns Remove fog off.",
         worldSkyboxEnabled = "Applies a custom sky locally, preserves native skies and restores them when disabled.",
@@ -15841,7 +15987,7 @@ function buildXCUI()
         titleLabel.Text = title
         titleLabel.TextColor3 = C.Text
         titleLabel.Font = Enum.Font.GothamBold
-        titleLabel.TextSize = 14
+        titleLabel.TextSize = 12
         titleLabel.TextXAlignment = Enum.TextXAlignment.Left
         titleLabel.Parent = panel
         local titleDivider = Instance.new("Frame", panel)
@@ -16017,7 +16163,7 @@ function buildXCUI()
         text.Text = label
         text.TextColor3 = C.Text
         text.Font = Enum.Font.GothamMedium
-        text.TextSize = 13
+        text.TextSize = 12
         text.TextXAlignment = Enum.TextXAlignment.Left
         text.TextTruncate = Enum.TextTruncate.AtEnd
         text.Parent = row
@@ -16112,7 +16258,7 @@ function buildXCUI()
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.GothamMedium
-        name.TextSize = 13
+        name.TextSize = 12
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
@@ -16333,7 +16479,7 @@ function buildXCUI()
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.GothamMedium
-        name.TextSize = 13
+        name.TextSize = 12
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
@@ -16433,7 +16579,7 @@ function buildXCUI()
         note.Text = message
         note.TextColor3 = C.Muted
         note.Font = Enum.Font.Gotham
-        note.TextSize = 12
+        note.TextSize = 10
         note.TextWrapped = true
         note.TextXAlignment = Enum.TextXAlignment.Left
         note.Parent = parent
@@ -16944,7 +17090,7 @@ function buildXCUI()
         local galleryState = {Page = 1, Context = nil, Signature = nil, Revision = 0}
         local holder = Instance.new("Frame", parent)
         holder.Name = "SkinImageGallery"
-        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 610 or 660)
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 610 or 580)
         holder.BackgroundColor3 = C.Panel
         holder.BorderSizePixel = 0
         local galleryCorner = Instance.new("UICorner", holder)
@@ -17002,7 +17148,7 @@ function buildXCUI()
         heading.BackgroundTransparency = 1
         heading.TextColor3 = C.Text
         heading.Font = Enum.Font.GothamBold
-        heading.TextSize = 17
+        heading.TextSize = 14
         heading.TextTruncate = Enum.TextTruncate.AtEnd
         heading.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -17013,7 +17159,7 @@ function buildXCUI()
         hint.Text = "Choose a finish below. Changes apply to the held item."
         hint.TextColor3 = C.Muted
         hint.Font = Enum.Font.Gotham
-        hint.TextSize = 13
+        hint.TextSize = 11
         hint.TextTruncate = Enum.TextTruncate.AtEnd
         hint.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -17027,7 +17173,7 @@ function buildXCUI()
         search.TextSize = 12
         search.TextColor3 = C.Text
         search.PlaceholderColor3 = C.Muted
-        search.PlaceholderText = "Search this item's finishes..."
+        search.PlaceholderText = "Search finishes..."
         search.ClearTextOnFocus = false
         search.Text = ""
         search.TextXAlignment = Enum.TextXAlignment.Left
@@ -17058,14 +17204,8 @@ function buildXCUI()
         grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
         grid.CanvasSize = UDim2.new()
         local layout = Instance.new("UIGridLayout", grid)
-        local function updateGalleryColumns()
-            local width = grid.AbsoluteSize.X / math.max(0.05, scale.Scale)
-            local columns = math.clamp(math.floor((width + 10) / 160), 1, 4)
-            layout.CellSize = UDim2.new(1 / columns, -10, 0, 148)
-        end
-        updateGalleryColumns()
-        table.insert(connections, grid:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateGalleryColumns))
-        layout.CellPadding = UDim2.fromOffset(10, 10)
+        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 0.5 or 0.25, -6, 0, UserInputService.TouchEnabled and 120 or 108)
+        layout.CellPadding = UDim2.fromOffset(6, 6)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         local padding = Instance.new("UIPadding", grid)
         padding.PaddingRight = UDim.new(0, 2)
@@ -17391,8 +17531,7 @@ function buildXCUI()
             for skinName,card in pairs(cards) do
                 local active=skinName==selected
                 local stroke=card:FindFirstChild("SelectionStroke")
-                if stroke then stroke.Color=active and C.Lime or C.Border;stroke.Thickness=active and 2 or 1 end
-                card.BackgroundColor3=active and C.Lime:Lerp(C.Panel,0.88) or C.Panel
+                if stroke then stroke.Color=active and C.Lime or C.Border;stroke.Thickness=active and 1.6 or 1 end
                 local check=card:FindFirstChild("Selected")
                 if check then check.Visible=active;check.TextColor3=C.Lime end
             end
@@ -17471,7 +17610,7 @@ function buildXCUI()
                 stroke.Name="SelectionStroke";stroke.Color=C.Border;stroke.Thickness=1
                 local modelPreview=XCConfig.skinPreviewMode=="Models"
                 local visual=Instance.new(modelPreview and "ViewportFrame" or "Frame",card)
-                visual.Name="Preview";visual.Position=UDim2.fromOffset(6,6);visual.Size=UDim2.new(1,-12,1,-44)
+                visual.Name="Preview";visual.Position=UDim2.fromOffset(4,4);visual.Size=UDim2.new(1,-8,1,-28)
                 visual.BackgroundColor3=C.Control;visual.BorderSizePixel=0
                 if modelPreview then
                     visual.Ambient=Color3.fromRGB(190,190,190)
@@ -17479,12 +17618,12 @@ function buildXCUI()
                 end
                 Instance.new("UICorner",visual).CornerRadius=UDim.new(0,3)
                 local label=Instance.new("TextLabel",card)
-                label.Position=UDim2.new(0,8,1,-36);label.Size=UDim2.new(1,-16,0,32);label.BackgroundTransparency=1
-                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.GothamMedium;label.TextSize=12;label.TextWrapped=true
+                label.Position=UDim2.new(0,6,1,-23);label.Size=UDim2.new(1,-12,0,19);label.BackgroundTransparency=1
+                label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.GothamMedium;label.TextSize=11;label.TextTruncate=Enum.TextTruncate.AtEnd
                 local selected=Instance.new("TextLabel",card)
-                selected.Name="Selected";selected.Position=UDim2.fromOffset(10,10);selected.Size=UDim2.fromOffset(76,21)
+                selected.Name="Selected";selected.Position=UDim2.fromOffset(7,7);selected.Size=UDim2.fromOffset(64,17)
                 selected.BackgroundColor3=C.Main;selected.BackgroundTransparency=0.12;selected.Text="SELECTED"
-                selected.Font=Enum.Font.GothamBold;selected.TextSize=10;selected.Visible=false;selected.ZIndex=5
+                selected.Font=Enum.Font.GothamBold;selected.TextSize=8;selected.Visible=false;selected.ZIndex=5
                 Instance.new("UICorner",selected).CornerRadius=UDim.new(0,4)
                 local function populatePreview()
                     if serial~=gallerySerial or not visual.Parent or not xcGuiIsVisible(holder) then return end
@@ -17520,7 +17659,7 @@ function buildXCUI()
                     scheduleConfigAutoSave()
                 end)
                 card.MouseEnter:Connect(function() card.BackgroundColor3=C.Control end)
-                card.MouseLeave:Connect(function() updateCardSelection(itemName) end)
+                card.MouseLeave:Connect(function() card.BackgroundColor3=C.Panel end)
             end
             updateCardSelection(itemName)
             if #previewJobs>0 then
@@ -17905,7 +18044,7 @@ function buildXCUI()
         end
         label.TextColor3 = C.Muted
         label.Font = Enum.Font.GothamMedium
-        label.TextSize = isMobileLayout and 9 or 13
+        label.TextSize = isMobileLayout and 9 or 12
         label.TextTruncate = Enum.TextTruncate.AtEnd
         label.TextXAlignment = isMobileLayout and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
         button.MouseEnter:Connect(function()
@@ -18023,13 +18162,16 @@ function buildXCUI()
     section(R, "Anti-aim")
     toggle(R, "Anti-aim", "antiAimEnabled")
     addChoice(R, "Anti-aim mode", "antiAimMode", {
-        "Vector Shift", "Pendulum Snap", "Crosswind", "Golden Flick",
+        "Desync", "Vector Shift", "Pendulum Snap", "Crosswind", "Golden Flick",
         "Phase Lattice", "Velocity Brake", "Double Pulse", "Reverse Step"
     })
-    addSlider(R, "Base offset", "antiAimYaw", -180, 180, 1, "°")
-    addSlider(R, "Pattern range", "antiAimJitter", 0, 180, 1, "°")
-    addSlider(R, "Pattern rate", "spinSpeed", 10, 150, 1, "")
-    addSlider(R, "Switch interval", "antiAimInterval", 0.04, 0.5, 0.01, "s")
+    toggle(R, "Freestand", "antiAimFreestandEnabled")
+    toggle(R, "Anti-bruteforce", "antiAimAntiBruteforceEnabled")
+    toggle(R, "Shot-safe desync", "antiAimShotSafeEnabled")
+    addSlider(R, "Desync speed", "antiAimDesyncSpeed", 8, 60, 1, "hz")
+    addSlider(R, "Desync range", "antiAimDesyncRange", 20, 180, 1, "°")
+    addSlider(R, "Base offset (legacy modes)", "antiAimYaw", -180, 180, 1, "°")
+    addNote(R, "Desync uses native replicated input. Freestand tracks the nearest active enemy; damage flips the phase.")
 
     section(R, "Third person")
     toggle(R, "Third person", "thirdPersonEnabled")
