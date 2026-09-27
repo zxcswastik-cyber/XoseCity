@@ -10903,8 +10903,15 @@ function stopXCCameraMode()
     end
     if XCFeatureState.savedCameraState then
         pcall(function()
-            UserInputService.MouseBehavior = XCFeatureState.savedCameraState.MouseBehavior
-            UserInputService.MouseIconEnabled = XCFeatureState.savedCameraState.MouseIconEnabled
+            if XCFeatureState.menuFocusOpen then
+                XCFeatureState.menuMouseState = {
+                    Behavior = XCFeatureState.savedCameraState.MouseBehavior,
+                    Icon = XCFeatureState.savedCameraState.MouseIconEnabled,
+                }
+            else
+                UserInputService.MouseBehavior = XCFeatureState.savedCameraState.MouseBehavior
+                UserInputService.MouseIconEnabled = XCFeatureState.savedCameraState.MouseIconEnabled
+            end
         end)
     end
     XCFeatureState.savedCameraState = nil
@@ -10928,6 +10935,10 @@ function setXCCameraMode(mode, enabled)
             MouseBehavior = UserInputService.MouseBehavior,
             MouseIconEnabled = UserInputService.MouseIconEnabled,
         }
+        if XCFeatureState.menuFocusOpen and XCFeatureState.menuMouseState then
+            XCFeatureState.savedCameraState.MouseBehavior = XCFeatureState.menuMouseState.Behavior
+            XCFeatureState.savedCameraState.MouseIconEnabled = XCFeatureState.menuMouseState.Icon
+        end
     end
 
     XCFeatureState.cameraMode = mode
@@ -10940,8 +10951,12 @@ function setXCCameraMode(mode, enabled)
     XCFeatureState.cameraYaw = yaw
     cam.CameraType = Enum.CameraType.Scriptable
     if not UserInputService.TouchEnabled then
-        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-        UserInputService.MouseIconEnabled = false
+        if XCFeatureState.menuFocusOpen then
+            XCFeatureState.menuMouseState = {Behavior = Enum.MouseBehavior.LockCenter, Icon = false}
+        else
+            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+            UserInputService.MouseIconEnabled = false
+        end
     end
     refreshXCToggle("freecamEnabled")
     refreshXCToggle("freelookEnabled")
@@ -11000,7 +11015,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         destroyXCWeather()
     end
 
-    if not XCFeatureState.cameraMode then return end
+    if not XCFeatureState.cameraMode or XCFeatureState.menuFocusOpen then return end
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
     if (XCFeatureState.cameraMode == "Freecam" and not XCConfig.freecamEnabled)
@@ -11044,6 +11059,51 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     XCFeatureState.cameraFrame = CFrame.new(XCFeatureState.cameraPosition) * rotation
     cam.CFrame = XCFeatureState.cameraFrame
 end))
+--// MENU FOCUS EFFECTS
+function setXCMenuFocus(open)
+    open = open == true
+    if XCFeatureState.menuFocusOpen == open then return end
+    XCFeatureState.menuFocusOpen = open
+    if open then
+        XCFeatureState.menuMouseState = {
+            Behavior = UserInputService.MouseBehavior,
+            Icon = UserInputService.MouseIconEnabled,
+        }
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        UserInputService.MouseIconEnabled = true
+    else
+        local saved = XCFeatureState.menuMouseState
+        XCFeatureState.menuMouseState = nil
+        if saved then
+            UserInputService.MouseBehavior = saved.Behavior
+            UserInputService.MouseIconEnabled = saved.Icon
+        end
+    end
+    local blur = XCFeatureState.menuBlur
+    if open and (not blur or not blur.Parent) then
+        blur = Instance.new("BlurEffect")
+        blur.Name = "XC_MenuBlur"
+        blur.Size = 0
+        blur.Parent = Lighting
+        XCFeatureState.menuBlur = blur
+    end
+    if XCFeatureState.menuBlurTween then XCFeatureState.menuBlurTween:Cancel() end
+    if blur then
+        blur.Enabled = true
+        local tween = TweenService:Create(blur, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = open and 16 or 0})
+        XCFeatureState.menuBlurTween = tween
+        tween:Play()
+    end
+end
+
+function cleanupXCMenuFocus()
+    setXCMenuFocus(false)
+    if XCFeatureState.menuBlurTween then XCFeatureState.menuBlurTween:Cancel() end
+    XCFeatureState.menuBlurTween = nil
+    if XCFeatureState.menuBlur then XCFeatureState.menuBlur:Destroy() end
+    XCFeatureState.menuBlur = nil
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_MENU_CURSOR") end)
+end
 --// CLEANUP ROUTINES
 function cleanup()
     XCFeatureState.applyLoadedConfig = nil
@@ -11051,6 +11111,7 @@ function cleanup()
     setXCSilentAimRequested(false)
     pcall(restoreXCKnifeModel)
     setXCStreamerMode(false)
+    cleanupXCMenuFocus()
     stopXCCameraMode()
     destroyXCWeather()
     pcall(function() setThirdPersonEnabled(false) end)
@@ -14648,6 +14709,44 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
     end
 end
 
+local function updateXCWallChams(data, char, color, enabled, now)
+    data.WallChams = data.WallChams or {}
+    if data.WallCharacter ~= char then
+        for _, box in pairs(data.WallChams) do box:Destroy() end
+        table.clear(data.WallChams)
+        data.WallCharacter = char
+        data.WallScanAt = 0
+    end
+    if enabled and char and now >= (data.WallScanAt or 0) then
+        data.WallScanAt = now + 0.5
+        local keep = {}
+        for _, part in ipairs(xcEligibleChamParts(char)) do
+            keep[part] = true
+            if not data.WallChams[part] then
+                local box = Instance.new("BoxHandleAdornment")
+                box.Name = "XC_WallCham"
+                box.Adornee = part
+                box.AlwaysOnTop = true
+                box.ZIndex = 1
+                box.Visible = false
+                box.Parent = data.Holder
+                data.WallChams[part] = box
+            end
+        end
+        for part, box in pairs(data.WallChams) do
+            if not keep[part] then box:Destroy(); data.WallChams[part] = nil end
+        end
+    end
+    for part, box in pairs(data.WallChams) do
+        box.Visible = enabled and char ~= nil and part.Parent ~= nil and part:IsDescendantOf(char)
+        if box.Visible then
+            box.Size = part.Size
+            box.Color3 = color
+            box.Transparency = math.clamp(xcClamp01(XCConfig.chamsFillTransparency), 0.25, 0.8)
+        end
+    end
+end
+
 local function applyXCChamsStyle(data, char, ally, isVisible, now)
     if not data or not data.Highlight or not char then return end
 
@@ -14673,8 +14772,6 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     -- Adornee can fight for render budget/order and Roblox has a small active
     -- Highlight budget. The material shell remains the high-detail visible
     -- layer; this Highlight owns reliable wall visibility.
-    syncXCChamMaterialShells(data, char, style, isVisible and visibleColor or throughColor, now or os.clock())
-
     through.DepthMode = XCConfig.chamsThroughWallsEnabled ~= false
         and Enum.HighlightDepthMode.AlwaysOnTop
         or Enum.HighlightDepthMode.Occluded
@@ -14687,10 +14784,26 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     -- the richer surface style on top when the target is not occluded.
     through.FillTransparency = math.clamp(fill + 0.08, 0.18, 0.86)
     through.OutlineTransparency = math.clamp(outline + 0.02, 0.01, 0.72)
+    -- The independent wall layer does not rely on Highlight render slots or
+    -- cloned material geometry. Body-sized boxes deliberately favor visibility.
+    updateXCWallChams(data, char, throughColor,
+        XCConfig.chamsThroughWallsEnabled ~= false and not isVisible, now or os.clock())
+    local ok, err = pcall(syncXCChamMaterialShells, data, char, style,
+        isVisible and visibleColor or throughColor, now or os.clock())
+    if not ok then
+        data.ChamMaterialError = tostring(err)
+        if (now or os.clock()) >= (data.ChamMaterialWarnAt or 0) then
+            data.ChamMaterialWarnAt = (now or os.clock()) + 5
+            warn("[XOSE] Chams material failed; wall layer remains active: " .. tostring(err))
+        end
+    end
 end
 
 local function disableXCChamsForData(data, clearAdornee)
     if not data then return end
+    local wallCharacter = data.WallCharacter
+    if clearAdornee then wallCharacter = nil end
+    updateXCWallChams(data, wallCharacter, nil, false, os.clock())
 
     if data.Highlight then
         data.Highlight.Enabled = false
@@ -20756,12 +20869,30 @@ function buildXCUI()
     switchPage("Rage")
 
     local menuVisible = true
+    -- Modal lets Roblox release mouse lock while this visible menu is active.
+    closeMenuButton.Modal = true
+    local function syncMenuFocus()
+        XCFeatureState.menuOpen = main.Visible and screenGui.Enabled
+        setXCMenuFocus(XCFeatureState.menuOpen)
+    end
+    table.insert(connections, main:GetPropertyChangedSignal("Visible"):Connect(syncMenuFocus))
+    table.insert(connections, screenGui:GetPropertyChangedSignal("Enabled"):Connect(syncMenuFocus))
+    table.insert(connections, screenGui.Destroying:Connect(cleanupXCMenuFocus))
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_MENU_CURSOR") end)
+    RunService:BindToRenderStep("XOSE_MENU_CURSOR", Enum.RenderPriority.Last.Value + 100, function()
+        if not xcSessionActive() or not XCFeatureState.menuFocusOpen then return end
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        UserInputService.MouseIconEnabled = true
+        if XCFeatureState.menuBlur then XCFeatureState.menuBlur.Enabled = true end
+    end)
+    syncMenuFocus()
     local function toggleMenu()
         closeDropdown()
         hideHelp()
         main.Visible = not main.Visible
         menuVisible = main.Visible
         XCFeatureState.menuOpen = main.Visible
+        syncMenuFocus()
         if main.Visible then
             for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
         end
