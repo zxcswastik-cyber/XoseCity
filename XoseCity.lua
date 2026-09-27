@@ -1,4 +1,4 @@
---// XOSE v76 | paged skin catalog, on-demand previews and interface refinements
+--// XOSE v78 | original RenderStepped ESP path, per-frame refresh and player isolation
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
     local Players = game:GetService("Players")
@@ -225,7 +225,7 @@ do
     footer.Size = UDim2.new(1, -48, 0, 14)
     footer.BackgroundTransparency = 1
     footer.Font = Enum.Font.Gotham
-    footer.Text = "XOSE  •  protected session"
+    footer.Text = "XOSE  |  protected session"
     footer.TextColor3 = Color3.fromRGB(105, 105, 114)
     footer.TextSize = 9
     footer.TextXAlignment = Enum.TextXAlignment.Left
@@ -366,17 +366,17 @@ pcall(function()
 end)
 --// XC UI layer
 local XCIcons = {
-    Combat = "⌁",
-    Visuals = "◉",
-    Players = "♙",
-    World = "◈",
-    Movement = "↯",
-    Misc = "⚙",
-    Config = "▣",
-    Scripts = "⌘",
-    Search = "⌕",
-    Settings = "⚙",
-    Info = "ⓘ",
+    Combat = "C",
+    Visuals = "V",
+    Players = "P",
+    World = "W",
+    Movement = "M",
+    Misc = "M",
+    Config = "CFG",
+    Scripts = "S",
+    Search = "",
+    Settings = "SET",
+    Info = "I",
 }
 
 function XCIcon(parent, glyph, size, color)
@@ -384,7 +384,7 @@ function XCIcon(parent, glyph, size, color)
     label.Name = "XCIcon"
     label.BackgroundTransparency = 1
     label.Size = UDim2.new(0, size or 18, 0, size or 18)
-    label.Text = glyph or "•"
+    label.Text = glyph or "."
     label.Font = Enum.Font.GothamBold
     label.TextSize = math.max(12, math.floor((size or 18) * 0.78))
     label.TextColor3 = color or Color3.fromRGB(152, 204, 0)
@@ -416,15 +416,15 @@ local XCConfig = {
     customHandsYaw = 0,
     customHandsRoll = 0,
     uiScale = 1.0,
-    menuThemePreset = "Liquid Glass",
+    menuThemePreset = "Gamesense",
     visualLookPreset = "Custom",
     menuTransparency = 0,
     menuGlassEnabled = true,
-    menuGlassStrength = 0.7,
-    menuAccentR = 126, menuAccentG = 139, menuAccentB = 255,
-    menuBackgroundR = 16, menuBackgroundG = 17, menuBackgroundB = 26,
-    menuPanelR = 25, menuPanelG = 26, menuPanelB = 38,
-    menuTextR = 238, menuTextG = 239, menuTextB = 249,
+    menuGlassStrength = 0.58,
+    menuAccentR = 152, menuAccentG = 204, menuAccentB = 0,
+    menuBackgroundR = 17, menuBackgroundG = 17, menuBackgroundB = 17,
+    menuPanelR = 12, menuPanelG = 12, menuPanelB = 12,
+    menuTextR = 235, menuTextG = 235, menuTextB = 235,
     linkMenuAndEspColor = false,
     espVisibleR = 152, espVisibleG = 204, espVisibleB = 0,
     espHiddenR = 112, espHiddenG = 116, espHiddenB = 122,
@@ -440,7 +440,24 @@ local XCConfig = {
     watermarkShowFPS = true,
     watermarkShowPing = true,
     watermarkShowName = false,
-    watermarkText = "XC",
+    watermarkText = "XOSE",
+    watermarkScale = 1.0,
+    watermarkOpacity = 0.88,
+    watermarkGlassStrength = 0.86,
+
+    -- Anime startup greeting
+    -- v3 uses aligned normal/wink PNG frames so the character never jumps during the expression change.
+    greetingEnabled = true,
+    greetingDuration = 4.0,
+    greetingScale = 1.0,
+    greetingGlassStrength = 0.88,
+    greetingVoiceEnabled = true,
+    greetingVoiceVolume = 0.65,
+    greetingVoiceId = "",
+    greetingTtsVoiceId = "2",
+    greetingImageAsset = "",
+    greetingWinkImageAsset = "",
+
     aimbotEnabled = false,
     predictionEnabled = true,
     silentAimEnabled = false,
@@ -459,8 +476,9 @@ local XCConfig = {
     skinChangerEnabled = false,
     triggerbotEnabled = false,
     triggerbotMode = "Crosshair",
+    triggerbotReactionMode = "Instant",
     antiAimEnabled = false,
-    antiAimMode = "Vector Shift",
+    antiAimMode = "Desync",
     bunnyHopEnabled = false,
     slideEnabled = false,
     speedEnabled = false,
@@ -552,7 +570,7 @@ local XCConfig = {
     priorityPlayerName = "None",
     aimFov = 160,
     triggerbotFov = 160,
-    triggerbotDelay = 0.075,
+    triggerbotDelay = 0.0,
     triggerbotScopedOnly = false,
     triggerbotHeadOnly = false,
     aimbotSpeed = 35.0,
@@ -579,6 +597,7 @@ local XCConfig = {
     chamsTeamCheck = true,
     chamsShowTeammates = false,
     chamsOcclusion = true,
+    chamsThroughWallsEnabled = true,
     -- Chams 2.0
     chamsStyle = "Solid",
     chamsUseEspPalette = true,
@@ -676,6 +695,12 @@ local XCConfig = {
     antiAimYaw = 180,
     antiAimJitter = 60,
     antiAimInterval = 0.15,
+    -- Anti-Aim 2.0: native SampleInput desync controls.
+    antiAimFreestandEnabled = true,
+    antiAimAntiBruteforceEnabled = true,
+    antiAimShotSafeEnabled = true,
+    antiAimDesyncSpeed = 30,
+    antiAimDesyncRange = 112,
     skeletonThickness = 1.5,
     bhopJumpPower = 52,
     bhopSpeedBoost = 1.35,
@@ -688,6 +713,14 @@ local XCConfig = {
     bhopPauseWithMenu = true,
     bhopGroundDelay = 0,
     bhopAcceleration = 12,
+    -- Bhop 2.0: progressive speed + collision-safe momentum preservation.
+    bhopAutoAcceleration = true,
+    bhopGainPerHop = 0.10,
+    bhopMaxSpeed = 3.0,
+    bhopMomentumPreserve = true,
+    bhopWallPreserve = true,
+    bhopCollisionGrace = 0.20,
+    bhopMomentumRestore = 1.0,
     walkMultiplier = 2.0,
     flightSpeed = 50,
 
@@ -852,9 +885,14 @@ local XCConfig = {
     weaponChamsColorG = 45,
     weaponChamsColorB = 55,
     scopeFovEnabled = false,
-    scopeFov = 70,
+    scopeFov = 55,
     customFovEnabled = false,
-    customFov = 90,
+    customFov = 100,
+    customFovMode = "Preserve ADS",
+    customAdsFov = 76,
+    customFovSmoothEnabled = true,
+    customFovTransitionSpeed = 14,
+    customFovPreset = "Custom",
     scopeCrosshairLength = 85,
     scopeCrosshairThickness = 2,
     scopeCrosshairGap = 8,
@@ -896,6 +934,9 @@ local function xcApplyConfigValues(data, skipPublicSelection)
                     if value == value and math.abs(value) <= 1000000 then
                         if key == "uiScale" then value = math.clamp(value, 0.65, 1.25)
                         elseif key == "menuTransparency" then value = math.clamp(value, 0, 0.45)
+                        elseif key == "watermarkScale" then value = math.clamp(value, 0.70, 1.80)
+                        elseif key == "watermarkOpacity" then value = math.clamp(value, 0.35, 1)
+                        elseif key == "watermarkGlassStrength" then value = math.clamp(value, 0, 1)
                         elseif key:match("[RGB]$") and (key:find("Color") or key:find("Accent")
                             or key:find("Background") or key:find("Panel") or key:find("Text")
                             or key:find("Visible") or key:find("Hidden") or key:find("grenade")
@@ -995,6 +1036,25 @@ if sharedXCEnv then
     else
         sharedXCEnv.XCSharedConfig = XCConfig
     end
+
+    -- One-time migration for the old stock Liquid Glass defaults. Preserve
+    -- deliberate custom themes while making reinjection adopt the new compact
+    -- gamesense-inspired XOSE shell.
+    if rawget(sharedXCEnv, "XOSE_GS_UI_V2") ~= true then
+        local legacyDefault = tostring(XCConfig.menuThemePreset or "") == "Liquid Glass"
+            and tonumber(XCConfig.menuAccentR) == 126
+            and tonumber(XCConfig.menuAccentG) == 139
+            and tonumber(XCConfig.menuAccentB) == 255
+        if legacyDefault then
+            XCConfig.menuThemePreset = "Gamesense"
+            XCConfig.menuAccentR, XCConfig.menuAccentG, XCConfig.menuAccentB = 152, 204, 0
+            XCConfig.menuBackgroundR, XCConfig.menuBackgroundG, XCConfig.menuBackgroundB = 17, 17, 17
+            XCConfig.menuPanelR, XCConfig.menuPanelG, XCConfig.menuPanelB = 12, 12, 12
+            XCConfig.menuTextR, XCConfig.menuTextG, XCConfig.menuTextB = 235, 235, 235
+            XCConfig.menuGlassStrength = 0.58
+        end
+        sharedXCEnv.XOSE_GS_UI_V2 = true
+    end
 end
 
 -- A reinjection must start from safe toggle defaults. Numeric/user settings
@@ -1017,6 +1077,9 @@ end
 XCConfig.weaponEspScale = math.clamp(tonumber(XCConfig.weaponEspScale) or 1, 0.75, 1.5)
 XCConfig.uiScale = math.clamp(tonumber(XCConfig.uiScale) or 1, 0.65, 1.25)
 XCConfig.menuTransparency = math.clamp(tonumber(XCConfig.menuTransparency) or 0, 0, 0.45)
+XCConfig.watermarkScale = math.clamp(tonumber(XCConfig.watermarkScale) or 1, 0.70, 1.80)
+XCConfig.watermarkOpacity = math.clamp(tonumber(XCConfig.watermarkOpacity) or 0.88, 0.35, 1)
+XCConfig.watermarkGlassStrength = math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86, 0, 1)
 for _, colorKey in ipairs({
     "menuAccentR", "menuAccentG", "menuAccentB", "menuBackgroundR", "menuBackgroundG", "menuBackgroundB",
     "menuPanelR", "menuPanelG", "menuPanelB", "menuTextR", "menuTextG", "menuTextB",
@@ -1037,6 +1100,7 @@ for _, colorKey in ipairs({
     XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
 end
 local XC_NEW_ANTIAIM_MODES = {
+    ["Desync"] = true,
     ["Vector Shift"] = true,
     ["Pendulum Snap"] = true,
     ["Crosswind"] = true,
@@ -1047,7 +1111,7 @@ local XC_NEW_ANTIAIM_MODES = {
     ["Reverse Step"] = true,
 }
 if not XC_NEW_ANTIAIM_MODES[tostring(XCConfig.antiAimMode or "")] then
-    XCConfig.antiAimMode = "Vector Shift"
+    XCConfig.antiAimMode = "Desync"
 end
 
 local UI_Bind_Registry = {}
@@ -1244,6 +1308,456 @@ function syncXCUserTheme()
     currentTheme.MolotovColor = xcConfigColor("grenadeMolotov", currentTheme.MolotovColor)
 end
 syncXCUserTheme()
+
+--// XC ANIME GREETING SYSTEM ---------------------------------------------------
+XC_GREETING_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character.png"
+XC_GREETING_IMAGE_PATH = "XOSE/assets/greeting.png"
+XC_GREETING_WINK_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character_Wink.png"
+XC_GREETING_WINK_IMAGE_PATH = "XOSE/assets/greeting_wink.png"
+
+function XCGreetingBytesArePng(data)
+    return type(data) == "string"
+        and #data > 10000
+        and data:sub(1, 8) == "\137PNG\r\n\26\n"
+end
+
+function XCGreetingEnsureFolders()
+    if type(makefolder) ~= "function" then return true end
+
+    pcall(function()
+        if type(isfolder) ~= "function" or not isfolder("XOSE") then
+            makefolder("XOSE")
+        end
+    end)
+    pcall(function()
+        if type(isfolder) ~= "function" or not isfolder("XOSE/assets") then
+            makefolder("XOSE/assets")
+        end
+    end)
+    return true
+end
+
+function XCGreetingDownloadImage(url, path)
+    if type(writefile) ~= "function" then return nil end
+    XCGreetingEnsureFolders()
+
+    local ok, data = pcall(function()
+        return game:HttpGet(url)
+    end)
+    if not ok or not XCGreetingBytesArePng(data) then return nil end
+
+    local wrote = pcall(writefile, path, data)
+    if not wrote then return nil end
+    return path
+end
+
+function XCEnsureGreetingImageFile(url, path, forceDownload)
+    if not forceDownload and type(isfile) == "function" then
+        local ok, exists = pcall(isfile, path)
+        if ok and exists == true then
+            if type(readfile) == "function" then
+                local readOk, cached = pcall(readfile, path)
+                if readOk and XCGreetingBytesArePng(cached) then
+                    return path
+                end
+            else
+                return path
+            end
+        end
+    end
+    return XCGreetingDownloadImage(url, path)
+end
+
+function XCResolveGreetingImage(url, path, configuredAsset, stateKey)
+    if type(configuredAsset) == "string" and configuredAsset ~= "" then
+        local raw = configuredAsset
+        if raw:match("^%d+$") then raw = "rbxassetid://" .. raw end
+        return raw
+    end
+    if XCFeatureState and XCFeatureState[stateKey] then
+        return XCFeatureState[stateKey]
+    end
+
+    local resolver = nil
+    if type(getcustomasset) == "function" then resolver = getcustomasset
+    elseif type(getsynasset) == "function" then resolver = getsynasset end
+    if not resolver or type(writefile) ~= "function" then return nil end
+
+    local localPath = XCEnsureGreetingImageFile(url, path, false)
+    if not localPath then return nil end
+
+    local ok, asset = pcall(resolver, localPath)
+    if (not ok or type(asset) ~= "string" or asset == "") then
+        localPath = XCEnsureGreetingImageFile(url, path, true)
+        if not localPath then return nil end
+        ok, asset = pcall(resolver, localPath)
+    end
+
+    if ok and type(asset) == "string" and asset ~= "" then
+        if XCFeatureState then XCFeatureState[stateKey] = asset end
+        return asset
+    end
+    return nil
+end
+
+function XCResolveGreetingImages()
+    local normalAsset = XCResolveGreetingImage(
+        XC_GREETING_IMAGE_URL,
+        XC_GREETING_IMAGE_PATH,
+        XCConfig.greetingImageAsset,
+        "GreetingImageAsset"
+    )
+    local winkAsset = XCResolveGreetingImage(
+        XC_GREETING_WINK_IMAGE_URL,
+        XC_GREETING_WINK_IMAGE_PATH,
+        XCConfig.greetingWinkImageAsset,
+        "GreetingWinkImageAsset"
+    )
+    return normalAsset, winkAsset
+end
+
+function XCPlayGreetingVoice(duration, displayName)
+    if XCConfig.greetingVoiceEnabled ~= true then return nil end
+    local old = SoundService:FindFirstChild("XCGreetingVoice")
+    if old then pcall(function() old:Destroy() end) end
+
+    local container = Instance.new("Folder")
+    container.Name = "XCGreetingVoice"
+    container.Parent = SoundService
+    Debris:AddItem(container, math.max(tonumber(duration) or 4, 4) + 4)
+
+    local spokenName = tostring(displayName or ""):match("^%s*(.-)%s*$") or ""
+    local speechText = spokenName ~= ""
+        and ("Welcome back, " .. spokenName .. ". XOSE is ready.")
+        or "Welcome back. XOSE is ready."
+    local volume = math.clamp(tonumber(XCConfig.greetingVoiceVolume) or 0.65, 0, 1)
+
+    local ttsOk = pcall(function()
+        local tts = Instance.new("AudioTextToSpeech")
+        tts.Name = "GreetingTTS"
+        tts.Text = speechText:sub(1, 300)
+        tts.VoiceId = tostring(XCConfig.greetingTtsVoiceId or "2")
+        tts.Volume = volume
+        tts.Parent = container
+
+        local deviceOutput = Instance.new("AudioDeviceOutput")
+        deviceOutput.Name = "GreetingOutput"
+        deviceOutput.Parent = container
+
+        local wire = Instance.new("Wire")
+        wire.Name = "GreetingWire"
+        wire.SourceInstance = tts
+        wire.TargetInstance = deviceOutput
+        wire.Parent = container
+        tts:Play()
+    end)
+    if ttsOk then return container end
+
+    local raw = tostring(XCConfig.greetingVoiceId or ""):match("^%s*(.-)%s*$") or ""
+    if raw:match("^%d+$") then raw = "rbxassetid://" .. raw end
+    if not raw:match("^rbxassetid://") then
+        container:Destroy()
+        return nil
+    end
+
+    local sound = Instance.new("Sound")
+    sound.Name = "GreetingFallbackSound"
+    sound.SoundId = raw
+    sound.Volume = volume
+    sound.Parent = container
+    task.spawn(function()
+        pcall(function() game:GetService("ContentProvider"):PreloadAsync({sound}) end)
+        task.wait(0.18)
+        if sound.Parent then pcall(function() sound:Play() end) end
+    end)
+    return container
+end
+
+function XCPlayGreetingWink(character, winkCharacter)
+    if not character or not winkCharacter or not character.Parent or not winkCharacter.Parent then return end
+    TweenService:Create(character, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 1}):Play()
+    TweenService:Create(winkCharacter, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
+    task.wait(0.15)
+    if not character.Parent or not winkCharacter.Parent then return end
+    TweenService:Create(character, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {ImageTransparency = 0}):Play()
+    TweenService:Create(winkCharacter, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {ImageTransparency = 1}):Play()
+end
+
+function XCStartGreetingBreathing(characterHolder)
+    if not characterHolder then return nil end
+    local baseSize = characterHolder.Size
+    local goalSize = UDim2.new(baseSize.X.Scale, baseSize.X.Offset + 2, baseSize.Y.Scale, baseSize.Y.Offset + 3)
+    -- Whole-character breathing only: no localized body deformation.
+    local tween = TweenService:Create(characterHolder, TweenInfo.new(1.80, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+        Size = goalSize,
+        Rotation = 0.20,
+    })
+    tween:Play()
+    return tween
+end
+
+function XCShowAnimeGreeting(force)
+    if XCConfig.greetingEnabled ~= true and not force then return false end
+    if not targetGui or not targetGui.Parent then return false end
+
+    local env = (type(getgenv) == "function") and getgenv() or nil
+    if not force and env and env.XOSE_GreetingShown == true then return false end
+    if env then env.XOSE_GreetingShown = true end
+
+    pcall(function()
+        local old = targetGui:FindFirstChild("XCGreetingGui")
+        if old then old:Destroy() end
+    end)
+
+    local duration = math.clamp(tonumber(XCConfig.greetingDuration) or 4, 2, 8)
+    local scale = math.clamp(tonumber(XCConfig.greetingScale) or 1, 0.7, 1.5)
+    local glassStrength = math.clamp(tonumber(XCConfig.greetingGlassStrength) or 0.88, 0, 1)
+    local accent = currentTheme and currentTheme.Accent or Color3.fromRGB(152, 204, 0)
+    local imageAsset, winkImageAsset = XCResolveGreetingImages()
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "XCGreetingGui"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 1500
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.Parent = targetGui
+
+    local root = Instance.new("Frame")
+    root.Name = "GreetingRoot"
+    root.Size = UDim2.fromScale(1, 1)
+    root.BackgroundTransparency = 1
+    root.Parent = gui
+
+    local characterWidth = math.floor((UserInputService.TouchEnabled and 270 or 344) * scale + 0.5)
+    local characterHeight = math.floor(characterWidth * (4 / 3) + 0.5)
+    local characterHolder = Instance.new("Frame")
+    characterHolder.Name = "AnimeCharacter"
+    characterHolder.AnchorPoint = Vector2.new(1, 1)
+    characterHolder.Position = UDim2.new(1, characterWidth + 46, 1, 16)
+    characterHolder.Size = UDim2.fromOffset(characterWidth, characterHeight)
+    characterHolder.BackgroundTransparency = 1
+    characterHolder.ClipsDescendants = false
+    characterHolder.Rotation = -1.2
+    characterHolder.Parent = root
+
+    local character = Instance.new("ImageLabel")
+    character.Name = "CharacterImage"
+    character.Size = UDim2.fromScale(1, 1)
+    character.BackgroundTransparency = 1
+    character.Image = imageAsset or ""
+    character.ImageTransparency = 1
+    character.ScaleType = Enum.ScaleType.Fit
+    character.ZIndex = 2
+    character.Parent = characterHolder
+
+    local winkCharacter = Instance.new("ImageLabel")
+    winkCharacter.Name = "CharacterImageWink"
+    winkCharacter.Size = UDim2.fromScale(1, 1)
+    winkCharacter.BackgroundTransparency = 1
+    winkCharacter.Image = winkImageAsset or ""
+    winkCharacter.ImageTransparency = 1
+    winkCharacter.ScaleType = Enum.ScaleType.Fit
+    winkCharacter.ZIndex = 3
+    winkCharacter.Parent = characterHolder
+
+    local cardWidth = math.floor((UserInputService.TouchEnabled and 286 or 356) * scale + 0.5)
+    local cardHeight = math.floor(132 * scale + 0.5)
+    local glassShadow = Instance.new("Frame")
+    glassShadow.Name = "GreetingShadow"
+    glassShadow.AnchorPoint = Vector2.new(1, 1)
+    glassShadow.Position = UDim2.new(1, -characterWidth + cardWidth + 18, 1, -34)
+    glassShadow.Size = UDim2.fromOffset(cardWidth, cardHeight)
+    glassShadow.BackgroundColor3 = Color3.new(0, 0, 0)
+    glassShadow.BackgroundTransparency = 1
+    glassShadow.BorderSizePixel = 0
+    glassShadow.Parent = root
+    Instance.new("UICorner", glassShadow).CornerRadius = UDim.new(0, 13)
+
+    local glass = Instance.new("Frame")
+    glass.Name = "GreetingGlass"
+    glass.AnchorPoint = Vector2.new(1, 1)
+    glass.Position = UDim2.new(1, cardWidth + 24, 1, -42)
+    glass.Size = UDim2.fromOffset(cardWidth, cardHeight)
+    glass.BackgroundColor3 = Color3.fromRGB(13, 15, 18)
+    glass.BackgroundTransparency = 1
+    glass.BorderSizePixel = 0
+    glass.ClipsDescendants = true
+    glass.Parent = root
+    Instance.new("UICorner", glass).CornerRadius = UDim.new(0, 12)
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Rotation = 18
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(44, 48, 54)),
+        ColorSequenceKeypoint.new(0.46, Color3.fromRGB(20, 22, 26)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(9, 10, 12)),
+    })
+    gradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.08 + (1 - glassStrength) * 0.30),
+        NumberSequenceKeypoint.new(1, 0.24 + (1 - glassStrength) * 0.35),
+    })
+    gradient.Parent = glass
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(215, 225, 235)
+    stroke.Thickness = 1
+    stroke.Transparency = 0.68 - glassStrength * 0.28
+    stroke.Parent = glass
+
+    local shine = Instance.new("Frame")
+    shine.Name = "GlassShine"
+    shine.Size = UDim2.new(1, -2, 0, 1)
+    shine.Position = UDim2.fromOffset(1, 1)
+    shine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    shine.BackgroundTransparency = 0.72
+    shine.BorderSizePixel = 0
+    shine.Parent = glass
+
+    local accentBar = Instance.new("Frame")
+    accentBar.Size = UDim2.new(0, 3, 1, -24)
+    accentBar.Position = UDim2.fromOffset(10, 12)
+    accentBar.BackgroundColor3 = accent
+    accentBar.BackgroundTransparency = 0.05
+    accentBar.BorderSizePixel = 0
+    accentBar.Parent = glass
+    Instance.new("UICorner", accentBar).CornerRadius = UDim.new(1, 0)
+
+    local brand = Instance.new("TextLabel")
+    brand.Size = UDim2.new(1, -42, 0, 20)
+    brand.Position = UDim2.fromOffset(24, 13)
+    brand.BackgroundTransparency = 1
+    brand.Text = "XOSE"
+    brand.TextColor3 = accent
+    brand.TextTransparency = 1
+    brand.Font = Enum.Font.GothamBold
+    brand.TextSize = math.floor(11 * scale + 0.5)
+    brand.TextXAlignment = Enum.TextXAlignment.Left
+    brand.Parent = glass
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -42, 0, 30)
+    title.Position = UDim2.fromOffset(24, 37)
+    title.BackgroundTransparency = 1
+    local displayName = (XCConfig.streamerModeEnabled and "") or ((player and (player.DisplayName or player.Name)) or "")
+    title.Text = displayName ~= "" and ("Welcome back, " .. displayName) or "Welcome back"
+    title.TextColor3 = Color3.fromRGB(244, 246, 249)
+    title.TextTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = math.floor(16 * scale + 0.5)
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.TextTruncate = Enum.TextTruncate.AtEnd
+    title.Parent = glass
+
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Size = UDim2.new(1, -42, 0, 22)
+    subtitle.Position = UDim2.fromOffset(24, 70)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Text = "XOSE is ready"
+    subtitle.TextColor3 = Color3.fromRGB(176, 181, 190)
+    subtitle.TextTransparency = 1
+    subtitle.Font = Enum.Font.GothamMedium
+    subtitle.TextSize = math.floor(11 * scale + 0.5)
+    subtitle.TextXAlignment = Enum.TextXAlignment.Left
+    subtitle.Parent = glass
+
+    local status = Instance.new("TextLabel")
+    status.Size = UDim2.new(1, -42, 0, 18)
+    status.Position = UDim2.fromOffset(24, 96)
+    status.BackgroundTransparency = 1
+    status.Text = XCConfig.greetingVoiceEnabled and "VOICE  /  SYSTEM READY" or "SYSTEM READY"
+    status.TextColor3 = accent:Lerp(Color3.new(1, 1, 1), 0.25)
+    status.TextTransparency = 1
+    status.Font = Enum.Font.GothamBold
+    status.TextSize = math.floor(9 * scale + 0.5)
+    status.TextXAlignment = Enum.TextXAlignment.Left
+    status.Parent = glass
+
+    local finalCharacterPos = UDim2.new(1, -18, 1, 18)
+    local finalGlassPos = UDim2.new(1, -characterWidth + math.floor(10 * scale), 1, -44)
+    local finalShadowPos = UDim2.new(1, -characterWidth + math.floor(14 * scale), 1, -40)
+    local glassTransparency = math.clamp(0.18 + (1 - glassStrength) * 0.46, 0.12, 0.62)
+
+    TweenService:Create(characterHolder, TweenInfo.new(0.48, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = finalCharacterPos, Rotation = 0}):Play()
+    if imageAsset then TweenService:Create(character, TweenInfo.new(0.38, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play() end
+    TweenService:Create(glass, TweenInfo.new(0.42, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = finalGlassPos, BackgroundTransparency = glassTransparency}):Play()
+    TweenService:Create(glassShadow, TweenInfo.new(0.42, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = finalShadowPos, BackgroundTransparency = 0.62}):Play()
+    TweenService:Create(brand, TweenInfo.new(0.28), {TextTransparency = 0}):Play()
+    TweenService:Create(title, TweenInfo.new(0.34), {TextTransparency = 0}):Play()
+    TweenService:Create(subtitle, TweenInfo.new(0.38), {TextTransparency = 0}):Play()
+    TweenService:Create(status, TweenInfo.new(0.42), {TextTransparency = 0}):Play()
+
+    local breathing = XCStartGreetingBreathing(characterHolder)
+    XCPlayGreetingVoice(duration, displayName)
+
+    task.spawn(function()
+        task.wait(math.min(1.15, duration * 0.32))
+        if imageAsset and winkImageAsset and gui.Parent then XCPlayGreetingWink(character, winkCharacter) end
+    end)
+
+    task.delay(duration, function()
+        if not gui.Parent then return end
+        if breathing then pcall(function() breathing:Cancel() end) end
+        TweenService:Create(characterHolder, TweenInfo.new(0.38, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, characterWidth + 50, 1, 18), Rotation = 1.5}):Play()
+        TweenService:Create(character, TweenInfo.new(0.26), {ImageTransparency = 1}):Play()
+        TweenService:Create(winkCharacter, TweenInfo.new(0.26), {ImageTransparency = 1}):Play()
+        TweenService:Create(glass, TweenInfo.new(0.30, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, cardWidth + 30, 1, -44), BackgroundTransparency = 1}):Play()
+        TweenService:Create(glassShadow, TweenInfo.new(0.28), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(brand, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
+        TweenService:Create(title, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
+        TweenService:Create(subtitle, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
+        TweenService:Create(status, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
+        task.delay(0.42, function() if gui and gui.Parent then gui:Destroy() end end)
+    end)
+
+    return true
+end
+
+function XCBuildGreetingSettings(parent, toggleFn, sliderFn, buttonFn, noteFn, activeSections, colors)
+    toggleFn(parent, "Anime greeting", "greetingEnabled")
+    sliderFn(parent, "Greeting duration", "greetingDuration", 2, 8, 0.25, "s")
+    sliderFn(parent, "Greeting size", "greetingScale", 0.70, 1.50, 0.05, "x")
+    sliderFn(parent, "Greeting glass", "greetingGlassStrength", 0, 1, 0.05, "")
+    toggleFn(parent, "Greeting voice", "greetingVoiceEnabled")
+    sliderFn(parent, "Voice volume", "greetingVoiceVolume", 0, 1, 0.05, "")
+
+    local host = activeSections[parent] or parent
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 16)
+    label.BackgroundTransparency = 1
+    label.Text = "VOICE FALLBACK ASSET ID"
+    label.TextColor3 = colors.Muted
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 9
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = host
+
+    local box = Instance.new("TextBox")
+    box.Name = "GreetingVoiceAsset"
+    box.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 32 or 26)
+    box.BackgroundColor3 = colors.Control
+    box.BorderColor3 = colors.Black
+    box.BorderSizePixel = 1
+    box.ClearTextOnFocus = false
+    box.PlaceholderText = "Roblox audio asset id"
+    box.PlaceholderColor3 = colors.Muted
+    box.Text = tostring(XCConfig.greetingVoiceId or "")
+    box.TextColor3 = colors.White
+    box.Font = Enum.Font.Code
+    box.TextSize = 10
+    box.Parent = host
+    local padding = Instance.new("UIPadding", box)
+    padding.PaddingLeft = UDim.new(0, 7)
+    padding.PaddingRight = UDim.new(0, 7)
+    box.FocusLost:Connect(function()
+        XCConfig.greetingVoiceId = box.Text:match("^%s*(.-)%s*$") or ""
+    end)
+
+    buttonFn(parent, "REPLAY GREETING", function() XCShowAnimeGreeting(true) end)
+    noteFn(parent, "Voice uses Roblox TTS (voice 2). The asset ID is used only if TTS is unavailable.")
+end
+--// END XC ANIME GREETING SYSTEM -----------------------------------------------
+
 --// XC NOTIFICATION CENTER
 local XCNotificationGui = nil
 local XCNotificationHolder = nil
@@ -5143,6 +5657,9 @@ end))
 --// TRIGGERBOT NO WORK & MOVEMENT STATE NO WORK
 local triggerbotMobileAutoFire = true
 local lastTriggerTick = 0
+-- Triggerbot 2.0 runtime cache is stored in getgenv/_G through a helper
+-- instead of new top-level locals, avoiding protected-build local pressure.
+if sharedXCEnv then sharedXCEnv.XCTriggerRuntimeV2 = nil else _G.XCTriggerRuntimeV2 = nil end
 
 local currentSpinAngle = 0
 local isMobileJumpHeld = false
@@ -5160,7 +5677,19 @@ local xcCharacterInputHook = {
     AntiStarted = nil,
     AntiLastStep = nil,
     RandomYaw = nil,
-    AntiFireUntil = 0,
+    AntiFireUntil = 0, -- legacy field retained for reinjection compatibility
+    AntiLastYaw = nil,
+    AntiShotHeldYaw = nil,
+    AntiShotHoldUntil = 0,
+    AntiWasFiring = false,
+    AntiLastHealth = nil,
+    AntiBruteforcePhase = 0,
+    AntiBruteforceSide = 1,
+    AntiDamageSwitchUntil = 0,
+    AntiThreatYaw = nil,
+    AntiThreatNext = 0,
+    AntiThreatPlayer = nil,
+    AntiRayParams = nil,
     Calls = 0,
     LastCall = 0,
     LastError = nil,
@@ -8931,52 +9460,154 @@ function updateCustomScope()
     end
 end
 
--- Central FOV owner. All camera projection consumers see one final FOV value
--- for the current frame. Scope FOV takes priority only while actually scoped.
-function applyXCCameraFov()
+-- Central FOV owner. Desktop calls this from the same post-camera callback
+-- that projects 2D ESP, so FOV, third person and WorldToViewportPoint always
+-- consume one authoritative camera state for the rendered frame.
+function xcIsAdsActive(cam, nativeFov, state, scoped)
+    if scoped then return true end
+
+    local rightMouse = false
+    if not UserInputService.TouchEnabled then
+        pcall(function()
+            rightMouse = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+        end)
+    end
+    if rightMouse then return true end
+
+    -- Some BloxStrike weapons toggle ADS without continuously holding RMB.
+    -- Detect their native camera zoom only when the value did not come from XC.
+    local nativeHip = tonumber(state and state.NativeHipFov) or 70
+    local lastApplied = tonumber(state and state.AppliedFov)
+    local looksNative = not lastApplied or math.abs((tonumber(nativeFov) or nativeHip) - lastApplied) > 0.35
+    return looksNative and (tonumber(nativeFov) or nativeHip) < (nativeHip - 1.25)
+end
+
+function restoreXCCameraFov()
     local cam = Workspace.CurrentCamera or camera
-    if not cam then return nil end
+    local state = XCFeatureState.cameraFovState
+    if not cam or type(state) ~= "table" then return end
+
+    local restore = tonumber(state.LastNativeFov) or tonumber(state.NativeHipFov) or tonumber(state.BaseFov)
+    if restore then
+        pcall(function() cam.FieldOfView = math.clamp(restore, 1, 120) end)
+    end
+    state.Controlled = false
+    state.AppliedFov = nil
+    state.TargetFov = nil
+end
+
+function applyXCCameraFov(dt, sampledNativeFov)
+    local cam = Workspace.CurrentCamera or camera
+    if not cam then return nil, false, false end
 
     local state = XCFeatureState.cameraFovState
     if type(state) ~= "table" then
-        state = {Camera = nil, BaseFov = nil, Controlled = false}
+        state = {
+            Camera = nil,
+            BaseFov = nil,
+            NativeHipFov = nil,
+            LastNativeFov = nil,
+            LastNativeAdsFov = nil,
+            AppliedFov = nil,
+            TargetFov = nil,
+            Controlled = false,
+        }
         XCFeatureState.cameraFovState = state
     end
     if state.Camera ~= cam then
         state.Camera = cam
         state.BaseFov = cam.FieldOfView
+        state.NativeHipFov = cam.FieldOfView
+        state.LastNativeFov = cam.FieldOfView
+        state.LastNativeAdsFov = nil
+        state.AppliedFov = nil
+        state.TargetFov = nil
         state.Controlled = false
     end
 
+    local nativeFov = math.clamp(tonumber(sampledNativeFov) or tonumber(cam.FieldOfView) or 70, 10, 120)
     local scope = findSniperScope()
     local scoped = scope and scope.Visible == true
-    local desired
-    if XCConfig.customScopeEnabled and scoped and XCConfig.scopeFovEnabled then
-        desired = math.clamp(tonumber(XCConfig.scopeFov) or 70, 10, 120)
+
+    -- A value matching our previous smoothed FOV may simply be XC's value left
+    -- over from the prior frame. Only learn native baselines from values that
+    -- appear to have been written by the game camera.
+    local lastApplied = tonumber(state.AppliedFov)
+    local nativeObservation = not lastApplied or math.abs(nativeFov - lastApplied) > 0.35
+    local ads = xcIsAdsActive(cam, nativeFov, state, scoped)
+
+    if nativeObservation then
+        state.LastNativeFov = nativeFov
+        if ads then
+            state.LastNativeAdsFov = nativeFov
+        else
+            state.NativeHipFov = nativeFov
+            state.BaseFov = nativeFov
+        end
+    end
+
+    local desired = nil
+    local mode = tostring(XCConfig.customFovMode or "Preserve ADS")
+    local hipFov = math.clamp(tonumber(XCConfig.customFov) or 100, 70, 120)
+    local adsFov = math.clamp(tonumber(XCConfig.customAdsFov) or 76, 20, 120)
+
+    -- Scope FOV is independent of Custom Scope. The native scope being visible
+    -- is enough to select it, fixing the old customScopeEnabled dependency.
+    if scoped and XCConfig.scopeFovEnabled then
+        desired = math.clamp(tonumber(XCConfig.scopeFov) or 55, 10, 120)
     elseif XCConfig.customFovEnabled then
-        desired = math.clamp(tonumber(XCConfig.customFov) or 90, 70, 120)
+        if not ads then
+            desired = hipFov
+        elseif mode == "Override ADS" then
+            desired = adsFov
+        elseif mode == "Preserve ADS" then
+            local nativeHip = math.clamp(tonumber(state.NativeHipFov) or 70, 10, 120)
+            local nativeAds = nativeObservation and nativeFov or tonumber(state.LastNativeAdsFov)
+            if nativeAds and nativeAds < nativeHip - 0.5 then
+                -- Preserve the game's zoom ratio while moving the hip FOV.
+                desired = math.clamp(hipFov * (nativeAds / nativeHip), 10, 120)
+            else
+                desired = adsFov
+            end
+        else -- Hip only: release FOV ownership while aiming.
+            desired = nil
+        end
     end
 
     if desired then
-        -- BaseFov is sampled continuously while XC is not controlling FOV.
-        -- Do not overwrite it on the first scoped frame because BloxStrike may
-        -- already have applied its native zoom by then.
-        if state.BaseFov == nil then state.BaseFov = cam.FieldOfView end
-        state.Controlled = true
-        if math.abs((cam.FieldOfView or desired) - desired) > 0.001 then
-            cam.FieldOfView = desired
+        local nextFov = desired
+        if XCConfig.customFovSmoothEnabled ~= false then
+            local speed = math.clamp(tonumber(XCConfig.customFovTransitionSpeed) or 14, 1, 40)
+            local frameDt = math.clamp(tonumber(dt) or (1 / 60), 0, 0.1)
+            local from = tonumber(state.AppliedFov) or nativeFov
+            local alpha = 1 - math.exp(-speed * frameDt)
+            nextFov = from + (desired - from) * alpha
+            if math.abs(nextFov - desired) < 0.015 then nextFov = desired end
         end
-    elseif state.Controlled then
-        local restore = math.clamp(tonumber(state.BaseFov) or 70, 1, 120)
-        state.Controlled = false
-        cam.FieldOfView = restore
-        state.BaseFov = restore
-    else
-        -- Follow the game's own FOV while XC is not controlling it so a later
-        -- enable restores to the correct weapon/round baseline, not hardcoded 70.
-        state.BaseFov = cam.FieldOfView
+        state.Controlled = true
+        state.TargetFov = desired
+        state.AppliedFov = nextFov
+        if math.abs((cam.FieldOfView or nextFov) - nextFov) > 0.001 then
+            cam.FieldOfView = nextFov
+        end
+        return nextFov, ads, scoped
     end
-    return desired
+
+    -- When Hip only / disabled releases ownership, prefer the native value that
+    -- the game wrote this frame. If the game has not written yet, use the last
+    -- known native ADS/hip value instead of snapping to XC's previous FOV.
+    if state.Controlled then
+        local releaseFov = nativeFov
+        if lastApplied and math.abs(nativeFov - lastApplied) <= 0.35 then
+            releaseFov = ads and (tonumber(state.LastNativeAdsFov) or tonumber(state.NativeHipFov) or 70)
+                or (tonumber(state.NativeHipFov) or tonumber(state.BaseFov) or 70)
+        end
+        cam.FieldOfView = math.clamp(releaseFov, 1, 120)
+    end
+    state.Controlled = false
+    state.AppliedFov = nil
+    state.TargetFov = nil
+    return nil, ads, scoped
 end
 
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
@@ -8992,7 +9623,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     end
     pcall(function()
         if XCConfig.weaponChamsEnabled then setWeaponVisuals() end
-        if XCConfig.customScopeEnabled then updateCustomScope() end
+        -- Desktop custom scope is refreshed in the same post-camera callback as
+        -- FOV/ESP. Mobile retains the existing RenderStepped path.
+        if XCConfig.customScopeEnabled and UserInputService.TouchEnabled then updateCustomScope() end
         if worldVisualActive then
             XCFeatureState.worldUpdateAccumulator = XCFeatureState.worldUpdateAccumulator + (dt)
             if XCFeatureState.worldUpdateAccumulator >= 0.2 then
@@ -9577,6 +10210,14 @@ XCFeatureState = {
     bhopGroundSince = nil,
     bhopLastJump = 0,
     bhopWindowFocused = true,
+    bhopMomentumFactor = nil,
+    bhopMomentumBank = 0,
+    bhopMomentumDirection = Vector3.zero,
+    bhopCollisionUntil = 0,
+    bhopLastActive = 0,
+    bhopRequestedUntil = 0,
+    bhopLastRegisteredHop = 0,
+    bhopLastWallNormal = nil,
     menuOpen = true,
     worldUpdateAccumulator = 0,
     worldAtmosphere = nil,
@@ -10067,7 +10708,11 @@ function cleanup()
     pcall(restoreXCGloves)
     pcall(function() updateXCAntiFlashState(false) end)
     restoreXCCharacterInputHook()
+    pcall(restoreXCCameraFov)
 
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_CAMERA_SYNC") end)
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_FRAME_BEGIN") end)
+    pcall(disconnectXCEspCameraSignals)
     for _, c in pairs(connections) do 
         pcall(function() c:Disconnect() end) 
     end
@@ -10214,54 +10859,89 @@ watermarkGui.IgnoreGuiInset = true
 watermarkGui.Parent = targetGui
 
 local wmCard = Instance.new("Frame", watermarkGui)
-wmCard.Position = UDim2.new(0, 14, 0, 14)
-wmCard.Size = UDim2.new(0, 0, 0, 22)
+wmCard.Name = "WatermarkCard"
+wmCard.Position = UDim2.new(0, 16, 0, 16)
+wmCard.Size = UDim2.new(0, 0, 0, 32)
 wmCard.AutomaticSize = Enum.AutomaticSize.X
-wmCard.BackgroundColor3 = currentTheme.Background
+wmCard.BackgroundColor3 = currentTheme.Background:Lerp(Color3.new(0, 0, 0), 0.08)
+wmCard.BackgroundTransparency = 0.14
 wmCard.BorderSizePixel = 0
-Instance.new("UICorner", wmCard).CornerRadius = UDim.new(0, 5)
+Instance.new("UICorner", wmCard).CornerRadius = UDim.new(0, 7)
 
 local wmStroke = Instance.new("UIStroke", wmCard)
-wmStroke.Color = currentTheme.Border
-wmStroke.Thickness = 1.0
+wmStroke.Name = "GlassRim"
+wmStroke.Color = currentTheme.TextPrimary:Lerp(currentTheme.Accent, 0.28)
+wmStroke.Thickness = 1
+wmStroke.Transparency = 0.48
+
+do
+    local glass = Instance.new("UIGradient", wmCard)
+    glass.Name = "WatermarkGlass"
+    glass.Rotation = 88
+    glass.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(0.48, Color3.fromRGB(228, 232, 238)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(184, 190, 198)),
+    })
+    glass.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.18),
+        NumberSequenceKeypoint.new(0.22, 0.38),
+        NumberSequenceKeypoint.new(0.68, 0.70),
+        NumberSequenceKeypoint.new(1, 0.84),
+    })
+end
+
+do
+    local scaleObject = Instance.new("UIScale", wmCard)
+    scaleObject.Name = "WatermarkScale"
+    scaleObject.Scale = 1
+end
 
 local wmPad = Instance.new("UIPadding", wmCard)
-wmPad.PaddingLeft = UDim.new(0, 8)
-wmPad.PaddingRight = UDim.new(0, 8)
+wmPad.PaddingLeft = UDim.new(0, 11)
+wmPad.PaddingRight = UDim.new(0, 11)
 
 local wmLayout = Instance.new("UIListLayout", wmCard)
 wmLayout.FillDirection = Enum.FillDirection.Horizontal
 wmLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-wmLayout.Padding = UDim.new(0, 5)
+wmLayout.Padding = UDim.new(0, 7)
 
 local wmDot = Instance.new("Frame", wmCard)
-wmDot.Size = UDim2.new(0, 5, 0, 5)
+wmDot.Name = "StatusDot"
+wmDot.Size = UDim2.fromOffset(6, 6)
 wmDot.BackgroundColor3 = currentTheme.Accent
 wmDot.BorderSizePixel = 0
 Instance.new("UICorner", wmDot).CornerRadius = UDim.new(1, 0)
+do
+    local dotStroke = Instance.new("UIStroke", wmDot)
+    dotStroke.Color = currentTheme.Accent:Lerp(Color3.new(1, 1, 1), 0.30)
+    dotStroke.Transparency = 0.30
+    dotStroke.Thickness = 1
+end
 
 local wmTitle = Instance.new("TextLabel", wmCard)
 wmTitle.AutomaticSize = Enum.AutomaticSize.X
 wmTitle.Size = UDim2.new(0, 0, 1, 0)
 wmTitle.BackgroundTransparency = 1
-wmTitle.Text = "XC"
-wmTitle.TextColor3 = currentTheme.Accent
-wmTitle.TextSize = 9
+wmTitle.Text = "XOSE"
+wmTitle.TextColor3 = currentTheme.TextPrimary
+wmTitle.TextSize = 11
 wmTitle.Font = Enum.Font.GothamBold
 
 local wmDivider = Instance.new("Frame", wmCard)
-wmDivider.Size = UDim2.new(0, 1, 0, 10)
+wmDivider.Size = UDim2.fromOffset(1, 14)
 wmDivider.BackgroundColor3 = currentTheme.Border
+wmDivider.BackgroundTransparency = 0.20
 wmDivider.BorderSizePixel = 0
 
 local wmMetrics = Instance.new("TextLabel", wmCard)
 wmMetrics.AutomaticSize = Enum.AutomaticSize.X
 wmMetrics.Size = UDim2.new(0, 0, 1, 0)
 wmMetrics.BackgroundTransparency = 1
-wmMetrics.Text = "FPS: 60 | PING: 0ms"
+wmMetrics.Text = "60 FPS   0 MS"
 wmMetrics.TextColor3 = currentTheme.TextSecondary
-wmMetrics.TextSize = 8.5
-wmMetrics.Font = Enum.Font.GothamBold
+wmMetrics.TextSize = 10
+wmMetrics.Font = Enum.Font.GothamMedium
 
 local fpsCounter = 0
 local lastFpsUpdate = tick()
@@ -11650,83 +12330,204 @@ function triggerFindTargetAlongRay(origin, direction, targetModel)
     return nil
 end
 
+function xcTriggerRuntime()
+    local store = sharedXCEnv or _G
+    local state = store.XCTriggerRuntimeV2
+    if type(state) ~= "table" then
+        state = {InventoryScript = nil, WeaponGetter = nil, MouseReleaseSerial = 0}
+        store.XCTriggerRuntimeV2 = state
+    end
+    return state
+end
+
+function xcTriggerDelaySeconds()
+    if tostring(XCConfig.triggerbotReactionMode or "Instant") == "Instant" then
+        return 0
+    end
+    return math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0, 0.5)
+end
+
+function resolveXCTriggerWeapon()
+    local runtime = xcTriggerRuntime()
+    local controllers = ReplicatedStorage:FindFirstChild("Controllers")
+    local scriptObject = controllers and controllers:FindFirstChild("InventoryController")
+    if not scriptObject then
+        runtime.InventoryScript = nil
+        runtime.WeaponGetter = nil
+        return nil
+    end
+
+    if scriptObject ~= runtime.InventoryScript or type(runtime.WeaponGetter) ~= "function" then
+        runtime.InventoryScript = scriptObject
+        runtime.WeaponGetter = nil
+        pcall(function()
+            local inventory = require(scriptObject)
+            local getter = type(inventory) == "table" and inventory.peekCurrentEquippedForMovement or nil
+            if type(getter) == "function" then
+                runtime.WeaponGetter = getter
+            end
+        end)
+    end
+
+    if type(runtime.WeaponGetter) ~= "function" then return nil end
+    local ok, weapon = pcall(runtime.WeaponGetter)
+    if not ok or type(weapon) ~= "table" or weapon.IsDestroyed then return nil end
+    return weapon
+end
+
+function xcTriggerWeaponReady(weapon)
+    if type(weapon) ~= "table" or weapon.IsDestroyed then return false end
+    if type(weapon.shoot) ~= "function" then return false end
+    if weapon.IsShooting == true or weapon.IsBurstShooting == true
+        or weapon.IsReloading == true or weapon.Reloading == true then
+        return false
+    end
+    return true
+end
+
+function xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+    local redirectStore = sharedXCEnv or _G
+    if not redirectStore then return nil end
+    if typeof(forcedPart) ~= "Instance" or not forcedPart:IsA("BasePart") or not forcedPart.Parent then
+        redirectStore.XCTriggerRedirectV38 = nil
+        return nil
+    end
+
+    local ticket = {
+        Part = forcedPart,
+        Character = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model"),
+        Position = typeof(forcedPosition) == "Vector3" and forcedPosition or forcedPart.Position,
+        Mode = redirectMode,
+        Expires = os.clock() + 0.35,
+    }
+    redirectStore.XCTriggerRedirectV38 = ticket
+    task.delay(0.4, function()
+        if redirectStore.XCTriggerRedirectV38 == ticket then
+            redirectStore.XCTriggerRedirectV38 = nil
+        end
+    end)
+    return ticket
+end
+
+function xcClearTriggerRedirect(ticket)
+    local redirectStore = sharedXCEnv or _G
+    if redirectStore and (ticket == nil or redirectStore.XCTriggerRedirectV38 == ticket) then
+        redirectStore.XCTriggerRedirectV38 = nil
+    end
+end
+
 function triggerbotFire(vp, forcedPart, forcedCharacter, forcedPosition, redirectMode)
-    -- The selected character may die or respawn between selection and firing.
+    -- The selected character may die/respawn between selection and the actual
+    -- shot. Reject stale targets before arming the native Bullet redirect.
     if forcedPart then
         local targetCharacter = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model")
         if not targetCharacter or not forcedPart:IsDescendantOf(targetCharacter)
             or not isEntityAlive(targetCharacter, targetCharacter:FindFirstChildOfClass("Humanoid")) then
-            local store = sharedXCEnv or _G
-            store.XCTriggerRedirectV38 = nil
+            xcClearTriggerRedirect(nil)
             return false
         end
     end
-    -- Queue the exact trigger target for the next real local Bullet raycast.
-    -- Keeping the queue in getgenv also lets persistent v36 wrappers from a
-    -- reinjection consume the CURRENT session's target callback/state.
-    local redirectStore = sharedXCEnv or _G
-    local ticket = nil
-    if redirectStore then
-        if typeof(forcedPart) == "Instance" and forcedPart:IsA("BasePart") and forcedPart.Parent then
-            ticket = {
-                Part = forcedPart,
-                Character = forcedCharacter or forcedPart:FindFirstAncestorOfClass("Model"),
-                Position = typeof(forcedPosition) == "Vector3" and forcedPosition or forcedPart.Position,
-                Mode = redirectMode,
-                Expires = os.clock() + 0.35,
-            }
-            redirectStore.XCTriggerRedirectV38 = ticket
-            task.delay(0.4, function()
-                if redirectStore.XCTriggerRedirectV38 == ticket then
-                    redirectStore.XCTriggerRedirectV38 = nil
-                end
-            end)
-        else
-            redirectStore.XCTriggerRedirectV38 = nil
-        end
+
+    -- Blox Strike native path first: no require/controller lookup per shot and
+    -- no synthetic input latency. If the weapon reports a busy state, retry on
+    -- the next camera frame instead of flooding shoot() calls the game rejects.
+    local weapon = resolveXCTriggerWeapon()
+    if weapon then
+        if not xcTriggerWeaponReady(weapon) then return false end
+        local ticket = xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+        local ok = pcall(function() weapon:shoot() end)
+        if ok then return true end
+        xcClearTriggerRedirect(ticket)
+        return false
     end
 
-    pcall(function()
-        local myChar = player.Character
-        local equippedTool = myChar and myChar:FindFirstChildOfClass("Tool")
-        if equippedTool then
-            equippedTool:Activate()
-            return
-        end
+    -- Compatibility path for experiences using Roblox Tools.
+    local myChar = player.Character
+    local equippedTool = myChar and myChar:FindFirstChildOfClass("Tool")
+    if equippedTool then
+        local ticket = xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+        local ok = pcall(function() equippedTool:Activate() end)
+        if ok then return true end
+        xcClearTriggerRedirect(ticket)
+    end
 
-        -- Blox Strike keeps weapons outside Roblox Tool instances. Invoke its
-        -- native shoot method so mobile input mode is not changed to Mouse.
-        local nativeFired = false
-        pcall(function()
-            local controllers = ReplicatedStorage:FindFirstChild("Controllers")
-            local scriptObject = controllers and controllers:FindFirstChild("InventoryController")
-            local inventory = scriptObject and require(scriptObject)
-            local getter = inventory and inventory.peekCurrentEquippedForMovement
-            local weapon = type(getter) == "function" and getter() or nil
-            if weapon and type(weapon.shoot) == "function" then
-                weapon:shoot()
-                nativeFired = true
-            end
+    -- Last-resort desktop mouse path. Release is deferred rather than sleeping
+    -- for 10 ms inside the render callback, so Instant mode never blocks a frame.
+    if VirtualInputManager and not UserInputService.TouchEnabled then
+        local ticket = xcQueueTriggerRedirect(forcedPart, forcedCharacter, forcedPosition, redirectMode)
+        local x, y = vp.X * 0.5, vp.Y * 0.5
+        local ok = pcall(function()
+            VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
         end)
-        if nativeFired then return end
-
-        if VirtualInputManager and not UserInputService.TouchEnabled then
-            VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, true, game, 0)
-            task.wait(0.01)
-            VirtualInputManager:SendMouseButtonEvent(vp.X * 0.5, vp.Y * 0.5, 0, false, game, 0)
+        if ok then
+            local runtime = xcTriggerRuntime()
+            runtime.MouseReleaseSerial = (tonumber(runtime.MouseReleaseSerial) or 0) + 1
+            local serial = runtime.MouseReleaseSerial
+            task.defer(function()
+                -- Always send the release; serial exists only for diagnostics and
+                -- keeps future extensions from accidentally cancelling mouse-up.
+                pcall(function()
+                    VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
+                end)
+                if serial == runtime.MouseReleaseSerial then
+                    -- no persistent mouse-down state is kept
+                end
+            end)
+            return true
         end
-    end)
+        xcClearTriggerRedirect(ticket)
+    end
+    return false
 end
 
-function runMobileTriggerbot()
+-- Cheap screen-space candidate pass used by Trigger FOV and wall fallback.
+-- Penetration/min-damage work is deliberately deferred until one best point is
+-- chosen, avoiding weapon/path simulation for every player and multipoint.
+function xcTriggerSelectFovCandidate(cam, vp, radius, headOnly)
+    local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
+    local best, bestDist = nil, math.huge
+    radius = math.max(1, tonumber(radius) or 160)
+
+    for _, targetPlayer in ipairs(Players:GetPlayers()) do
+        if targetPlayer ~= player and isTargetEnemy(targetPlayer, targetPlayer.Character) then
+            local char = targetPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if char and hum and hum.Health > 0
+                and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
+                local part = char:FindFirstChild("Head")
+                    or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
+                if part and (not headOnly or part.Name == "Head") then
+                    for _, multipoint in ipairs(XCBuildMultipoints(part)) do
+                        local point, onScreen = cam:WorldToViewportPoint(multipoint.Position)
+                        if onScreen and point.Z > 0 then
+                            local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
+                            if dist <= radius and dist < bestDist then
+                                bestDist = dist
+                                best = {
+                                    Part = part,
+                                    Character = char,
+                                    Position = multipoint.Position,
+                                    Player = targetPlayer,
+                                    ScreenDistance = dist,
+                                }
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return best
+end
+
+function runXCTriggerbot()
     if not XCConfig.triggerbotEnabled then return end
     local localCharacter = player.Character
     local localHumanoid = localCharacter and localCharacter:FindFirstChildOfClass("Humanoid")
     if not isEntityAlive(localCharacter, localHumanoid)
         or GuiService.MenuIsOpen or XCFeatureState.menuOpen
         or player:GetAttribute("IsSpectating") == true then return end
-    -- Do not run a second standalone trigger loop while Ragebot owns firing.
-    -- The Triggerbot toggle itself is untouched and resumes when Ragebot is off.
+    -- Ragebot owns firing while enabled; never run a second trigger loop.
     if XCConfig.rageBotEnabled then return end
 
     local cam = Workspace.CurrentCamera or camera
@@ -11738,183 +12539,131 @@ function runMobileTriggerbot()
     end
 
     local now = tick()
-    local delay = math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5)
-    if (now - lastTriggerTick) < delay then return end
+    local delay = xcTriggerDelaySeconds()
+    if delay > 0 and (now - lastTriggerTick) < delay then return end
 
     local vp = cam.ViewportSize
     local origin = cam.CFrame.Position
     local rayDirection = cam.CFrame.LookVector * 1000
     local triggerMode = tostring(XCConfig.triggerbotMode or "Crosshair")
 
-    -- Silent FOV mode deliberately shares Silent Aim's target selector/FOV/team/visibility settings.
     if triggerMode == "Silent FOV" then
-        local targetPart = getSilentAimTarget and getSilentAimTarget() or nil
+        -- Reuse Silent Aim's already-resolved target when possible. A fallback
+        -- selector is only paid when no valid cached target exists.
+        local targetPart = silentAimResolved
+        if not (targetPart and targetPart.Parent) then
+            targetPart = getSilentAimTarget and getSilentAimTarget() or nil
+        end
         if targetPart and targetPart.Parent then
             local targetCharacter = targetPart:FindFirstAncestorOfClass("Model")
             if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
-                local visible = targetCharacter and isVisibleThroughWalls(targetPart, targetCharacter) or false
                 local properties = resolveXCAutoWallProperties() or {}
                 local path = XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPart.Position)
                 local allowed = path.Visible
                     or XCConfig.extremeWallbangEnabled
                     or XCConfig.wallbangEnabled
                     or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
-                local minDamageOk = XCPassesMinimumDamage(
+                local minDamageOk = allowed and XCPassesMinimumDamage(
                     origin, targetPart, targetCharacter, properties, targetPart.Position, path
                 )
-                if allowed and minDamageOk then
+                if allowed and minDamageOk
+                    and triggerbotMobileAutoFire
+                    and triggerbotFire(vp, targetPart, targetCharacter, targetPart.Position, "Silent FOV") then
                     lastTriggerTick = now
-                    if triggerbotMobileAutoFire then
-                        triggerbotFire(vp, targetPart, targetCharacter, targetPart.Position)
-                    end
                 end
             end
         end
         return
     end
 
-    -- Trigger FOV mode fires on the closest valid enemy inside Trigger FOV,
-    -- without requiring the center ray to already touch the character.
     if triggerMode == "Trigger FOV" then
-        local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
-        local radius = math.max(1, tonumber(XCConfig.triggerbotFov) or 160)
+        local best = xcTriggerSelectFovCandidate(
+            cam, vp, tonumber(XCConfig.triggerbotFov) or 160, XCConfig.triggerbotHeadOnly
+        )
+        if not best then return end
+
         local properties = resolveXCAutoWallProperties() or {}
-        local best = nil
-        local bestDist = math.huge
-
-        for _, targetPlayer in ipairs(Players:GetPlayers()) do
-            if targetPlayer ~= player and isTargetEnemy(targetPlayer, targetPlayer.Character) then
-                local char = targetPlayer.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
-                    local part = char:FindFirstChild("Head")
-                        or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
-                    if part and (not XCConfig.triggerbotHeadOnly or part.Name == "Head") then
-                        for _, multipoint in ipairs(XCBuildMultipoints(part)) do
-                            local point, onScreen = cam:WorldToViewportPoint(multipoint.Position)
-                            if onScreen and point.Z > 0 then
-                                local dist = (Vector2.new(point.X, point.Y) - center).Magnitude
-                                if dist <= radius and dist < bestDist then
-                                    local path = XCInspectShotPath(
-                                        origin, part, char, properties, multipoint.Position
-                                    )
-                                    local allowed = path.Visible
-                                        or XCConfig.extremeWallbangEnabled
-                                        or XCConfig.wallbangEnabled
-                                        or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
-                                    local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
-                                        origin, part, char, properties, multipoint.Position, path
-                                    )
-                                    if allowed and minDamageOk then
-                                        bestDist = dist
-                                        best = {
-                                            Part = part,
-                                            Character = char,
-                                            Position = multipoint.Position,
-                                            Damage = estimatedDamage,
-                                        }
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        if best then
+        local path = XCInspectShotPath(origin, best.Part, best.Character, properties, best.Position)
+        local allowed = path.Visible
+            or XCConfig.extremeWallbangEnabled
+            or XCConfig.wallbangEnabled
+            or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+        local minDamageOk = allowed and XCPassesMinimumDamage(
+            origin, best.Part, best.Character, properties, best.Position, path
+        )
+        if allowed and minDamageOk
+            and triggerbotMobileAutoFire
+            and triggerbotFire(vp, best.Part, best.Character, best.Position, "Trigger FOV") then
             lastTriggerTick = now
-            if triggerbotMobileAutoFire then
-                triggerbotFire(vp, best.Part, best.Character, best.Position)
-            end
         end
         return
     end
 
-    -- First pass: only consider whatever is actually under the FOV center.
+    -- Instant Crosshair path: one center ray and, for a directly visible enemy,
+    -- no penetration simulation unless Minimum Damage is actually enabled.
     triggerRayParams.FilterDescendantsInstances = {player.Character}
     local first = Workspace:Raycast(origin, rayDirection, triggerRayParams)
     if not first or not first.Instance then return end
 
     local firstModel = first.Instance:FindFirstAncestorOfClass("Model")
     local firstPlayer = firstModel and Players:GetPlayerFromCharacter(firstModel)
-
     if firstPlayer and firstPlayer ~= player then
-        local _, onScreen = cam:WorldToViewportPoint(first.Instance.Position)
-        if not onScreen then return end
         if firstModel:GetAttribute("Dead") or firstModel:GetAttribute("Invincible") then return end
         local hum = firstModel:FindFirstChildOfClass("Humanoid")
         if hum and hum.Health <= 0 then return end
         if not isTargetEnemy(firstPlayer, firstModel) then return end
         if XCConfig.triggerbotHeadOnly and first.Instance.Name ~= "Head" then return end
 
-        local properties = resolveXCAutoWallProperties() or {}
-        local path = XCInspectShotPath(origin, first.Instance, firstModel, properties, first.Instance.Position)
-        local minDamageOk = XCPassesMinimumDamage(
-            origin, first.Instance, firstModel, properties, first.Instance.Position, path
-        )
-        if not minDamageOk then return end
+        if XCConfig.minimumDamageEnabled then
+            local properties = resolveXCAutoWallProperties() or {}
+            local minDamageOk = XCPassesMinimumDamage(
+                origin, first.Instance, firstModel, properties, first.Instance.Position, {Visible = true, Reachable = true, Thickness = 0, Surfaces = 0}
+            )
+            if not minDamageOk then return end
+        end
 
-        lastTriggerTick = now
-        if triggerbotMobileAutoFire then
-            triggerbotFire(vp, first.Instance, firstModel, first.Instance.Position)
+        if triggerbotMobileAutoFire
+            and triggerbotFire(vp, first.Instance, firstModel, first.Instance.Position, "Crosshair") then
+            lastTriggerTick = now
         end
         return
     end
 
-    -- Wall hit: find enemy candidates near the FOV center, then test the
-    -- exact camera -> candidate line for material + physical penetration.
-    local bestTarget, bestScreenDistance = nil, math.huge
-    for _, hitPlayer in ipairs(Players:GetPlayers()) do
-        if hitPlayer ~= player and isTargetEnemy(hitPlayer, hitPlayer.Character) then
-            local char = hitPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            if char and hum and hum.Health > 0 and not char:GetAttribute("Dead") and not char:GetAttribute("Invincible") then
-                local targetPart = char:FindFirstChild("Head") or char:FindFirstChild("UpperTorso") or char:FindFirstChild("HumanoidRootPart")
-                if targetPart then
-                    if not XCConfig.triggerbotHeadOnly or targetPart.Name == "Head" then
-                        local screenPos, onScreen = cam:WorldToViewportPoint(targetPart.Position)
-                        if onScreen and screenPos.Z > 0 then
-                            local center = Vector2.new(vp.X * 0.5, vp.Y * 0.5)
-                            local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
-                            local fovRadius = tonumber(XCConfig.triggerbotFov) or tonumber(XCConfig.aimFov) or 160
-                            if dist <= fovRadius and dist < bestScreenDistance then
-                                bestScreenDistance = dist
-                                bestTarget = {Player = hitPlayer, Model = char, Part = targetPart}
-                            end
-                        end
-                    end
-                end
-            end
-        end
+    -- A wall/prop occupies the crosshair. Only perform the more expensive path
+    -- check if a wall feature is enabled; otherwise an instant trigger has no
+    -- valid target and exits here.
+    if not (XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled or XCConfig.silentAimAutoWallEnabled) then
+        return
     end
 
+    local bestTarget = xcTriggerSelectFovCandidate(
+        cam, vp,
+        tonumber(XCConfig.triggerbotFov) or tonumber(XCConfig.aimFov) or 160,
+        XCConfig.triggerbotHeadOnly
+    )
     if not bestTarget then return end
 
-    -- Auto Wall is weapon-aware now. Do not use the old generic material
-    -- thickness table here: validate the exact camera -> target path with the
-    -- equipped weapon's native Bullet.Properties.Penetration. Forced wallbang
-    -- modes intentionally bypass this budget.
     local canShootThrough = XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled
     if not canShootThrough and XCConfig.silentAimAutoWallEnabled then
-        canShootThrough = canXCAutoWallReach(origin, bestTarget.Part, bestTarget.Model)
+        canShootThrough = canXCAutoWallReach(origin, bestTarget.Part, bestTarget.Character)
     end
     if not canShootThrough then return end
 
     local wallProperties = resolveXCAutoWallProperties() or {}
     local wallPath = XCInspectShotPath(
-        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position
+        origin, bestTarget.Part, bestTarget.Character, wallProperties, bestTarget.Position
     )
     local minDamageOk = XCPassesMinimumDamage(
-        origin, bestTarget.Part, bestTarget.Model, wallProperties, bestTarget.Part.Position, wallPath
+        origin, bestTarget.Part, bestTarget.Character, wallProperties, bestTarget.Position, wallPath
     )
     if not minDamageOk then return end
 
-    lastTriggerTick = now
-    if triggerbotMobileAutoFire then
-        triggerbotFire(vp, bestTarget.Part, bestTarget.Model, bestTarget.Part.Position)
+    if triggerbotMobileAutoFire
+        and triggerbotFire(vp, bestTarget.Part, bestTarget.Character, bestTarget.Position, "Crosshair Wall") then
+        lastTriggerTick = now
     end
 end
+
 --// 2D ESP
 function hideXCSkeleton(esp)
     if not esp or not esp.SkeletonLines then return end
@@ -12625,24 +13374,196 @@ local function getXCEspVisibility(char, targetPart)
     return visible
 end
 
+--// ESP TARGET RESOLVER 3.0 -------------------------------------------------
+-- Keep visuals independent from combat validation. BloxStrike desktop builds
+-- can expose the active model/team/health through a different replication path
+-- than the weapon modules. Combat stays strict; ESP resolves the live visual
+-- character with compatibility fallbacks and still rejects explicit menu/dead
+-- states.
+XCFeatureState.espCharacterCache = XCFeatureState.espCharacterCache or setmetatable({}, {__mode = "k"})
+
+function xcNormalizeEspTeam(value)
+    if value == nil then return nil end
+    if typeof(value) == "Instance" then
+        local ok, name = pcall(function() return value.Name end)
+        value = ok and name or nil
+    end
+    if value == nil then return nil end
+    local raw = tostring(value)
+    if raw == "" then return nil end
+    local key = raw:lower():gsub("[%s_%-]", "")
+    if key == "ct" or key == "counterterrorist" or key == "counterterrorists"
+        or key == "counter" or key == "blueteam" then
+        return "CT"
+    end
+    if key == "t" or key == "terrorist" or key == "terrorists"
+        or key == "redteam" then
+        return "T"
+    end
+    if key == "spectator" or key == "spectators" or key == "lobby"
+        or key == "none" or key == "neutral" then
+        return nil
+    end
+    return key
+end
+
+function xcEspTeamOf(plr, char)
+    if not plr then return nil end
+    local candidates = {
+        plr:GetAttribute("Team"),
+        plr:GetAttribute("Faction"),
+        plr:GetAttribute("Side"),
+        char and char:GetAttribute("Team") or nil,
+        char and char:GetAttribute("Faction") or nil,
+        char and char:GetAttribute("Side") or nil,
+        plr.Team,
+    }
+    for _, value in pairs(candidates) do
+        local team = xcNormalizeEspTeam(value)
+        if team then return team end
+    end
+    local color = plr.TeamColor
+    if color and color ~= BrickColor.new("White") then
+        return "color:" .. tostring(color.Number)
+    end
+    return nil
+end
+
+function xcEspResolveCharacter(plr)
+    if not plr then return nil end
+    local cached = XCFeatureState.espCharacterCache[plr]
+    if cached and cached.Parent and cached:IsDescendantOf(Workspace) then
+        return cached
+    end
+
+    local direct = plr.Character
+    local folder = Workspace:FindFirstChild("Characters")
+    local localChar = player and player.Character
+    local folderIsCanonical = folder and localChar and localChar:IsDescendantOf(folder)
+
+    if direct and direct.Parent and direct:IsDescendantOf(Workspace)
+        and (not folderIsCanonical or direct:IsDescendantOf(folder)) then
+        XCFeatureState.espCharacterCache[plr] = direct
+        return direct
+    end
+
+    if folder then
+        for _, model in ipairs(folder:GetChildren()) do
+            if model:IsA("Model") then
+                local matched = false
+                local okOwner, owner = pcall(Players.GetPlayerFromCharacter, Players, model)
+                if okOwner and owner == plr then
+                    matched = true
+                else
+                    local userId = model:GetAttribute("UserId") or model:GetAttribute("PlayerUserId")
+                        or model:GetAttribute("OwnerUserId")
+                    local playerName = model:GetAttribute("PlayerName") or model:GetAttribute("OwnerName")
+                    matched = tonumber(userId) == plr.UserId
+                        or tostring(playerName or "") == plr.Name
+                        or model.Name == plr.Name
+                end
+                if matched then
+                    XCFeatureState.espCharacterCache[plr] = model
+                    return model
+                end
+            end
+        end
+    end
+
+    -- If the local player's own model is not inside Workspace.Characters, that
+    -- folder is not the authoritative combat container on this desktop build.
+    if direct and direct.Parent and direct:IsDescendantOf(Workspace) and not folderIsCanonical then
+        XCFeatureState.espCharacterCache[plr] = direct
+        return direct
+    end
+    return nil
+end
+
+function xcEspUnavailable(object)
+    if not object then return false end
+    if object:GetAttribute("Dead") == true or object:GetAttribute("IsSpectating") == true then return true end
+    local ok, unavailable = pcall(function() return xcUnavailableByAttributes(object) end)
+    return ok and unavailable == true
+end
+
+function xcEspEntityAlive(plr, char, hum)
+    if not plr or not char or not char.Parent or not char:IsDescendantOf(Workspace) then return false end
+    if xcEspUnavailable(plr) or xcEspUnavailable(char) then return false end
+
+    local folder = Workspace:FindFirstChild("Characters")
+    local localChar = player and player.Character
+    local folderIsCanonical = folder and localChar and localChar:IsDescendantOf(folder)
+    if folderIsCanonical and not char:IsDescendantOf(folder) then return false end
+
+    local characterType = char:GetAttribute("CharacterType")
+    if characterType ~= nil and characterType ~= "PlayerCustomCharacter" then return false end
+
+    local health = char:GetAttribute("Health")
+    if type(health) ~= "number" then health = tonumber(health) end
+    if type(health) ~= "number" and plr then
+        health = plr:GetAttribute("Health")
+        if type(health) ~= "number" then health = tonumber(health) end
+    end
+    if type(health) ~= "number" and hum and hum.Parent then
+        local ok, value = pcall(function() return hum.Health end)
+        if ok then health = value end
+    end
+    if type(health) == "number" and (health ~= health or health == math.huge or health <= 0) then return false end
+
+    if hum and hum.Parent then
+        local ok, state = pcall(function() return hum:GetState() end)
+        if ok and state == Enum.HumanoidStateType.Dead then return false end
+    end
+
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+    local head = char:FindFirstChild("Head")
+    return root ~= nil or head ~= nil
+end
+
+function xcEspIsEnemy(plr, char)
+    if not plr or plr == player then return false end
+    local myChar = xcEspResolveCharacter(player)
+    local mine = xcEspTeamOf(player, myChar)
+    local theirs = xcEspTeamOf(plr, char)
+    if mine and theirs then return mine ~= theirs end
+
+    -- Team replication is incomplete on some PC clients. At this point the
+    -- character has already passed the active/dead/menu checks, so prefer
+    -- rendering it rather than silently dropping every ESP target.
+    return true
+end
+
+function xcEspIsAlly(plr, char)
+    if not plr or plr == player then return true end
+    local myChar = xcEspResolveCharacter(player)
+    local mine = xcEspTeamOf(player, myChar)
+    local theirs = xcEspTeamOf(plr, char)
+    return mine ~= nil and theirs ~= nil and mine == theirs
+end
+
 --// TACTICAL ESP
 local tacticalOverlayWasActive = false
+function hideXCPlayerOverlay(esp)
+    if not esp then return end
+    esp.Box.Visible = false
+    esp.BoxOutline.Visible = false
+    esp.HealthBarBg.Visible = false
+    esp.WeaponCard.Visible = false
+    if not XCConfig.weaponEspEnabled and esp.WeaponRaw ~= nil then
+        clearXCWeaponPreview(esp)
+        esp.WeaponRaw = nil
+    end
+    esp.TagCard.Visible = false
+    for _, corner in ipairs(esp.Corners) do
+        corner.H.Visible = false
+        corner.V.Visible = false
+    end
+    hideXCSkeleton(esp)
+end
+
 function hideTacticalOverlay()
     for _, esp in pairs(screenEspCache) do
-        esp.Box.Visible = false
-        esp.BoxOutline.Visible = false
-        esp.HealthBarBg.Visible = false
-        esp.WeaponCard.Visible = false
-        if not XCConfig.weaponEspEnabled and esp.WeaponRaw ~= nil then
-            clearXCWeaponPreview(esp)
-            esp.WeaponRaw = nil
-        end
-        esp.TagCard.Visible = false
-        for _, corner in ipairs(esp.Corners) do
-            corner.H.Visible = false
-            corner.V.Visible = false
-        end
-        hideXCSkeleton(esp)
+        hideXCPlayerOverlay(esp)
     end
 end
 
@@ -12745,14 +13666,25 @@ function renderTacticalOverlay()
     end
     tacticalOverlayWasActive = true
     local camPos = camera.CFrame.Position
+    local diag = XCFeatureState.espDiagnostics or {}
+    XCFeatureState.espDiagnostics = diag
+    diag.Holders, diag.Resolved, diag.Alive, diag.Enemies, diag.Rects = 0, 0, 0, 0, 0
+    diag.LastUpdate = os.clock()
+    if sharedXCEnv then sharedXCEnv.XOSE_ESP_DIAG = diag end
 
     for plr in pairs(activeEspHolders) do
+        diag.Holders = diag.Holders + 1
+        -- Streaming/respawn or a preview failure must not blank every player.
+        local playerOk, playerErr = pcall(function()
         repeat
-        local char = plr.Character
+        local char = xcEspResolveCharacter(plr)
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
-        local isEnemy = isTargetEnemy(plr, char)
-        local isAlive = isEntityAlive(char, hum)
+        local isEnemy = xcEspIsEnemy(plr, char)
+        local isAlive = xcEspEntityAlive(plr, char, hum)
+        if char then diag.Resolved = diag.Resolved + 1 end
+        if isAlive then diag.Alive = diag.Alive + 1 end
+        if isEnemy then diag.Enemies = diag.Enemies + 1 end
         local dist = rootPart and (rootPart.Position - camPos).Magnitude or math.huge
         local esp = screenEspCache[plr]
         if not xcShouldAllocateScreenEsp(isEnemy, isAlive, rootPart ~= nil, dist,
@@ -12775,6 +13707,7 @@ function renderTacticalOverlay()
                 local espAlpha = getXCEspDistanceAlpha(dist)
 
                 if screenRect then
+                    diag.Rects = diag.Rects + 1
                     local boxHeight = screenRect.H
                     local boxWidth = screenRect.W
                     local boxPosX = screenRect.X
@@ -12989,6 +13922,16 @@ function renderTacticalOverlay()
             hideXCSkeleton(esp)
         end
         until true
+        end)
+        if not playerOk then
+            pcall(hideXCPlayerOverlay, screenEspCache[plr])
+            local now = os.clock()
+            if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+                XCFeatureState.tacticalOverlayErrorAt = now
+                diag.LastError = tostring(playerErr)
+                warn("[XOSE] ESP player update failed (" .. tostring(plr.Name) .. "): " .. tostring(playerErr))
+            end
+        end
     end
 end
 --// CHAMS 4.1 — STABLE MATERIAL SHELL ENGINE
@@ -13346,90 +14289,42 @@ end
 local function applyXCChamsStyle(data, char, ally, isVisible, now)
     if not data or not data.Highlight or not char then return end
 
-    local primary = data.Highlight
+    local through = data.Highlight
     local style = tostring(XCConfig.chamsStyle or "Shaded")
-
     if style == "Pulse" then style = "Glow" end
     if style == "Wire" or style == "Outline" then style = "Glow Outline" end
-
     if not XC_CHAM_STYLES[style] then style = "Shaded" end
 
-    if primary.Parent ~= chamsWorldFolder then
-        primary.Parent = chamsWorldFolder
-    end
-    if primary.Adornee ~= char then
-        primary.Adornee = char
-    end
+    if through.Parent ~= chamsWorldFolder then through.Parent = chamsWorldFolder end
+    if through.Adornee ~= char then through.Adornee = char end
 
-    local color = getXCChamsColor(ally, isVisible)
+    local visibleColor = getXCChamsColor(ally, true)
+    local hiddenColor = getXCChamsColor(ally, false)
+    local throughColor = isVisible and visibleColor or hiddenColor
+    if XCConfig.chamsOcclusion == false then
+        throughColor = visibleColor
+    end
     local fill = xcClamp01(XCConfig.chamsFillTransparency)
     local outline = xcClamp01(XCConfig.chamsOutlineTransparency)
-    local glowStrength = math.clamp(
-        tonumber(XCConfig.chamsSoftGlowStrength) or 0.85,
-        0,
-        2.5
-    )
 
-    syncXCChamMaterialShells(data, char, style, color, now or os.clock())
+    -- One authoritative Highlight per player. Two Highlights on the same
+    -- Adornee can fight for render budget/order and Roblox has a small active
+    -- Highlight budget. The material shell remains the high-detail visible
+    -- layer; this Highlight owns reliable wall visibility.
+    syncXCChamMaterialShells(data, char, style, isVisible and visibleColor or throughColor, now or os.clock())
 
-    primary.Enabled = true
-    primary.FillColor = color
-    primary.OutlineColor = color
-    primary.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    through.DepthMode = XCConfig.chamsThroughWallsEnabled ~= false
+        and Enum.HighlightDepthMode.AlwaysOnTop
+        or Enum.HighlightDepthMode.Occluded
+    through.Enabled = true
+    through.FillColor = throughColor
+    through.OutlineColor = (style == "Glow" or style == "Glow Outline")
+        and xcScaleColor(throughColor, 1.12) or throughColor
 
-    if isVisible then
-        if style == "Glow" then
-            primary.FillTransparency = 0.95
-            primary.OutlineTransparency = math.clamp(
-                0.11 - glowStrength * 0.035,
-                0.018,
-                0.11
-            )
-            primary.OutlineColor = xcScaleColor(color, 1.16)
-
-        elseif style == "Glow Outline" then
-            primary.FillTransparency = XCConfig.chamsGlowOutlineFill and 0.92 or 1
-            primary.OutlineTransparency = math.clamp(
-                0.065 - glowStrength * 0.022,
-                0.012,
-                0.065
-            )
-            primary.OutlineColor = xcScaleColor(color, 1.20)
-
-        elseif style == "Iridescent" or style == "Water Flow" then
-            primary.FillTransparency = 0.985
-            primary.OutlineTransparency = 0.10
-
-        elseif style == "Glossy" then
-            local edge = xcClamp01(XCConfig.chamsGlossEdgeFalloff)
-            primary.FillTransparency = 0.99
-            primary.OutlineTransparency = math.clamp(
-                0.22 - edge * 0.18,
-                0.025,
-                0.22
-            )
-            primary.OutlineColor = xcScaleColor(color, 1.08)
-
-        else
-            primary.FillTransparency = 0.985
-            primary.OutlineTransparency = math.clamp(
-                outline + 0.10,
-                0.08,
-                0.72
-            )
-        end
-    else
-        primary.FillTransparency = math.clamp(fill, 0.12, 0.88)
-        primary.OutlineTransparency = math.clamp(outline, 0.015, 0.76)
-
-        if style == "Glow" or style == "Glow Outline" then
-            primary.OutlineColor = xcScaleColor(color, 1.14)
-            primary.OutlineTransparency = math.min(
-                primary.OutlineTransparency,
-                0.055
-            )
-        end
-    end
+    -- Keep a readable fill even when hidden. The visible material shell adds
+    -- the richer surface style on top when the target is not occluded.
+    through.FillTransparency = math.clamp(fill + 0.08, 0.18, 0.86)
+    through.OutlineTransparency = math.clamp(outline + 0.02, 0.01, 0.72)
 end
 
 local function disableXCChamsForData(data, clearAdornee)
@@ -13437,9 +14332,11 @@ local function disableXCChamsForData(data, clearAdornee)
 
     if data.Highlight then
         data.Highlight.Enabled = false
-        if clearAdornee then
-            data.Highlight.Adornee = nil
-        end
+        if clearAdornee then data.Highlight.Adornee = nil end
+    end
+    if data.VisibleHighlight then
+        data.VisibleHighlight.Enabled = false
+        if clearAdornee then data.VisibleHighlight.Adornee = nil end
     end
 
     if clearAdornee then
@@ -13475,17 +14372,25 @@ function attachEspToPlayer(plr)
     tracerLine.BackgroundColor3 = currentTheme.Enemy_Accent
     tracerLine.Visible = false
 
+    -- One reliable player Highlight owns wall visibility. Rich visible
+    -- materials are rendered by the separate shell layer.
     local hl = Instance.new("Highlight")
-    hl.Name = "XCChams_" .. plr.Name
+    hl.Name = "XCChamsHidden_" .. plr.Name
     hl.FillTransparency = XCConfig.chamsFillTransparency
     hl.OutlineTransparency = XCConfig.chamsOutlineTransparency
     hl.Enabled = false
-    hl.FillColor = currentTheme.Enemy_Accent
-    hl.OutlineColor = currentTheme.TextPrimary
+    hl.FillColor = currentTheme.Enemy_Hidden
+    hl.OutlineColor = currentTheme.Enemy_Hidden
     hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     hl.Parent = chamsWorldFolder
 
+    -- v2 wall-chams: one Highlight per player. The old second Occluded
+    -- Highlight could consume the active Highlight budget and conflict with the
+    -- AlwaysOnTop layer on the same character.
+    local visibleHl = nil
+
     local function setupCharacter(char)
+        XCFeatureState.espCharacterCache[plr] = nil
         if not char then return end
         task.spawn(function()
             local head = char:WaitForChild("Head", 3)
@@ -13494,9 +14399,11 @@ function attachEspToPlayer(plr)
             end
             if hl then
                 hl.Adornee = char
-                if hl.Parent ~= chamsWorldFolder then
-                    hl.Parent = chamsWorldFolder
-                end
+                if hl.Parent ~= chamsWorldFolder then hl.Parent = chamsWorldFolder end
+            end
+            if visibleHl then
+                visibleHl.Adornee = char
+                if visibleHl.Parent ~= chamsWorldFolder then visibleHl.Parent = chamsWorldFolder end
             end
         end)
     end
@@ -13504,9 +14411,14 @@ function attachEspToPlayer(plr)
     if plr.Character then setupCharacter(plr.Character) end
     local charConn = plr.CharacterAdded:Connect(setupCharacter)
     local charRemConn = plr.CharacterRemoving:Connect(function()
+        XCFeatureState.espCharacterCache[plr] = nil
         if hl then
             hl.Adornee = nil
             hl.Enabled = false
+        end
+        if visibleHl then
+            visibleHl.Adornee = nil
+            visibleHl.Enabled = false
         end
         local holderData = activeEspHolders[plr]
         if holderData then
@@ -13522,6 +14434,7 @@ function attachEspToPlayer(plr)
         DotFrame = dotFrame,
         Tracer = tracerLine,
         Highlight = hl,
+        VisibleHighlight = visibleHl,
         ChamShellFolder = nil,
         ChamShells = {},
         ChamShellCharacter = nil,
@@ -13537,12 +14450,14 @@ table.insert(connections, Players.PlayerRemoving:Connect(function(plr)
         destroyXCChamShells(data)
         pcall(function()
             if data.Highlight then data.Highlight:Destroy() end
+            if data.VisibleHighlight then data.VisibleHighlight:Destroy() end
         end)
         pcall(function()
             if data.Holder then data.Holder:Destroy() end
             if data.Tracer then data.Tracer:Destroy() end
         end)
         activeEspHolders[plr] = nil
+        XCFeatureState.espCharacterCache[plr] = nil
     end
 end))
 --// MAIN ENGINE RENDER LOOP
@@ -13552,13 +14467,18 @@ end
 local visualOverlayAccumulator = 0
 local interfaceRefreshAccumulator = 0
 local threeDEspWasActive = false
+local XC_PC_ESP_RENDER_BIND = "XOSE_PC_ESP_CAMERA_SYNC"
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     camera = Workspace.CurrentCamera or camera
     if not camera then return end
 
-    -- Lock the final projection before any same-frame camera/ESP math.
-    applyXCCameraFov()
-    applyThirdPerson(dt)
+    -- Mobile keeps the original RenderStepped camera path. Desktop FOV, third
+    -- person and 2D ESP are owned by the post-camera bind below so projection
+    -- cannot observe a different FOV from the frame the player sees.
+    if UserInputService.TouchEnabled then
+        applyXCCameraFov(dt, camera.FieldOfView)
+        applyThirdPerson(dt)
+    end
 
     local localPos = camera.CFrame.Position
 
@@ -13576,9 +14496,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             end)
         end
         local parts = {}
-        if XCConfig.watermarkShowFPS then table.insert(parts, string.format("FPS: %d", currentFps)) end
-        if XCConfig.watermarkShowPing then table.insert(parts, string.format("PING: %dms", pingVal)) end
-        wmMetrics.Text = table.concat(parts, " | ")
+        if XCConfig.watermarkShowFPS then table.insert(parts, string.format("%d FPS", currentFps)) end
+        if XCConfig.watermarkShowPing then table.insert(parts, string.format("%d MS", pingVal)) end
+        wmMetrics.Text = table.concat(parts, "   ")
         fpsCounter = 0
         lastFpsUpdate = nowTick
     end
@@ -13588,12 +14508,26 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if interfaceRefreshAccumulator >= 0.1 then
         interfaceRefreshAccumulator = 0
         wmCard.Visible = XCConfig.watermarkEnabled
-        wmTitle.Text = XCConfig.watermarkText or "XC"
+        wmTitle.Text = XCConfig.watermarkText or "XOSE"
         if XCConfig.watermarkShowName then
-            wmTitle.Text = (XCConfig.watermarkText or "XC") .. " • " .. player.Name
+            wmTitle.Text = (XCConfig.watermarkText or "XOSE") .. "  |  " .. player.Name
         end
         wmMetrics.Visible = XCConfig.watermarkShowFPS or XCConfig.watermarkShowPing
         wmDivider.Visible = wmMetrics.Visible
+
+        local watermarkScale = wmCard:FindFirstChild("WatermarkScale")
+        if watermarkScale and watermarkScale:IsA("UIScale") then
+            watermarkScale.Scale = math.clamp(tonumber(XCConfig.watermarkScale) or 1, 0.70, 1.80)
+        end
+        local watermarkGlass = math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86, 0, 1)
+        local watermarkOpacity = math.clamp(tonumber(XCConfig.watermarkOpacity) or 0.88, 0.35, 1)
+        wmCard.BackgroundColor3 = currentTheme.Background:Lerp(Color3.new(0, 0, 0), 0.08)
+        wmCard.BackgroundTransparency = math.clamp((1 - watermarkOpacity) + watermarkGlass * 0.09, 0.04, 0.58)
+        wmStroke.Color = currentTheme.TextPrimary:Lerp(currentTheme.Accent, 0.28)
+        wmStroke.Transparency = math.clamp(0.82 - watermarkGlass * 0.43, 0.28, 0.82)
+        wmDot.BackgroundColor3 = currentTheme.Accent
+        wmTitle.TextColor3 = currentTheme.TextPrimary
+        wmMetrics.TextColor3 = currentTheme.TextSecondary
 
         if fovFrame then
             local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
@@ -13637,16 +14571,17 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             and XCConfig.rageAutoFire
             and tick() - lastTriggerTick > math.clamp(tonumber(XCConfig.triggerbotDelay) or 0.075, 0.01, 0.5) then
 
-            lastTriggerTick = tick()
             pcall(function()
                 local vp = camera.ViewportSize
-                triggerbotFire(
+                if triggerbotFire(
                     vp,
                     target.Part,
                     target.Char,
                     target.AimPosition or target.ShotPosition or target.Position,
                     "Rage"
-                )
+                ) then
+                    lastTriggerTick = tick()
+                end
             end)
         end
     elseif XCConfig.aimbotEnabled then
@@ -13669,7 +14604,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         currentAimTarget = nil
     end
 
-    runMobileTriggerbot()
+    if UserInputService.TouchEnabled then
+        runXCTriggerbot()
+    end
 
     local visualInterval = xcVisualUpdateInterval(XCConfig.visualRefreshFPS)
     visualOverlayAccumulator = math.min(visualOverlayAccumulator + dt, visualInterval * 2)
@@ -13679,19 +14616,16 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         table.clear(xcEspVisibilityCache)
     end
 
-    -- At custom FOV the camera projection changes every rendered frame. A
-    -- 30-FPS ESP update visibly trails while rotating, even though
-    -- WorldToViewportPoint itself is correct. Refresh only the screen-space
-    -- overlay every frame; visibility/weapon lookup stay cached at the user's
-    -- normal visualRefreshFPS cadence.
-    if visualRefreshDue or XCConfig.customFovEnabled then
+    -- Mobile keeps the proven generic RenderStepped path. Desktop projection
+    -- is rendered by the Last-priority binding below so firearm camera/recoil
+    -- callbacks cannot leave 2D ESP on an earlier camera sample.
+    if UserInputService.TouchEnabled then
         local overlayOk, overlayErr = pcall(renderTacticalOverlay)
         if not overlayOk then
-            XCFeatureState.tacticalOverlayErrorAt = XCFeatureState.tacticalOverlayErrorAt or 0
             local now = os.clock()
-            if now - XCFeatureState.tacticalOverlayErrorAt > 2 then
+            if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
                 XCFeatureState.tacticalOverlayErrorAt = now
-                warn("[XOSE] ESP renderer paused this frame: " .. tostring(overlayErr))
+                warn("[XOSE] ESP renderer failed: " .. tostring(overlayErr))
             end
             hideTacticalOverlay()
         end
@@ -13702,23 +14636,22 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         renderXCGrenadeDangerZones()
         renderXCSoundPositionEsp()
 
-        local threeDEspActive = XCConfig.chamsEnabled or XCConfig.headDotEnabled or XCConfig.tracersEnabled
+        local threeDEspActive = XCConfig.chamsEnabled or XCConfig.headDotEnabled
         if threeDEspActive or threeDEspWasActive then
         for plr, data in pairs(activeEspHolders) do
             repeat
         if not threeDEspActive then
             data.HeadDot.Enabled = false
             disableXCChamsForData(data, false)
-            data.Tracer.Visible = false
             break
         end
-        local char = plr.Character
+        local char = xcEspResolveCharacter(plr)
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
         local head = char and char:FindFirstChild("Head")
         
-        local ally = isAlly(plr)
-        local isAlive = isEntityAlive(char, hum)
+        local ally = xcEspIsAlly(plr, char)
+        local isAlive = xcEspEntityAlive(plr, char, hum)
         local dist = rootPart and (rootPart.Position - localPos).Magnitude or 9999
 
         if char and isAlive and (dist <= XCConfig.espMaxDist) then
@@ -13730,11 +14663,12 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
                     disableXCChamsForData(data, false)
                 else
                     if data.Highlight.Adornee ~= char then data.Highlight.Adornee = char end
-                    if data.Highlight.Parent ~= chamsWorldFolder then
-                        data.Highlight.Parent = chamsWorldFolder
+                    if data.Highlight.Parent ~= chamsWorldFolder then data.Highlight.Parent = chamsWorldFolder end
+                    if data.VisibleHighlight then
+                        if data.VisibleHighlight.Adornee ~= char then data.VisibleHighlight.Adornee = char end
+                        if data.VisibleHighlight.Parent ~= chamsWorldFolder then data.VisibleHighlight.Parent = chamsWorldFolder end
                     end
-                    local styleVisible = XCConfig.chamsOcclusion and isVisible or true
-                    applyXCChamsStyle(data, char, chamsAlly, styleVisible, os.clock())
+                    applyXCChamsStyle(data, char, chamsAlly, isVisible, os.clock())
                 end
             else
                 disableXCChamsForData(data, false)
@@ -13749,34 +14683,12 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
                 data.DotFrame.BackgroundColor3 = activeAccent
                 data.HeadDot.Enabled = XCConfig.headDotEnabled
 
-                if XCConfig.tracersEnabled and rootPart then
-                    local scrPos, onScreen = camera:WorldToViewportPoint(rootPart.Position)
-                    if onScreen and scrPos.Z > 0 then
-                        local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
-                        local dest = Vector2.new(scrPos.X, scrPos.Y)
-                        local lineDist = (dest - origin).Magnitude
-                        local center = (origin + dest) * 0.5
-                        local angle = math.deg(math.atan2(dest.Y - origin.Y, dest.X - origin.X))
-
-                        data.Tracer.BackgroundColor3 = activeAccent
-                        data.Tracer.Size = UDim2.new(0, lineDist, 0, 1.5)
-                        data.Tracer.Position = UDim2.new(0, center.X, 0, center.Y)
-                        data.Tracer.Rotation = angle
-                        data.Tracer.Visible = true
-                    else
-                        data.Tracer.Visible = false
-                    end
-                else
-                    data.Tracer.Visible = false
-                end
             else
                 data.HeadDot.Enabled = false
-                data.Tracer.Visible = false
             end
         else
             data.HeadDot.Enabled = false
             disableXCChamsForData(data, true)
-            data.Tracer.Visible = false
             if data.HeadDot.Adornee then data.HeadDot.Adornee = nil end
         end
             until true
@@ -13791,6 +14703,206 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     updateXCAntiFlashState(XCConfig.antiFlashEnabled)
 end))
 
+-- ESP SYNC V4 WEAPON CAMERA FIX ---------------------------------------------
+-- BindToRenderStep(Last) is still allowed to run before ordinary
+-- RenderStepped/PreRender listeners created by a firearm viewmodel.  That is
+-- why the old v3 renderer could be correct with a knife yet freeze in screen
+-- space as soon as a gun's recoil/sway callback started moving CurrentCamera.
+--
+-- v4 renders once at Last as the normal path, then listens to the *actual*
+-- camera properties.  A small begin-frame gate ignores normal camera changes
+-- that happen before Last; only camera/FOV mutations that occur AFTER the Last
+-- projection (weapon recoil/sway, late scope code, etc.) trigger one corrective
+-- ESP projection using the new final camera state.
+function resetXCEspProjectionCache()
+    for _, esp in pairs(screenEspCache) do
+        esp.SmoothRect = nil
+        esp.LastProjectionFov = nil
+    end
+end
+
+function renderXCTracersFrame()
+    if not camera then return end
+    if not XCConfig.tracersEnabled then
+        for _, data in pairs(activeEspHolders) do
+            data.Tracer.Visible = false
+        end
+        return
+    end
+
+    local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
+    local camPos = camera.CFrame.Position
+    for plr, data in pairs(activeEspHolders) do
+        local char = xcEspResolveCharacter(plr)
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local root = char and (char:FindFirstChild("HumanoidRootPart")
+            or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
+        local enemy = char and xcEspIsEnemy(plr, char)
+        local alive = char and xcEspEntityAlive(plr, char, hum)
+        local distance = root and (root.Position - camPos).Magnitude or math.huge
+
+        if root and enemy and alive and distance <= XCConfig.espMaxDist then
+            local screen, onScreen = camera:WorldToViewportPoint(root.Position)
+            if onScreen and screen.Z > 0 then
+                local head = char:FindFirstChild("Head")
+                local visible = getXCEspVisibility(char, head or root)
+                local accent = visible and currentTheme.Enemy_Accent or currentTheme.Enemy_Hidden
+                local dest = Vector2.new(screen.X, screen.Y)
+                local delta = dest - origin
+                data.Tracer.BackgroundColor3 = accent
+                data.Tracer.Size = UDim2.fromOffset(delta.Magnitude, 1.5)
+                data.Tracer.Position = UDim2.fromOffset(
+                    (origin.X + dest.X) * 0.5,
+                    (origin.Y + dest.Y) * 0.5
+                )
+                data.Tracer.Rotation = math.deg(math.atan2(delta.Y, delta.X))
+                data.Tracer.Visible = true
+            else
+                data.Tracer.Visible = false
+            end
+        else
+            data.Tracer.Visible = false
+        end
+    end
+end
+
+function renderXCEspLateProjection()
+    if UserInputService.TouchEnabled or not xcSessionActive() then return end
+    if XCFeatureState.espLateProjectionBusy then return end
+
+    local finalCamera = Workspace.CurrentCamera or camera
+    if not finalCamera then return end
+    camera = finalCamera
+
+    XCFeatureState.espLateProjectionBusy = true
+    local overlayOk, overlayErr = pcall(renderTacticalOverlay)
+    if not overlayOk then
+        local now = os.clock()
+        if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+            XCFeatureState.tacticalOverlayErrorAt = now
+            warn("[XOSE] late weapon-camera ESP projection failed: " .. tostring(overlayErr))
+        end
+        hideTacticalOverlay()
+    end
+    pcall(renderXCTracersFrame)
+    XCFeatureState.espLateProjectionBusy = false
+    XCFeatureState.espLateProjectionAt = os.clock()
+    if XCFeatureState.espDiagnostics then
+        XCFeatureState.espDiagnostics.LateCorrections = (XCFeatureState.espDiagnostics.LateCorrections or 0) + 1
+        XCFeatureState.espDiagnostics.LateCorrectionAt = XCFeatureState.espLateProjectionAt
+    end
+end
+
+function disconnectXCEspCameraSignals()
+    for _, key in ipairs({"espCameraCFrameConnection", "espCameraFovConnection"}) do
+        local connection = XCFeatureState[key]
+        if connection then pcall(function() connection:Disconnect() end) end
+        XCFeatureState[key] = nil
+    end
+    XCFeatureState.espBoundCamera = nil
+end
+
+function bindXCEspCameraSignals(cam)
+    if UserInputService.TouchEnabled then return end
+    if XCFeatureState.espBoundCamera == cam
+        and XCFeatureState.espCameraCFrameConnection
+        and XCFeatureState.espCameraFovConnection then
+        return
+    end
+
+    disconnectXCEspCameraSignals()
+    if not cam then return end
+    XCFeatureState.espBoundCamera = cam
+
+    local cframeConnection = cam:GetPropertyChangedSignal("CFrame"):Connect(function()
+        if XCFeatureState.espCameraMutationGuard then return end
+        if XCFeatureState.espAcceptLateCameraSignal ~= true then return end
+        renderXCEspLateProjection()
+    end)
+    local fovConnection = cam:GetPropertyChangedSignal("FieldOfView"):Connect(function()
+        if XCFeatureState.espCameraMutationGuard then return end
+        if XCFeatureState.espAcceptLateCameraSignal ~= true then return end
+        resetXCEspProjectionCache()
+        renderXCEspLateProjection()
+    end)
+    XCFeatureState.espCameraCFrameConnection = cframeConnection
+    XCFeatureState.espCameraFovConnection = fovConnection
+    table.insert(connections, cframeConnection)
+    table.insert(connections, fovConnection)
+end
+
+if not UserInputService.TouchEnabled then
+    -- Clear render bindings left by previous injected builds.
+    pcall(function() RunService:UnbindFromRenderStep(XC_PC_ESP_RENDER_BIND) end)
+    pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_FRAME_BEGIN") end)
+
+    -- Normal native camera work occurs between these two priorities.  Camera
+    -- property signals are ignored until the Last projection completes.
+    RunService:BindToRenderStep("XOSE_PC_ESP_FRAME_BEGIN", Enum.RenderPriority.Camera.Value - 1, function()
+        XCFeatureState.espAcceptLateCameraSignal = false
+    end)
+
+    bindXCEspCameraSignals(Workspace.CurrentCamera or camera)
+
+    RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Last.Value, function(dt)
+        if not xcSessionActive() then
+            XCFeatureState.espAcceptLateCameraSignal = false
+            return
+        end
+
+        local finalCamera = Workspace.CurrentCamera or camera
+        if not finalCamera then return end
+        camera = finalCamera
+        bindXCEspCameraSignals(camera)
+
+        local viewport = camera.ViewportSize
+        local previousViewport = XCFeatureState.espProjectionViewport
+        if XCFeatureState.espProjectionCamera ~= camera
+            or not previousViewport
+            or previousViewport.X ~= viewport.X
+            or previousViewport.Y ~= viewport.Y then
+            resetXCEspProjectionCache()
+            XCFeatureState.espProjectionCamera = camera
+            XCFeatureState.espProjectionViewport = Vector2.new(viewport.X, viewport.Y)
+        end
+
+        -- Ignore the property events produced by XOSE's own FOV/third-person
+        -- writes.  The normal projection below already uses their final state.
+        XCFeatureState.espCameraMutationGuard = true
+        local nativeFov = camera.FieldOfView
+        local fovOk, fovErr = pcall(applyXCCameraFov, dt, nativeFov)
+        if not fovOk then
+            local now = os.clock()
+            if now - (XCFeatureState.pcCameraErrorAt or -math.huge) >= 2 then
+                XCFeatureState.pcCameraErrorAt = now
+                warn("[XOSE] PC FOV stage failed: " .. tostring(fovErr))
+            end
+        end
+        pcall(applyThirdPerson, dt)
+        XCFeatureState.espCameraMutationGuard = false
+
+        -- Triggerbot and custom scope read the same camera sample as ESP.
+        pcall(runXCTriggerbot)
+        if XCConfig.customScopeEnabled then pcall(updateCustomScope) end
+
+        local overlayOk, overlayErr = pcall(renderTacticalOverlay)
+        if not overlayOk then
+            local now = os.clock()
+            if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+                XCFeatureState.tacticalOverlayErrorAt = now
+                warn("[XOSE] PC ESP renderer failed: " .. tostring(overlayErr))
+            end
+            hideTacticalOverlay()
+        end
+        pcall(renderXCTracersFrame)
+
+        -- From this point until next frame's Camera-1 gate, any CFrame/FOV
+        -- change is late weapon/viewmodel work and receives a corrective pass.
+        XCFeatureState.espAcceptLateCameraSignal = true
+    end)
+end
+--// END ESP SYNC V4 ----------------------------------------------------------
+
 -- Late first-person/viewmodel pass. It is intentionally registered after the
 -- main camera loop so the game's native camera/viewmodel pose is already
 -- available. This is the compatibility path when Viewmodel.render cannot be
@@ -13803,32 +14915,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function()
         pcall(restoreXCCustomHands)
     end
 
-    -- Tracers are screen-space too. Keep their endpoints glued to the current
-    -- camera while Custom FOV is active without rerunning chams/visibility.
-    if XCConfig.customFovEnabled and XCConfig.tracersEnabled and camera then
-        local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
-        for plr, data in pairs(activeEspHolders) do
-            local char = plr.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            local root = char and (char:FindFirstChild("HumanoidRootPart")
-                or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
-            if root and isTargetEnemy(plr, char) and isEntityAlive(char, hum) then
-                local screen, onScreen = camera:WorldToViewportPoint(root.Position)
-                if onScreen and screen.Z > 0 then
-                    local dest = Vector2.new(screen.X, screen.Y)
-                    local delta = dest - origin
-                    data.Tracer.Size = UDim2.fromOffset(delta.Magnitude, 1.5)
-                    data.Tracer.Position = UDim2.fromOffset((origin.X + dest.X) * 0.5, (origin.Y + dest.Y) * 0.5)
-                    data.Tracer.Rotation = math.deg(math.atan2(delta.Y, delta.X))
-                    data.Tracer.Visible = true
-                else
-                    data.Tracer.Visible = false
-                end
-            else
-                data.Tracer.Visible = false
-            end
-        end
-    end
 end))
 
 -- Stateful anti-flash: preserve the game's original Enabled values instead
@@ -13877,6 +14963,17 @@ function resetXCCharacterInputState()
     xcCharacterInputHook.AntiComputedStep = nil
     xcCharacterInputHook.AntiComputedRandomYaw = nil
     xcCharacterInputHook.AntiFireUntil = 0
+    xcCharacterInputHook.AntiLastYaw = nil
+    xcCharacterInputHook.AntiShotHeldYaw = nil
+    xcCharacterInputHook.AntiShotHoldUntil = 0
+    xcCharacterInputHook.AntiWasFiring = false
+    xcCharacterInputHook.AntiLastHealth = nil
+    xcCharacterInputHook.AntiBruteforcePhase = 0
+    xcCharacterInputHook.AntiBruteforceSide = 1
+    xcCharacterInputHook.AntiDamageSwitchUntil = 0
+    xcCharacterInputHook.AntiThreatYaw = nil
+    xcCharacterInputHook.AntiThreatNext = 0
+    xcCharacterInputHook.AntiThreatPlayer = nil
 end
 
 function restoreXCCharacterInputHook()
@@ -13891,10 +14988,115 @@ function restoreXCCharacterInputHook()
     resetXCCharacterInputState()
 end
 
+-- Anti-Aim 2.0 keeps native movement input authoritative. Freestand and
+-- anti-bruteforce alter replicated LookYaw only; camera aim stays untouched.
+XCAntiAimDesyncSequence = {1.00, -0.73, 0.39, -1.00, 0.17, 0.86, -0.48, 0.61, -0.91}
+
+function XCWrapAntiAimYaw(yaw)
+    return (yaw + math.pi) % (math.pi * 2) - math.pi
+end
+
+function XCReadAntiAimHealth(model)
+    if not model then return nil end
+    local health = model:GetAttribute("Health")
+    if type(health) ~= "number" then
+        local hum = model:FindFirstChildOfClass("Humanoid")
+        health = hum and hum.Health or nil
+    end
+    if type(health) ~= "number" or health ~= health then return nil end
+    return health
+end
+
+function XCUpdateAntiAimDamageState(model, wallNow, state)
+    local health = XCReadAntiAimHealth(model)
+    if not health then return end
+    local previous = state.AntiLastHealth
+    state.AntiLastHealth = health
+    if not XCConfig.antiAimAntiBruteforceEnabled or previous == nil then return end
+    if health < previous - 0.01 then
+        state.AntiBruteforcePhase = ((state.AntiBruteforcePhase or 0) + 1) % 97
+        state.AntiBruteforceSide = -(state.AntiBruteforceSide or 1)
+        state.AntiThreatNext = 0
+        state.AntiDamageSwitchUntil = wallNow + 0.22
+    end
+end
+
+function resolveXCAntiAimThreatYaw(rootPart, originalYaw, wallNow, state)
+    if not XCConfig.antiAimFreestandEnabled or not rootPart or not rootPart.Parent then
+        return originalYaw + math.pi
+    end
+    if wallNow < (state.AntiThreatNext or 0) and type(state.AntiThreatYaw) == "number" then
+        return state.AntiThreatYaw
+    end
+
+    state.AntiThreatNext = wallNow + 0.10
+    local rootPos = rootPart.Position
+    local nearestPlayer, nearestChar, nearestRoot, nearestDist = nil, nil, nil, math.huge
+    for _, other in ipairs(Players:GetPlayers()) do
+        if other ~= player then
+            local char = xcEspResolveCharacter(other)
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            local root = char and (char:FindFirstChild("HumanoidRootPart")
+                or char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso"))
+            if root and xcEspIsEnemy(other, char) and xcEspEntityAlive(other, char, hum) then
+                local dist = (root.Position - rootPos).Magnitude
+                if dist < nearestDist then
+                    nearestPlayer, nearestChar, nearestRoot, nearestDist = other, char, root, dist
+                end
+            end
+        end
+    end
+
+    if not nearestRoot then
+        state.AntiThreatPlayer = nil
+        state.AntiThreatYaw = XCWrapAntiAimYaw(originalYaw + math.pi)
+        return state.AntiThreatYaw
+    end
+
+    state.AntiThreatPlayer = nearestPlayer
+    local flat = nearestRoot.Position - rootPos
+    flat = Vector3.new(flat.X, 0, flat.Z)
+    if flat.Magnitude < 0.01 then
+        state.AntiThreatYaw = XCWrapAntiAimYaw(originalYaw + math.pi)
+        return state.AntiThreatYaw
+    end
+
+    local towardYaw = math.atan2(-flat.X, -flat.Z)
+    local awayYaw = towardYaw + math.pi
+    local side = state.AntiBruteforceSide or 1
+
+    -- Cover-aware side selection runs at 10 Hz, never on every input sample.
+    local params = state.AntiRayParams
+    if not params then
+        params = RaycastParams.new()
+        params.FilterType = Enum.RaycastFilterType.Exclude
+        params.IgnoreWater = true
+        state.AntiRayParams = params
+    end
+    local rayFilter = {nearestChar}
+    if player.Character then rayFilter[#rayFilter + 1] = player.Character end
+    local activeCamera = Workspace.CurrentCamera or camera
+    if activeCamera then rayFilter[#rayFilter + 1] = activeCamera end
+    params.FilterDescendantsInstances = rayFilter
+    local right = CFrame.Angles(0, awayYaw, 0).RightVector
+    local probeDistance = math.clamp(nearestDist * 0.015, 1.6, 3.2)
+    local leftProbe = rootPos - right * probeDistance + Vector3.new(0, 1.45, 0)
+    local rightProbe = rootPos + right * probeDistance + Vector3.new(0, 1.45, 0)
+    local origin = nearestRoot.Position + Vector3.new(0, 1.1, 0)
+    local leftHit = Workspace:Raycast(origin, leftProbe - origin, params)
+    local rightHit = Workspace:Raycast(origin, rightProbe - origin, params)
+    if leftHit and not rightHit then side = -1
+    elseif rightHit and not leftHit then side = 1 end
+
+    -- Nearly side-on to the nearest threat, with damage able to flip the side.
+    state.AntiThreatYaw = XCWrapAntiAimYaw(awayYaw + math.rad(88 * side))
+    return state.AntiThreatYaw
+end
+
 -- One resolver is shared by the native input hook and the compatibility
 -- fallback. This keeps every preset visually identical on both paths and
 -- avoids running a second anti-aim engine.
-local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart)
+local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, rootPart, wallNow)
     local baseDegrees = tonumber(XCConfig.antiAimYaw) or 180
     local rangeDegrees = math.clamp(tonumber(XCConfig.antiAimJitter) or 60, 0, 180)
     local patternRate = math.clamp(tonumber(XCConfig.spinSpeed) or 50, 10, 150)
@@ -13916,7 +15118,18 @@ local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, root
         return math.atan2(-horizontalVelocity.X, -horizontalVelocity.Z)
     end
 
-    if mode == "Vector Shift" then
+    if mode == "Desync" then
+        local desyncSpeed = math.clamp(tonumber(XCConfig.antiAimDesyncSpeed) or 30, 8, 60)
+        local desyncRange = math.clamp(tonumber(XCConfig.antiAimDesyncRange) or 112, 20, 180)
+        local desyncStep = math.floor(elapsed * desyncSpeed)
+        local phaseBias = (state.AntiBruteforcePhase or 0) * 3
+        local sequence = XCAntiAimDesyncSequence
+        local value = sequence[((desyncStep + phaseBias) % #sequence) + 1]
+        local anchor = resolveXCAntiAimThreatYaw(rootPart, originalYaw, wallNow or os.clock(), state)
+        if wallNow and wallNow < (state.AntiDamageSwitchUntil or 0) then value = -value end
+        return anchor + math.rad(desyncRange * value)
+
+    elseif mode == "Vector Shift" then
         -- Movement-aware: face against travel while continually crossing the
         -- movement vector. At low speed it becomes a compact alternating hold.
         if speed > 1.5 then
@@ -14044,6 +15257,9 @@ function setupXCCharacterInputHook()
                     local moving = moveMagnitude > 0.05 or now <= (xcCharacterInputHook.MoveUntil or -math.huge)
                     local requested = XCConfig.bhopMode == "Automatic" or XCConfig.bhopAutoJump or character.JumpInputDown
                         or isMobileJumpHeld or buttons.has(input.Buttons, buttons.Jump)
+                    if requested and moving then
+                        XCFeatureState.bhopRequestedUntil = os.clock() + 0.12
+                    end
                     if requested and (not XCConfig.bhopMovingOnly or moving) then
                         if movementState.OnGround then
                             xcCharacterInputHook.GroundSince = xcCharacterInputHook.GroundSince or now
@@ -14063,7 +15279,10 @@ function setupXCCharacterInputHook()
                             result.Move = input.Move.Unit
                         end
                         xcCharacterInputHook.LastJumpDown = jump
-                        if jump then xcCharacterInputHook.GroundSince = nil end
+                        if jump then
+                            xcCharacterInputHook.GroundSince = nil
+                            if type(XCRegisterBhopHop) == "function" then XCRegisterBhopHop() end
+                        end
                     else
                         xcCharacterInputHook.GroundSince = nil
                         xcCharacterInputHook.LastJumpDown = buttons.has(input.Buttons, buttons.Jump)
@@ -14075,9 +15294,9 @@ function setupXCCharacterInputHook()
                     xcCharacterInputHook.LastJumpDown = false
                 end
 
-                -- Pause anti-aim only for the tiny server-input window of a
-                -- local shot. The visual spin resumes immediately afterwards,
-                -- while bullet ray calculation remains camera-based.
+                -- Shot-safe never exposes real yaw. On the first firing sample
+                -- hold the previous fake/desync yaw through the weapon transition.
+                local wallNow = os.clock()
                 local weaponIsFiring = false
                 if skinData and type(skinData.GetWeapon) == "function" then
                     pcall(function()
@@ -14085,29 +15304,43 @@ function setupXCCharacterInputHook()
                         weaponIsFiring = weapon and (weapon.IsFireHeld or weapon.IsShooting or weapon.IsBurstShooting) == true
                     end)
                 end
-                if weaponIsFiring then
-                    xcCharacterInputHook.AntiFireUntil = os.clock() + 0.16
+                if XCConfig.antiAimShotSafeEnabled and weaponIsFiring and not xcCharacterInputHook.AntiWasFiring
+                    and type(xcCharacterInputHook.AntiLastYaw) == "number" then
+                    xcCharacterInputHook.AntiShotHeldYaw = xcCharacterInputHook.AntiLastYaw
+                    xcCharacterInputHook.AntiShotHoldUntil = wallNow + 0.035
                 end
-                local antiAimPausedForShot = os.clock() < (xcCharacterInputHook.AntiFireUntil or 0)
+                xcCharacterInputHook.AntiWasFiring = weaponIsFiring
 
-                if XCConfig.antiAimEnabled and not antiAimPausedForShot then
+                if XCConfig.antiAimEnabled then
                     if xcCharacterInputHook.AntiCharacter ~= character or not xcCharacterInputHook.AntiStarted then
                         xcCharacterInputHook.AntiCharacter = character
                         xcCharacterInputHook.AntiStarted = now
                         xcCharacterInputHook.AntiLastStep = nil
                         xcCharacterInputHook.RandomYaw = nil
+                        xcCharacterInputHook.AntiLastHealth = XCReadAntiAimHealth(model)
+                        xcCharacterInputHook.AntiBruteforcePhase = 0
+                        xcCharacterInputHook.AntiBruteforceSide = 1
+                        xcCharacterInputHook.AntiDamageSwitchUntil = 0
+                        xcCharacterInputHook.AntiThreatNext = 0
+                        xcCharacterInputHook.AntiThreatYaw = nil
+                    else
+                        XCUpdateAntiAimDamageState(model, wallNow, xcCharacterInputHook)
                     end
                     local elapsed = math.max(0, now - xcCharacterInputHook.AntiStarted)
                     local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
                     local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
                     local step = math.floor(elapsed / interval)
                     local originalYaw = tonumber(result.LookYaw) or 0
-                    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
+                    local mode = tostring(XCConfig.antiAimMode or "Desync")
                     local rootPart = model:FindFirstChild("HumanoidRootPart")
                     local yaw = resolveXCAntiAimYaw(
-                        mode, originalYaw, elapsed, step, xcCharacterInputHook, rootPart
+                        mode, originalYaw, elapsed, step, xcCharacterInputHook, rootPart, wallNow
                     )
-                    yaw = (yaw + math.pi) % (math.pi * 2) - math.pi
+                    if XCConfig.antiAimShotSafeEnabled and wallNow < (xcCharacterInputHook.AntiShotHoldUntil or 0)
+                        and type(xcCharacterInputHook.AntiShotHeldYaw) == "number" then
+                        yaw = xcCharacterInputHook.AntiShotHeldYaw
+                    end
+                    yaw = XCWrapAntiAimYaw(yaw)
                     local move = result.Move or Vector2.zero
                     if move.Magnitude > 1 then move = move.Unit end
                     local delta = yaw - originalYaw
@@ -14116,9 +15349,14 @@ function setupXCCharacterInputHook()
                     result.Move = Vector2.new(move.X * cosine - move.Y * sine, move.X * sine + move.Y * cosine)
                     result.LookYaw = yaw
                     xcCharacterInputHook.AntiLastStep = step
+                    xcCharacterInputHook.AntiLastYaw = yaw
                 elseif not XCConfig.antiAimEnabled then
                     xcCharacterInputHook.AntiCharacter = nil
                     xcCharacterInputHook.AntiStarted = nil
+                    xcCharacterInputHook.AntiLastYaw = nil
+                    xcCharacterInputHook.AntiShotHeldYaw = nil
+                    xcCharacterInputHook.AntiShotHoldUntil = 0
+                    xcCharacterInputHook.AntiWasFiring = false
                 end
                 return result
             end)
@@ -14148,6 +15386,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         XCFeatureState.antiAimStarted = nil
         XCFeatureState.AntiComputedStep = nil
         XCFeatureState.AntiComputedRandomYaw = nil
+        XCFeatureState.AntiLastHealth = nil
+        XCFeatureState.AntiBruteforcePhase = 0
+        XCFeatureState.AntiBruteforceSide = 1
+        XCFeatureState.AntiThreatNext = 0
+        XCFeatureState.AntiThreatYaw = nil
         if hum and savedAutoRotate ~= nil then
             hum.AutoRotate = savedAutoRotate
             savedAutoRotate = nil
@@ -14174,14 +15417,15 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     if not activeCamera then return end
     local _, cameraYaw = activeCamera.CFrame:ToOrientation()
     local now = os.clock()
+    XCUpdateAntiAimDamageState(char, now, XCFeatureState)
     XCFeatureState.antiAimStarted = XCFeatureState.antiAimStarted or now
     local elapsed = now - XCFeatureState.antiAimStarted
     local rateScale = math.clamp((tonumber(XCConfig.spinSpeed) or 50) / 50, 0.2, 3)
     local interval = math.max(0.02, (tonumber(XCConfig.antiAimInterval) or 0.15) / rateScale)
     local step = math.floor(elapsed / interval)
-    local mode = tostring(XCConfig.antiAimMode or "Vector Shift")
-    local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp)
-    targetYaw = (targetYaw + math.pi) % (math.pi * 2) - math.pi
+    local mode = tostring(XCConfig.antiAimMode or "Desync")
+    local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp, now)
+    targetYaw = XCWrapAntiAimYaw(targetYaw)
     hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, targetYaw, 0)
 end))
 
@@ -14400,6 +15644,149 @@ function hookMobileJumpButton()
     end)
 end
 
+--// BHOP 2.0 | progressive acceleration + collision-safe momentum preservation
+XCBhopWallRayParams = RaycastParams.new()
+XCBhopWallRayParams.FilterType = Enum.RaycastFilterType.Exclude
+XCBhopWallRayParams.IgnoreWater = true
+
+function XCResetBhopMomentum()
+    local base = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    XCFeatureState.bhopMomentumFactor = base
+    XCFeatureState.bhopMomentumBank = 0
+    XCFeatureState.bhopMomentumDirection = Vector3.zero
+    XCFeatureState.bhopCollisionUntil = 0
+    XCFeatureState.bhopLastActive = 0
+    XCFeatureState.bhopRequestedUntil = 0
+    XCFeatureState.bhopLastRegisteredHop = 0
+    XCFeatureState.bhopLastWallNormal = nil
+end
+
+function XCRegisterBhopHop()
+    local now = os.clock()
+    if now - (XCFeatureState.bhopLastRegisteredHop or 0) < 0.07 then return end
+    XCFeatureState.bhopLastRegisteredHop = now
+    local base = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    local maxFactor = math.max(base, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
+    local factor = tonumber(XCFeatureState.bhopMomentumFactor) or base
+
+    -- A fresh chain starts from the configured base speed. During a live chain,
+    -- each real hop raises the speed ceiling instead of adding velocity per frame.
+    if now - (XCFeatureState.bhopLastActive or 0) > 0.65 then factor = base end
+    if XCConfig.bhopAutoAcceleration then
+        factor = math.min(maxFactor, math.max(base, factor) + math.clamp(tonumber(XCConfig.bhopGainPerHop) or 0.10, 0.01, 0.50))
+    else
+        factor = base
+    end
+
+    XCFeatureState.bhopMomentumFactor = factor
+    XCFeatureState.bhopLastActive = now
+end
+
+function XCGetBhopSpeedFactor()
+    local base = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    if not XCConfig.bhopAutoAcceleration then
+        XCFeatureState.bhopMomentumFactor = base
+        return base
+    end
+    local maxFactor = math.max(base, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
+    local factor = math.clamp(tonumber(XCFeatureState.bhopMomentumFactor) or base, base, maxFactor)
+    XCFeatureState.bhopMomentumFactor = factor
+    return factor
+end
+
+function XCApplyBhopMomentum(char, hrp, desiredDir, currentVel, targetSpeed, dt)
+    local now = os.clock()
+    local horizontal = Vector3.new(currentVel.X, 0, currentVel.Z)
+    local currentSpeed = horizontal.Magnitude
+    local baseFactor = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+    local maxFactor = math.max(baseFactor, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
+    local maxSpeed = 16 * maxFactor
+    local restore = math.clamp(tonumber(XCConfig.bhopMomentumRestore) or 1, 0.50, 1.0)
+    local grace = math.clamp(tonumber(XCConfig.bhopCollisionGrace) or 0.20, 0.05, 0.50)
+    local state = XCFeatureState
+
+    if currentSpeed > 0.35 then
+        local horizontalDir = horizontal.Unit
+        if currentSpeed >= (state.bhopMomentumBank or 0) - 0.35 then
+            state.bhopMomentumDirection = horizontalDir
+        end
+        state.bhopMomentumBank = math.min(maxSpeed, math.max(state.bhopMomentumBank or 0, currentSpeed))
+    end
+
+    local bank = math.min(maxSpeed, math.max(0, tonumber(state.bhopMomentumBank) or 0))
+    local preserveBoost = false
+    local wallHit = nil
+
+    -- Probe only while Bhop is actually active. The ray never changes position;
+    -- it only detects a surface so velocity can be redirected along its tangent.
+    if XCConfig.bhopWallPreserve and bank > 1 then
+        local probeDir = currentSpeed > 0.5 and horizontal.Unit or state.bhopMomentumDirection
+        if (not probeDir or probeDir.Magnitude < 0.05) and desiredDir.Magnitude > 0.05 then probeDir = desiredDir.Unit end
+        if probeDir and probeDir.Magnitude > 0.05 then
+            XCBhopWallRayParams.FilterDescendantsInstances = {char, Workspace.CurrentCamera}
+            local probeDistance = math.clamp(1.65 + math.max(currentSpeed, bank) * math.max(dt, 1 / 240) * 2.4, 1.8, 5.5)
+            local origin = hrp.Position + Vector3.new(0, 0.35, 0)
+            wallHit = Workspace:Raycast(origin, probeDir.Unit * probeDistance, XCBhopWallRayParams)
+            if wallHit and math.abs(wallHit.Normal.Y) >= 0.78 then wallHit = nil end
+
+            -- Once momentum has already been redirected along a wall, velocity is
+            -- tangent to the surface and a velocity-only probe can miss it. Probe
+            -- the player's desired movement too so holding W into a wall keeps the
+            -- stable wall-slide instead of oscillating every grace window.
+            if not wallHit and desiredDir.Magnitude > 0.05 then
+                local desiredUnit = desiredDir.Unit
+                if math.abs(desiredUnit:Dot(probeDir.Unit)) < 0.985 then
+                    local desiredHit = Workspace:Raycast(origin, desiredUnit * probeDistance, XCBhopWallRayParams)
+                    if desiredHit and math.abs(desiredHit.Normal.Y) < 0.78 then wallHit = desiredHit end
+                end
+            end
+
+            if wallHit then
+                state.bhopCollisionUntil = now + grace
+                state.bhopLastWallNormal = wallHit.Normal
+            end
+        end
+    end
+
+    -- A sharp horizontal speed drop while the movement key is still held is also
+    -- treated as a collision. This catches corners that a thin forward ray misses.
+    if XCConfig.bhopMomentumPreserve and bank > 8 and currentSpeed < bank * 0.72 then
+        state.bhopCollisionUntil = math.max(state.bhopCollisionUntil or 0, now + grace)
+    end
+
+    if XCConfig.bhopMomentumPreserve and bank > 0 then
+        targetSpeed = math.max(targetSpeed, math.min(maxSpeed, bank * restore))
+        if now <= (state.bhopCollisionUntil or 0) and currentSpeed + 0.5 < bank then
+            preserveBoost = true
+        end
+    end
+
+    local normal = wallHit and wallHit.Normal or ((now <= (state.bhopCollisionUntil or 0)) and state.bhopLastWallNormal or nil)
+    if XCConfig.bhopWallPreserve and normal and math.abs(normal.Y) < 0.78 then
+        local flatNormal = Vector3.new(normal.X, 0, normal.Z)
+        if flatNormal.Magnitude > 0.001 then
+            flatNormal = flatNormal.Unit
+            local sourceDir = desiredDir.Magnitude > 0.05 and desiredDir.Unit or state.bhopMomentumDirection
+            if sourceDir and sourceDir.Magnitude > 0.05 then
+                local tangent = sourceDir - flatNormal * sourceDir:Dot(flatNormal)
+                if tangent.Magnitude < 0.08 then
+                    tangent = Vector3.new(-flatNormal.Z, 0, flatNormal.X)
+                    local reference = state.bhopMomentumDirection
+                    if reference and reference.Magnitude > 0.05 and tangent:Dot(reference) < 0 then tangent = -tangent end
+                end
+                if tangent.Magnitude > 0.001 then
+                    desiredDir = tangent.Unit
+                    targetSpeed = math.max(targetSpeed, math.min(maxSpeed, bank * restore))
+                    preserveBoost = true
+                end
+            end
+        end
+    end
+
+    targetSpeed = math.clamp(targetSpeed, 0, maxSpeed)
+    return desiredDir, targetSpeed, preserveBoost
+end
+
 createMobileSlideButton()
 hookMobileJumpButton()
 
@@ -14423,6 +15810,7 @@ table.insert(connections, player.CharacterAdded:Connect(function(char)
     defaultHipHeightCaptured = false
     XCFeatureState.bhopGroundSince = nil
     XCFeatureState.bhopLastJump = 0
+    XCResetBhopMomentum()
     local hum = char:WaitForChild("Humanoid", 5)
     if hum then
         defaultHipHeight = hum.HipHeight
@@ -14696,10 +16084,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         end
     end
 
-    -- Do not fight the game's movement controller while native input is consumed.
+    -- Native SampleInput owns jump timing when available. Bhop 2.0 still owns
+    -- horizontal momentum on both paths, so PC native jumping can accelerate too.
     local nativeBhopActive = xcCharacterInputHook.Ready
         and os.clock() - (xcCharacterInputHook.LastCall or 0) < 0.5
-    if activeMode == "Normal" and XCConfig.bunnyHopEnabled and not nativeBhopActive then
+    if activeMode == "Normal" and XCConfig.bunnyHopEnabled then
         local paused = not XCFeatureState.bhopWindowFocused
             or UserInputService:GetFocusedTextBox() ~= nil
             or GuiService.MenuIsOpen
@@ -14707,12 +16096,14 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             or (XCConfig.bhopPauseWithMenu and XCFeatureState.menuOpen)
         if paused then
             XCFeatureState.bhopGroundSince = nil
+            XCResetBhopMomentum()
         else
             local now = os.clock()
             local grounded = isPlayerGrounded(char, hrp) or hum.FloorMaterial ~= Enum.Material.Air
             local isSpacePressed = UserInputService:IsKeyDown(Enum.KeyCode.Space)
             local automatic = XCConfig.bhopMode == "Automatic" or XCConfig.bhopAutoJump
             local requested = automatic or isMobileJumpHeld or hum.Jump or isSpacePressed
+                or now <= (XCFeatureState.bhopRequestedUntil or 0)
             local moving = currentMove.Magnitude > 0.05
             local movementAllowed = not XCConfig.bhopMovingOnly or moving
 
@@ -14723,7 +16114,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
             end
 
             local groundDelay = math.clamp(tonumber(XCConfig.bhopGroundDelay) or 0, 0, 0.25)
-            local canJump = grounded and requested and movementAllowed
+            local canJump = not nativeBhopActive and grounded and requested and movementAllowed
                 and XCFeatureState.bhopGroundSince
                 and now - XCFeatureState.bhopGroundSince >= groundDelay
                 and now - XCFeatureState.bhopLastJump >= 0.05
@@ -14732,6 +16123,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
                 activeMode = "Bhop"
                 XCFeatureState.bhopLastJump = now
                 XCFeatureState.bhopGroundSince = nil
+                XCRegisterBhopHop()
                 hum.Jump = true
                 finalVelocity = Vector3.new(currentVel.X, math.clamp(tonumber(XCConfig.bhopJumpPower) or 52, 30, 100), currentVel.Z)
                 pcall(function() hum:ChangeState(Enum.HumanoidStateType.Jumping) end)
@@ -14739,52 +16131,54 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
             if requested and moving and (grounded or XCConfig.bhopAirStrafe) then
                 activeMode = canJump and "Bhop" or (grounded and "Bhop accelerate" or "AutoStrafe")
+                XCFeatureState.bhopLastActive = now
 
-                local speedBoost = math.clamp(tonumber(XCConfig.bhopSpeedBoost) or 1.35, 1, 3)
+                local speedFactor = XCGetBhopSpeedFactor()
                 local acceleration = math.clamp(tonumber(XCConfig.bhopAcceleration) or 12, 2, 30)
                 local desiredDir = currentMove.Unit
-                local targetSpeed = 16 * speedBoost
+                local targetSpeed = 16 * speedFactor
 
-                -- Strong auto-strafe is intentionally air-only. It keeps the
-                -- normal grounded bhop acceleration unchanged, while making
-                -- airborne steering react much harder without touching Y speed.
                 if not grounded and XCConfig.bhopAirStrafe and XCConfig.bhopStrongAutoStrafe then
                     local strafeStrength = math.clamp(tonumber(XCConfig.bhopStrafeStrength) or 3, 1, 5)
                     local horizontal = Vector3.new(currentVel.X, 0, currentVel.Z)
                     local horizontalSpeed = horizontal.Magnitude
+                    local maxSpeed = 16 * math.max(speedFactor, math.clamp(tonumber(XCConfig.bhopMaxSpeed) or 3, 1, 6))
 
-                    -- Preserve existing momentum and allow a strong configurable
-                    -- air-speed ceiling. This avoids losing speed on direction
-                    -- changes while still keeping the result deterministic.
-                    local strongTargetSpeed = 16 * speedBoost * strafeStrength
-                    targetSpeed = math.max(targetSpeed, math.min(horizontalSpeed + (10 * strafeStrength), strongTargetSpeed))
+                    -- Auto-strafe steers existing momentum; progressive hops own
+                    -- long-term speed gain so holding A/D cannot create infinite speed.
+                    targetSpeed = math.min(maxSpeed, math.max(targetSpeed, horizontalSpeed))
                     acceleration = math.min(120, acceleration * (1 + strafeStrength * 1.35))
-
-                    -- Mix a small amount of current momentum into the requested
-                    -- direction so fast 90-degree turns stay smooth instead of
-                    -- snapping the root part sideways in one frame.
                     if horizontalSpeed > 0.05 then
                         local momentumDir = horizontal.Unit
                         local steerWeight = math.clamp(0.30 + strafeStrength * 0.12, 0.42, 0.82)
                         local mixed = momentumDir:Lerp(desiredDir, steerWeight)
-                        if mixed.Magnitude > 0.001 then
-                            desiredDir = mixed.Unit
-                        end
+                        if mixed.Magnitude > 0.001 then desiredDir = mixed.Unit end
                     end
                 end
 
+                local preserveBoost = false
+                desiredDir, targetSpeed, preserveBoost = XCApplyBhopMomentum(
+                    char, hrp, desiredDir, currentVel, targetSpeed, dt
+                )
+                if preserveBoost then acceleration = math.max(acceleration, 82) end
+
                 local targetVel = desiredDir * targetSpeed
                 local blend = 1 - math.exp(-acceleration * math.max(dt, 0))
+                if preserveBoost then blend = math.max(blend, 0.96) end
                 local base = finalVelocity or currentVel
                 finalVelocity = Vector3.new(
                     base.X + (targetVel.X - base.X) * blend,
                     base.Y,
                     base.Z + (targetVel.Z - base.Z) * blend
                 )
+            elseif now - (XCFeatureState.bhopLastActive or 0) > 0.45 then
+                -- Intentional stop ends the chain. Brief wall contacts do not.
+                XCResetBhopMomentum()
             end
         end
     else
         XCFeatureState.bhopGroundSince = nil
+        XCResetBhopMomentum()
     end
 
     if activeMode == "Normal" and XCConfig.speedEnabled and currentMove.Magnitude > 0 then
@@ -15033,14 +16427,14 @@ function buildXCUI()
     main.BorderColor3 = C.Border
     main.BorderSizePixel = 0
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 12)
+    mainCorner.CornerRadius = UDim.new(0, 5)
     mainCorner.Parent = main
     main.Active = true
     main.Parent = screenGui
 
     local mainStroke = Instance.new("UIStroke")
     mainStroke.Color = C.Black
-    mainStroke.Thickness = 2
+    mainStroke.Thickness = 1
     mainStroke.Parent = main
 
     -- Static layered highlights: no per-frame blur or viewport captures.
@@ -15114,8 +16508,8 @@ function buildXCUI()
     end
 
     local topLine = Instance.new("Frame")
-    topLine.Size = UDim2.new(1, -24, 0, 1)
-    topLine.Position = UDim2.fromOffset(12, 3)
+    topLine.Size = UDim2.new(1, -16, 0, 2)
+    topLine.Position = UDim2.fromOffset(8, 2)
     topLine.BorderSizePixel = 0
     topLine.BackgroundColor3 = C.Lime
     topLine.ZIndex = 40
@@ -15136,10 +16530,10 @@ function buildXCUI()
     brand.Position = UDim2.fromOffset(16, 12)
     brand.Size = UDim2.fromOffset(isMobileLayout and 106 or 136, 28)
     brand.BackgroundTransparency = 1
-    brand.Text = isMobileLayout and "XC /" or "XC  /  PRISM"
-    brand.TextColor3 = C.White
+    brand.Text = "XOSE"
+    brand.TextColor3 = C.Lime
     brand.Font = Enum.Font.GothamBold
-    brand.TextSize = 16
+    brand.TextSize = 15
     brand.TextXAlignment = Enum.TextXAlignment.Left
     brand.Parent = header
     local brandAccent = Instance.new("Frame")
@@ -15154,7 +16548,7 @@ function buildXCUI()
     pageTitle.BackgroundTransparency = 1
     pageTitle.TextColor3 = C.White
     pageTitle.Font = Enum.Font.GothamBold
-    pageTitle.TextSize = 16
+    pageTitle.TextSize = 14
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.Parent = header
     local pageSubtitle = Instance.new("TextLabel")
@@ -15163,7 +16557,7 @@ function buildXCUI()
     pageSubtitle.BackgroundTransparency = 1
     pageSubtitle.TextColor3 = C.Muted
     pageSubtitle.Font = Enum.Font.GothamMedium
-    pageSubtitle.TextSize = 11
+    pageSubtitle.TextSize = 9.5
     pageSubtitle.TextTruncate = Enum.TextTruncate.AtEnd
     pageSubtitle.TextXAlignment = Enum.TextXAlignment.Left
     pageSubtitle.Parent = header
@@ -15173,13 +16567,13 @@ function buildXCUI()
     closeMenuButton.Size = UDim2.fromOffset(25, 25)
     closeMenuButton.BackgroundColor3 = C.Control2
     closeMenuButton.BorderSizePixel = 0
-    closeMenuButton.Text = "×"
+    closeMenuButton.Text = "X"
     closeMenuButton.TextColor3 = C.Muted
     closeMenuButton.Font = Enum.Font.GothamBold
     closeMenuButton.TextSize = 16
     closeMenuButton.ZIndex = 30
     closeMenuButton.Parent = header
-    Instance.new("UICorner", closeMenuButton).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", closeMenuButton).CornerRadius = UDim.new(0, 3)
 
     local dragBar = Instance.new("Frame")
     dragBar.Name = "DragBar"
@@ -15202,7 +16596,7 @@ function buildXCUI()
     sidebar.ScrollBarImageColor3 = C.Lime
     sidebar.CanvasSize = UDim2.new()
     sidebar.Parent = main
-    Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 4)
     local sidebarRim = Instance.new("UIStroke", sidebar)
     registerGlassSurface(sidebar, "chrome", sidebarRim)
 
@@ -15288,7 +16682,7 @@ function buildXCUI()
     footer.Size = UDim2.new(1, -28, 0, 18)
     footer.Position = UDim2.new(0, 14, 1, -22)
     footer.BackgroundTransparency = 1
-    footer.Text = "XC PRISM    •    LOCAL SESSION                                          CUSTOM GLASS  /  QUICK SEARCH"
+    footer.Text = "XOSE    LOCAL SESSION                                           GLASS UI    QUICK SEARCH"
     footer.TextColor3 = C.Muted
     footer.Font = Enum.Font.Gotham
     footer.TextSize = 9
@@ -15321,7 +16715,7 @@ function buildXCUI()
     local searchIcon = Instance.new("TextLabel")
     searchIcon.Size = UDim2.fromOffset(30, 30)
     searchIcon.BackgroundTransparency = 1
-    searchIcon.Text = "⌕"
+    searchIcon.Text = ""
     searchIcon.TextColor3 = C.Lime
     searchIcon.Font = Enum.Font.GothamBold
     searchIcon.TextSize = 19
@@ -15343,7 +16737,7 @@ function buildXCUI()
     clearSearch.Size = UDim2.fromOffset(30, 30)
     clearSearch.Position = UDim2.new(1, -31, 0, 0)
     clearSearch.BackgroundTransparency = 1
-    clearSearch.Text = "×"
+    clearSearch.Text = "X"
     clearSearch.TextColor3 = C.Muted
     clearSearch.Font = Enum.Font.GothamBold
     clearSearch.TextSize = 15
@@ -15355,7 +16749,8 @@ function buildXCUI()
         silentAimEnabled = "Redirects supported shot data without visibly snapping the camera.",
         triggerbotEnabled = "Automatically fires when the selected Triggerbot mode finds a valid enemy.",
         triggerbotMode = "Crosshair uses the center ray; Trigger FOV scans the Trigger FOV; Silent FOV shares Silent Aim target selection and FOV.",
-        triggerbotDelay = "Minimum delay between automatic trigger shots.",
+        triggerbotReactionMode = "Instant removes XOSE's artificial trigger delay; Humanized uses the Trigger delay slider.",
+        triggerbotDelay = "Delay used only by Humanized reaction mode. Instant mode reacts on the next eligible camera frame.",
         triggerbotScopedOnly = "Allows Triggerbot to fire only while a native scope is active.",
         triggerbotHeadOnly = "Triggerbot fires only when the detected hit part is the head.",
         rageBotEnabled = "Combines Silent Aim bullet redirection with Triggerbot-style firing while keeping both standalone modules independent.",
@@ -15388,19 +16783,29 @@ function buildXCUI()
         bhopMovingOnly = "Prevents automatic jumps while no movement direction is pressed.",
         bhopPauseWithMenu = "Pauses Bhop while the XC menu or a text box is open.",
         bhopGroundDelay = "Delay after touching the ground before the next jump.",
-        bhopAcceleration = "How quickly horizontal velocity approaches the configured Bhop speed.",
-        bhopStrongAutoStrafe = "Greatly increases airborne steering and momentum while Air strafe is enabled.",
+        bhopAcceleration = "How quickly horizontal velocity approaches the current progressive Bhop speed.",
+        bhopAutoAcceleration = "Raises the Bhop speed ceiling after every successful hop instead of using one fixed speed.",
+        bhopGainPerHop = "Speed multiplier added after each successful hop in the current chain.",
+        bhopMaxSpeed = "Hard horizontal Bhop speed ceiling, measured as a multiple of the normal 16-stud movement speed.",
+        bhopMomentumPreserve = "Keeps the best horizontal momentum in the current chain through short physics slowdowns and landings.",
+        bhopWallPreserve = "Redirects preserved momentum along walls/obstacles instead of pushing through them or losing the chain.",
+        bhopCollisionGrace = "How long a collision may recover from the momentum bank before normal reset rules apply.",
+        bhopMomentumRestore = "Fraction of banked speed restored after a collision; 1.0 preserves the full banked speed.",
+        bhopStrongAutoStrafe = "Greatly increases airborne steering while progressive hop speed remains capped by Max speed.",
         bhopStrafeStrength = "Strength of airborne auto-strafe steering and speed gain. Higher values are intentionally aggressive.",
         flightEnabled = "Moves the character along the camera direction.",
         chamsEnabled = "Adds a local highlight to valid player models.",
-        skeletonEspEnabled = "Draws a lightweight R6/R15 skeleton at 30 updates per second.",
+        skeletonEspEnabled = "Draws a lightweight R6/R15 skeleton synchronized with the camera each frame.",
         espShowVisibility = "Adds a VIS or WALL flag to the nametag using the existing ESP visibility check.",
-        visualRefreshFPS = "Controls how often 2D ESP, chams, grenade and sound visuals refresh; lower values reduce work.",
+        visualRefreshFPS = "Controls visibility checks, chams, grenade and sound refresh; 2D ESP follows the camera every frame.",
         espBoxMode = "Adaptive follows head and feet while crouching or jumping; Classic uses distance and camera FOV.",
         skeletonDistanceFade = "Gradually fades skeleton lines at long distances.",
         noSmokeEnabled = "Disables detected BloxStrike smoke emitters and restores them when turned off.",
         hitSoundEnabled = "Plays the selected local sound when enemy health decreases.",
-        antiAimMode = "Selects an XC-native anti-aim pattern. Several modes react to movement velocity; others use deterministic asymmetric phase sequences.",
+        antiAimMode = "Desync uses native SampleInput replication with freestand and anti-bruteforce. Legacy patterns remain available for compatibility.",
+        antiAimFreestandEnabled = "Faces a narrow side away from the nearest active threat and prefers cover when one side is blocked.",
+        antiAimAntiBruteforceEnabled = "Changes desync phase immediately after local damage so repeated shots do not see the same pattern.",
+        antiAimShotSafeEnabled = "Holds the current fake yaw through the first firing sample instead of exposing the real yaw.",
         nightModeEnabled = "World Changer lighting layer: time, brightness, ambient, shadow softness, diffuse/specular response and color shift.",
         worldFogEnabled = "Uses XC custom classic fog. Enabling it automatically turns Remove fog off.",
         worldSkyboxEnabled = "Applies a custom sky locally, preserves native skies and restores them when disabled.",
@@ -16294,7 +17699,7 @@ function buildXCUI()
             close.Size = UDim2.fromOffset(22, 20)
             close.Position = UDim2.new(1, -25, 0, 2)
             close.BackgroundTransparency = 1
-            close.Text = "×"
+            close.Text = "X"
             close.TextColor3 = C.Muted
             close.Font = Enum.Font.Code
             close.TextSize = 16
@@ -16696,18 +18101,65 @@ function buildXCUI()
     local function addSkinGallery(parent)
         parent = activeSectionByParent[parent] or parent
         local galleryState = {Page = 1, Context = nil, Signature = nil, Revision = 0}
+        local studio = {}
         local holder = Instance.new("Frame", parent)
-        holder.Name = "SkinImageGallery"
-        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 610 or 580)
-        holder.BackgroundColor3 = C.Panel
+        holder.Name = "SkinStudio2"
+        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 650 or 640)
+        holder.BackgroundColor3 = C.Main:Lerp(C.Panel, 0.42)
         holder.BorderSizePixel = 0
         local galleryCorner = Instance.new("UICorner", holder)
         galleryCorner.CornerRadius = UDim.new(0, 10)
+        local studioStroke = Instance.new("UIStroke", holder)
+        studioStroke.Color = C.Border
+        studioStroke.Thickness = 1
+        studioStroke.Transparency = 0.18
+
+        do
+        local header = Instance.new("Frame", holder)
+        header.Name = "StudioHeader"
+        header.Position = UDim2.fromOffset(8, 8)
+        header.Size = UDim2.new(1, -16, 0, 44)
+        header.BackgroundColor3 = C.Panel
+        header.BorderSizePixel = 0
+        Instance.new("UICorner", header).CornerRadius = UDim.new(0, 8)
+
+        local title = Instance.new("TextLabel", header)
+        title.Position = UDim2.fromOffset(12, 5)
+        title.Size = UDim2.new(1, -142, 0, 19)
+        title.BackgroundTransparency = 1
+        title.Text = "SKIN STUDIO"
+        title.TextColor3 = C.White
+        title.Font = Enum.Font.GothamBold
+        title.TextSize = 14
+        title.TextXAlignment = Enum.TextXAlignment.Left
+
+        local subtitle = Instance.new("TextLabel", header)
+        subtitle.Position = UDim2.fromOffset(12, 23)
+        subtitle.Size = UDim2.new(1, -142, 0, 15)
+        subtitle.BackgroundTransparency = 1
+        subtitle.Text = "Loadout browser · instant preview · saved selections"
+        subtitle.TextColor3 = C.Muted
+        subtitle.Font = Enum.Font.Gotham
+        subtitle.TextSize = 9
+        subtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.EnableButton = Instance.new("TextButton", header)
+        studio.EnableButton.Name = "ChangerStatus"
+        studio.EnableButton.AnchorPoint = Vector2.new(1, 0.5)
+        studio.EnableButton.Position = UDim2.new(1, -8, 0.5, 0)
+        studio.EnableButton.Size = UDim2.fromOffset(112, 28)
+        studio.EnableButton.BackgroundColor3 = C.Control
+        studio.EnableButton.BorderSizePixel = 0
+        studio.EnableButton.Font = Enum.Font.GothamBold
+        studio.EnableButton.TextSize = 10
+        studio.EnableButton.AutoButtonColor = false
+        Instance.new("UICorner", studio.EnableButton).CornerRadius = UDim.new(0, 7)
+        end
 
         local categoryButtons = {}
         local categoryBar = Instance.new("Frame", holder)
-        categoryBar.Position = UDim2.fromOffset(6, 5)
-        categoryBar.Size = UDim2.new(1, -12, 0, 34)
+        categoryBar.Position = UDim2.fromOffset(8, 58)
+        categoryBar.Size = UDim2.new(1, -16, 0, 34)
         categoryBar.BackgroundTransparency = 1
         for index, modeName in ipairs({"Weapon", "Knife", "Gloves"}) do
             local button = Instance.new("TextButton", categoryBar)
@@ -16719,8 +18171,8 @@ function buildXCUI()
             button.Text = ({Weapon="WEAPONS",Knife="KNIVES",Gloves="GLOVES"})[modeName]
             button.TextColor3 = C.Muted
             button.Font = Enum.Font.GothamBold
-            button.TextSize = 11
-            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
+            button.TextSize = 10
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
             button.AutoButtonColor = false
             categoryButtons[modeName] = button
             button.Activated:Connect(function()
@@ -16731,54 +18183,55 @@ function buildXCUI()
         end
 
         local itemBar = Instance.new("ScrollingFrame", holder)
-        itemBar.Position = UDim2.fromOffset(6, 45)
-        itemBar.Size = UDim2.new(1, -12, 0, 40)
+        itemBar.Name = "ItemRail"
+        itemBar.Position = UDim2.fromOffset(8, 102)
+        itemBar.Size = UDim2.new(0, 146, 1, -164)
         itemBar.BackgroundColor3 = C.Panel
-        itemBar.BorderColor3 = C.Border
         itemBar.BorderSizePixel = 0
         itemBar.ScrollBarThickness = 2
         itemBar.ScrollBarImageColor3 = C.Lime
-        itemBar.ScrollingDirection = Enum.ScrollingDirection.X
+        itemBar.ScrollingDirection = Enum.ScrollingDirection.Y
         itemBar.CanvasSize = UDim2.new()
+        Instance.new("UICorner", itemBar).CornerRadius = UDim.new(0, 8)
         local itemLayout = Instance.new("UIListLayout", itemBar)
-        itemLayout.FillDirection = Enum.FillDirection.Horizontal
+        itemLayout.FillDirection = Enum.FillDirection.Vertical
         itemLayout.Padding = UDim.new(0, 4)
         itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
         local itemPadding = Instance.new("UIPadding", itemBar)
-        itemPadding.PaddingLeft = UDim.new(0, 4)
-        itemPadding.PaddingRight = UDim.new(0, 4)
-        itemPadding.PaddingTop = UDim.new(0, 3)
-        itemPadding.PaddingBottom = UDim.new(0, 3)
+        itemPadding.PaddingLeft = UDim.new(0, 5)
+        itemPadding.PaddingRight = UDim.new(0, 5)
+        itemPadding.PaddingTop = UDim.new(0, 5)
+        itemPadding.PaddingBottom = UDim.new(0, 5)
 
         local heading = Instance.new("TextLabel", holder)
-        heading.Position = UDim2.fromOffset(8, 94)
-        heading.Size = UDim2.new(1, -16, 0, 23)
+        heading.Position = UDim2.fromOffset(164, 101)
+        heading.Size = UDim2.new(1, -390, 0, 20)
         heading.BackgroundTransparency = 1
-        heading.TextColor3 = C.Text
+        heading.TextColor3 = C.White
         heading.Font = Enum.Font.GothamBold
-        heading.TextSize = 14
+        heading.TextSize = 12
         heading.TextTruncate = Enum.TextTruncate.AtEnd
         heading.TextXAlignment = Enum.TextXAlignment.Left
 
         local hint = Instance.new("TextLabel", holder)
-        hint.Position = UDim2.fromOffset(8, 119)
-        hint.Size = UDim2.new(1, -16, 0, 20)
+        hint.Position = UDim2.fromOffset(164, 120)
+        hint.Size = UDim2.new(1, -390, 0, 15)
         hint.BackgroundTransparency = 1
-        hint.Text = "Choose a finish below. Changes apply to the held item."
+        hint.Text = "Pick a finish. Selection is saved even while the changer is disabled."
         hint.TextColor3 = C.Muted
         hint.Font = Enum.Font.Gotham
-        hint.TextSize = 11
+        hint.TextSize = 9
         hint.TextTruncate = Enum.TextTruncate.AtEnd
         hint.TextXAlignment = Enum.TextXAlignment.Left
 
         local search = Instance.new("TextBox", holder)
         search.Name = "SkinSearch"
-        search.Position = UDim2.fromOffset(8, 145)
-        search.Size = UDim2.new(1, -58, 0, 34)
+        search.Position = UDim2.fromOffset(164, 141)
+        search.Size = UDim2.new(1, -430, 0, 32)
         search.BackgroundColor3 = C.Control
         search.BorderSizePixel = 0
-        search.Font = Enum.Font.Gotham
-        search.TextSize = 12
+        search.Font = Enum.Font.GothamMedium
+        search.TextSize = 10
         search.TextColor3 = C.Text
         search.PlaceholderColor3 = C.Muted
         search.PlaceholderText = "Search finishes..."
@@ -16789,22 +18242,23 @@ function buildXCUI()
         local searchPadding = Instance.new("UIPadding", search)
         searchPadding.PaddingLeft = UDim.new(0, 10)
         searchPadding.PaddingRight = UDim.new(0, 10)
+
         local clear = Instance.new("TextButton", holder)
-        clear.Size = UDim2.fromOffset(34, 34)
-        clear.Position = UDim2.new(1, -42, 0, 145)
+        clear.Size = UDim2.fromOffset(32, 32)
+        clear.Position = UDim2.new(1, -258, 0, 141)
         clear.BackgroundColor3 = C.Control
         clear.BorderSizePixel = 0
-        clear.Text = "×"
+        clear.Text = "X"
         clear.Font = Enum.Font.GothamMedium
-        clear.TextSize = 20
+        clear.TextSize = 18
         clear.TextColor3 = C.Muted
         Instance.new("UICorner", clear).CornerRadius = UDim.new(0, 7)
         clear.Activated:Connect(function() search.Text = "" end)
 
         local grid = Instance.new("ScrollingFrame", holder)
         grid.Name = "FinishGrid"
-        grid.Position = UDim2.fromOffset(8, 189)
-        grid.Size = UDim2.new(1, -16, 1, -237)
+        grid.Position = UDim2.fromOffset(164, 181)
+        grid.Size = UDim2.new(1, -382, 1, -286)
         grid.BackgroundTransparency = 1
         grid.BorderSizePixel = 0
         grid.ScrollBarThickness = 2
@@ -16812,44 +18266,150 @@ function buildXCUI()
         grid.AutomaticCanvasSize = Enum.AutomaticSize.Y
         grid.CanvasSize = UDim2.new()
         local layout = Instance.new("UIGridLayout", grid)
-        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 0.5 or 0.25, -6, 0, UserInputService.TouchEnabled and 120 or 108)
+        layout.CellSize = UDim2.new(UserInputService.TouchEnabled and 1 or 0.5, -5, 0, UserInputService.TouchEnabled and 124 or 118)
         layout.CellPadding = UDim2.fromOffset(6, 6)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         local padding = Instance.new("UIPadding", grid)
-        padding.PaddingRight = UDim.new(0, 2)
+        padding.PaddingRight = UDim.new(0, 3)
         padding.PaddingBottom = UDim.new(0, 4)
 
         local empty = Instance.new("TextLabel", holder)
         empty.Name = "EmptyState"
-        empty.Position = UDim2.fromOffset(8, 215)
-        empty.Size = UDim2.new(1, -16, 0, 70)
+        empty.Position = UDim2.fromOffset(164, 215)
+        empty.Size = UDim2.new(1, -390, 0, 70)
         empty.BackgroundTransparency = 1
         empty.Font = Enum.Font.Gotham
-        empty.TextSize = 13
+        empty.TextSize = 12
         empty.TextColor3 = C.Muted
-        empty.Text = "No finishes found.\nTry another name or clear the search."
+        empty.Text = "No finishes found.\nTry another search."
         empty.Visible = false
+
+        do
+        local selectedPanel = Instance.new("Frame", holder)
+        selectedPanel.Name = "SelectedSkinPanel"
+        selectedPanel.Position = UDim2.new(1, -210, 0, 102)
+        selectedPanel.Size = UDim2.new(0, 202, 1, -164)
+        selectedPanel.BackgroundColor3 = C.Panel
+        selectedPanel.BorderSizePixel = 0
+        Instance.new("UICorner", selectedPanel).CornerRadius = UDim.new(0, 8)
+        studio.SelectedStroke = Instance.new("UIStroke", selectedPanel)
+        studio.SelectedStroke.Color = C.Border
+        studio.SelectedStroke.Thickness = 1
+
+        local selectedTitle = Instance.new("TextLabel", selectedPanel)
+        selectedTitle.Position = UDim2.fromOffset(10, 9)
+        selectedTitle.Size = UDim2.new(1, -20, 0, 18)
+        selectedTitle.BackgroundTransparency = 1
+        selectedTitle.Text = "Selected skin"
+        selectedTitle.TextColor3 = C.Muted
+        selectedTitle.Font = Enum.Font.GothamBold
+        selectedTitle.TextSize = 9
+        selectedTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.SelectedName = Instance.new("TextLabel", selectedPanel)
+        studio.SelectedName.Position = UDim2.fromOffset(10, 28)
+        studio.SelectedName.Size = UDim2.new(1, -20, 0, 36)
+        studio.SelectedName.BackgroundTransparency = 1
+        studio.SelectedName.Text = "Default"
+        studio.SelectedName.TextColor3 = C.White
+        studio.SelectedName.Font = Enum.Font.GothamBold
+        studio.SelectedName.TextSize = 13
+        studio.SelectedName.TextWrapped = true
+        studio.SelectedName.TextXAlignment = Enum.TextXAlignment.Left
+        studio.SelectedName.TextYAlignment = Enum.TextYAlignment.Top
+
+        studio.SelectedItem = Instance.new("TextLabel", selectedPanel)
+        studio.SelectedItem.Position = UDim2.fromOffset(10, 65)
+        studio.SelectedItem.Size = UDim2.new(1, -20, 0, 16)
+        studio.SelectedItem.BackgroundTransparency = 1
+        studio.SelectedItem.Text = "Weapon"
+        studio.SelectedItem.TextColor3 = C.Lime
+        studio.SelectedItem.Font = Enum.Font.GothamMedium
+        studio.SelectedItem.TextSize = 9
+        studio.SelectedItem.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.SelectedVisual = Instance.new("Frame", selectedPanel)
+        studio.SelectedVisual.Name = "LargePreview"
+        studio.SelectedVisual.Position = UDim2.fromOffset(10, 88)
+        studio.SelectedVisual.Size = UDim2.new(1, -20, 0, 152)
+        studio.SelectedVisual.BackgroundColor3 = C.Control
+        studio.SelectedVisual.BorderSizePixel = 0
+        studio.SelectedVisual.ClipsDescendants = true
+        Instance.new("UICorner", studio.SelectedVisual).CornerRadius = UDim.new(0, 6)
+
+        studio.WearTitle = Instance.new("TextLabel", selectedPanel)
+        studio.WearTitle.Position = UDim2.fromOffset(10, 251)
+        studio.WearTitle.Size = UDim2.new(1, -20, 0, 16)
+        studio.WearTitle.BackgroundTransparency = 1
+        studio.WearTitle.Text = "WEAR"
+        studio.WearTitle.TextColor3 = C.Muted
+        studio.WearTitle.Font = Enum.Font.GothamBold
+        studio.WearTitle.TextSize = 8
+        studio.WearTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        studio.WearValue = Instance.new("TextLabel", selectedPanel)
+        studio.WearValue.Position = UDim2.fromOffset(10, 269)
+        studio.WearValue.Size = UDim2.new(1, -20, 0, 22)
+        studio.WearValue.BackgroundColor3 = C.Control
+        studio.WearValue.BorderSizePixel = 0
+        studio.WearValue.TextColor3 = C.Text
+        studio.WearValue.Font = Enum.Font.GothamBold
+        studio.WearValue.TextSize = 10
+        Instance.new("UICorner", studio.WearValue).CornerRadius = UDim.new(0, 6)
+
+        studio.WearMinus = Instance.new("TextButton", selectedPanel)
+        studio.WearMinus.Position = UDim2.fromOffset(10, 297)
+        studio.WearMinus.Size = UDim2.new(0.5, -13, 0, 27)
+        studio.WearMinus.BackgroundColor3 = C.Control
+        studio.WearMinus.BorderSizePixel = 0
+        studio.WearMinus.Text = "−"
+        studio.WearMinus.TextColor3 = C.Text
+        studio.WearMinus.Font = Enum.Font.GothamBold
+        studio.WearMinus.TextSize = 15
+        Instance.new("UICorner", studio.WearMinus).CornerRadius = UDim.new(0, 6)
+        studio.WearPlus = Instance.new("TextButton", selectedPanel)
+        studio.WearPlus.Position = UDim2.new(0.5, 3, 0, 297)
+        studio.WearPlus.Size = UDim2.new(0.5, -13, 0, 27)
+        studio.WearPlus.BackgroundColor3 = C.Control
+        studio.WearPlus.BorderSizePixel = 0
+        studio.WearPlus.Text = "+"
+        studio.WearPlus.TextColor3 = C.Text
+        studio.WearPlus.Font = Enum.Font.GothamBold
+        studio.WearPlus.TextSize = 14
+        Instance.new("UICorner", studio.WearPlus).CornerRadius = UDim.new(0, 6)
+
+        studio.PreviewModeButton = Instance.new("TextButton", selectedPanel)
+        studio.PreviewModeButton.Position = UDim2.fromOffset(10, 334)
+        studio.PreviewModeButton.Size = UDim2.new(1, -20, 0, 28)
+        studio.PreviewModeButton.BackgroundColor3 = C.Control
+        studio.PreviewModeButton.BorderSizePixel = 0
+        studio.PreviewModeButton.TextColor3 = C.Muted
+        studio.PreviewModeButton.Font = Enum.Font.GothamBold
+        studio.PreviewModeButton.TextSize = 9
+        Instance.new("UICorner", studio.PreviewModeButton).CornerRadius = UDim.new(0, 6)
+        end
+
         local pageLabel = Instance.new("TextLabel", holder)
         pageLabel.Name = "PageStatus"
-        pageLabel.Position = UDim2.new(0, 64, 1, -39)
-        pageLabel.Size = UDim2.new(1, -128, 0, 32)
+        pageLabel.Position = UDim2.new(0, 210, 1, -90)
+        pageLabel.Size = UDim2.new(1, -472, 0, 30)
         pageLabel.BackgroundTransparency = 1
         pageLabel.TextColor3 = C.Muted
         pageLabel.Font = Enum.Font.GothamMedium
-        pageLabel.TextSize = 11
+        pageLabel.TextSize = 9
         local pagerButtons = {}
         for index, delta in ipairs({-1, 1}) do
             local button = Instance.new("TextButton", holder)
             button.Name = delta < 0 and "PreviousPage" or "NextPage"
-            button.Position = delta < 0 and UDim2.new(0, 8, 1, -39) or UDim2.new(1, -54, 1, -39)
-            button.Size = UDim2.fromOffset(46, 32)
+            button.Position = delta < 0 and UDim2.new(0, 164, 1, -90) or UDim2.new(1, -256, 1, -90)
+            button.Size = UDim2.fromOffset(38, 30)
             button.BackgroundColor3 = C.Control
             button.BorderSizePixel = 0
             button.Font = Enum.Font.GothamBold
             button.Text = delta < 0 and "‹" or "›"
-            button.TextSize = 22
+            button.TextSize = 18
             button.TextColor3 = C.Text
-            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
             pagerButtons[index] = button
             button.Activated:Connect(function()
                 local nextPage = math.clamp(galleryState.Page + delta, 1, galleryState.Pages or 1)
@@ -16857,6 +18417,35 @@ function buildXCUI()
                 galleryState.Page = nextPage
                 refreshSkinGallery()
             end)
+        end
+
+        do
+        local actionBar = Instance.new("Frame", holder)
+        actionBar.Name = "SkinActionBar"
+        actionBar.Position = UDim2.new(0, 8, 1, -46)
+        actionBar.Size = UDim2.new(1, -16, 0, 38)
+        actionBar.BackgroundTransparency = 1
+        local actionLayout = Instance.new("UIListLayout", actionBar)
+        actionLayout.FillDirection = Enum.FillDirection.Horizontal
+        actionLayout.Padding = UDim.new(0, 6)
+        local function studioAction(text, accent)
+            local b = Instance.new("TextButton", actionBar)
+            b.Size = UDim2.new(0.25, -5, 1, 0)
+            b.BackgroundColor3 = accent and C.Lime:Lerp(C.Panel, 0.70) or C.Control
+            b.BorderColor3 = accent and C.Lime or C.Border
+            b.BorderSizePixel = 1
+            b.Text = text
+            b.TextColor3 = accent and C.White or C.Text
+            b.Font = Enum.Font.GothamBold
+            b.TextSize = 9
+            b.AutoButtonColor = false
+            Instance.new("UICorner", b).CornerRadius = UDim.new(0, 7)
+            return b
+        end
+        studio.OpenHeldButton = studioAction("OPEN HELD", false)
+        studio.ResetCurrentButton = studioAction("RESET CURRENT", false)
+        studio.ApplyAllButton = studioAction("APPLY ALL", true)
+        studio.ResetAllButton = studioAction("RESET ALL", false)
         end
 
         local function normalizeImage(value)
@@ -17134,6 +18723,155 @@ function buildXCUI()
                 refreshConfigControls("skinWear",XCConfig.skinWear)
             end
         end
+        local function updateStudioStatus()
+            local enabled = XCConfig.skinChangerEnabled == true
+            studio.EnableButton.Text = enabled and "●  ENABLED" or "○  DISABLED"
+            studio.EnableButton.TextColor3 = enabled and C.White or C.Muted
+            studio.EnableButton.BackgroundColor3 = enabled and C.Lime:Lerp(C.Panel, 0.72) or C.Control
+            studio.SelectedStroke.Color = enabled and C.Lime:Lerp(C.Border, 0.25) or C.Border
+        end
+
+        local function refreshSelectedPanel(itemName)
+            itemName = itemName or currentItem()
+            local selected = currentSelection(itemName)
+            studio.SelectedName.Text = tostring(selected or "Default")
+            studio.SelectedItem.Text = string.upper(tostring(XCConfig.skinGalleryMode or "Weapon")) .. "  ·  " .. tostring(itemName)
+            studio.PreviewModeButton.Text = "PREVIEW  ·  " .. string.upper(tostring(XCConfig.skinPreviewMode or "Icons"))
+
+            local wear
+            if XCConfig.skinGalleryMode == "Knife" then
+                wear = math.clamp(tonumber(XCConfig.knifeWear) or 0, 0, 1)
+            elseif XCConfig.skinGalleryMode == "Weapon" then
+                wear = math.clamp(tonumber(XCConfig.weaponSkinWear[itemName]) or tonumber(XCConfig.skinWear) or 0, 0, 1)
+            end
+            local showWear = wear ~= nil
+            studio.WearTitle.Visible = showWear; studio.WearValue.Visible = showWear
+            studio.WearMinus.Visible = showWear; studio.WearPlus.Visible = showWear
+            if showWear then studio.WearValue.Text = string.format("%.2f  ·  %d%%", wear, math.floor(wear * 100 + 0.5)) end
+
+            for _, child in ipairs(studio.SelectedVisual:GetChildren()) do
+                if not child:IsA("UICorner") then child:Destroy() end
+            end
+            local previewHost
+            if XCConfig.skinPreviewMode == "Models" then
+                previewHost = Instance.new("ViewportFrame", studio.SelectedVisual)
+                previewHost.Size = UDim2.new(1, -8, 1, -8)
+                previewHost.Position = UDim2.fromOffset(4, 4)
+                previewHost.BackgroundTransparency = 1
+                previewHost.Ambient = Color3.fromRGB(190,190,190)
+                previewHost.LightColor = Color3.fromRGB(255,255,255)
+                previewHost.LightDirection = Vector3.new(-1,-0.5,-1)
+                local ok = XCConfig.skinGalleryMode == "Gloves"
+                    and addGlovePreview(previewHost, itemName, selected)
+                    or addModelPreview(previewHost, itemName, selected)
+                if ok then updateStudioStatus(); return end
+                previewHost:Destroy(); previewHost = nil
+            end
+            local imageId = findPreviewImage(itemName, selected)
+            if imageId then
+                local image = Instance.new("ImageLabel", studio.SelectedVisual)
+                image.Size = UDim2.new(1, -10, 1, -10)
+                image.Position = UDim2.fromOffset(5, 5)
+                image.BackgroundTransparency = 1
+                image.Image = imageId
+                image.ScaleType = Enum.ScaleType.Fit
+            else
+                local fallback = Instance.new("TextLabel", studio.SelectedVisual)
+                fallback.Size = UDim2.fromScale(1,1)
+                fallback.BackgroundTransparency = 1
+                fallback.Text = selected == "Default" and "ORIGINAL\nFINISH" or "PREVIEW\nUNAVAILABLE"
+                fallback.TextColor3 = C.Muted
+                fallback.Font = Enum.Font.GothamBold
+                fallback.TextSize = 10
+                fallback.TextWrapped = true
+            end
+            updateStudioStatus()
+        end
+
+        local function setStudioEnabled(enabled)
+            XCConfig.skinChangerEnabled = enabled == true
+            XCConfig.gloveChangerEnabled = enabled == true
+            refreshConfigControls("skinChangerEnabled", XCConfig.skinChangerEnabled)
+            refreshConfigControls("gloveChangerEnabled", XCConfig.gloveChangerEnabled)
+            if enabled then
+                applyXCSelectedWeaponSkin(); applyXCKnifeChanger(); applyXCGloves()
+            else
+                restoreXCSelectedWeaponSkin(); restoreXCKnifeModel(); restoreXCGloves()
+            end
+            updateStudioStatus(); scheduleConfigAutoSave()
+        end
+
+        local function changeStudioWear(delta)
+            local itemName = currentItem()
+            if XCConfig.skinGalleryMode == "Knife" then
+                XCConfig.knifeWear = math.clamp((tonumber(XCConfig.knifeWear) or 0) + delta, 0, 1)
+                applyXCKnifeChanger()
+            elseif XCConfig.skinGalleryMode == "Weapon" then
+                local value = math.clamp((tonumber(XCConfig.weaponSkinWear[itemName]) or tonumber(XCConfig.skinWear) or 0) + delta, 0, 1)
+                XCConfig.weaponSkinWear[itemName] = value
+                XCConfig.skinWear = value
+                refreshConfigControls("skinWear", value)
+                applyXCSelectedWeaponSkin()
+            end
+            refreshSelectedPanel(itemName); scheduleConfigAutoSave()
+        end
+
+        studio.EnableButton.Activated:Connect(function() setStudioEnabled(not XCConfig.skinChangerEnabled) end)
+        studio.WearMinus.Activated:Connect(function() changeStudioWear(-0.05) end)
+        studio.WearPlus.Activated:Connect(function() changeStudioWear(0.05) end)
+        studio.PreviewModeButton.Activated:Connect(function()
+            XCConfig.skinPreviewMode = XCConfig.skinPreviewMode == "Models" and "Icons" or "Models"
+            refreshConfigControls("skinPreviewMode", XCConfig.skinPreviewMode)
+            galleryState.Signature = nil
+            refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+        studio.OpenHeldButton.Activated:Connect(function()
+            local mode, heldItem = getXCHeldSkinItem()
+            if not heldItem or not skinData.SkinSelections[heldItem] then
+                XCNotify("Skin studio", "Hold a supported weapon or knife first.", "warning", 2)
+                return
+            end
+            XCConfig.skinGalleryMode = mode
+            if mode == "Knife" then
+                XCConfig.selectedKnifeType = heldItem
+                if not table.find(getXCSkinChoicesForWeapon(heldItem), XCConfig.selectedSkin) then XCConfig.selectedSkin = "Default" end
+            else
+                XCConfig.skinEditorWeapon = heldItem
+                XCConfig.skinEditorFinish = XCConfig.weaponSkinSelections[heldItem] or "Default"
+                XCConfig.skinWear = XCConfig.weaponSkinWear[heldItem] or 0
+                refreshConfigControls("skinWear", XCConfig.skinWear)
+            end
+            galleryState.Signature = nil; refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+        studio.ResetCurrentButton.Activated:Connect(function()
+            if XCConfig.skinGalleryMode == "Knife" then
+                XCConfig.selectedSkin = "Default"; XCConfig.knifeWear = 0; applyXCKnifeChanger()
+            elseif XCConfig.skinGalleryMode == "Gloves" then
+                XCConfig.selectedGloveSkin = "Default"; applyXCGloves()
+            else
+                local itemName = currentItem()
+                XCConfig.weaponSkinSelections[itemName] = "Default"
+                XCConfig.weaponSkinWear[itemName] = 0
+                XCConfig.skinEditorFinish = "Default"; XCConfig.skinWear = 0
+                restoreXCSelectedWeaponSkin(itemName)
+            end
+            galleryState.Signature = nil; refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+        studio.ApplyAllButton.Activated:Connect(function()
+            setStudioEnabled(true)
+            applyXCSelectedWeaponSkin(); applyXCKnifeChanger(); applyXCGloves()
+            XCNotify("Skin studio", "Saved loadout applied", "success", 1.5)
+        end)
+        studio.ResetAllButton.Activated:Connect(function()
+            table.clear(XCConfig.weaponSkinSelections); table.clear(XCConfig.weaponSkinWear)
+            XCConfig.skinEditorFinish = "Default"; XCConfig.skinWear = 0
+            XCConfig.selectedKnifeType = "Default"; XCConfig.selectedSkin = "Default"; XCConfig.knifeWear = 0
+            XCConfig.selectedGloveModel = "Default"; XCConfig.selectedGloveSkin = "Default"
+            restoreXCKnifeModel(); restoreXCSelectedWeaponSkin(); restoreXCGloves()
+            refreshConfigControls("skinWear", 0); refreshConfigControls("knifeWear", 0)
+            galleryState.Signature = nil; refreshSkinGallery(); scheduleConfigAutoSave()
+        end)
+
         local function updateCardSelection(itemName)
             local selected=currentSelection(itemName)
             for skinName,card in pairs(cards) do
@@ -17163,17 +18901,18 @@ function buildXCUI()
             end
             local choices=XCConfig.skinGalleryMode=="Gloves" and getXCGloveSkinChoices(itemName)
                 or getXCSkinChoicesForWeapon(itemName)
-            local result=xcSkinCatalogPage(choices,search.Text,galleryState.Page,UserInputService.TouchEnabled and 6 or 12)
+            local result=xcSkinCatalogPage(choices,search.Text,galleryState.Page,UserInputService.TouchEnabled and 6 or 8)
             galleryState.Page,galleryState.Pages=result.Page,result.Pages
             heading.Text=tostring(itemName).."  /  "..tostring(result.Total).." finishes"
-            hint.Text=(XCConfig.skinChangerEnabled and "Selected: " or "Changer off · Saved: ")..tostring(currentSelection(itemName))
+            hint.Text=XCConfig.skinChangerEnabled and "Loadout enabled · changes apply instantly" or "Loadout disabled · selections are still saved"
+            refreshSelectedPanel(itemName)
             pageLabel.Text=string.format("%d / %d   ·   %d results",result.Page,result.Pages,result.Total)
             pagerButtons[1].TextColor3=result.Page>1 and C.Text or C.Muted
             pagerButtons[2].TextColor3=result.Page<result.Pages and C.Text or C.Muted
             empty.Visible=result.Total==0
             local signature=context.."\0"..tostring(XCConfig.skinPreviewMode).."\0"..result.Page
                 .."\0"..table.concat(result.Items,"\0").."\0"..tostring(C.Lime)..tostring(C.Panel)
-            if galleryState.Signature==signature then updateCardSelection(itemName);return end
+            if galleryState.Signature==signature then updateCardSelection(itemName);refreshSelectedPanel(itemName);return end
             galleryState.Signature=signature
             gallerySerial = gallerySerial + 1;local serial=gallerySerial
             table.clear(cards)
@@ -17189,24 +18928,24 @@ function buildXCUI()
             if galleryState.ItemKey~=itemKey then
             galleryState.ItemKey=itemKey
             for _,child in ipairs(itemBar:GetChildren()) do if child~=itemLayout and child~=itemPadding then child:Destroy() end end
-            local itemWidthTotal=8
+            local itemHeightTotal=10
             for index,name in ipairs(items) do
-                local width=math.clamp(#tostring(name)*7+20,68,132)
                 local itemButton=Instance.new("TextButton",itemBar)
                 itemButton.Name="Item_"..tostring(name);itemButton.LayoutOrder=index
-                itemButton.Size=UDim2.fromOffset(width,32)
-                itemButton.BackgroundColor3=name==itemName and C.Lime:Lerp(C.Panel,0.72) or C.Control
+                itemButton.Size=UDim2.new(1,-10,0,32)
+                itemButton.BackgroundColor3=name==itemName and C.Lime:Lerp(C.Panel,0.76) or C.Control
                 itemButton.BorderColor3=name==itemName and C.Lime or C.Border;itemButton.BorderSizePixel=1
-                itemButton.Text=tostring(name);itemButton.TextColor3=name==itemName and C.White or C.Text
-                itemButton.Font=Enum.Font.GothamMedium;itemButton.TextSize=11;itemButton.AutoButtonColor=false
+                itemButton.Text="  "..tostring(name);itemButton.TextColor3=name==itemName and C.White or C.Text
+                itemButton.TextXAlignment=Enum.TextXAlignment.Left
+                itemButton.Font=Enum.Font.GothamMedium;itemButton.TextSize=10;itemButton.AutoButtonColor=false
                 Instance.new("UICorner",itemButton).CornerRadius=UDim.new(0,6)
                 itemButton.Activated:Connect(function()
                     if name==currentItem() then return end
-                    selectItem(name,true);refreshSkinGallery();scheduleConfigAutoSave()
+                    selectItem(name,true);galleryState.Signature=nil;refreshSkinGallery();scheduleConfigAutoSave()
                 end)
-                itemWidthTotal = itemWidthTotal + (width+4)
+                itemHeightTotal = itemHeightTotal + 36
             end
-            itemBar.CanvasSize=UDim2.fromOffset(itemWidthTotal,0)
+            itemBar.CanvasSize=UDim2.new(0,0,0,itemHeightTotal)
             end
             local previewJobs={}
             for index,skinName in ipairs(result.Items) do
@@ -17230,7 +18969,7 @@ function buildXCUI()
                 label.Text=skinName;label.TextColor3=C.Text;label.Font=Enum.Font.GothamMedium;label.TextSize=11;label.TextTruncate=Enum.TextTruncate.AtEnd
                 local selected=Instance.new("TextLabel",card)
                 selected.Name="Selected";selected.Position=UDim2.fromOffset(7,7);selected.Size=UDim2.fromOffset(64,17)
-                selected.BackgroundColor3=C.Main;selected.BackgroundTransparency=0.12;selected.Text="SELECTED"
+                selected.BackgroundColor3=C.Main;selected.BackgroundTransparency=0.08;selected.Text="EQUIPPED"
                 selected.Font=Enum.Font.GothamBold;selected.TextSize=8;selected.Visible=false;selected.ZIndex=5
                 Instance.new("UICorner",selected).CornerRadius=UDim.new(0,4)
                 local function populatePreview()
@@ -17263,13 +19002,15 @@ function buildXCUI()
                     else XCConfig.skinEditorFinish=skinName;XCConfig.weaponSkinSelections[itemName]=skinName
                         XCConfig.weaponSkinWear[itemName]=XCConfig.skinWear;refreshConfigControls("skinEditorFinish",skinName);applyXCSelectedWeaponSkin() end
                     updateCardSelection(itemName)
-                    hint.Text=(XCConfig.skinChangerEnabled and "Selected: " or "Changer off · Saved: ")..tostring(skinName)
+                    refreshSelectedPanel(itemName)
+                    hint.Text=XCConfig.skinChangerEnabled and "Equipped · applied to current loadout" or "Saved · enable Skin Studio to apply"
                     scheduleConfigAutoSave()
                 end)
                 card.MouseEnter:Connect(function() card.BackgroundColor3=C.Control end)
                 card.MouseLeave:Connect(function() card.BackgroundColor3=C.Panel end)
             end
             updateCardSelection(itemName)
+            refreshSelectedPanel(itemName)
             if #previewJobs>0 then
                 task.spawn(function()
                     for _,job in ipairs(previewJobs) do
@@ -17371,7 +19112,7 @@ function buildXCUI()
         elseif key == "soundPositionEspEnabled" then setXCSoundPositionEspEnabled(value)
         elseif key == "customScopeEnabled" then updateCustomScope()
         elseif key == "customFovEnabled" then
-            applyXCCameraFov()
+            if UserInputService.TouchEnabled then applyXCCameraFov(1 / 60, camera and camera.FieldOfView) end
         elseif key == "weatherEnabled" then applyXCWeather(); updateWorldChanger()
         elseif key == "noSmokeEnabled" then applyXCSmokeState()
         elseif key == "mapStyleEnabled" then setXCMapStyleEnabled(value)
@@ -17402,7 +19143,7 @@ function buildXCUI()
         local lower=tostring(key):lower()
         if lower:find("skin",1,true) or lower:find("knife",1,true) or lower:find("glove",1,true) then return "Skins" end
         if lower:find("menu",1,true) or lower:find("uiscale",1,true) or lower:find("settings",1,true)
-            or lower:find("watermark",1,true) or lower:find("advanced",1,true) or lower:find("linkmenu",1,true) then return "Interface" end
+            or lower:find("watermark",1,true) or lower:find("greeting",1,true) or lower:find("advanced",1,true) or lower:find("linkmenu",1,true) then return "Interface" end
         if lower:find("antiaim",1,true) or lower:find("bhop",1,true) or lower:find("bunny",1,true)
             or lower:find("slide",1,true) or lower:find("flight",1,true) or lower:find("walk",1,true)
             or lower:find("speed",1,true) or lower:find("thirdperson",1,true) then return "Movement" end
@@ -17457,9 +19198,11 @@ function buildXCUI()
         scheduleConfigAutoSave(); return true
     end
 
-    local ICON_OFF = Color3.fromRGB(88, 88, 88)
-    local ICON_HOVER = Color3.fromRGB(155, 155, 155)
-    local ICON_ON = C.White
+    -- XOSE_GS_NAV_V2: compact competitive line-art navigation inspired by
+    -- classic skeet/game UI proportions without copying branded image assets.
+    local ICON_OFF = Color3.fromRGB(92, 92, 92)
+    local ICON_HOVER = Color3.fromRGB(178, 178, 178)
+    local ICON_ON = C.Lime
 
     local function iconLine(parent, x, y, w, h, color, rotation)
         local line = Instance.new("Frame")
@@ -17482,14 +19225,11 @@ function buildXCUI()
         circle.BackgroundTransparency = filled and 0 or 1
         circle.BorderSizePixel = 0
         circle.Parent = parent
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(1, 0)
-        corner.Parent = circle
+        Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
         if not filled then
-            local stroke = Instance.new("UIStroke")
+            local stroke = Instance.new("UIStroke", circle)
             stroke.Color = color
-            stroke.Thickness = 1.4
-            stroke.Parent = circle
+            stroke.Thickness = 1.25
         end
         return circle
     end
@@ -17497,69 +19237,85 @@ function buildXCUI()
     local function drawTabIcon(parent, kind, color)
         local root = Instance.new("Frame")
         root.Name = "VectorIcon"
-        root.Size = UDim2.fromOffset(22, 22)
+        root.Size = UDim2.fromOffset(24, 24)
         root.Position = UDim2.fromScale(0.5, 0.5)
         root.AnchorPoint = Vector2.new(0.5, 0.5)
         root.BackgroundTransparency = 1
         root.Parent = parent
-        local cx, cy = 11, 11
+        local cx, cy = 12, 12
 
         if kind == "target" then
-            iconCircle(root, cx, cy, 14, color, false)
-            iconCircle(root, cx, cy, 5, color, false)
-            iconLine(root, cx, 2.5, 1.5, 5, color)
-            iconLine(root, cx, 19.5, 1.5, 5, color)
-            iconLine(root, 2.5, cy, 5, 1.5, color)
-            iconLine(root, 19.5, cy, 5, 1.5, color)
+            -- Four bracket reticle + center point.
+            iconLine(root, 5.2, 6.2, 6, 1.3, color)
+            iconLine(root, 4.8, 8.5, 1.3, 5.6, color)
+            iconLine(root, 18.8, 6.2, 6, 1.3, color)
+            iconLine(root, 19.2, 8.5, 1.3, 5.6, color)
+            iconLine(root, 5.2, 17.8, 6, 1.3, color)
+            iconLine(root, 4.8, 15.5, 1.3, 5.6, color)
+            iconLine(root, 18.8, 17.8, 6, 1.3, color)
+            iconLine(root, 19.2, 15.5, 1.3, 5.6, color)
+            iconCircle(root, cx, cy, 3.2, color, true)
         elseif kind == "antiaim" then
-            iconCircle(root, cx, cy, 15, color, false)
-            iconLine(root, 7, 9, 7, 1.5, color, -32)
-            iconLine(root, 15, 9, 7, 1.5, color, 32)
-            iconLine(root, cx, 15, 1.5, 7, color)
+            -- Mirrored movement/desync chevrons.
+            iconLine(root, 7.0, 9.0, 8.0, 1.5, color, -38)
+            iconLine(root, 7.0, 14.5, 8.0, 1.5, color, 38)
+            iconLine(root, 17.0, 9.0, 8.0, 1.5, color, 38)
+            iconLine(root, 17.0, 14.5, 8.0, 1.5, color, -38)
+            iconLine(root, cx, cy, 1.3, 13, color)
         elseif kind == "visuals" then
-            iconCircle(root, cx, cy, 7, color, false)
-            for _, angle in ipairs({0, 45, 90, 135}) do
-                iconLine(root, cx, 2, 1.5, 4, color, angle)
-                iconLine(root, cx, 20, 1.5, 4, color, angle)
-            end
-        elseif kind == "world" then
-            iconCircle(root, cx, cy, 15, color, false)
-            iconLine(root, cx, cy, 1.5, 13, color)
-            iconLine(root, cx, cy, 13, 1.5, color)
-            iconCircle(root, cx, cy, 8, color, false)
-        elseif kind == "misc" then
-            iconCircle(root, cx, cy, 9, color, false)
-            iconCircle(root, cx, cy, 3, color, false)
-            for _, angle in ipairs({0, 45, 90, 135}) do iconLine(root, cx, 2, 3, 5, color, angle) end
-        elseif kind == "settings" then
-            iconLine(root, 11, 5, 16, 1.5, color)
-            iconLine(root, 11, 11, 16, 1.5, color)
-            iconLine(root, 11, 17, 16, 1.5, color)
-            iconCircle(root, 7, 5, 4, color, true)
-            iconCircle(root, 16, 11, 4, color, true)
-            iconCircle(root, 10, 17, 4, color, true)
-        elseif kind == "skins" then
-            iconLine(root, 12, 10, 14, 2, color, -42)
-            iconLine(root, 6, 16, 7, 2, color, 42)
-            iconLine(root, 8, 17.5, 6, 2, color, -42)
+            -- Eye silhouette.
+            iconLine(root, 8.0, 7.3, 8.5, 1.35, color, -20)
+            iconLine(root, 16.0, 7.3, 8.5, 1.35, color, 20)
+            iconLine(root, 8.0, 16.7, 8.5, 1.35, color, 20)
+            iconLine(root, 16.0, 16.7, 8.5, 1.35, color, -20)
+            iconCircle(root, cx, cy, 6.2, color, false)
+            iconCircle(root, cx, cy, 2.3, color, true)
         elseif kind == "players" then
-            iconCircle(root, cx, 6, 7, color, false)
-            iconLine(root, cx, 14, 10, 1.6, color)
-            iconLine(root, 7, 17, 1.7, 7, color, 18)
-            iconLine(root, 15, 17, 1.7, 7, color, -18)
+            iconCircle(root, cx, 7.0, 6.5, color, false)
+            iconLine(root, cx, 13.3, 10.5, 1.35, color)
+            iconLine(root, 8.2, 17.0, 1.4, 7.5, color, 28)
+            iconLine(root, 15.8, 17.0, 1.4, 7.5, color, -28)
+        elseif kind == "world" then
+            iconCircle(root, cx, cy, 15.5, color, false)
+            iconLine(root, cx, cy, 1.2, 14.2, color)
+            iconLine(root, cx, cy, 14.2, 1.2, color)
+            iconLine(root, 7.2, cy, 1.1, 12.5, color, -24)
+            iconLine(root, 16.8, cy, 1.1, 12.5, color, 24)
+        elseif kind == "skins" then
+            -- Slim knife silhouette.
+            iconLine(root, 14.2, 8.7, 13.5, 2.0, color, -42)
+            iconLine(root, 7.0, 16.1, 7.2, 2.1, color, -42)
+            iconLine(root, 5.3, 18.4, 5.3, 1.3, color, 48)
+            iconLine(root, 9.2, 14.1, 5.5, 1.2, color, 48)
+        elseif kind == "misc" then
+            iconCircle(root, cx, cy, 8.5, color, false)
+            iconCircle(root, cx, cy, 2.7, color, false)
+            for _, angle in ipairs({0, 45, 90, 135}) do
+                iconLine(root, cx, 3.2, 2.4, 4.1, color, angle)
+                iconLine(root, cx, 20.8, 2.4, 4.1, color, angle)
+            end
+        elseif kind == "settings" then
+            iconLine(root, cx, 6.0, 16.0, 1.25, color)
+            iconLine(root, cx, 12.0, 16.0, 1.25, color)
+            iconLine(root, cx, 18.0, 16.0, 1.25, color)
+            iconCircle(root, 8.0, 6.0, 4.0, color, true)
+            iconCircle(root, 16.5, 12.0, 4.0, color, true)
+            iconCircle(root, 10.5, 18.0, 4.0, color, true)
         elseif kind == "configs" then
             local box = Instance.new("Frame")
-            box.Size = UDim2.fromOffset(14, 16)
-            box.Position = UDim2.fromOffset(4, 3)
+            box.AnchorPoint = Vector2.new(0.5, 0.5)
+            box.Position = UDim2.fromOffset(cx, cy)
+            box.Size = UDim2.fromOffset(14.5, 17.5)
             box.BackgroundTransparency = 1
+            box.BorderSizePixel = 0
             box.Parent = root
-            local stroke = Instance.new("UIStroke")
+            Instance.new("UICorner", box).CornerRadius = UDim.new(0, 1)
+            local stroke = Instance.new("UIStroke", box)
             stroke.Color = color
-            stroke.Thickness = 1.4
-            stroke.Parent = box
-            iconLine(root, 8, 8, 7, 1.4, color)
-            iconLine(root, 8, 12, 7, 1.4, color)
-            iconLine(root, 8, 16, 7, 1.4, color)
+            stroke.Thickness = 1.25
+            iconLine(root, 10.0, 8.3, 6.5, 1.25, color)
+            iconLine(root, 12.0, 12.0, 10.0, 1.25, color)
+            iconLine(root, 12.0, 15.7, 10.0, 1.25, color)
         end
         return root
     end
@@ -17595,7 +19351,7 @@ function buildXCUI()
         for pageName, page in pairs(pages) do page.Visible = pageName == name end
         for tabName, data in pairs(tabData) do
             data.active.Visible = tabName == name
-            data.button.BackgroundColor3 = tabName == name and C.Lime:Lerp(C.Control, 0.84) or C.Sidebar
+            data.button.BackgroundColor3 = tabName == name and C.Control2:Lerp(C.Lime, 0.08) or C.Sidebar
             data.button.BackgroundTransparency = tabName == name and 0 or 1
             data.label.TextColor3 = tabName == name and C.White or C.Muted
             recolorTabIcon(data.icon, tabName == name and C.Lime or C.Muted)
@@ -17622,8 +19378,8 @@ function buildXCUI()
         holder.BackgroundTransparency = 1
         holder.Parent = sidebar
         local active = Instance.new("Frame")
-        active.Size = UDim2.fromOffset(3, 24)
-        active.Position = UDim2.new(0, 0, 0.5, -12)
+        active.Size = UDim2.fromOffset(2, 22)
+        active.Position = UDim2.new(0, 0, 0.5, -11)
         active.BackgroundColor3 = C.Lime
         active.BorderSizePixel = 0
         active.Visible = false
@@ -17635,7 +19391,7 @@ function buildXCUI()
         button.Text = ""
         button.AutoButtonColor = false
         button.Parent = holder
-        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
         local icon = drawTabIcon(button, info[2], ICON_OFF)
         icon.AnchorPoint = isMobileLayout and Vector2.new(0.5, 0.5) or Vector2.new(0, 0.5)
         icon.Position = isMobileLayout and UDim2.new(0.5, 0, 0, 14) or UDim2.new(0, 9, 0.5, 0)
@@ -17643,7 +19399,7 @@ function buildXCUI()
         label.Position = UDim2.fromOffset(37, 0)
         label.Size = UDim2.new(1, -40, 1, 0)
         label.BackgroundTransparency = 1
-        label.Text = info[1] == "AntiAim" and "Movement" or info[1]
+        label.Text = string.lower(info[1] == "AntiAim" and "Movement" or info[1])
         label.Visible = true
         if isMobileLayout then
             label.Position = UDim2.new(0, 1, 1, -14)
@@ -17725,8 +19481,9 @@ function buildXCUI()
     section(R, "Triggerbot")
     toggle(R, "Triggerbot", "triggerbotEnabled")
     addChoice(R, "Trigger mode", "triggerbotMode", {"Crosshair", "Trigger FOV", "Silent FOV"})
+    addChoice(R, "Reaction", "triggerbotReactionMode", {"Instant", "Humanized"})
     addSlider(R, "Trigger FOV", "triggerbotFov", 10, 360, 1, "px")
-    addSlider(R, "Trigger delay", "triggerbotDelay", 0.01, 0.5, 0.005, "s")
+    addSlider(R, "Trigger delay", "triggerbotDelay", 0, 0.5, 0.005, "s")
     toggle(R, "Scoped only", "triggerbotScopedOnly")
     toggle(R, "Head only", "triggerbotHeadOnly")
     toggle(R, "Minimum damage", "minimumDamageEnabled")
@@ -17751,7 +19508,14 @@ function buildXCUI()
     toggle(L, "Moving only", "bhopMovingOnly")
     toggle(L, "Pause with menu", "bhopPauseWithMenu")
     addSlider(L, "Bhop power", "bhopJumpPower", 30, 100, 1, "")
-    addSlider(L, "Bhop speed", "bhopSpeedBoost", 1, 3, 0.1, "x")
+    addSlider(L, "Base speed", "bhopSpeedBoost", 1, 3, 0.1, "x")
+    toggle(L, "Auto acceleration", "bhopAutoAcceleration")
+    addSlider(L, "Gain per hop", "bhopGainPerHop", 0.01, 0.50, 0.01, "x")
+    addSlider(L, "Maximum speed", "bhopMaxSpeed", 1, 6, 0.1, "x")
+    toggle(L, "Momentum preservation", "bhopMomentumPreserve")
+    toggle(L, "Wall speed preserve", "bhopWallPreserve")
+    addSlider(L, "Collision grace", "bhopCollisionGrace", 0.05, 0.50, 0.01, "s")
+    addSlider(L, "Momentum restore", "bhopMomentumRestore", 0.50, 1.00, 0.05, "x")
     addSlider(L, "Ground delay", "bhopGroundDelay", 0, 0.25, 0.01, "s")
     addSlider(L, "Acceleration", "bhopAcceleration", 2, 30, 1, "")
     toggle(L, "Air strafe", "bhopAirStrafe")
@@ -17770,13 +19534,16 @@ function buildXCUI()
     section(R, "Anti-aim")
     toggle(R, "Anti-aim", "antiAimEnabled")
     addChoice(R, "Anti-aim mode", "antiAimMode", {
-        "Vector Shift", "Pendulum Snap", "Crosswind", "Golden Flick",
+        "Desync", "Vector Shift", "Pendulum Snap", "Crosswind", "Golden Flick",
         "Phase Lattice", "Velocity Brake", "Double Pulse", "Reverse Step"
     })
-    addSlider(R, "Base offset", "antiAimYaw", -180, 180, 1, "°")
-    addSlider(R, "Pattern range", "antiAimJitter", 0, 180, 1, "°")
-    addSlider(R, "Pattern rate", "spinSpeed", 10, 150, 1, "")
-    addSlider(R, "Switch interval", "antiAimInterval", 0.04, 0.5, 0.01, "s")
+    toggle(R, "Freestand", "antiAimFreestandEnabled")
+    toggle(R, "Anti-bruteforce", "antiAimAntiBruteforceEnabled")
+    toggle(R, "Shot-safe desync", "antiAimShotSafeEnabled")
+    addSlider(R, "Desync speed", "antiAimDesyncSpeed", 8, 60, 1, "hz")
+    addSlider(R, "Desync range", "antiAimDesyncRange", 20, 180, 1, "°")
+    addSlider(R, "Base offset (legacy modes)", "antiAimYaw", -180, 180, 1, "°")
+    addNote(R, "Desync uses native replicated input. Freestand tracks the nearest active enemy; damage flips the phase.")
 
     section(R, "Third person")
     toggle(R, "Third person", "thirdPersonEnabled")
@@ -17810,6 +19577,7 @@ function buildXCUI()
     addSlider(L, "Box width ratio", "espBoxAspect", 0.42, 0.68, 0.02, "x")
     section(L, "Chams 4.1 Stable")
     toggle(L, "Chams", "chamsEnabled")
+    toggle(L, "Through walls", "chamsThroughWallsEnabled")
     addChoice(L, "Material", "chamsStyle", {"Shaded", "Solid", "Glow", "Glow Outline", "Iridescent", "Water Flow", "Glossy"}, refreshESPPreview)
     toggle(L, "Use ESP palette", "chamsUseEspPalette")
 
@@ -17882,6 +19650,29 @@ function buildXCUI()
     addSlider(R, "Sound marker duration", "soundEspDuration", 0.4, 2.5, 0.05, "s")
     toggle(R, "Tracers", "tracersEnabled")
     toggle(R, "Head dot", "headDotEnabled")
+
+    section(R, "Bullet FX")
+    toggle(R, "Bullet trail", "bulletTrailEnabled")
+    toggle(R, "Bullet flash", "bulletFlashEnabled")
+    toggle(R, "Rainbow trail", "bulletTracerRainbow")
+    addChoice(R, "Trail style", "bulletTracerStyle", {
+        "Neverlose", "Laser", "Glow", "Dual", "Electric", "Comet",
+        "Beam", "Pulse", "Block", "Cylinder"
+    })
+    addColorPicker(R, "Primary color", "bulletTracerColor")
+    addColorPicker(R, "Secondary color", "bulletTracerSecondary")
+    addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
+    addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
+    addSlider(R, "Glow strength", "bulletTracerGlowStrength", 0, 2, 0.05, "x")
+    addSlider(R, "Core brightness", "bulletTracerCoreBrightness", 0.5, 2.5, 0.05, "x")
+    addSlider(R, "Taper", "bulletTracerTaper", 0, 1, 0.05, "")
+    addSlider(R, "Dual gap", "bulletTracerDualGap", 0.02, 0.45, 0.01, "")
+    toggle(R, "Bullet impacts", "bulletImpactEnabled")
+    addChoice(R, "Impact style", "bulletImpactStyle", {"Glow Ring", "Cross", "Pulse", "Dot"})
+    addSlider(R, "Impact size", "bulletImpactSize", 0.05, 2, 0.05, "")
+    addSlider(R, "Impact duration", "bulletImpactDuration", 0.08, 1.5, 0.05, "s")
+    toggle(R, "Impact glow", "bulletImpactGlow")
+
     section(R, "Hit Feedback 2.0")
     toggle(R, "Screen hitmarker", "hitmarkerEnabled")
     addChoice(R, "Hitmarker style", "hitmarkerStyle", {"Neverlose", "Classic", "Cross", "Dot", "Ring"})
@@ -18082,16 +19873,44 @@ function buildXCUI()
     addChoice(L, "Weather type", "weatherMode", {"Rain", "Snow", "Fog", "Ash", "Hell Fire"}, function() applyXCWeather(); updateWorldChanger() end)
     addSlider(L, "Weather intensity", "weatherIntensity", 1, 100, 1, "%", function() applyXCWeather() end)
     addSlider(L, "Wind", "weatherWind", -40, 40, 1, "", function() applyXCWeather() end)
+    section(R, "custom fov")
+    toggle(R, "Custom FOV", "customFovEnabled")
+    addChoice(R, "FOV mode", "customFovMode", {"Preserve ADS", "Override ADS", "Hip only"})
+    addChoice(R, "FOV preset", "customFovPreset", {"Custom", "Competitive 90", "Wide 100", "HVH 110", "Ultra 120"}, function(value)
+        local presets = {
+            ["Competitive 90"] = {90, 68},
+            ["Wide 100"] = {100, 76},
+            ["HVH 110"] = {110, 82},
+            ["Ultra 120"] = {120, 88},
+        }
+        local preset = presets[value]
+        if preset then
+            XCConfig.customFov = preset[1]
+            XCConfig.customAdsFov = preset[2]
+            refreshConfigControls("customFov", XCConfig.customFov)
+            refreshConfigControls("customAdsFov", XCConfig.customAdsFov)
+        end
+    end)
+    addSlider(R, "Hip FOV", "customFov", 70, 120, 1, "°", function()
+        XCConfig.customFovPreset = "Custom"
+        refreshConfigControls("customFovPreset", "Custom")
+    end)
+    addSlider(R, "ADS FOV", "customAdsFov", 20, 120, 1, "°", function()
+        XCConfig.customFovPreset = "Custom"
+        refreshConfigControls("customFovPreset", "Custom")
+    end)
+    toggle(R, "Smooth transition", "customFovSmoothEnabled")
+    addSlider(R, "Transition speed", "customFovTransitionSpeed", 1, 40, 1, "")
+
     section(R, "scope")
     toggle(R, "Custom scope", "customScopeEnabled")
-    toggle(R, "Custom FOV", "customFovEnabled")
-    addSlider(R, "Camera FOV", "customFov", 70, 120, 1, "°")
+    toggle(R, "Scope FOV override", "scopeFovEnabled")
+    addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
     toggle(R, "Remove original scope", "scopeRemoveOriginal")
     toggle(R, "Scope crosshair", "scopeCrosshairEnabled")
     addChoice(R, "Crosshair style", "scopeCrosshairStyle", {"Cross", "T", "X", "Dot"})
     addColorPicker(R, "Crosshair color", "scopeCrosshairColor")
     addColorPicker(R, "Crosshair outline", "scopeCrosshairOutline")
-    addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
     addSlider(R, "Crosshair gap", "scopeCrosshairGap", 0, 80, 1, "")
     addSlider(R, "Crosshair length", "scopeCrosshairLength", 5, 300, 1, "")
     section(R, "camera director")
@@ -18104,74 +19923,9 @@ function buildXCUI()
     addChoice(R, "Freelook bind", "freelookKey", {"LeftAlt", "RightAlt", "F3", "F4", "F5", "F6"})
 
     task.wait()
-    local S = createPanel(pages["Skins"], "Skin studio", 0, 1)
-    section(S, "Loadout")
-    toggle(S, "Apply saved finishes", "skinChangerEnabled")
-    addNote(S, "Choose an item, search its finishes and tap a card. Your choices stay saved while the changer is off.")
-    addButton(S, "OPEN HELD ITEM", function()
-        local mode, itemName = getXCHeldSkinItem()
-        if not itemName or not skinData.SkinSelections[itemName] then
-            XCNotify("Skin studio", "Hold a supported weapon or knife first.", "warning", 2)
-            return
-        end
-        XCConfig.skinGalleryMode = mode
-        if mode == "Knife" then
-            XCConfig.selectedKnifeType = itemName
-            if not table.find(getXCSkinChoicesForWeapon(itemName), XCConfig.selectedSkin) then XCConfig.selectedSkin = "Default" end
-        else
-            XCConfig.skinEditorWeapon = itemName
-            XCConfig.skinEditorFinish = XCConfig.weaponSkinSelections[itemName] or "Default"
-            XCConfig.skinWear = XCConfig.weaponSkinWear[itemName] or 0
-            refreshConfigControls("skinWear", XCConfig.skinWear)
-        end
-        refreshSkinGallery()
-        scheduleConfigAutoSave()
-    end)
-    section(S, "Finish catalog")
-    addChoice(S, "Preview style", "skinPreviewMode", {"Icons", "Models"}, function() refreshSkinGallery() end)
+    local S = createPanel(pages["Skins"], "Skin Studio 2.0", 0, 1)
     addSkinGallery(S)
-    section(S, "Wear and actions")
-    addSlider(S, "Weapon wear", "skinWear", 0, 1, 0.01, "", function(value)
-        local weaponName = XCConfig.skinEditorWeapon
-        XCConfig.weaponSkinWear[weaponName] = value
-        applyXCSelectedWeaponSkin()
-    end)
-    addSlider(S, "Knife wear", "knifeWear", 0, 1, 0.01, "", function() applyXCKnifeChanger() end)
-    addButton(S, "RESET CURRENT SKIN", function()
-        if XCConfig.skinGalleryMode=="Knife" then
-            XCConfig.selectedSkin="Default";applyXCKnifeChanger()
-        elseif XCConfig.skinGalleryMode=="Gloves" then
-            XCConfig.selectedGloveSkin="Default";applyXCGloves()
-        else
-            local weaponName=XCConfig.skinEditorWeapon
-            XCConfig.weaponSkinSelections[weaponName]="Default";XCConfig.weaponSkinWear[weaponName]=0
-            XCConfig.skinEditorFinish="Default";XCConfig.skinWear=0;refreshConfigControls("skinWear",0)
-            restoreXCSelectedWeaponSkin(weaponName)
-        end
-        refreshSkinGallery()
-        scheduleConfigAutoSave()
-    end)
-    addButton(S, "APPLY ALL SKINS", function()
-        applyXCSelectedWeaponSkin()
-        applyXCKnifeChanger()
-        applyXCGloves()
-    end)
-    addButton(S, "RESET ALL SKINS", function()
-        table.clear(XCConfig.weaponSkinSelections)
-        table.clear(XCConfig.weaponSkinWear)
-        XCConfig.skinEditorFinish = "Default"
-        XCConfig.skinWear = 0
-        XCConfig.selectedKnifeType = "Default"
-        XCConfig.selectedSkin = "Default"
-        XCConfig.selectedGloveModel = "Default"
-        XCConfig.selectedGloveSkin = "Default"
-        restoreXCKnifeModel()
-        restoreXCSelectedWeaponSkin()
-        restoreXCGloves()
-        refreshConfigControls("skinWear", 0)
-        refreshSkinGallery()
-        scheduleConfigAutoSave()
-    end)
+
     task.wait()
     L, R = columns("Misc", "Utilities", "Viewmodel")
     section(L, "Session")
@@ -18197,29 +19951,6 @@ function buildXCUI()
     toggle(R, "Weapon chams", "weaponChamsEnabled")
     addChoice(R, "Weapon material", "weaponChamsMode", {"Glass", "ForceField", "Metal", "Highlight", "Neon"})
     addColorPicker(R, "Weapon color", "weaponChamsColor", function() setWeaponVisuals() end)
-    section(R, "Tracers 2.0")
-    toggle(R, "Bullet trail", "bulletTrailEnabled")
-    toggle(R, "Bullet flash", "bulletFlashEnabled")
-    toggle(R, "Rainbow trail", "bulletTracerRainbow")
-    addChoice(R, "Trail style", "bulletTracerStyle", {
-        "Neverlose", "Laser", "Glow", "Dual", "Electric", "Comet",
-        "Beam", "Pulse", "Block", "Cylinder"
-    })
-    addColorPicker(R, "Primary color", "bulletTracerColor")
-    addColorPicker(R, "Secondary color", "bulletTracerSecondary")
-    addSlider(R, "Trail duration", "bulletTracerDuration", 0.05, 3, 0.05, "s")
-    addSlider(R, "Trail width", "bulletTracerWidth", 0.02, 0.5, 0.01, "")
-    addSlider(R, "Glow strength", "bulletTracerGlowStrength", 0, 2, 0.05, "x")
-    addSlider(R, "Core brightness", "bulletTracerCoreBrightness", 0.5, 2.5, 0.05, "x")
-    addSlider(R, "Taper", "bulletTracerTaper", 0, 1, 0.05, "")
-    addSlider(R, "Dual gap", "bulletTracerDualGap", 0.02, 0.45, 0.01, "")
-
-    section(R, "Bullet impacts 2.0")
-    toggle(R, "Bullet impacts", "bulletImpactEnabled")
-    addChoice(R, "Impact style", "bulletImpactStyle", {"Glow Ring", "Cross", "Pulse", "Dot"})
-    addSlider(R, "Impact size", "bulletImpactSize", 0.05, 2, 0.05, "")
-    addSlider(R, "Impact duration", "bulletImpactDuration", 0.08, 1.5, 0.05, "s")
-    toggle(R, "Impact glow", "bulletImpactGlow")
     section(R, "Penetration checker")
     toggle(R, "Cube checker", "cubeCheckerEnabled")
     addSlider(R, "Cube distance", "cubeCheckerDistance", 1, 100, 1, "")
@@ -18233,7 +19964,8 @@ function buildXCUI()
     section(L, "Chams rules")
     toggle(L, "Show teammates", "chamsShowTeammates")
     toggle(L, "Chams team check", "chamsTeamCheck")
-    toggle(L, "Chams occlusion", "chamsOcclusion")
+    toggle(L, "Through walls", "chamsThroughWallsEnabled")
+    toggle(L, "Hidden color by visibility", "chamsOcclusion")
     addSlider(L, "Chams fill", "chamsFillTransparency", 0, 1, 0.05, "")
     addSlider(L, "Chams outline", "chamsOutlineTransparency", 0, 1, 0.05, "")
     addColorPicker(L, "Chams visible", "chamsVisible", refreshESPPreview)
@@ -18305,6 +20037,11 @@ function buildXCUI()
     toggle(L, "Show FPS", "watermarkShowFPS")
     toggle(L, "Show ping", "watermarkShowPing")
     toggle(L, "Show name", "watermarkShowName")
+    addSlider(L, "Watermark size", "watermarkScale", 0.70, 1.80, 0.05, "x")
+    addSlider(L, "Watermark opacity", "watermarkOpacity", 0.35, 1.00, 0.05, "")
+    addSlider(L, "Watermark glass", "watermarkGlassStrength", 0, 1, 0.05, "")
+    section(L, "startup greeting")
+    XCBuildGreetingSettings(L, toggle, addSlider, addButton, addNote, activeSectionByParent, C)
     addChoice(L, "Menu key", "menuKey", {"RightShift", "LeftControl", "RightControl", "F6", "F7", "F8", "F9", "F10"})
     addNote(L, "Status badges appear only for WAIT, FALL or ERR; active modules use the blue switch.")
 
@@ -18328,18 +20065,18 @@ function buildXCUI()
     local editorPadding=Instance.new("UIPadding",editorValue);editorPadding.PaddingLeft=UDim.new(0,7);editorPadding.PaddingRight=UDim.new(0,7)
     refreshAdvancedEditor=function()
         local key=XCConfig.advancedSettingKey;local value=XCConfig[key]
-        editorType.Text=string.format("%s  •  %s",tostring(key),type(value):upper());editorValue.Text=tostring(value)
+        editorType.Text=string.format("%s  |  %s",tostring(key),type(value):upper());editorValue.Text=tostring(value)
     end
     refreshers.advancedCategory=refreshers.advancedCategory or {};refreshers.advancedSettingKey=refreshers.advancedSettingKey or {}
     table.insert(refreshers.advancedCategory,refreshAdvancedEditor);table.insert(refreshers.advancedSettingKey,refreshAdvancedEditor)
     local function commitAdvancedEditor()
         local key=XCConfig.advancedSettingKey;local current=XCConfig[key];local valueType=type(current)
         local raw=editorValue.Text:match("^%s*(.-)%s*$");local parsed
-        if valueType=="number" then parsed=tonumber(raw);if not parsed then editorType.Text=key.."  •  INVALID NUMBER";return end
+        if valueType=="number" then parsed=tonumber(raw);if not parsed then editorType.Text=key.."  |  INVALID NUMBER";return end
         elseif valueType=="boolean" then local lower=raw:lower()
             if lower=="true" or lower=="1" or lower=="on" then parsed=true
             elseif lower=="false" or lower=="0" or lower=="off" then parsed=false
-            else editorType.Text=key.."  •  USE TRUE / FALSE";return end
+            else editorType.Text=key.."  |  USE TRUE / FALSE";return end
         else parsed=raw end
         if applyXCSettingRuntime(key,parsed) then refreshAdvancedEditor();XCNotify("Setting updated",key.." = "..tostring(XCConfig[key]),"success",1.4) end
     end
@@ -18477,7 +20214,7 @@ function buildXCUI()
         end
         stopXCCameraMode()
         setThirdPersonEnabled(false)
-        applyXCCameraFov()
+        restoreXCCameraFov()
         XCNotify("Camera", "Camera state restored", "success", 1.5)
     end)
     addButton(ConfigLocal, "SAVE CONFIG", function()
@@ -18813,6 +20550,10 @@ reconnectThirdPersonCamera()
 local currentCameraConnection = Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
     camera = Workspace.CurrentCamera or camera
     reconnectThirdPersonCamera()
+    if type(bindXCEspCameraSignals) == "function" then
+        bindXCEspCameraSignals(camera)
+        resetXCEspProjectionCache()
+    end
 
     if XCConfig.thirdPersonEnabled and camera then
         applyThirdPerson()
@@ -19449,6 +21190,12 @@ task.spawn(function()
         end
     end
 end)
+pcall(function()
+    local oldGreeting = targetGui and targetGui:FindFirstChild("XCGreetingGui")
+    if oldGreeting then oldGreeting:Destroy() end
+    local oldVoice = SoundService:FindFirstChild("XCGreetingVoice")
+    if oldVoice then oldVoice:Destroy() end
+end)
 XCFeatureState.uiBuildOK, XCFeatureState.uiBuildError = pcall(buildXCUI)
 if not XCFeatureState.uiBuildOK then
     warn("[XC] UI startup failed: " .. tostring(XCFeatureState.uiBuildError))
@@ -19474,6 +21221,10 @@ if not XCFeatureState.uiBuildOK then
         XCFeatureState.fallbackCard.Text = "XC STARTUP ERROR\n" .. tostring(XCFeatureState.uiBuildError):sub(1, 220)
         XCFeatureState.fallbackCard.Parent = XCFeatureState.fallbackGui
     end)
+end
+
+if XCFeatureState.uiBuildOK and XCConfig.greetingEnabled then
+    task.delay(0.20, function() pcall(function() XCShowAnimeGreeting(false) end) end)
 end
 
 -- XC-style active navigation accent.
