@@ -453,9 +453,9 @@ local XCConfig = {
     greetingGlassStrength = 0.88,
     greetingVoiceEnabled = true,
     greetingVoiceVolume = 0.72,
-    greetingUseTTS = true,
-    greetingTTSVoiceId = "2",
-    greetingVoiceId = "", -- optional Roblox SoundId fallback if TTS is unavailable
+    greetingUseTTS = false, -- fixed Nadia voice file; kept for config compatibility
+    greetingTTSVoiceId = "2", -- legacy compatibility; unused by v5 greeting
+    greetingVoiceId = "", -- legacy compatibility; unused by v5 greeting
     greetingImageAsset = "",
 
     aimbotEnabled = false,
@@ -1314,6 +1314,10 @@ XC_GREETING_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/Xose
 XC_GREETING_WINK_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character_Wink_v4.png"
 XC_GREETING_IMAGE_PATH = "XOSE/assets/greeting_v4.png"
 XC_GREETING_WINK_PATH = "XOSE/assets/greeting_wink_v4.png"
+XC_GREETING_VOICE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Voice_Nadia.wav"
+XC_GREETING_VOICE_FALLBACK_URL = "https://resource2.heygen.ai/text_to_speech/4f96e54ffe1e4265b75f232add871391/aa28b796ef284c5a80497034afe9d93e/id=473cb5f6-47cb-4724-afd4-5203846b7db7.wav"
+XC_GREETING_VOICE_PATH = "XOSE/assets/greeting_voice_nadia.wav"
+XC_GREETING_VOICE_CUTOFF = 1.70 -- stop before HeyGen's trailing breath/noise
 
 function XCGreetingBytesArePng(data)
     return type(data) == "string"
@@ -1400,6 +1404,113 @@ function XCResolveGreetingAsset(url, path, cacheKey, overrideAsset)
     return nil
 end
 
+function XCGreetingBytesAreWav(data)
+    return type(data) == "string"
+        and #data > 4096
+        and data:sub(1, 4) == "RIFF"
+        and data:sub(9, 12) == "WAVE"
+end
+
+function XCGreetingDownloadVoice()
+    if type(writefile) ~= "function" then return nil end
+    XCGreetingEnsureFolders()
+
+    local urls = {XC_GREETING_VOICE_URL, XC_GREETING_VOICE_FALLBACK_URL}
+    for _, url in ipairs(urls) do
+        if type(url) == "string" and url ~= "" then
+            local ok, data = pcall(function()
+                return game:HttpGet(url)
+            end)
+            if ok and XCGreetingBytesAreWav(data) then
+                local wrote = pcall(writefile, XC_GREETING_VOICE_PATH, data)
+                if wrote then return XC_GREETING_VOICE_PATH end
+            end
+        end
+    end
+    return nil
+end
+
+function XCEnsureGreetingVoiceFile(forceDownload)
+    if not forceDownload and type(isfile) == "function" then
+        local ok, exists = pcall(isfile, XC_GREETING_VOICE_PATH)
+        if ok and exists == true then
+            if type(readfile) == "function" then
+                local readOk, cached = pcall(readfile, XC_GREETING_VOICE_PATH)
+                if readOk and XCGreetingBytesAreWav(cached) then
+                    return XC_GREETING_VOICE_PATH
+                end
+            else
+                return XC_GREETING_VOICE_PATH
+            end
+        end
+    end
+    return XCGreetingDownloadVoice()
+end
+
+function XCResolveGreetingVoice()
+    if XCFeatureState and XCFeatureState.GreetingVoiceAsset then
+        return XCFeatureState.GreetingVoiceAsset
+    end
+
+    local resolver = nil
+    if type(getcustomasset) == "function" then resolver = getcustomasset
+    elseif type(getsynasset) == "function" then resolver = getsynasset end
+    if not resolver then return nil end
+
+    local assetPath = XCEnsureGreetingVoiceFile(false)
+    if not assetPath then return nil end
+
+    local ok, asset = pcall(resolver, assetPath)
+    if not ok or type(asset) ~= "string" or asset == "" then
+        assetPath = XCEnsureGreetingVoiceFile(true)
+        if not assetPath then return nil end
+        ok, asset = pcall(resolver, assetPath)
+    end
+
+    if ok and type(asset) == "string" and asset ~= "" then
+        if XCFeatureState then XCFeatureState.GreetingVoiceAsset = asset end
+        return asset
+    end
+    return nil
+end
+
+function XCGreetingVoicePrewarm()
+    if not XCFeatureState then return nil end
+    if XCFeatureState.GreetingVoicePrewarmReady == true then
+        return XCFeatureState.GreetingVoiceAsset
+    end
+    if XCFeatureState.GreetingVoicePrewarmStarted == true then
+        return XCFeatureState.GreetingVoiceAsset
+    end
+
+    XCFeatureState.GreetingVoicePrewarmStarted = true
+    XCFeatureState.GreetingVoicePrewarmFinished = false
+    XCFeatureState.GreetingVoicePrewarmError = nil
+
+    local ok, err = pcall(function()
+        local asset = XCResolveGreetingVoice()
+        XCFeatureState.GreetingVoiceAsset = asset
+        if not asset then return end
+
+        local voice = Instance.new("Sound")
+        voice.Name = "NadiaVoicePreload"
+        voice.SoundId = asset
+        voice.Volume = 0
+        voice.Parent = SoundService
+        pcall(function()
+            game:GetService("ContentProvider"):PreloadAsync({voice})
+        end)
+        pcall(function() voice:Destroy() end)
+    end)
+
+    if not ok then
+        XCFeatureState.GreetingVoicePrewarmError = tostring(err)
+    end
+    XCFeatureState.GreetingVoicePrewarmFinished = true
+    XCFeatureState.GreetingVoicePrewarmReady = XCFeatureState.GreetingVoiceAsset ~= nil
+    return XCFeatureState.GreetingVoiceAsset
+end
+
 function XCResolveGreetingImage()
     return XCResolveGreetingAsset(
         XC_GREETING_IMAGE_URL,
@@ -1463,6 +1574,7 @@ function XCGreetingPrewarmAssets()
             preload[#preload + 1] = wink
         end
 
+
         pcall(function()
             game:GetService("ContentProvider"):PreloadAsync(preload)
         end)
@@ -1487,19 +1599,14 @@ function XCWaitForGreetingPrewarm(timeout)
     return XCFeatureState.GreetingPrewarmReady == true
 end
 
-function XCBuildGreetingVoiceText(displayName)
-    local clean = tostring(displayName or ""):match("^%s*(.-)%s*$") or ""
-    if clean ~= "" then
-        return "Welcome back, " .. clean .. ". XOSE is ready."
-    end
-    return "Welcome back. XOSE is ready."
-end
+function XCPlayGreetingVoice(duration, displayName)
+    if XCConfig.greetingVoiceEnabled ~= true then return nil end
+    if not XCFeatureState then return nil end
 
-function XCPlayGreetingSoundFallback(duration)
-    local raw = tostring(XCConfig.greetingVoiceId or ""):match("^%s*(.-)%s*$") or ""
-    if raw == "" then return nil end
-    if raw:match("^%d+$") then raw = "rbxassetid://" .. raw end
-    if not raw:match("^rbxassetid://") then return nil end
+    local asset = XCFeatureState.GreetingVoiceAsset
+    if type(asset) ~= "string" or asset == "" then
+        return nil
+    end
 
     pcall(function()
         local old = SoundService:FindFirstChild("XCGreetingVoice")
@@ -1508,108 +1615,170 @@ function XCPlayGreetingSoundFallback(duration)
 
     local sound = Instance.new("Sound")
     sound.Name = "XCGreetingVoice"
-    sound.SoundId = raw
+    sound.SoundId = asset
     sound.Volume = math.clamp(tonumber(XCConfig.greetingVoiceVolume) or 0.72, 0, 1)
+    sound.PlaybackSpeed = 1
+    sound.Looped = false
     sound.Parent = SoundService
-    task.spawn(function()
-        pcall(function() game:GetService("ContentProvider"):PreloadAsync({sound}) end)
-        task.wait(0.12)
-        if sound.Parent then pcall(function() sound:Play() end) end
-    end)
-    Debris:AddItem(sound, math.max(tonumber(duration) or 4, 4) + 4)
-    return sound
-end
 
-function XCTryPlayGreetingTTS(text, duration)
-    local made = {}
-    local function remember(obj)
-        made[#made + 1] = obj
-        return obj
-    end
-    local function cleanup()
-        for i = #made, 1, -1 do
-            local obj = made[i]
-            if obj then pcall(function() obj:Destroy() end) end
+    local endedConnection = nil
+    endedConnection = sound.Ended:Connect(function()
+        if endedConnection then endedConnection:Disconnect() end
+        if XCFeatureState and XCFeatureState.ActiveGreetingVoice == sound then
+            XCFeatureState.ActiveGreetingVoice = nil
         end
-    end
-
-    local ok, tts = pcall(function()
-        local speech = remember(Instance.new("AudioTextToSpeech"))
-        local output = remember(Instance.new("AudioDeviceOutput"))
-        local wire = remember(Instance.new("Wire"))
-
-        speech.Name = "XCGreetingTTS"
-        output.Name = "XCGreetingTTSOutput"
-        wire.Name = "XCGreetingTTSWire"
-
-        speech.Parent = SoundService
-        output.Parent = SoundService
-        wire.Parent = SoundService
-
-        wire.SourceInstance = speech
-        wire.TargetInstance = output
-
-        speech.Text = tostring(text or "Welcome back. XOSE is ready."):sub(1, 300)
-        speech.VoiceId = tostring(XCConfig.greetingTTSVoiceId or "2")
-        speech.Volume = math.clamp(tonumber(XCConfig.greetingVoiceVolume) or 0.72, 0, 1)
-        speech.Speed = 0.96
-        speech.Pitch = 0
-
-        -- Play() starts generation/playback without synchronously blocking the
-        -- greeting animation on the blocking TTS pre-generation call.
-        speech:Play()
-        return speech
+        pcall(function() sound:Destroy() end)
     end)
 
-    if not ok or not tts then
-        cleanup()
+    XCFeatureState.ActiveGreetingVoice = sound
+    local ok = pcall(function() sound:Play() end)
+    if ok then
+        task.delay(XC_GREETING_VOICE_CUTOFF, function()
+            if sound and sound.Parent and sound.IsPlaying then
+                pcall(function() sound:Stop() end)
+                if XCFeatureState and XCFeatureState.ActiveGreetingVoice == sound then
+                    XCFeatureState.ActiveGreetingVoice = nil
+                end
+                pcall(function() sound:Destroy() end)
+            end
+        end)
+    end
+    if not ok then
+        if endedConnection then endedConnection:Disconnect() end
+        XCFeatureState.ActiveGreetingVoice = nil
+        pcall(function() sound:Destroy() end)
         return nil
     end
 
-    local endedConnection = nil
-    endedConnection = tts.Ended:Connect(function()
-        if endedConnection then endedConnection:Disconnect() end
-        cleanup()
-    end)
-    task.delay(math.max(tonumber(duration) or 4, 4) + 5, function()
-        if endedConnection then pcall(function() endedConnection:Disconnect() end) end
-        cleanup()
-    end)
-    return tts
+    Debris:AddItem(sound, math.max(tonumber(duration) or 4, 4) + 3)
+    return sound
 end
 
-function XCPlayGreetingVoice(duration, displayName)
-    if XCConfig.greetingVoiceEnabled ~= true then return nil end
-    local text = XCBuildGreetingVoiceText(displayName)
+function XCPlayGreetingWink(winkPatch)
+    if not winkPatch or not winkPatch.Parent then return false end
+    if winkPatch.Image == "" then return false end
 
-    if XCConfig.greetingUseTTS == true then
-        task.spawn(function()
-            local tts = XCTryPlayGreetingTTS(text, duration)
-            if not tts then
-                XCPlayGreetingSoundFallback(duration)
-            end
-        end)
-        return true
+    -- Only the small eye/face patch is swapped. The full character image never fades,
+    -- which avoids the double-silhouette/glitch from v3-v5.
+    winkPatch.ImageTransparency = 1
+    TweenService:Create(winkPatch, TweenInfo.new(0.035, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        ImageTransparency = 0
+    }):Play()
+
+    task.wait(0.145)
+    if not winkPatch.Parent then return false end
+
+    TweenService:Create(winkPatch, TweenInfo.new(0.055, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+        ImageTransparency = 1
+    }):Play()
+    return true
+end
+
+function XCGreetingMouthFallbackOpen(timePosition)
+    local t = math.max(tonumber(timePosition) or 0, 0)
+    local startTime, endTime, cycles
+
+    -- Nadia word timings from the selected clean dub.
+    if t >= 0.28 and t <= 0.53 then
+        startTime, endTime, cycles = 0.28, 0.53, 2.1
+    elseif t >= 0.56 and t <= 1.09 then
+        startTime, endTime, cycles = 0.56, 1.09, 4.2
+    elseif t >= 1.17 and t <= 1.61 then
+        startTime, endTime, cycles = 1.17, 1.61, 3.0
+    else
+        return 0
     end
 
-    return XCPlayGreetingSoundFallback(duration)
+    local phase = math.clamp((t - startTime) / math.max(endTime - startTime, 0.001), 0, 1)
+    local pulse = math.abs(math.sin(phase * math.pi * cycles))
+    return math.clamp(0.28 + pulse * 0.72, 0, 1)
 end
 
-function XCPlayGreetingWink(characterNormal, characterWink)
-    if not characterNormal or not characterWink then return false end
-    if not characterNormal.Parent or not characterWink.Parent then return false end
-    if characterWink.Image == "" then return false end
+function XCSetGreetingMouthOpen(mouth, openness)
+    if not mouth or not mouth.Parent then return end
+    openness = math.clamp(tonumber(openness) or 0, 0, 1)
 
-    local fadeIn = TweenInfo.new(0.085, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
-    TweenService:Create(characterNormal, fadeIn, {ImageTransparency = 1}):Play()
-    TweenService:Create(characterWink, fadeIn, {ImageTransparency = 0}):Play()
-    task.wait(0.18)
-    if not characterNormal.Parent or not characterWink.Parent then return false end
+    if openness <= 0.045 then
+        mouth.Visible = false
+        return
+    end
 
-    local fadeOut = TweenInfo.new(0.11, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    TweenService:Create(characterNormal, fadeOut, {ImageTransparency = 0}):Play()
-    TweenService:Create(characterWink, fadeOut, {ImageTransparency = 1}):Play()
-    return true
+    mouth.Visible = true
+    mouth.Size = UDim2.fromScale(
+        0.048 + openness * 0.009,
+        0.0045 + openness * 0.0185
+    )
+    mouth.BackgroundTransparency = 0.02
+
+    local tongue = mouth:FindFirstChild("Tongue")
+    if tongue then
+        tongue.BackgroundTransparency = math.clamp(0.48 - openness * 0.30, 0.12, 0.48)
+        tongue.Size = UDim2.fromScale(0.72, 0.26 + openness * 0.18)
+    end
+end
+
+function XCStopGreetingMouthAnimation(state)
+    if type(state) ~= "table" then return end
+    if state.connection then
+        pcall(function() state.connection:Disconnect() end)
+        state.connection = nil
+    end
+    if state.mouth and state.mouth.Parent then
+        XCSetGreetingMouthOpen(state.mouth, 0)
+    end
+end
+
+function XCStartGreetingMouthAnimation(sound, mouth)
+    if not sound or not mouth or not mouth.Parent then return nil end
+
+    local state = {
+        connection = nil,
+        mouth = mouth,
+        openness = 0,
+        startedAt = tick(),
+    }
+
+    state.connection = RunService.RenderStepped:Connect(function(dt)
+        if not mouth.Parent or not sound or not sound.Parent then
+            XCStopGreetingMouthAnimation(state)
+            return
+        end
+
+        local playing = false
+        local timePosition = 0
+        local loudness = 0
+
+        pcall(function()
+            playing = sound.IsPlaying
+            timePosition = sound.TimePosition
+            loudness = sound.PlaybackLoudness
+        end)
+
+        -- Give custom assets a short start grace before deciding playback ended.
+        if not playing and timePosition <= 0.001 and (tick() - state.startedAt) < 0.35 then
+            XCSetGreetingMouthOpen(mouth, 0)
+            return
+        end
+
+        if not playing or timePosition >= (XC_GREETING_VOICE_CUTOFF + 0.08) then
+            XCStopGreetingMouthAnimation(state)
+            return
+        end
+
+        local targetOpen
+        if loudness > 2 then
+            targetOpen = math.clamp((loudness - 4) / 82, 0.10, 1)
+        else
+            -- Some executors/custom assets report zero PlaybackLoudness.
+            targetOpen = XCGreetingMouthFallbackOpen(timePosition)
+        end
+
+        local response = math.clamp((tonumber(dt) or 0.016) * 15, 0, 1)
+        state.openness = state.openness + (targetOpen - state.openness) * response
+        XCSetGreetingMouthOpen(mouth, state.openness)
+    end)
+
+    return state
 end
 
 function XCStartGreetingBreathing(characterMotion)
@@ -1713,15 +1882,54 @@ function XCShowAnimeGreeting(force)
     character.ZIndex = 2
     character.Parent = characterMotion
 
-    local characterWink = Instance.new("ImageLabel")
-    characterWink.Name = "CharacterWinkImage"
-    characterWink.Size = UDim2.fromScale(1, 1)
-    characterWink.BackgroundTransparency = 1
-    characterWink.Image = winkAsset or ""
-    characterWink.ImageTransparency = 1
-    characterWink.ScaleType = Enum.ScaleType.Fit
-    characterWink.ZIndex = 3
-    characterWink.Parent = characterMotion
+    local winkPatch = Instance.new("ImageLabel")
+    winkPatch.Name = "GreetingWinkPatch"
+    winkPatch.BackgroundTransparency = 1
+    winkPatch.Image = winkAsset or ""
+    winkPatch.ImageTransparency = 1
+    winkPatch.ScaleType = Enum.ScaleType.Stretch
+    -- v4 source canvas is 450x600. This rect contains only the edited eye/face area.
+    winkPatch.ImageRectOffset = Vector2.new(188, 90)
+    winkPatch.ImageRectSize = Vector2.new(106, 99)
+    winkPatch.Position = UDim2.fromScale(188 / 450, 90 / 600)
+    winkPatch.Size = UDim2.fromScale(106 / 450, 99 / 600)
+    winkPatch.ZIndex = 4
+    winkPatch.Parent = characterMotion
+
+    -- Lightweight mouth layer. It is hidden while silent, so the original mouth
+    -- remains untouched except during Nadia speech.
+    local mouth = Instance.new("Frame")
+    mouth.Name = "GreetingMouth"
+    mouth.AnchorPoint = Vector2.new(0.5, 0.5)
+    mouth.Position = UDim2.fromScale(0.518, 0.316)
+    mouth.Size = UDim2.fromScale(0.052, 0.006)
+    mouth.BackgroundColor3 = Color3.fromRGB(79, 27, 40)
+    mouth.BackgroundTransparency = 1
+    mouth.BorderSizePixel = 0
+    mouth.ClipsDescendants = true
+    mouth.Rotation = -4
+    mouth.Visible = false
+    mouth.ZIndex = 6
+    mouth.Parent = characterMotion
+
+    local mouthCorner = Instance.new("UICorner")
+    mouthCorner.CornerRadius = UDim.new(1, 0)
+    mouthCorner.Parent = mouth
+
+    local tongue = Instance.new("Frame")
+    tongue.Name = "Tongue"
+    tongue.AnchorPoint = Vector2.new(0.5, 1)
+    tongue.Position = UDim2.fromScale(0.5, 0.98)
+    tongue.Size = UDim2.fromScale(0.72, 0.34)
+    tongue.BackgroundColor3 = Color3.fromRGB(222, 116, 137)
+    tongue.BackgroundTransparency = 0.28
+    tongue.BorderSizePixel = 0
+    tongue.ZIndex = 7
+    tongue.Parent = mouth
+
+    local tongueCorner = Instance.new("UICorner")
+    tongueCorner.CornerRadius = UDim.new(1, 0)
+    tongueCorner.Parent = tongue
 
     local cardWidth = math.floor((UserInputService.TouchEnabled and 286 or 356) * scale + 0.5)
     local cardHeight = math.floor(132 * scale + 0.5)
@@ -1827,7 +2035,9 @@ function XCShowAnimeGreeting(force)
     status.Size = UDim2.new(1, -42, 0, 18)
     status.Position = UDim2.fromOffset(24, 96)
     status.BackgroundTransparency = 1
-    status.Text = XCConfig.greetingVoiceEnabled and "VOICE  /  SYSTEM READY" or "SYSTEM READY"
+    status.Text = (XCConfig.greetingVoiceEnabled and XCFeatureState and XCFeatureState.GreetingVoiceAsset)
+        and "NADIA VOICE  /  SYSTEM READY"
+        or "SYSTEM READY"
     status.TextColor3 = accent:Lerp(Color3.new(1, 1, 1), 0.25)
     status.TextTransparency = 1
     status.Font = Enum.Font.GothamBold
@@ -1850,25 +2060,31 @@ function XCShowAnimeGreeting(force)
     TweenService:Create(status, TweenInfo.new(0.42), {TextTransparency = 0}):Play()
 
     local breathing = XCStartGreetingBreathing(characterMotion)
+    local mouthAnimation = nil
+
     task.delay(0.72, function()
         if gui and gui.Parent then
-            XCPlayGreetingVoice(duration, displayName)
+            local voiceSound = XCPlayGreetingVoice(duration, displayName)
+            if voiceSound and mouth and mouth.Parent then
+                mouthAnimation = XCStartGreetingMouthAnimation(voiceSound, mouth)
+            end
         end
     end)
 
     task.spawn(function()
         task.wait(math.min(1.20, duration * 0.33))
-        if imageAsset and winkAsset and gui.Parent then
-            XCPlayGreetingWink(character, characterWink)
+        if winkAsset and gui.Parent then
+            XCPlayGreetingWink(winkPatch)
         end
     end)
 
     task.delay(duration, function()
         if not gui.Parent then return end
         XCStopGreetingBreathing(breathing)
+        XCStopGreetingMouthAnimation(mouthAnimation)
         TweenService:Create(characterHolder, TweenInfo.new(0.38, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, characterWidth + 50, 1, 18), Rotation = 1.5}):Play()
         TweenService:Create(character, TweenInfo.new(0.26), {ImageTransparency = 1}):Play()
-        TweenService:Create(characterWink, TweenInfo.new(0.22), {ImageTransparency = 1}):Play()
+        TweenService:Create(winkPatch, TweenInfo.new(0.12), {ImageTransparency = 1}):Play()
         TweenService:Create(glass, TweenInfo.new(0.30, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, cardWidth + 30, 1, -44), BackgroundTransparency = 1}):Play()
         TweenService:Create(glassShadow, TweenInfo.new(0.28), {BackgroundTransparency = 1}):Play()
         TweenService:Create(brand, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
@@ -1887,43 +2103,9 @@ function XCBuildGreetingSettings(parent, toggleFn, sliderFn, buttonFn, noteFn, a
     sliderFn(parent, "Greeting size", "greetingScale", 0.70, 1.50, 0.05, "x")
     sliderFn(parent, "Greeting glass", "greetingGlassStrength", 0, 1, 0.05, "")
     toggleFn(parent, "Greeting voice", "greetingVoiceEnabled")
-    toggleFn(parent, "Roblox TTS", "greetingUseTTS")
     sliderFn(parent, "Voice volume", "greetingVoiceVolume", 0, 1, 0.05, "")
-
-    local host = activeSections[parent] or parent
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0, 16)
-    label.BackgroundTransparency = 1
-    label.Text = "FALLBACK SOUND ID"
-    label.TextColor3 = colors.Muted
-    label.Font = Enum.Font.GothamBold
-    label.TextSize = 9
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = host
-
-    local box = Instance.new("TextBox")
-    box.Name = "GreetingVoiceAsset"
-    box.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 32 or 26)
-    box.BackgroundColor3 = colors.Control
-    box.BorderColor3 = colors.Black
-    box.BorderSizePixel = 1
-    box.ClearTextOnFocus = false
-    box.PlaceholderText = "Optional Roblox audio asset id"
-    box.PlaceholderColor3 = colors.Muted
-    box.Text = tostring(XCConfig.greetingVoiceId or "")
-    box.TextColor3 = colors.White
-    box.Font = Enum.Font.Code
-    box.TextSize = 10
-    box.Parent = host
-    local padding = Instance.new("UIPadding", box)
-    padding.PaddingLeft = UDim.new(0, 7)
-    padding.PaddingRight = UDim.new(0, 7)
-    box.FocusLost:Connect(function()
-        XCConfig.greetingVoiceId = box.Text:match("^%s*(.-)%s*$") or ""
-    end)
-
     buttonFn(parent, "REPLAY GREETING", function() XCShowAnimeGreeting(true) end)
-    noteFn(parent, "Roblox TTS uses Voice 2 (British female). The Sound ID above is only used if TTS is unavailable.")
+    noteFn(parent, "Nadia fixed cached voice. It is preloaded before the greeting; no Roblox TTS is used.")
 end
 --// END XC ANIME GREETING SYSTEM -----------------------------------------------
 
@@ -10442,6 +10624,10 @@ XCFeatureState = {
 -- animation path. The task yields independently and never blocks XOSE startup.
 task.defer(function()
     pcall(function() XCGreetingPrewarmAssets() end)
+end)
+
+task.defer(function()
+    pcall(function() XCGreetingVoicePrewarm() end)
 end)
 
 function isXCSmokeObject(object)
