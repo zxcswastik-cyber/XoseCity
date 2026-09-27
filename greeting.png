@@ -1,0 +1,18 @@
+local GREETING_URLS = {
+    "https://raw.githubusercontent.com/USERNAME/XoseCity/main/assets/greeting.png",
+    "https://cdn.jsdelivr.net/gh/USERNAME/XoseCity@main/assets/greeting.png",
+}
+
+local function downloadGreeting()
+    for _, url in ipairs(GREETING_URLS) do
+        local ok, data = pcall(function()
+            return game:HttpGet(url)
+        end)
+
+        if ok and type(data) == "string" and #data > 1000 then
+            return data
+        end
+    end
+
+    return nil
+end
