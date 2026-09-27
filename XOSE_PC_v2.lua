@@ -446,15 +446,17 @@ local XCConfig = {
     watermarkGlassStrength = 0.86,
 
     -- Anime startup greeting
-    -- v2 uses an embedded transparent PNG with safe padding so long hair is never clipped.
+    -- v3 uses aligned normal/wink PNG frames so the character never jumps during the expression change.
     greetingEnabled = true,
     greetingDuration = 4.0,
     greetingScale = 1.0,
     greetingGlassStrength = 0.88,
-    greetingVoiceEnabled = false,
+    greetingVoiceEnabled = true,
     greetingVoiceVolume = 0.65,
     greetingVoiceId = "",
+    greetingTtsVoiceId = "2",
     greetingImageAsset = "",
+    greetingWinkImageAsset = "",
 
     aimbotEnabled = false,
     predictionEnabled = true,
@@ -1310,6 +1312,8 @@ syncXCUserTheme()
 --// XC ANIME GREETING SYSTEM ---------------------------------------------------
 XC_GREETING_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character.png"
 XC_GREETING_IMAGE_PATH = "XOSE/assets/greeting.png"
+XC_GREETING_WINK_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character_Wink.png"
+XC_GREETING_WINK_IMAGE_PATH = "XOSE/assets/greeting_wink.png"
 
 function XCGreetingBytesArePng(data)
     return type(data) == "string"
@@ -1333,45 +1337,45 @@ function XCGreetingEnsureFolders()
     return true
 end
 
-function XCGreetingDownloadImage()
+function XCGreetingDownloadImage(url, path)
     if type(writefile) ~= "function" then return nil end
     XCGreetingEnsureFolders()
 
     local ok, data = pcall(function()
-        return game:HttpGet(XC_GREETING_IMAGE_URL)
+        return game:HttpGet(url)
     end)
     if not ok or not XCGreetingBytesArePng(data) then return nil end
 
-    local wrote = pcall(writefile, XC_GREETING_IMAGE_PATH, data)
+    local wrote = pcall(writefile, path, data)
     if not wrote then return nil end
-    return XC_GREETING_IMAGE_PATH
+    return path
 end
 
-function XCEnsureGreetingImageFile(forceDownload)
+function XCEnsureGreetingImageFile(url, path, forceDownload)
     if not forceDownload and type(isfile) == "function" then
-        local ok, exists = pcall(isfile, XC_GREETING_IMAGE_PATH)
+        local ok, exists = pcall(isfile, path)
         if ok and exists == true then
             if type(readfile) == "function" then
-                local readOk, cached = pcall(readfile, XC_GREETING_IMAGE_PATH)
+                local readOk, cached = pcall(readfile, path)
                 if readOk and XCGreetingBytesArePng(cached) then
-                    return XC_GREETING_IMAGE_PATH
+                    return path
                 end
             else
-                return XC_GREETING_IMAGE_PATH
+                return path
             end
         end
     end
-    return XCGreetingDownloadImage()
+    return XCGreetingDownloadImage(url, path)
 end
 
-function XCResolveGreetingImage()
-    if type(XCConfig.greetingImageAsset) == "string" and XCConfig.greetingImageAsset ~= "" then
-        local raw = XCConfig.greetingImageAsset
+function XCResolveGreetingImage(url, path, configuredAsset, stateKey)
+    if type(configuredAsset) == "string" and configuredAsset ~= "" then
+        local raw = configuredAsset
         if raw:match("^%d+$") then raw = "rbxassetid://" .. raw end
         return raw
     end
-    if XCFeatureState and XCFeatureState.GreetingImageAsset then
-        return XCFeatureState.GreetingImageAsset
+    if XCFeatureState and XCFeatureState[stateKey] then
+        return XCFeatureState[stateKey]
     end
 
     local resolver = nil
@@ -1379,67 +1383,114 @@ function XCResolveGreetingImage()
     elseif type(getsynasset) == "function" then resolver = getsynasset end
     if not resolver or type(writefile) ~= "function" then return nil end
 
-    local path = XCEnsureGreetingImageFile(false)
-    if not path then return nil end
+    local localPath = XCEnsureGreetingImageFile(url, path, false)
+    if not localPath then return nil end
 
-    local ok, asset = pcall(resolver, path)
+    local ok, asset = pcall(resolver, localPath)
     if (not ok or type(asset) ~= "string" or asset == "") then
-        path = XCEnsureGreetingImageFile(true)
-        if not path then return nil end
-        ok, asset = pcall(resolver, path)
+        localPath = XCEnsureGreetingImageFile(url, path, true)
+        if not localPath then return nil end
+        ok, asset = pcall(resolver, localPath)
     end
 
     if ok and type(asset) == "string" and asset ~= "" then
-        if XCFeatureState then XCFeatureState.GreetingImageAsset = asset end
+        if XCFeatureState then XCFeatureState[stateKey] = asset end
         return asset
     end
     return nil
 end
 
-function XCPlayGreetingVoice(duration)
-    if XCConfig.greetingVoiceEnabled ~= true then return nil end
-    local raw = tostring(XCConfig.greetingVoiceId or ""):match("^%s*(.-)%s*$") or ""
-    if raw == "" then return nil end
-    if raw:match("^%d+$") then raw = "rbxassetid://" .. raw end
-    if not raw:match("^rbxassetid://") then return nil end
+function XCResolveGreetingImages()
+    local normalAsset = XCResolveGreetingImage(
+        XC_GREETING_IMAGE_URL,
+        XC_GREETING_IMAGE_PATH,
+        XCConfig.greetingImageAsset,
+        "GreetingImageAsset"
+    )
+    local winkAsset = XCResolveGreetingImage(
+        XC_GREETING_WINK_IMAGE_URL,
+        XC_GREETING_WINK_IMAGE_PATH,
+        XCConfig.greetingWinkImageAsset,
+        "GreetingWinkImageAsset"
+    )
+    return normalAsset, winkAsset
+end
 
-    pcall(function()
-        local old = SoundService:FindFirstChild("XCGreetingVoice")
-        if old then old:Destroy() end
+function XCPlayGreetingVoice(duration, displayName)
+    if XCConfig.greetingVoiceEnabled ~= true then return nil end
+    local old = SoundService:FindFirstChild("XCGreetingVoice")
+    if old then pcall(function() old:Destroy() end) end
+
+    local container = Instance.new("Folder")
+    container.Name = "XCGreetingVoice"
+    container.Parent = SoundService
+    Debris:AddItem(container, math.max(tonumber(duration) or 4, 4) + 4)
+
+    local spokenName = tostring(displayName or ""):match("^%s*(.-)%s*$") or ""
+    local speechText = spokenName ~= ""
+        and ("Welcome back, " .. spokenName .. ". XOSE is ready.")
+        or "Welcome back. XOSE is ready."
+    local volume = math.clamp(tonumber(XCConfig.greetingVoiceVolume) or 0.65, 0, 1)
+
+    local ttsOk = pcall(function()
+        local tts = Instance.new("AudioTextToSpeech")
+        tts.Name = "GreetingTTS"
+        tts.Text = speechText:sub(1, 300)
+        tts.VoiceId = tostring(XCConfig.greetingTtsVoiceId or "2")
+        tts.Volume = volume
+        tts.Parent = container
+
+        local deviceOutput = Instance.new("AudioDeviceOutput")
+        deviceOutput.Name = "GreetingOutput"
+        deviceOutput.Parent = container
+
+        local wire = Instance.new("Wire")
+        wire.Name = "GreetingWire"
+        wire.SourceInstance = tts
+        wire.TargetInstance = deviceOutput
+        wire.Parent = container
+        tts:Play()
     end)
+    if ttsOk then return container end
+
+    local raw = tostring(XCConfig.greetingVoiceId or ""):match("^%s*(.-)%s*$") or ""
+    if raw:match("^%d+$") then raw = "rbxassetid://" .. raw end
+    if not raw:match("^rbxassetid://") then
+        container:Destroy()
+        return nil
+    end
+
     local sound = Instance.new("Sound")
-    sound.Name = "XCGreetingVoice"
+    sound.Name = "GreetingFallbackSound"
     sound.SoundId = raw
-    sound.Volume = math.clamp(tonumber(XCConfig.greetingVoiceVolume) or 0.65, 0, 1)
-    sound.Parent = SoundService
+    sound.Volume = volume
+    sound.Parent = container
     task.spawn(function()
         pcall(function() game:GetService("ContentProvider"):PreloadAsync({sound}) end)
         task.wait(0.18)
         if sound.Parent then pcall(function() sound:Play() end) end
     end)
-    Debris:AddItem(sound, math.max(tonumber(duration) or 4, 4) + 4)
-    return sound
+    return container
 end
 
-function XCPlayGreetingWink(winkPatch, winkLine)
-    if not winkPatch or not winkLine or not winkPatch.Parent then return end
-    local showPatch = TweenService:Create(winkPatch, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.05})
-    local showLine = TweenService:Create(winkLine, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.05})
-    showPatch:Play(); showLine:Play()
-    task.wait(0.16)
-    if not winkPatch.Parent then return end
-    TweenService:Create(winkPatch, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(winkLine, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+function XCPlayGreetingWink(character, winkCharacter)
+    if not character or not winkCharacter or not character.Parent or not winkCharacter.Parent then return end
+    TweenService:Create(character, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 1}):Play()
+    TweenService:Create(winkCharacter, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
+    task.wait(0.15)
+    if not character.Parent or not winkCharacter.Parent then return end
+    TweenService:Create(character, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {ImageTransparency = 0}):Play()
+    TweenService:Create(winkCharacter, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {ImageTransparency = 1}):Play()
 end
 
 function XCStartGreetingBreathing(characterHolder)
     if not characterHolder then return nil end
     local baseSize = characterHolder.Size
-    local goalSize = UDim2.new(baseSize.X.Scale, baseSize.X.Offset + 5, baseSize.Y.Scale, baseSize.Y.Offset + 7)
+    local goalSize = UDim2.new(baseSize.X.Scale, baseSize.X.Offset + 2, baseSize.Y.Scale, baseSize.Y.Offset + 3)
     -- Whole-character breathing only: no localized body deformation.
-    local tween = TweenService:Create(characterHolder, TweenInfo.new(1.55, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+    local tween = TweenService:Create(characterHolder, TweenInfo.new(1.80, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
         Size = goalSize,
-        Rotation = 0.55,
+        Rotation = 0.20,
     })
     tween:Play()
     return tween
@@ -1462,7 +1513,7 @@ function XCShowAnimeGreeting(force)
     local scale = math.clamp(tonumber(XCConfig.greetingScale) or 1, 0.7, 1.5)
     local glassStrength = math.clamp(tonumber(XCConfig.greetingGlassStrength) or 0.88, 0, 1)
     local accent = currentTheme and currentTheme.Accent or Color3.fromRGB(152, 204, 0)
-    local imageAsset = XCResolveGreetingImage()
+    local imageAsset, winkImageAsset = XCResolveGreetingImages()
 
     local gui = Instance.new("ScreenGui")
     gui.Name = "XCGreetingGui"
@@ -1497,33 +1548,18 @@ function XCShowAnimeGreeting(force)
     character.Image = imageAsset or ""
     character.ImageTransparency = 1
     character.ScaleType = Enum.ScaleType.Fit
+    character.ZIndex = 2
     character.Parent = characterHolder
 
-    local winkPatch = Instance.new("Frame")
-    winkPatch.Name = "WinkPatch"
-    winkPatch.AnchorPoint = Vector2.new(0.5, 0.5)
-    winkPatch.Position = UDim2.fromScale(0.515, 0.228)
-    winkPatch.Size = UDim2.fromScale(0.086, 0.021)
-    winkPatch.Rotation = -5
-    winkPatch.BackgroundColor3 = Color3.fromRGB(244, 164, 145)
-    winkPatch.BackgroundTransparency = 1
-    winkPatch.BorderSizePixel = 0
-    winkPatch.ZIndex = 4
-    winkPatch.Parent = characterHolder
-    Instance.new("UICorner", winkPatch).CornerRadius = UDim.new(1, 0)
-
-    local winkLine = Instance.new("Frame")
-    winkLine.Name = "WinkLine"
-    winkLine.AnchorPoint = Vector2.new(0.5, 0.5)
-    winkLine.Position = UDim2.fromScale(0.515, 0.229)
-    winkLine.Size = UDim2.fromScale(0.067, 0.004)
-    winkLine.Rotation = -6
-    winkLine.BackgroundColor3 = Color3.fromRGB(35, 22, 24)
-    winkLine.BackgroundTransparency = 1
-    winkLine.BorderSizePixel = 0
-    winkLine.ZIndex = 5
-    winkLine.Parent = characterHolder
-    Instance.new("UICorner", winkLine).CornerRadius = UDim.new(1, 0)
+    local winkCharacter = Instance.new("ImageLabel")
+    winkCharacter.Name = "CharacterImageWink"
+    winkCharacter.Size = UDim2.fromScale(1, 1)
+    winkCharacter.BackgroundTransparency = 1
+    winkCharacter.Image = winkImageAsset or ""
+    winkCharacter.ImageTransparency = 1
+    winkCharacter.ScaleType = Enum.ScaleType.Fit
+    winkCharacter.ZIndex = 3
+    winkCharacter.Parent = characterHolder
 
     local cardWidth = math.floor((UserInputService.TouchEnabled and 286 or 356) * scale + 0.5)
     local cardHeight = math.floor(132 * scale + 0.5)
@@ -1629,7 +1665,7 @@ function XCShowAnimeGreeting(force)
     status.Size = UDim2.new(1, -42, 0, 18)
     status.Position = UDim2.fromOffset(24, 96)
     status.BackgroundTransparency = 1
-    status.Text = XCConfig.greetingVoiceEnabled and tostring(XCConfig.greetingVoiceId or "") ~= "" and "VOICE  /  SYSTEM READY" or "SYSTEM READY"
+    status.Text = XCConfig.greetingVoiceEnabled and "VOICE  /  SYSTEM READY" or "SYSTEM READY"
     status.TextColor3 = accent:Lerp(Color3.new(1, 1, 1), 0.25)
     status.TextTransparency = 1
     status.Font = Enum.Font.GothamBold
@@ -1652,13 +1688,11 @@ function XCShowAnimeGreeting(force)
     TweenService:Create(status, TweenInfo.new(0.42), {TextTransparency = 0}):Play()
 
     local breathing = XCStartGreetingBreathing(characterHolder)
-    XCPlayGreetingVoice(duration)
+    XCPlayGreetingVoice(duration, displayName)
 
     task.spawn(function()
         task.wait(math.min(1.15, duration * 0.32))
-        if imageAsset and gui.Parent then XCPlayGreetingWink(winkPatch, winkLine) end
-        task.wait(0.95)
-        if imageAsset and gui.Parent and duration >= 4.2 then XCPlayGreetingWink(winkPatch, winkLine) end
+        if imageAsset and winkImageAsset and gui.Parent then XCPlayGreetingWink(character, winkCharacter) end
     end)
 
     task.delay(duration, function()
@@ -1666,6 +1700,7 @@ function XCShowAnimeGreeting(force)
         if breathing then pcall(function() breathing:Cancel() end) end
         TweenService:Create(characterHolder, TweenInfo.new(0.38, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, characterWidth + 50, 1, 18), Rotation = 1.5}):Play()
         TweenService:Create(character, TweenInfo.new(0.26), {ImageTransparency = 1}):Play()
+        TweenService:Create(winkCharacter, TweenInfo.new(0.26), {ImageTransparency = 1}):Play()
         TweenService:Create(glass, TweenInfo.new(0.30, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, cardWidth + 30, 1, -44), BackgroundTransparency = 1}):Play()
         TweenService:Create(glassShadow, TweenInfo.new(0.28), {BackgroundTransparency = 1}):Play()
         TweenService:Create(brand, TweenInfo.new(0.18), {TextTransparency = 1}):Play()
@@ -1690,7 +1725,7 @@ function XCBuildGreetingSettings(parent, toggleFn, sliderFn, buttonFn, noteFn, a
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, 0, 0, 16)
     label.BackgroundTransparency = 1
-    label.Text = "VOICE ASSET ID"
+    label.Text = "VOICE FALLBACK ASSET ID"
     label.TextColor3 = colors.Muted
     label.Font = Enum.Font.GothamBold
     label.TextSize = 9
@@ -1719,7 +1754,7 @@ function XCBuildGreetingSettings(parent, toggleFn, sliderFn, buttonFn, noteFn, a
     end)
 
     buttonFn(parent, "REPLAY GREETING", function() XCShowAnimeGreeting(true) end)
-    noteFn(parent, "Voice is optional. Paste a Roblox audio ID above; without one the greeting stays visual-only.")
+    noteFn(parent, "Voice uses Roblox TTS (voice 2). The asset ID is used only if TTS is unavailable.")
 end
 --// END XC ANIME GREETING SYSTEM -----------------------------------------------
 
