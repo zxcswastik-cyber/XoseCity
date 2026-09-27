@@ -1311,9 +1311,16 @@ syncXCUserTheme()
 
 --// XC ANIME GREETING SYSTEM ---------------------------------------------------
 XC_GREETING_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character.png"
-XC_GREETING_IMAGE_PATH = "XOSE/assets/greeting.png"
+XC_GREETING_IMAGE_PATH = "XOSE/assets/greeting_v3_normal.png"
 XC_GREETING_WINK_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character_Wink.png"
-XC_GREETING_WINK_IMAGE_PATH = "XOSE/assets/greeting_wink.png"
+XC_GREETING_WINK_IMAGE_PATH = "XOSE/assets/greeting_v3_wink.png"
+
+function XCSetGreetingError(message)
+    local text = tostring(message or "unknown error")
+    if XCFeatureState then XCFeatureState.GreetingError = text end
+    warn("[XC] Anime greeting: " .. text)
+    return nil
+end
 
 function XCGreetingBytesArePng(data)
     return type(data) == "string"
@@ -1338,17 +1345,48 @@ function XCGreetingEnsureFolders()
 end
 
 function XCGreetingDownloadImage(url, path)
-    if type(writefile) ~= "function" then return nil end
+    if type(writefile) ~= "function" then
+        return XCSetGreetingError("executor does not provide writefile")
+    end
     XCGreetingEnsureFolders()
 
-    local ok, data = pcall(function()
+    local ok, dataOrError = pcall(function()
         return game:HttpGet(url)
     end)
-    if not ok or not XCGreetingBytesArePng(data) then return nil end
+    if not ok then
+        return XCSetGreetingError("download failed for " .. tostring(url) .. ": " .. tostring(dataOrError))
+    end
+    if not XCGreetingBytesArePng(dataOrError) then
+        return XCSetGreetingError("download did not return a valid PNG: " .. tostring(url))
+    end
 
-    local wrote = pcall(writefile, path, data)
-    if not wrote then return nil end
+    local wrote, writeError = pcall(writefile, path, dataOrError)
+    if not wrote then
+        return XCSetGreetingError("failed to cache " .. tostring(path) .. ": " .. tostring(writeError))
+    end
     return path
+end
+
+function XCGetGreetingAssetResolver()
+    local env = nil
+    if type(getgenv) == "function" then
+        local ok, result = pcall(getgenv)
+        if ok and type(result) == "table" then env = result end
+    end
+
+    local candidates = {
+        {"getcustomasset", getcustomasset},
+        {"getsynasset", getsynasset},
+        {"getexecutorasset", getexecutorasset},
+        {"env.getcustomasset", env and env.getcustomasset},
+        {"env.getsynasset", env and env.getsynasset},
+        {"env.getexecutorasset", env and env.getexecutorasset},
+        {"syn.getcustomasset", type(syn) == "table" and syn.getcustomasset},
+    }
+    for _, candidate in ipairs(candidates) do
+        if type(candidate[2]) == "function" then return candidate[2], candidate[1] end
+    end
+    return nil, nil
 end
 
 function XCEnsureGreetingImageFile(url, path, forceDownload)
@@ -1378,10 +1416,13 @@ function XCResolveGreetingImage(url, path, configuredAsset, stateKey)
         return XCFeatureState[stateKey]
     end
 
-    local resolver = nil
-    if type(getcustomasset) == "function" then resolver = getcustomasset
-    elseif type(getsynasset) == "function" then resolver = getsynasset end
-    if not resolver or type(writefile) ~= "function" then return nil end
+    local resolver, resolverName = XCGetGreetingAssetResolver()
+    if not resolver then
+        return XCSetGreetingError("executor has no supported custom-asset resolver")
+    end
+    if type(writefile) ~= "function" then
+        return XCSetGreetingError("executor has no writefile support for custom assets")
+    end
 
     local localPath = XCEnsureGreetingImageFile(url, path, false)
     if not localPath then return nil end
@@ -1397,10 +1438,11 @@ function XCResolveGreetingImage(url, path, configuredAsset, stateKey)
         if XCFeatureState then XCFeatureState[stateKey] = asset end
         return asset
     end
-    return nil
+    return XCSetGreetingError(tostring(resolverName) .. " failed for " .. tostring(localPath) .. ": " .. tostring(asset))
 end
 
 function XCResolveGreetingImages()
+    if XCFeatureState then XCFeatureState.GreetingError = nil end
     local normalAsset = XCResolveGreetingImage(
         XC_GREETING_IMAGE_URL,
         XC_GREETING_IMAGE_PATH,
@@ -1502,7 +1544,6 @@ function XCShowAnimeGreeting(force)
 
     local env = (type(getgenv) == "function") and getgenv() or nil
     if not force and env and env.XOSE_GreetingShown == true then return false end
-    if env then env.XOSE_GreetingShown = true end
 
     pcall(function()
         local old = targetGui:FindFirstChild("XCGreetingGui")
@@ -1514,6 +1555,10 @@ function XCShowAnimeGreeting(force)
     local glassStrength = math.clamp(tonumber(XCConfig.greetingGlassStrength) or 0.88, 0, 1)
     local accent = currentTheme and currentTheme.Accent or Color3.fromRGB(152, 204, 0)
     local imageAsset, winkImageAsset = XCResolveGreetingImages()
+    if not imageAsset then
+        return XCSetGreetingError((XCFeatureState and XCFeatureState.GreetingError) or "normal character image is unavailable") or false
+    end
+    if env then env.XOSE_GreetingShown = true end
 
     local gui = Instance.new("ScreenGui")
     gui.Name = "XCGreetingGui"
@@ -21224,7 +21269,14 @@ if not XCFeatureState.uiBuildOK then
 end
 
 if XCFeatureState.uiBuildOK and XCConfig.greetingEnabled then
-    task.delay(0.20, function() pcall(function() XCShowAnimeGreeting(false) end) end)
+    task.delay(0.20, function()
+        local shownOk, shownResult = pcall(function() return XCShowAnimeGreeting(false) end)
+        if not shownOk then
+            XCSetGreetingError("startup failed: " .. tostring(shownResult))
+        elseif shownResult ~= true and not ((type(getgenv) == "function") and getgenv().XOSE_GreetingShown == true) then
+            XCSetGreetingError((XCFeatureState and XCFeatureState.GreetingError) or "startup was skipped")
+        end
+    end)
 end
 
 -- XC-style active navigation accent.
