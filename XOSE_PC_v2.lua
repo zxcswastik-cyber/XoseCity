@@ -504,7 +504,7 @@ local XCConfig = {
     antiFlashEnabled = false,
     noSmokeEnabled = false,
     fullBrightEnabled = false,
-    removeFogEnabled = true,
+    removeFogEnabled = false,
     nightModeEnabled = false,
     rageBotEnabled = false,
     rageAutoFire = true,
@@ -13588,6 +13588,30 @@ end
 
 --// TACTICAL ESP
 local tacticalOverlayWasActive = false
+local xcTracersWasActive = false
+function XCProjectedEspActive()
+    return XCConfig.nametagsEnabled
+        or XCConfig.boxEspEnabled
+        or XCConfig.cornerBoxEnabled
+        or XCConfig.healthBarEnabled
+        or XCConfig.skeletonEspEnabled
+        or XCConfig.weaponEspEnabled
+        or XCConfig.tracersEnabled
+end
+
+function XCDesktopCameraWorkActive()
+    local fovState = XCFeatureState and XCFeatureState.cameraFovState
+    return XCProjectedEspActive()
+        or tacticalOverlayWasActive
+        or xcTracersWasActive
+        or XCConfig.customFovEnabled
+        or XCConfig.scopeFovEnabled
+        or (type(fovState) == "table" and fovState.Controlled == true)
+        or XCConfig.thirdPersonEnabled
+        or isThirdPersonActive
+        or XCConfig.triggerbotEnabled
+        or XCConfig.customScopeEnabled
+end
 function hideXCPlayerOverlay(esp)
     if not esp then return end
     esp.Box.Visible = false
@@ -14769,11 +14793,15 @@ end
 function renderXCTracersFrame()
     if not camera then return end
     if not XCConfig.tracersEnabled then
-        for _, data in pairs(activeEspHolders) do
-            data.Tracer.Visible = false
+        if xcTracersWasActive then
+            for _, data in pairs(activeEspHolders) do
+                data.Tracer.Visible = false
+            end
         end
+        xcTracersWasActive = false
         return
     end
+    xcTracersWasActive = true
 
     local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
     local camPos = camera.CFrame.Position
@@ -14813,6 +14841,7 @@ end
 
 function renderXCEspLateProjection()
     if UserInputService.TouchEnabled or not xcSessionActive() then return end
+    if not XCProjectedEspActive() then return end
     if XCFeatureState.espLateProjectionBusy then return end
 
     local finalCamera = Workspace.CurrentCamera or camera
@@ -14862,11 +14891,13 @@ function bindXCEspCameraSignals(cam)
     local cframeConnection = cam:GetPropertyChangedSignal("CFrame"):Connect(function()
         if XCFeatureState.espCameraMutationGuard then return end
         if XCFeatureState.espAcceptLateCameraSignal ~= true then return end
+        if not XCProjectedEspActive() then return end
         renderXCEspLateProjection()
     end)
     local fovConnection = cam:GetPropertyChangedSignal("FieldOfView"):Connect(function()
         if XCFeatureState.espCameraMutationGuard then return end
         if XCFeatureState.espAcceptLateCameraSignal ~= true then return end
+        if not XCProjectedEspActive() then return end
         resetXCEspProjectionCache()
         renderXCEspLateProjection()
     end)
@@ -14891,6 +14922,11 @@ if not UserInputService.TouchEnabled then
 
     RunService:BindToRenderStep(XC_PC_ESP_RENDER_BIND, Enum.RenderPriority.Last.Value, function(dt)
         if not xcSessionActive() then
+            XCFeatureState.espAcceptLateCameraSignal = false
+            return
+        end
+
+        if not XCDesktopCameraWorkActive() then
             XCFeatureState.espAcceptLateCameraSignal = false
             return
         end
@@ -14930,20 +14966,22 @@ if not UserInputService.TouchEnabled then
         pcall(runXCTriggerbot)
         if XCConfig.customScopeEnabled then pcall(updateCustomScope) end
 
-        local overlayOk, overlayErr = pcall(renderTacticalOverlay)
-        if not overlayOk then
-            local now = os.clock()
-            if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
-                XCFeatureState.tacticalOverlayErrorAt = now
-                warn("[XOSE] PC ESP renderer failed: " .. tostring(overlayErr))
+        if XCProjectedEspActive() or tacticalOverlayWasActive or xcTracersWasActive then
+            local overlayOk, overlayErr = pcall(renderTacticalOverlay)
+            if not overlayOk then
+                local now = os.clock()
+                if now - (XCFeatureState.tacticalOverlayErrorAt or -math.huge) >= 2 then
+                    XCFeatureState.tacticalOverlayErrorAt = now
+                    warn("[XOSE] PC ESP renderer failed: " .. tostring(overlayErr))
+                end
+                hideTacticalOverlay()
             end
-            hideTacticalOverlay()
+            pcall(renderXCTracersFrame)
         end
-        pcall(renderXCTracersFrame)
 
         -- From this point until next frame's Camera-1 gate, any CFrame/FOV
         -- change is late weapon/viewmodel work and receives a corrective pass.
-        XCFeatureState.espAcceptLateCameraSignal = true
+        XCFeatureState.espAcceptLateCameraSignal = XCProjectedEspActive()
     end)
 end
 --// END ESP SYNC V4 ----------------------------------------------------------
@@ -15423,10 +15461,6 @@ function setupXCCharacterInputHook()
 end
 
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
-    local char = player.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-
     if not XCConfig.antiAimEnabled then
         XCFeatureState.antiAimStarted = nil
         XCFeatureState.AntiComputedStep = nil
@@ -15436,12 +15470,18 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         XCFeatureState.AntiBruteforceSide = 1
         XCFeatureState.AntiThreatNext = 0
         XCFeatureState.AntiThreatYaw = nil
-        if hum and savedAutoRotate ~= nil then
-            hum.AutoRotate = savedAutoRotate
+        if savedAutoRotate ~= nil then
+            local char = player.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum then hum.AutoRotate = savedAutoRotate end
             savedAutoRotate = nil
         end
         return
     end
+
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
 
     -- The native Blox Strike input hook is authoritative. The HRP rotation
     -- below remains only as a compatibility fallback for other experiences.
@@ -16089,6 +16129,23 @@ table.insert(connections, RunService.Heartbeat:Connect(function()
 end))
 
 table.insert(connections, RunService.RenderStepped:Connect(function(dt)
+    if not XCConfig.flightEnabled
+        and not XCConfig.slideEnabled
+        and not XCConfig.speedEnabled
+        and not XCConfig.bunnyHopEnabled then
+
+        if isSliding then
+            isSliding = false
+            currentSlideVel = Vector3.zero
+            restoreDefaultHipHeight()
+        end
+        if XCFeatureState.bhopGroundSince ~= nil or (XCFeatureState.bhopHopCount or 0) > 0 then
+            XCFeatureState.bhopGroundSince = nil
+            XCResetBhopMomentum()
+        end
+        return
+    end
+
     local char = player.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     local hum = char and char:FindFirstChildOfClass("Humanoid")
