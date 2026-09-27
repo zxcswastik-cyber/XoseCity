@@ -628,7 +628,7 @@ local XCConfig = {
     -- Stable renderer
     chamsShellScale = 1.012,
     chamsExcludeAccessories = true,
-    chamsAnimationFPS = 30,
+    chamsAnimationFPS = 20, -- FPS fix: animated material shells do not need 30 Hz
 
     recoilStrength = 0.85,
     noRecoilEnabled = false,
@@ -1314,9 +1314,11 @@ XC_GREETING_IMAGE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/Xose
 XC_GREETING_WINK_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character_Wink_v4.png"
 XC_GREETING_IMAGE_PATH = "XOSE/assets/greeting_v4.png"
 XC_GREETING_WINK_PATH = "XOSE/assets/greeting_wink_v4.png"
-XC_GREETING_VOICE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Voice_Nadia.wav"
+XC_GREETING_VOICE_URL = "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Voice_Nadia.wav.mp3"
 XC_GREETING_VOICE_FALLBACK_URL = "https://resource2.heygen.ai/text_to_speech/4f96e54ffe1e4265b75f232add871391/aa28b796ef284c5a80497034afe9d93e/id=473cb5f6-47cb-4724-afd4-5203846b7db7.wav"
-XC_GREETING_VOICE_PATH = "XOSE/assets/greeting_voice_nadia.wav"
+XC_GREETING_VOICE_MP3_PATH = "XOSE/assets/greeting_voice_nadia.mp3"
+XC_GREETING_VOICE_WAV_PATH = "XOSE/assets/greeting_voice_nadia.wav"
+XC_GREETING_VOICE_PATH = XC_GREETING_VOICE_MP3_PATH -- backwards-compatible alias used by older state
 XC_GREETING_VOICE_CUTOFF = 1.70 -- stop before HeyGen's trailing breath/noise
 
 function XCGreetingBytesArePng(data)
@@ -1404,11 +1406,37 @@ function XCResolveGreetingAsset(url, path, cacheKey, overrideAsset)
     return nil
 end
 
+function XCGreetingDetectAudioType(data)
+    if type(data) ~= "string" or #data <= 4096 then return nil end
+
+    if data:sub(1, 4) == "RIFF" and data:sub(9, 12) == "WAVE" then
+        return "wav"
+    end
+
+    if data:sub(1, 3) == "ID3" then
+        return "mp3"
+    end
+
+    -- MP3 files do not have to contain an ID3 tag. Accept a normal MPEG audio
+    -- frame sync too (0xFF followed by the top three sync bits in the next byte).
+    local b1, b2 = string.byte(data, 1, 2)
+    if b1 == 255 and b2 and b2 >= 224 then
+        return "mp3"
+    end
+
+    return nil
+end
+
 function XCGreetingBytesAreWav(data)
-    return type(data) == "string"
-        and #data > 4096
-        and data:sub(1, 4) == "RIFF"
-        and data:sub(9, 12) == "WAVE"
+    return XCGreetingDetectAudioType(data) == "wav"
+end
+
+function XCGreetingBytesAreMp3(data)
+    return XCGreetingDetectAudioType(data) == "mp3"
+end
+
+function XCGreetingBytesAreAudio(data)
+    return XCGreetingDetectAudioType(data) ~= nil
 end
 
 function XCGreetingDownloadVoice()
@@ -1421,9 +1449,15 @@ function XCGreetingDownloadVoice()
             local ok, data = pcall(function()
                 return game:HttpGet(url)
             end)
-            if ok and XCGreetingBytesAreWav(data) then
-                local wrote = pcall(writefile, XC_GREETING_VOICE_PATH, data)
-                if wrote then return XC_GREETING_VOICE_PATH end
+            if ok then
+                local audioType = XCGreetingDetectAudioType(data)
+                if audioType then
+                    local path = audioType == "mp3"
+                        and XC_GREETING_VOICE_MP3_PATH
+                        or XC_GREETING_VOICE_WAV_PATH
+                    local wrote = pcall(writefile, path, data)
+                    if wrote then return path end
+                end
             end
         end
     end
@@ -1432,15 +1466,29 @@ end
 
 function XCEnsureGreetingVoiceFile(forceDownload)
     if not forceDownload and type(isfile) == "function" then
-        local ok, exists = pcall(isfile, XC_GREETING_VOICE_PATH)
-        if ok and exists == true then
-            if type(readfile) == "function" then
-                local readOk, cached = pcall(readfile, XC_GREETING_VOICE_PATH)
-                if readOk and XCGreetingBytesAreWav(cached) then
-                    return XC_GREETING_VOICE_PATH
+        local paths = {XC_GREETING_VOICE_MP3_PATH, XC_GREETING_VOICE_WAV_PATH}
+        for _, path in ipairs(paths) do
+            local ok, exists = pcall(isfile, path)
+            if ok and exists == true then
+                if type(readfile) == "function" then
+                    local readOk, cached = pcall(readfile, path)
+                    local audioType = readOk and XCGreetingDetectAudioType(cached) or nil
+                    if audioType then
+                        -- If an older build cached valid audio under the wrong
+                        -- extension, migrate it so getcustomasset receives a
+                        -- filename matching the actual container format.
+                        local correctPath = audioType == "mp3"
+                            and XC_GREETING_VOICE_MP3_PATH
+                            or XC_GREETING_VOICE_WAV_PATH
+                        if correctPath ~= path and type(writefile) == "function" then
+                            local migrated = pcall(writefile, correctPath, cached)
+                            if migrated then return correctPath end
+                        end
+                        return path
+                    end
+                else
+                    return path
                 end
-            else
-                return XC_GREETING_VOICE_PATH
             end
         end
     end
@@ -1605,7 +1653,15 @@ function XCPlayGreetingVoice(duration, displayName)
 
     local asset = XCFeatureState.GreetingVoiceAsset
     if type(asset) ~= "string" or asset == "" then
-        return nil
+        -- Voice prewarm runs independently from the image prewarm. If it has not
+        -- finished yet (or an earlier download failed), resolve it on demand so
+        -- the visible greeting does not silently lose both audio and lip-sync.
+        asset = XCResolveGreetingVoice()
+        if type(asset) ~= "string" or asset == "" then
+            return nil
+        end
+        XCFeatureState.GreetingVoiceAsset = asset
+        XCFeatureState.GreetingVoicePrewarmReady = true
     end
 
     pcall(function()
@@ -1620,6 +1676,12 @@ function XCPlayGreetingVoice(duration, displayName)
     sound.PlaybackSpeed = 1
     sound.Looped = false
     sound.Parent = SoundService
+
+    -- Custom executor assets may need one decode/preload pass before Play().
+    -- Keep this guarded because some executors do not fully support PreloadAsync.
+    pcall(function()
+        game:GetService("ContentProvider"):PreloadAsync({sound})
+    end)
 
     local endedConnection = nil
     endedConnection = sound.Ended:Connect(function()
@@ -10903,15 +10965,8 @@ function stopXCCameraMode()
     end
     if XCFeatureState.savedCameraState then
         pcall(function()
-            if XCFeatureState.menuFocusOpen then
-                XCFeatureState.menuMouseState = {
-                    Behavior = XCFeatureState.savedCameraState.MouseBehavior,
-                    Icon = XCFeatureState.savedCameraState.MouseIconEnabled,
-                }
-            else
-                UserInputService.MouseBehavior = XCFeatureState.savedCameraState.MouseBehavior
-                UserInputService.MouseIconEnabled = XCFeatureState.savedCameraState.MouseIconEnabled
-            end
+            UserInputService.MouseBehavior = XCFeatureState.savedCameraState.MouseBehavior
+            UserInputService.MouseIconEnabled = XCFeatureState.savedCameraState.MouseIconEnabled
         end)
     end
     XCFeatureState.savedCameraState = nil
@@ -10935,10 +10990,6 @@ function setXCCameraMode(mode, enabled)
             MouseBehavior = UserInputService.MouseBehavior,
             MouseIconEnabled = UserInputService.MouseIconEnabled,
         }
-        if XCFeatureState.menuFocusOpen and XCFeatureState.menuMouseState then
-            XCFeatureState.savedCameraState.MouseBehavior = XCFeatureState.menuMouseState.Behavior
-            XCFeatureState.savedCameraState.MouseIconEnabled = XCFeatureState.menuMouseState.Icon
-        end
     end
 
     XCFeatureState.cameraMode = mode
@@ -10951,12 +11002,8 @@ function setXCCameraMode(mode, enabled)
     XCFeatureState.cameraYaw = yaw
     cam.CameraType = Enum.CameraType.Scriptable
     if not UserInputService.TouchEnabled then
-        if XCFeatureState.menuFocusOpen then
-            XCFeatureState.menuMouseState = {Behavior = Enum.MouseBehavior.LockCenter, Icon = false}
-        else
-            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-            UserInputService.MouseIconEnabled = false
-        end
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+        UserInputService.MouseIconEnabled = false
     end
     refreshXCToggle("freecamEnabled")
     refreshXCToggle("freelookEnabled")
@@ -11015,7 +11062,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         destroyXCWeather()
     end
 
-    if not XCFeatureState.cameraMode or XCFeatureState.menuFocusOpen then return end
+    if not XCFeatureState.cameraMode then return end
     local cam = Workspace.CurrentCamera or camera
     if not cam then return end
     if (XCFeatureState.cameraMode == "Freecam" and not XCConfig.freecamEnabled)
@@ -11059,51 +11106,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     XCFeatureState.cameraFrame = CFrame.new(XCFeatureState.cameraPosition) * rotation
     cam.CFrame = XCFeatureState.cameraFrame
 end))
---// MENU FOCUS EFFECTS
-function setXCMenuFocus(open)
-    open = open == true
-    if XCFeatureState.menuFocusOpen == open then return end
-    XCFeatureState.menuFocusOpen = open
-    if open then
-        XCFeatureState.menuMouseState = {
-            Behavior = UserInputService.MouseBehavior,
-            Icon = UserInputService.MouseIconEnabled,
-        }
-        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-        UserInputService.MouseIconEnabled = true
-    else
-        local saved = XCFeatureState.menuMouseState
-        XCFeatureState.menuMouseState = nil
-        if saved then
-            UserInputService.MouseBehavior = saved.Behavior
-            UserInputService.MouseIconEnabled = saved.Icon
-        end
-    end
-    local blur = XCFeatureState.menuBlur
-    if open and (not blur or not blur.Parent) then
-        blur = Instance.new("BlurEffect")
-        blur.Name = "XC_MenuBlur"
-        blur.Size = 0
-        blur.Parent = Lighting
-        XCFeatureState.menuBlur = blur
-    end
-    if XCFeatureState.menuBlurTween then XCFeatureState.menuBlurTween:Cancel() end
-    if blur then
-        blur.Enabled = true
-        local tween = TweenService:Create(blur, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = open and 16 or 0})
-        XCFeatureState.menuBlurTween = tween
-        tween:Play()
-    end
-end
-
-function cleanupXCMenuFocus()
-    setXCMenuFocus(false)
-    if XCFeatureState.menuBlurTween then XCFeatureState.menuBlurTween:Cancel() end
-    XCFeatureState.menuBlurTween = nil
-    if XCFeatureState.menuBlur then XCFeatureState.menuBlur:Destroy() end
-    XCFeatureState.menuBlur = nil
-    pcall(function() RunService:UnbindFromRenderStep("XOSE_MENU_CURSOR") end)
-end
 --// CLEANUP ROUTINES
 function cleanup()
     XCFeatureState.applyLoadedConfig = nil
@@ -11111,7 +11113,6 @@ function cleanup()
     setXCSilentAimRequested(false)
     pcall(restoreXCKnifeModel)
     setXCStreamerMode(false)
-    cleanupXCMenuFocus()
     stopXCCameraMode()
     destroyXCWeather()
     pcall(function() setThirdPersonEnabled(false) end)
@@ -13788,12 +13789,20 @@ local function xcShouldAllocateScreenEsp(enemy, alive, hasRoot, distance, maxDis
     return cached or (enemy and alive and hasRoot and distance <= maxDistance)
 end
 
-local xcEspVisibilityCache = {}
+-- FPS FIX: visibility raycasts used to be invalidated every visual refresh (up to 60 Hz).
+-- Cache each character briefly instead; 12.5 Hz is visually responsive while greatly
+-- reducing raycast pressure when ESP/chams are enabled for many players.
+local XC_ESP_VISIBILITY_INTERVAL = 0.08
+local xcEspVisibilityCache = setmetatable({}, {__mode = "k"})
 local function getXCEspVisibility(char, targetPart)
+    if not char or not targetPart then return false end
+    local now = os.clock()
     local cached = xcEspVisibilityCache[char]
-    if cached ~= nil then return cached end
-    local visible = isVisibleThroughWalls(targetPart, char)
-    xcEspVisibilityCache[char] = visible
+    if cached and (now - (cached.At or 0)) < XC_ESP_VISIBILITY_INTERVAL then
+        return cached.Value == true
+    end
+    local visible = isVisibleThroughWalls(targetPart, char) == true
+    xcEspVisibilityCache[char] = {Value = visible, At = now}
     return visible
 end
 
@@ -14365,7 +14374,9 @@ end
 --   * no Glass/ForceField inside this engine
 --   * accessories excluded by default to reduce overlapping geometry
 
-local XC_CHAM_PART_CAP = 32
+-- FPS FIX: R15 characters normally need far fewer than 32 shell parts.
+-- Capping the material layer prevents layered/custom avatars from multiplying geometry.
+local XC_CHAM_PART_CAP = 18
 local XC_CHAM_STYLES = {
     Shaded = true, Solid = true, Glow = true, ["Glow Outline"] = true,
     Iridescent = true, ["Water Flow"] = true, Glossy = true,
@@ -14396,19 +14407,29 @@ local function xcEligibleChamParts(char)
     local result = {}
     if not char then return result end
 
-    for _, part in ipairs(char:GetDescendants()) do
-        if #result >= XC_CHAM_PART_CAP then break end
-
-        local accessory = part:FindFirstAncestorOfClass("Accessory")
-        local tool = part:FindFirstAncestorOfClass("Tool")
-
-        if part:IsA("BasePart")
+    local function tryAdd(part)
+        if #result >= XC_CHAM_PART_CAP then return true end
+        if part and part:IsA("BasePart")
             and part.Name ~= "HumanoidRootPart"
             and part.Transparency < 0.98
-            and not tool
-            and (not XCConfig.chamsExcludeAccessories or not accessory)
+            and not part:FindFirstAncestorOfClass("Tool")
         then
             table.insert(result, part)
+        end
+        return #result >= XC_CHAM_PART_CAP
+    end
+
+    -- Body parts are direct Character children on normal R6/R15 rigs. Avoid a full
+    -- GetDescendants walk every rescan; only traverse accessories when the user
+    -- explicitly asks to include them.
+    for _, child in ipairs(char:GetChildren()) do
+        if child:IsA("BasePart") then
+            if tryAdd(child) then break end
+        elseif not XCConfig.chamsExcludeAccessories and child:IsA("Accessory") then
+            for _, desc in ipairs(child:GetDescendants()) do
+                if tryAdd(desc) then break end
+            end
+            if #result >= XC_CHAM_PART_CAP then break end
         end
     end
 
@@ -14542,7 +14563,7 @@ local function ensureXCChamShells(data, char)
             if data.ChamShells[index].Original ~= original then valid = false; break end
         end
         if valid then
-            data.NextPartScan = now + 0.5
+            data.NextPartScan = now + 1.5
             return true
         end
     end
@@ -14557,7 +14578,7 @@ local function ensureXCChamShells(data, char)
     data.ChamShellCharacter = char
     data.ChamShellPartCount = currentCount
     data.ChamExcludeAccessories = XCConfig.chamsExcludeAccessories
-    data.NextPartScan = now + 0.5
+    data.NextPartScan = now + 1.5
     data.ChamShells = {}
     data.ChamLastAnimation = 0
 
@@ -14588,6 +14609,15 @@ local function getXCChamsColor(ally, isVisible)
 end
 
 local function syncXCChamMaterialShells(data, char, style, color, now)
+    -- FPS FIX: Solid chams already have a full Highlight fill/outline. Creating a
+    -- welded clone for every limb duplicated character geometry for no meaningful
+    -- gain and was the main GPU cost of simply enabling chams. Keep Solid entirely
+    -- Highlight-based; richer material styles still use the shell engine below.
+    if style == "Solid" then
+        if data.ChamShellFolder then destroyXCChamShells(data) end
+        return
+    end
+
     if not ensureXCChamShells(data, char) then return end
 
     local animated = style == "Iridescent" or style == "Water Flow"
@@ -14709,44 +14739,6 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
     end
 end
 
-local function updateXCWallChams(data, char, color, enabled, now)
-    data.WallChams = data.WallChams or {}
-    if data.WallCharacter ~= char then
-        for _, box in pairs(data.WallChams) do box:Destroy() end
-        table.clear(data.WallChams)
-        data.WallCharacter = char
-        data.WallScanAt = 0
-    end
-    if enabled and char and now >= (data.WallScanAt or 0) then
-        data.WallScanAt = now + 0.5
-        local keep = {}
-        for _, part in ipairs(xcEligibleChamParts(char)) do
-            keep[part] = true
-            if not data.WallChams[part] then
-                local box = Instance.new("BoxHandleAdornment")
-                box.Name = "XC_WallCham"
-                box.Adornee = part
-                box.AlwaysOnTop = true
-                box.ZIndex = 1
-                box.Visible = false
-                box.Parent = data.Holder
-                data.WallChams[part] = box
-            end
-        end
-        for part, box in pairs(data.WallChams) do
-            if not keep[part] then box:Destroy(); data.WallChams[part] = nil end
-        end
-    end
-    for part, box in pairs(data.WallChams) do
-        box.Visible = enabled and char ~= nil and part.Parent ~= nil and part:IsDescendantOf(char)
-        if box.Visible then
-            box.Size = part.Size
-            box.Color3 = color
-            box.Transparency = math.clamp(xcClamp01(XCConfig.chamsFillTransparency), 0.25, 0.8)
-        end
-    end
-end
-
 local function applyXCChamsStyle(data, char, ally, isVisible, now)
     if not data or not data.Highlight or not char then return end
 
@@ -14772,6 +14764,8 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     -- Adornee can fight for render budget/order and Roblox has a small active
     -- Highlight budget. The material shell remains the high-detail visible
     -- layer; this Highlight owns reliable wall visibility.
+    syncXCChamMaterialShells(data, char, style, isVisible and visibleColor or throughColor, now or os.clock())
+
     through.DepthMode = XCConfig.chamsThroughWallsEnabled ~= false
         and Enum.HighlightDepthMode.AlwaysOnTop
         or Enum.HighlightDepthMode.Occluded
@@ -14784,26 +14778,10 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     -- the richer surface style on top when the target is not occluded.
     through.FillTransparency = math.clamp(fill + 0.08, 0.18, 0.86)
     through.OutlineTransparency = math.clamp(outline + 0.02, 0.01, 0.72)
-    -- The independent wall layer does not rely on Highlight render slots or
-    -- cloned material geometry. Body-sized boxes deliberately favor visibility.
-    updateXCWallChams(data, char, throughColor,
-        XCConfig.chamsThroughWallsEnabled ~= false and not isVisible, now or os.clock())
-    local ok, err = pcall(syncXCChamMaterialShells, data, char, style,
-        isVisible and visibleColor or throughColor, now or os.clock())
-    if not ok then
-        data.ChamMaterialError = tostring(err)
-        if (now or os.clock()) >= (data.ChamMaterialWarnAt or 0) then
-            data.ChamMaterialWarnAt = (now or os.clock()) + 5
-            warn("[XOSE] Chams material failed; wall layer remains active: " .. tostring(err))
-        end
-    end
 end
 
 local function disableXCChamsForData(data, clearAdornee)
     if not data then return end
-    local wallCharacter = data.WallCharacter
-    if clearAdornee then wallCharacter = nil end
-    updateXCWallChams(data, wallCharacter, nil, false, os.clock())
 
     if data.Highlight then
         data.Highlight.Enabled = false
@@ -14885,8 +14863,9 @@ function attachEspToPlayer(plr)
 
     if plr.Character then setupCharacter(plr.Character) end
     local charConn = plr.CharacterAdded:Connect(setupCharacter)
-    local charRemConn = plr.CharacterRemoving:Connect(function()
+    local charRemConn = plr.CharacterRemoving:Connect(function(char)
         XCFeatureState.espCharacterCache[plr] = nil
+        if char then xcEspVisibilityCache[char] = nil end
         if hl then
             hl.Adornee = nil
             hl.Enabled = false
@@ -15088,7 +15067,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local visualRefreshDue = visualOverlayAccumulator >= visualInterval
     if visualRefreshDue then
         visualOverlayAccumulator = visualOverlayAccumulator - visualInterval
-        table.clear(xcEspVisibilityCache)
+        -- Visibility results expire by timestamp in getXCEspVisibility(); do not
+        -- invalidate every target on every visual tick.
     end
 
     -- Mobile keeps the proven generic RenderStepped path. Desktop projection
@@ -20869,30 +20849,12 @@ function buildXCUI()
     switchPage("Rage")
 
     local menuVisible = true
-    -- Modal lets Roblox release mouse lock while this visible menu is active.
-    closeMenuButton.Modal = true
-    local function syncMenuFocus()
-        XCFeatureState.menuOpen = main.Visible and screenGui.Enabled
-        setXCMenuFocus(XCFeatureState.menuOpen)
-    end
-    table.insert(connections, main:GetPropertyChangedSignal("Visible"):Connect(syncMenuFocus))
-    table.insert(connections, screenGui:GetPropertyChangedSignal("Enabled"):Connect(syncMenuFocus))
-    table.insert(connections, screenGui.Destroying:Connect(cleanupXCMenuFocus))
-    pcall(function() RunService:UnbindFromRenderStep("XOSE_MENU_CURSOR") end)
-    RunService:BindToRenderStep("XOSE_MENU_CURSOR", Enum.RenderPriority.Last.Value + 100, function()
-        if not xcSessionActive() or not XCFeatureState.menuFocusOpen then return end
-        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-        UserInputService.MouseIconEnabled = true
-        if XCFeatureState.menuBlur then XCFeatureState.menuBlur.Enabled = true end
-    end)
-    syncMenuFocus()
     local function toggleMenu()
         closeDropdown()
         hideHelp()
         main.Visible = not main.Visible
         menuVisible = main.Visible
         XCFeatureState.menuOpen = main.Visible
-        syncMenuFocus()
         if main.Visible then
             for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
         end
