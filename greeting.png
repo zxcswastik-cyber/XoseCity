@@ -1,17 +1,43 @@
-local GREETING_URLS = {
-    "https://raw.githubusercontent.com/USERNAME/XoseCity/main/assets/greeting.png",
-    "https://cdn.jsdelivr.net/gh/USERNAME/XoseCity@main/assets/greeting.png",
-}
+local GREETING_URL =
+    "https://raw.githubusercontent.com/zxcswastik-cyber/XoseCity/main/XOSE_Greeting_Character.png"
 
-local function downloadGreeting()
-    for _, url in ipairs(GREETING_URLS) do
-        local ok, data = pcall(function()
-            return game:HttpGet(url)
-        end)
+local IMAGE_PATH = "XOSE/assets/greeting.png"
 
-        if ok and type(data) == "string" and #data > 1000 then
-            return data
+local function ensureGreetingImage()
+    if type(isfile) == "function" and isfile(IMAGE_PATH) then
+        return true
+    end
+
+    if type(makefolder) == "function" then
+        if not isfolder("XOSE") then
+            makefolder("XOSE")
         end
+
+        if not isfolder("XOSE/assets") then
+            makefolder("XOSE/assets")
+        end
+    end
+
+    local ok, data = pcall(function()
+        return game:HttpGet(GREETING_URL)
+    end)
+
+    if not ok or type(data) ~= "string" or #data < 10000 then
+        return false
+    end
+
+    return pcall(writefile, IMAGE_PATH, data)
+end
+
+local function getGreetingImage()
+    if not ensureGreetingImage() then
+        return nil
+    end
+
+    if type(getcustomasset) == "function" then
+        return getcustomasset(IMAGE_PATH)
+    elseif type(getsynasset) == "function" then
+        return getsynasset(IMAGE_PATH)
     end
 
     return nil
