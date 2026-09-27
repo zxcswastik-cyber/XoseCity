@@ -1543,7 +1543,7 @@ function XCShowAnimeGreeting(force)
     if not targetGui or not targetGui.Parent then return false end
 
     local env = (type(getgenv) == "function") and getgenv() or nil
-    if not force and env and env.XOSE_GreetingShown == true then return false end
+    if not force and env and env.XOSE_GreetingShownV3Fix1 == true then return false end
 
     pcall(function()
         local old = targetGui:FindFirstChild("XCGreetingGui")
@@ -1558,7 +1558,7 @@ function XCShowAnimeGreeting(force)
     if not imageAsset then
         return XCSetGreetingError((XCFeatureState and XCFeatureState.GreetingError) or "normal character image is unavailable") or false
     end
-    if env then env.XOSE_GreetingShown = true end
+    if env then env.XOSE_GreetingShownV3Fix1 = true end
 
     local gui = Instance.new("ScreenGui")
     gui.Name = "XCGreetingGui"
@@ -21273,7 +21273,7 @@ if XCFeatureState.uiBuildOK and XCConfig.greetingEnabled then
         local shownOk, shownResult = pcall(function() return XCShowAnimeGreeting(false) end)
         if not shownOk then
             XCSetGreetingError("startup failed: " .. tostring(shownResult))
-        elseif shownResult ~= true and not ((type(getgenv) == "function") and getgenv().XOSE_GreetingShown == true) then
+        elseif shownResult ~= true and not ((type(getgenv) == "function") and getgenv().XOSE_GreetingShownV3Fix1 == true) then
             XCSetGreetingError((XCFeatureState and XCFeatureState.GreetingError) or "startup was skipped")
         end
     end)
