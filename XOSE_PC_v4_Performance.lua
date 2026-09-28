@@ -14623,14 +14623,14 @@ local XC_CHAM_STYLES = {
 -- Canonical body order makes the shell layer deterministic on R15. Body parts
 -- are always admitted before custom/direct extras, so the 18-part budget cannot
 -- accidentally lose a hand/foot/limb on layered avatars.
-local XC_R15_CHAM_PART_ORDER = {
+XC_R15_CHAM_PART_ORDER = {
     "Head", "UpperTorso", "LowerTorso",
     "LeftUpperArm", "LeftLowerArm", "LeftHand",
     "RightUpperArm", "RightLowerArm", "RightHand",
     "LeftUpperLeg", "LeftLowerLeg", "LeftFoot",
     "RightUpperLeg", "RightLowerLeg", "RightFoot",
 }
-local XC_R6_CHAM_PART_ORDER = {
+XC_R6_CHAM_PART_ORDER = {
     "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg",
 }
 
@@ -14736,7 +14736,7 @@ local function xcStripChamClone(clone)
     end
 end
 
-local function xcChamEffectiveScale(original, baseScale)
+function xcChamEffectiveScale(original, baseScale)
     baseScale = math.clamp(tonumber(baseScale) or 1.006, 1.002, 1.04)
     local delta = baseScale - 1
     if original and original:IsA("MeshPart") then
@@ -14748,7 +14748,7 @@ local function xcChamEffectiveScale(original, baseScale)
     return baseScale
 end
 
-local function xcApplyChamShellScale(shell, original, baseScale)
+function xcApplyChamShellScale(shell, original, baseScale)
     if not shell or not original then return end
     local effective = xcChamEffectiveScale(original, baseScale)
     local originalMesh = original:FindFirstChildOfClass("SpecialMesh")
