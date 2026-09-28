@@ -592,8 +592,8 @@ local XCConfig = {
     extremeWallbangEnabled = false,
     showSilentFovCircle = true,
 
-    chamsFillTransparency = 0.45,
-    chamsOutlineTransparency = 0.10,
+    chamsFillTransparency = 0.58,
+    chamsOutlineTransparency = 0.32,
     chamsTeamCheck = true,
     chamsShowTeammates = false,
     chamsOcclusion = true,
@@ -643,24 +643,36 @@ local XCConfig = {
     thirdPersonHeight = 1.5,
     thirdPersonOffset = 2.5,
 
-    hitmarkerDuration = 0.28,
-    hitmarkerSize = 13,
-    hitmarkerThickness = 2,
+    -- Lightweight local-player presentation used only in third person.
+    -- Kept config-backed so old JSON profiles simply fall back to these defaults.
+    selfVisualEnabled = false,
+    selfVisualFillTransparency = 0.76,
+    selfVisualOutlineTransparency = 0.34,
+    selfVisualColorR = 220,
+    selfVisualColorG = 229,
+    selfVisualColorB = 241,
+    selfVisualOutlineR = 242,
+    selfVisualOutlineG = 247,
+    selfVisualOutlineB = 255,
+
+    hitmarkerDuration = 0.20,
+    hitmarkerSize = 10,
+    hitmarkerThickness = 1,
     hitmarkerGlow = true,
 
     -- Hit Feedback 2.0
     hitmarkerStyle = "Neverlose",
-    hitmarkerGap = 5,
+    hitmarkerGap = 4,
     hitmarkerColorMode = "Accent",
     hitmarkerColorR = 245,
     hitmarkerColorG = 245,
     hitmarkerColorB = 245,
     hitmarkerDamageEnabled = true,
     hitmarkerWorldEnabled = true,
-    hitmarkerWorldDuration = 0.55,
-    hitmarkerWorldScale = 1.0,
+    hitmarkerWorldDuration = 0.38,
+    hitmarkerWorldScale = 0.85,
     hitmarkerLogEnabled = true,
-    hitmarkerLogDuration = 2.2,
+    hitmarkerLogDuration = 1.7,
     hitmarkerMaxLogs = 4,
     hitmarkerCritThreshold = 50,
     hitmarkerScalePulse = true,
@@ -669,11 +681,11 @@ local XCConfig = {
     hitSoundVolume = 1,
 
     -- Kill fireflies.
-    killEffectCount = 95,
-    killEffectSize = 0.16,
-    killEffectSpeed = 16,
-    killEffectDuration = 1.45,
-    killEffectGlow = 1.4,
+    killEffectCount = 30,
+    killEffectSize = 0.14,
+    killEffectSpeed = 18,
+    killEffectDuration = 0.85,
+    killEffectGlow = 1.15,
     killEffectColorR = 152,
     killEffectColorG = 204,
     killEffectColorB = 0,
@@ -701,7 +713,7 @@ local XCConfig = {
     antiAimShotSafeEnabled = true,
     antiAimDesyncSpeed = 30,
     antiAimDesyncRange = 112,
-    skeletonThickness = 1.5,
+    skeletonThickness = 1.0,
     bhopJumpPower = 52,
     bhopSpeedBoost = 1.35,
     bhopAutoJump = false,
@@ -741,8 +753,8 @@ local XCConfig = {
     soundEspMaxDist = 1200,
 
     espMaxDist = 3000,
-    espTextSize = 10.5,
-    tagTransparency = 0.75,
+    espTextSize = 10,
+    tagTransparency = 0.88,
     espShowDistance = true,
     espShowHealth = true,
     espShowVisibility = false,
@@ -762,8 +774,8 @@ local XCConfig = {
     espWeaponPosition = "Bottom",
     espTextOutline = true,
     espDistanceFade = true,
-    espFadeStart = 0.62,
-    espMinOpacity = 0.28,
+    espFadeStart = 0.68,
+    espMinOpacity = 0.22,
 
     nightPreset = "Midnight",
     nightBrightness = 0.2,
@@ -853,21 +865,21 @@ local XCConfig = {
     worldColorB = 255,
     -- Tracers 2.0
     bulletTracerStyle = "Neverlose",
-    bulletTracerDuration = 0.65,
-    bulletTracerWidth = 0.08,
+    bulletTracerDuration = 0.35,
+    bulletTracerWidth = 0.05,
     bulletTracerRainbow = false,
-    bulletTracerGlowStrength = 0.72,
-    bulletTracerCoreBrightness = 1.25,
-    bulletTracerTaper = 0.72,
+    bulletTracerGlowStrength = 0.55,
+    bulletTracerCoreBrightness = 1.45,
+    bulletTracerTaper = 0.82,
     bulletTracerDualGap = 0.10,
-    bulletTracerSecondaryR = 255,
-    bulletTracerSecondaryG = 220,
-    bulletTracerSecondaryB = 120,
+    bulletTracerSecondaryR = 235,
+    bulletTracerSecondaryG = 245,
+    bulletTracerSecondaryB = 255,
 
     bulletImpactEnabled = false,
-    bulletImpactSize = 0.35,
+    bulletImpactSize = 0.22,
     bulletImpactStyle = "Glow Ring",
-    bulletImpactDuration = 0.38,
+    bulletImpactDuration = 0.24,
     bulletImpactGlow = true,
     cubeCheckerEnabled = false,
     cubeCheckerRainbow = false,
@@ -940,7 +952,7 @@ local function xcApplyConfigValues(data, skipPublicSelection)
                         elseif key:match("[RGB]$") and (key:find("Color") or key:find("Accent")
                             or key:find("Background") or key:find("Panel") or key:find("Text")
                             or key:find("Visible") or key:find("Hidden") or key:find("grenade")
-                            or key:find("chams") or key:find("esp")) then
+                            or key:find("chams") or key:find("esp") or key:find("selfVisual")) then
                             value = math.clamp(math.floor(value + 0.5), 0, 255)
                         end
                         XCConfig[key] = value
@@ -972,16 +984,70 @@ end
 -- visual controls are touched; no frame-time work is added by a preset.
 local XCVisualLookPresets = {
     ["NeverLose Video"] = {
-        menuThemePreset="Video Blue", menuBackgroundR=10, menuBackgroundG=17, menuBackgroundB=25,
-        menuPanelR=7, menuPanelG=12, menuPanelB=19,
-        menuAccentR=89, menuAccentG=115, menuAccentB=255,
-        espVisibleR=96, espVisibleG=162, espVisibleB=255,
-        espHiddenR=185, espHiddenG=112, espHiddenB=250,
-        chamsVisibleR=96, chamsVisibleG=162, chamsVisibleB=255,
-        chamsHiddenR=185, chamsHiddenG=112, chamsHiddenB=250,
-        chamsStyle="Solid", chamsAnimationFPS=24, espBoxMode="Adaptive",
+        -- In-game only: deliberately does not write menu theme/palette fields.
+        espVisibleR=112, espVisibleG=178, espVisibleB=255,
+        espHiddenR=196, espHiddenG=108, espHiddenB=126,
+        espHealthHighR=116, espHealthHighG=214, espHealthHighB=156,
+        espHealthMidR=235, espHealthMidG=190, espHealthMidB=86,
+        espHealthLowR=244, espHealthLowG=92, espHealthLowB=104,
+        boxThickness=1.0, skeletonThickness=1.0,
+        espTextSize=10, tagTransparency=0.88,
+        espNamePosition="Top", espHealthPosition="Left", espWeaponPosition="Bottom",
+        espTextOutline=true, espBoxOutline=true,
+        espDistanceFade=true, espFadeStart=0.68, espMinOpacity=0.22,
+        weaponEspStyle="Icon", weaponEspScale=0.90,
+
+        chamsVisibleR=112, chamsVisibleG=178, chamsVisibleB=255,
+        chamsHiddenR=196, chamsHiddenG=108, chamsHiddenB=126,
+        chamsStyle="Solid", chamsFillTransparency=0.58,
+        chamsOutlineTransparency=0.32, chamsAnimationFPS=20,
+        chamsSoftGlowEnabled=false,
+
+        selfVisualEnabled=true,
+        selfVisualFillTransparency=0.76, selfVisualOutlineTransparency=0.34,
+        selfVisualColorR=220, selfVisualColorG=229, selfVisualColorB=241,
+        selfVisualOutlineR=242, selfVisualOutlineG=247, selfVisualOutlineB=255,
+
+        -- Coordinated low-overhead Fatality/Neverlose world look.
+        nightModeEnabled=true, nightPreset="Custom",
+        nightClockTime=15.5, nightBrightness=1.65,
+        worldAmbientR=62, worldAmbientG=70, worldAmbientB=84,
+        worldOutdoorAmbientR=104, worldOutdoorAmbientG=116, worldOutdoorAmbientB=134,
+        worldShadowSoftness=0.12, worldEnvironmentDiffuse=0.78, worldEnvironmentSpecular=0.45,
+        worldColorShiftTopR=0, worldColorShiftTopG=3, worldColorShiftTopB=8,
+        worldColorShiftBottomR=0, worldColorShiftBottomG=0, worldColorShiftBottomB=3,
+        worldPostFXEnabled=true, worldTonePreset="Cold",
+        worldExposure=0.05, worldSaturation=-0.12,
+        worldContrast=0.14, worldPostBrightness=-0.02,
+        worldBloomEnabled=true, worldBloomIntensity=0.18,
+        worldBloomSize=18, worldBloomThreshold=1.25,
+        worldDepthOfFieldEnabled=false, worldBlurEnabled=false,
+        worldSunRaysEnabled=false, worldAtmosphereEnabled=false,
+        removeFogEnabled=true, worldFogEnabled=false,
+        mapStylePreset="Cold Minimal", mapStyleTextureMode="Soft Tint",
+        mapStyleStrength=0.35, mapStyleTextureDetail=0.82,
+
+        bulletTrailEnabled=true, bulletFlashEnabled=true,
+        bulletTracerStyle="Neverlose", bulletTracerDuration=0.35,
+        bulletTracerWidth=0.05, bulletTracerRainbow=false,
+        bulletTracerGlowStrength=0.55, bulletTracerCoreBrightness=1.45,
+        bulletTracerTaper=0.82,
+        bulletTracerColorR=148, bulletTracerColorG=204, bulletTracerColorB=255,
+        bulletTracerSecondaryR=235, bulletTracerSecondaryG=245, bulletTracerSecondaryB=255,
+        bulletImpactEnabled=true, bulletImpactStyle="Glow Ring",
+        bulletImpactSize=0.22, bulletImpactDuration=0.24, bulletImpactGlow=true,
+
+        hitmarkerStyle="Neverlose", hitmarkerColorMode="White",
+        hitmarkerDuration=0.20, hitmarkerSize=10, hitmarkerThickness=1,
+        hitmarkerGap=4, hitmarkerWorldDuration=0.38, hitmarkerWorldScale=0.85,
+        hitmarkerLogDuration=1.7,
+        killEffectCount=30, killEffectSize=0.14,
+        killEffectSpeed=18, killEffectDuration=0.85, killEffectGlow=1.15,
+        espBoxMode="Adaptive",
     },
     ["Gamesense Classic"] = {
+        selfVisualEnabled=false, nightModeEnabled=false, worldPostFXEnabled=false, worldBloomEnabled=false,
+        worldDepthOfFieldEnabled=false, worldBlurEnabled=false,
         menuThemePreset="Gamesense", menuBackgroundR=17, menuBackgroundG=17, menuBackgroundB=17,
         menuPanelR=12, menuPanelG=12, menuPanelB=12,
         menuAccentR=152, menuAccentG=204, menuAccentB=0,
@@ -989,9 +1055,12 @@ local XCVisualLookPresets = {
         espHiddenR=113, espHiddenG=117, espHiddenB=123,
         chamsVisibleR=152, chamsVisibleG=204, chamsVisibleB=0,
         chamsHiddenR=113, chamsHiddenG=117, chamsHiddenB=123,
+        hitmarkerColorMode="Accent",
         chamsStyle="Shaded", chamsAnimationFPS=24, espBoxMode="Adaptive",
     },
     ["NixWare Violet"] = {
+        selfVisualEnabled=false, nightModeEnabled=false, worldPostFXEnabled=false, worldBloomEnabled=false,
+        worldDepthOfFieldEnabled=false, worldBlurEnabled=false,
         menuThemePreset="NixWare", menuBackgroundR=20, menuBackgroundG=18, menuBackgroundB=27,
         menuPanelR=14, menuPanelG=12, menuPanelB=21,
         menuAccentR=174, menuAccentG=134, menuAccentB=245,
@@ -999,6 +1068,7 @@ local XCVisualLookPresets = {
         espHiddenR=86, espHiddenG=144, espHiddenB=205,
         chamsVisibleR=174, chamsVisibleG=134, chamsVisibleB=245,
         chamsHiddenR=86, chamsHiddenG=144, chamsHiddenB=205,
+        hitmarkerColorMode="Accent",
         chamsStyle="Glow Outline", chamsAnimationFPS=24, espBoxMode="Adaptive",
     },
 }
@@ -1012,7 +1082,7 @@ local function xcApplyVisualLookPreset(name, refreshControl)
     local shared = {
         boxEspEnabled=true, healthBarEnabled=true, nametagsEnabled=true,
         chamsEnabled=true, chamsUseEspPalette=false, chamsSoftGlowEnabled=false,
-        espBoxOutline=true, hitmarkerStyle="Neverlose", hitmarkerColorMode="Accent",
+        espBoxOutline=true, hitmarkerStyle="Neverlose",
     }
     for key, value in pairs(shared) do
         XCConfig[key] = value
@@ -1020,6 +1090,11 @@ local function xcApplyVisualLookPreset(name, refreshControl)
     end
     XCConfig.visualLookPreset = name
     if refreshControl then refreshControl("visualLookPreset", name) end
+    if preset.nightPreset and type(applyNightPreset) == "function" then
+        pcall(applyNightPreset, preset.nightPreset)
+    end
+    if type(updateWorldChanger) == "function" then pcall(updateWorldChanger) end
+    if type(syncXCSelfVisual) == "function" then pcall(syncXCSelfVisual) end
     return true
 end
 
@@ -1095,7 +1170,9 @@ for _, colorKey in ipairs({
     "motionTrailColorR", "motionTrailColorG", "motionTrailColorB",
     "mapStyleDarkR", "mapStyleDarkG", "mapStyleDarkB",
     "mapStyleLightR", "mapStyleLightG", "mapStyleLightB",
-    "motionGhostColorR", "motionGhostColorG", "motionGhostColorB"
+    "motionGhostColorR", "motionGhostColorG", "motionGhostColorB",
+    "selfVisualColorR", "selfVisualColorG", "selfVisualColorB",
+    "selfVisualOutlineR", "selfVisualOutlineG", "selfVisualOutlineB"
 }) do
     XCConfig[colorKey] = math.clamp(math.floor((tonumber(XCConfig[colorKey]) or 0) + 0.5), 0, 255)
 end
@@ -2855,18 +2932,18 @@ local function renderXCTracerV2(group, origin, destination, width, primary, seco
     if style == "Neverlose" then
         newXCBeamLane(
             group, origin, destination, 0,
-            width * (3.0 + glow * 1.2),
-            width * (1.0 + glow * 0.55),
+            width * (2.35 + glow * 0.35),
+            width * (0.60 + glow * 0.18),
             primary, secondary,
-            math.clamp(0.76 - glow * 0.12, 0.42, 0.82),
+            math.clamp(0.84 - glow * 0.08, 0.58, 0.88),
             duration
         )
         newXCBeamLane(
             group, origin, destination, 0,
-            width * 1.15,
-            width * math.max(0.16, 1.15 * (1 - taper)),
+            width * 0.78,
+            width * math.max(0.08, 0.78 * (1 - taper)),
             core, hot,
-            0.02,
+            0,
             duration
         )
 
@@ -2915,8 +2992,8 @@ end
 
 local function renderXCImpactV2(group, position, color, secondary, duration, size, style)
     style = tostring(style or "Glow Ring")
-    duration = math.clamp(tonumber(duration) or 0.38, 0.08, 1.5)
-    size = math.clamp(tonumber(size) or 0.35, 0.05, 2)
+    duration = math.clamp(tonumber(duration) or 0.24, 0.08, 1.5)
+    size = math.clamp(tonumber(size) or 0.22, 0.05, 2)
 
     if style == "Cross" then
         for axis = 1, 3 do
@@ -2965,7 +3042,7 @@ local function renderXCImpactV2(group, position, color, secondary, duration, siz
     end
 
     -- Glow Ring: camera-facing UI ring + small impact core.
-    node.Size = Vector3.new(size * 0.42, size * 0.42, size * 0.42)
+    node.Size = Vector3.new(size * 0.32, size * 0.32, size * 0.32)
     node.Color = secondary
     TweenService:Create(
         node,
@@ -2978,7 +3055,7 @@ local function renderXCImpactV2(group, position, color, secondary, duration, siz
     billboard.Adornee = node
     billboard.AlwaysOnTop = true
     billboard.LightInfluence = 0
-    billboard.Size = UDim2.fromOffset(28, 28)
+    billboard.Size = UDim2.fromOffset(22, 22)
     billboard.Parent = node
 
     local ring = Instance.new("Frame")
@@ -2994,14 +3071,14 @@ local function renderXCImpactV2(group, position, color, secondary, duration, siz
 
     local stroke = Instance.new("UIStroke")
     stroke.Color = color
-    stroke.Thickness = XCConfig.bulletImpactGlow and 2.3 or 1.2
-    stroke.Transparency = 0.02
+    stroke.Thickness = XCConfig.bulletImpactGlow and 1.45 or 0.9
+    stroke.Transparency = 0.16
     stroke.Parent = ring
 
     TweenService:Create(
         ring,
         TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-        {Size = UDim2.fromScale(1.45, 1.45)}
+        {Size = UDim2.fromScale(1.28, 1.28)}
     ):Play()
     TweenService:Create(
         stroke,
@@ -3076,11 +3153,11 @@ local function renderXCBulletEffects(shot, bullet)
     if XCConfig.bulletFlashEnabled then
         local flash = newXCEffectPart(group, primary:Lerp(Color3.new(1, 1, 1), 0.48))
         flash.Shape = Enum.PartType.Ball
-        flash.Size = Vector3.new(width * 5, width * 5, width * 5)
+        flash.Size = Vector3.new(width * 3.2, width * 3.2, width * 3.2)
         flash.Position = origin
         TweenService:Create(
             flash,
-            TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
             {Size = Vector3.zero, Transparency = 1}
         ):Play()
     end
@@ -5742,29 +5819,31 @@ function buildSpectatorGui()
     spectatorGui.Parent = targetGui
 
     spectatorFrame = Instance.new("Frame", spectatorGui)
-    spectatorFrame.Size = UDim2.new(0, 210, 0, 120)
-    spectatorFrame.Position = UDim2.new(1, -224, 0, 92)
-    spectatorFrame.BackgroundColor3 = currentTheme.Background
+    spectatorFrame.Size = UDim2.new(0, 184, 0, 102)
+    spectatorFrame.Position = UDim2.new(1, -198, 0, 76)
+    spectatorFrame.BackgroundColor3 = Color3.fromRGB(9, 11, 15)
+    spectatorFrame.BackgroundTransparency = 0.12
     spectatorFrame.BorderSizePixel = 0
     spectatorFrame.Visible = false
-    Instance.new("UICorner", spectatorFrame).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", spectatorFrame).CornerRadius = UDim.new(0, 4)
     local stroke = Instance.new("UIStroke", spectatorFrame)
-    stroke.Color = currentTheme.Border
+    stroke.Color = Color3.fromRGB(66, 78, 96)
+    stroke.Transparency = 0.42
     stroke.Thickness = 1
 
     local title = Instance.new("TextLabel", spectatorFrame)
-    title.Size = UDim2.new(1, -12, 0, 22)
-    title.Position = UDim2.new(0, 6, 0, 4)
+    title.Size = UDim2.new(1, -12, 0, 18)
+    title.Position = UDim2.new(0, 7, 0, 3)
     title.BackgroundTransparency = 1
     title.Text = "SPECTATORS"
-    title.TextColor3 = currentTheme.Accent
+    title.TextColor3 = rgb(XCConfig.espVisibleR, XCConfig.espVisibleG, XCConfig.espVisibleB)
     title.TextSize = 9
     title.Font = Enum.Font.GothamBold
     title.TextXAlignment = Enum.TextXAlignment.Left
 
     spectatorCounterLabel = Instance.new("TextLabel", spectatorFrame)
-    spectatorCounterLabel.Size = UDim2.new(1, -12, 0, 18)
-    spectatorCounterLabel.Position = UDim2.new(0, 6, 0, 24)
+    spectatorCounterLabel.Size = UDim2.new(1, -14, 0, 15)
+    spectatorCounterLabel.Position = UDim2.new(0, 7, 0, 21)
     spectatorCounterLabel.BackgroundTransparency = 1
     spectatorCounterLabel.TextColor3 = currentTheme.TextSecondary
     spectatorCounterLabel.TextSize = 8
@@ -5772,8 +5851,8 @@ function buildSpectatorGui()
     spectatorCounterLabel.TextXAlignment = Enum.TextXAlignment.Left
 
     spectatorListLabel = Instance.new("TextLabel", spectatorFrame)
-    spectatorListLabel.Size = UDim2.new(1, -12, 1, -48)
-    spectatorListLabel.Position = UDim2.new(0, 6, 0, 44)
+    spectatorListLabel.Size = UDim2.new(1, -14, 1, -40)
+    spectatorListLabel.Position = UDim2.new(0, 7, 0, 37)
     spectatorListLabel.BackgroundTransparency = 1
     spectatorListLabel.TextColor3 = currentTheme.TextPrimary
     spectatorListLabel.TextSize = 8
@@ -5802,7 +5881,7 @@ function updateSpectatorGui()
         end
     end
     spectatorListLabel.Text = #lines > 0 and table.concat(lines, "\n") or "No active spectators"
-    spectatorFrame.Size = UDim2.new(0, 210, 0, math.max(88, 64 + math.min(#lines, 8) * 14))
+    spectatorFrame.Size = UDim2.new(0, 184, 0, math.max(70, 54 + math.min(#lines, 8) * 12))
 end
 
 -- Custom Hands 2.0
@@ -6116,10 +6195,10 @@ local defaultHipHeightCaptured = false
 --// ENVIRONMENT PRESETS & FOG LIBRARY FULL WORK
 local nightPresets = {
     ["Competitive"] = {
-        ClockTime = 14.0, Brightness = 2.35,
-        OutdoorAmbient = Color3.fromRGB(185, 190, 195), Ambient = Color3.fromRGB(115, 120, 125),
-        FogColor = Color3.fromRGB(205, 215, 225), ShadowSoftness = 0.05,
-        Diffuse = 0.80, Specular = 0.35,
+        ClockTime = 14.0, Brightness = 2.20,
+        OutdoorAmbient = Color3.fromRGB(175, 183, 193), Ambient = Color3.fromRGB(112, 117, 124),
+        FogColor = Color3.fromRGB(205, 215, 225), ShadowSoftness = 0.04,
+        Diffuse = 0.78, Specular = 0.32,
         ShiftTop = Color3.fromRGB(0, 0, 0), ShiftBottom = Color3.fromRGB(0, 0, 0)
     },
     ["Daylight"] = {
@@ -6144,11 +6223,11 @@ local nightPresets = {
         ShiftTop = Color3.fromRGB(15, 2, 10), ShiftBottom = Color3.fromRGB(5, 0, 6)
     },
     ["Midnight"] = {
-        ClockTime = 0.0, Brightness = 0.2,
-        OutdoorAmbient = Color3.fromRGB(25, 25, 40), Ambient = Color3.fromRGB(15, 15, 25),
-        FogColor = Color3.fromRGB(10, 10, 20), ShadowSoftness = 0.28,
-        Diffuse = 0.65, Specular = 0.70,
-        ShiftTop = Color3.fromRGB(0, 0, 8), ShiftBottom = Color3.fromRGB(0, 0, 3)
+        ClockTime = 1.25, Brightness = 0.55,
+        OutdoorAmbient = Color3.fromRGB(39, 49, 70), Ambient = Color3.fromRGB(25, 31, 46),
+        FogColor = Color3.fromRGB(20, 27, 40), ShadowSoftness = 0.18,
+        Diffuse = 0.64, Specular = 0.55,
+        ShiftTop = Color3.fromRGB(0, 5, 13), ShiftBottom = Color3.fromRGB(0, 1, 7)
     },
     ["Nebula"] = {
         ClockTime = 23.8, Brightness = 0.3,
@@ -6438,8 +6517,8 @@ local function configureXCHitmarkerShape(style, size, thickness, gap, color)
         local glow = line:FindFirstChild("NeonGlow")
         if glow then
             glow.Color = color
-            glow.Thickness = XCConfig.hitmarkerGlow and math.max(1.4, thickness * 1.2) or 0
-            glow.Transparency = XCConfig.hitmarkerGlow and 0.08 or 1
+            glow.Thickness = XCConfig.hitmarkerGlow and math.max(1.05, thickness * 0.95) or 0
+            glow.Transparency = XCConfig.hitmarkerGlow and 0.22 or 1
         end
     end
 end
@@ -6481,7 +6560,7 @@ local function spawnXCWorldHitFeedback(position, damage, color)
     local gui = Instance.new("BillboardGui")
     gui.AlwaysOnTop = true
     gui.LightInfluence = 0
-    gui.Size = UDim2.fromOffset(86 * scale, 58 * scale)
+    gui.Size = UDim2.fromOffset(70 * scale, 46 * scale)
     gui.StudsOffsetWorldSpace = Vector3.new(0, 0.15, 0)
     gui.Adornee = anchor
     gui.Parent = anchor
@@ -6496,7 +6575,7 @@ local function spawnXCWorldHitFeedback(position, damage, color)
     amount.TextColor3 = color
     amount.TextStrokeColor3 = Color3.fromRGB(7, 7, 8)
     amount.TextStrokeTransparency = 0.15
-    amount.TextSize = math.floor(15 * scale)
+    amount.TextSize = math.floor(13 * scale)
     amount.Parent = gui
 
     local bar = Instance.new("Frame")
@@ -6527,7 +6606,7 @@ local function pushXCHitLog(targetPlr, damage, remainingHealth, color)
 
     local card = Instance.new("Frame")
     card.Name = "HitLog"
-    card.Size = UDim2.fromOffset(216, 34)
+    card.Size = UDim2.fromOffset(188, 28)
     card.BackgroundColor3 = Color3.fromRGB(12, 13, 14)
     card.BackgroundTransparency = 0.14
     card.BorderSizePixel = 0
@@ -6562,7 +6641,7 @@ local function pushXCHitLog(targetPlr, damage, remainingHealth, color)
     label.Text = hp and string.format("%s   -%d   [%d HP]", name, dmg, math.max(0, math.floor(hp + 0.5)))
         or string.format("%s   -%d", name, dmg)
     label.TextColor3 = Color3.fromRGB(228, 231, 233)
-    label.TextSize = 11
+    label.TextSize = 10
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.ZIndex = 92
     label.Parent = card
@@ -6825,7 +6904,7 @@ function XCSpawnKillFireflies(source, forcePreview)
     if typeof(position) ~= "Vector3" then return end
 
     local count = math.clamp(
-        math.floor((tonumber(XCConfig.killEffectCount) or 95) + 0.5),
+        math.floor((tonumber(XCConfig.killEffectCount) or 30) + 0.5),
         10,
         260
     )
@@ -6840,7 +6919,7 @@ function XCSpawnKillFireflies(source, forcePreview)
         45
     )
     local duration = math.clamp(
-        tonumber(XCConfig.killEffectDuration) or 1.45,
+        tonumber(XCConfig.killEffectDuration) or 0.85,
         0.35,
         3.5
     )
@@ -6887,11 +6966,11 @@ function XCSpawnKillFireflies(source, forcePreview)
     core.Position = position + Vector3.new(0, 0.45, 0)
     core.Parent = folder
 
-    local flashTarget = math.clamp(size * 18, 1.8, 5.2)
+    local flashTarget = math.clamp(size * 12, 1.2, 3.6)
     TweenService:Create(
         core,
         TweenInfo.new(
-            math.min(0.34, duration * 0.25),
+            math.min(0.22, duration * 0.25),
             Enum.EasingStyle.Quart,
             Enum.EasingDirection.Out
         ),
@@ -7769,8 +7848,73 @@ function getThirdPersonTarget()
     return char, hum
 end
 
+local xcSelfVisualHighlight = nil
+local xcSelfVisualCharacter = nil
+
+function syncXCSelfVisual()
+    local char = player and player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local shouldShow = XCConfig.selfVisualEnabled == true
+        and XCConfig.thirdPersonEnabled == true
+        and isThirdPersonActive == true
+        and char ~= nil and hum ~= nil and hum.Health > 0
+
+    if not shouldShow then
+        if xcSelfVisualHighlight then
+            xcSelfVisualHighlight.Enabled = false
+            xcSelfVisualHighlight.Adornee = nil
+        end
+        xcSelfVisualCharacter = nil
+        return
+    end
+
+    if not xcSelfVisualHighlight or not xcSelfVisualHighlight.Parent then
+        local stale = chamsWorldFolder and chamsWorldFolder:FindFirstChild("XC_SelfVisual")
+        if stale and stale:IsA("Highlight") then
+            xcSelfVisualHighlight = stale
+        else
+            if stale then pcall(function() stale:Destroy() end) end
+            xcSelfVisualHighlight = Instance.new("Highlight")
+            xcSelfVisualHighlight.Name = "XC_SelfVisual"
+            xcSelfVisualHighlight.Parent = chamsWorldFolder
+        end
+    end
+
+    local highlight = xcSelfVisualHighlight
+    if xcSelfVisualCharacter ~= char or highlight.Adornee ~= char then
+        xcSelfVisualCharacter = char
+        highlight.Adornee = char
+    end
+
+    local fillColor = rgb(XCConfig.selfVisualColorR, XCConfig.selfVisualColorG, XCConfig.selfVisualColorB)
+    local outlineColor = rgb(XCConfig.selfVisualOutlineR, XCConfig.selfVisualOutlineG, XCConfig.selfVisualOutlineB)
+    local fillTransparency = math.clamp(tonumber(XCConfig.selfVisualFillTransparency) or 0.76, 0, 1)
+    local outlineTransparency = math.clamp(tonumber(XCConfig.selfVisualOutlineTransparency) or 0.34, 0, 1)
+    if highlight.DepthMode ~= Enum.HighlightDepthMode.Occluded then
+        highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+    end
+    if highlight.FillColor ~= fillColor then highlight.FillColor = fillColor end
+    if highlight.OutlineColor ~= outlineColor then highlight.OutlineColor = outlineColor end
+    if highlight.FillTransparency ~= fillTransparency then highlight.FillTransparency = fillTransparency end
+    if highlight.OutlineTransparency ~= outlineTransparency then highlight.OutlineTransparency = outlineTransparency end
+    if not highlight.Enabled then highlight.Enabled = true end
+end
+
+function destroyXCSelfVisual()
+    xcSelfVisualCharacter = nil
+    if xcSelfVisualHighlight then
+        pcall(function() xcSelfVisualHighlight:Destroy() end)
+        xcSelfVisualHighlight = nil
+    end
+    if chamsWorldFolder then
+        local stale = chamsWorldFolder:FindFirstChild("XC_SelfVisual")
+        if stale then pcall(function() stale:Destroy() end) end
+    end
+end
+
 function restoreThirdPerson()
     isThirdPersonActive = false
+    destroyXCSelfVisual()
 
     local char = player.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
@@ -7849,6 +7993,7 @@ function applyThirdPerson()
     camera.CameraType = Enum.CameraType.Custom
     camera.CameraSubject = hum
     hum.CameraOffset = Vector3.new(0, math.clamp(tonumber(XCConfig.thirdPersonHeight) or 0, -3, 6), 0)
+    syncXCSelfVisual()
 end
 
 function setThirdPersonEnabled(enabled)
@@ -7864,6 +8009,10 @@ end
 function refreshThirdPerson()
     if XCConfig.thirdPersonEnabled then
         applyThirdPerson()
+    elseif isThirdPersonActive then
+        restoreThirdPerson()
+    else
+        destroyXCSelfVisual()
     end
 end
 --// LIGHTING & ATMOSPHERE FUNCTIONS WORK
@@ -8556,7 +8705,7 @@ end
 local XCMapStylePresets = {
     ["Black & White"] = {Dark=Color3.fromRGB(20,22,25), Light=Color3.fromRGB(232,234,238), Steps=5, Gamma=0.92},
     ["Soft Gray"] = {Dark=Color3.fromRGB(48,51,56), Light=Color3.fromRGB(202,205,210), Steps=0, Gamma=1.0},
-    ["Cold Minimal"] = {Dark=Color3.fromRGB(31,37,45), Light=Color3.fromRGB(201,216,228), Steps=0, Gamma=0.96},
+    ["Cold Minimal"] = {Dark=Color3.fromRGB(28,34,42), Light=Color3.fromRGB(205,217,230), Steps=0, Gamma=0.96},
     ["Warm Minimal"] = {Dark=Color3.fromRGB(47,42,37), Light=Color3.fromRGB(226,218,201), Steps=0, Gamma=0.98},
     ["Obsidian"] = {Dark=Color3.fromRGB(11,13,16), Light=Color3.fromRGB(137,145,155), Steps=4, Gamma=0.82},
     ["Paper Invert"] = {Dark=Color3.fromRGB(239,239,235), Light=Color3.fromRGB(30,31,34), Steps=4, Gamma=1.0},
@@ -10672,6 +10821,7 @@ end))
 
 table.insert(connections, player.CharacterRemoving:Connect(function()
     clearXCMotionTrail()
+    pcall(destroyXCSelfVisual)
 end))
 --// XC WORLD WEATHER + CAMERA DIRECTOR | Inspired by the useful visual/camera ideas shown in the GameSense review. Both systems are local-only and use a single lightweight render path.
 XCFeatureState = {
@@ -10718,7 +10868,7 @@ XCFeatureState = {
     worldTonePresets = {
         Neutral = Color3.fromRGB(255, 255, 255),
         ["XC Lime"] = Color3.fromRGB(225, 242, 185),
-        Cold = Color3.fromRGB(205, 225, 255),
+        Cold = Color3.fromRGB(218, 230, 246),
         Ice = Color3.fromRGB(190, 225, 255),
         Warm = Color3.fromRGB(255, 224, 190),
         Sunset = Color3.fromRGB(255, 198, 176),
@@ -10751,7 +10901,7 @@ XCFeatureState = {
         "cornerBoxEnabled", "healthBarEnabled", "headDotEnabled", "tracersEnabled",
         "grenadeEspEnabled", "grenadeDangerZonesEnabled", "soundPositionEspEnabled", "weaponEspEnabled",
         "jumpCircleEnabled", "motionTrailEnabled", "hitmarkerEnabled", "chamsEnabled", "skeletonEspEnabled",
-        "showFovCircle", "showSilentFovCircle",
+        "selfVisualEnabled", "showFovCircle", "showSilentFovCircle",
     },
 }
 
@@ -11190,6 +11340,7 @@ function cleanup()
     stopXCCameraMode()
     destroyXCWeather()
     pcall(function() setThirdPersonEnabled(false) end)
+    pcall(destroyXCSelfVisual)
     if player.Character then
         local hum = player.Character:FindFirstChildOfClass("Humanoid")
         if hum and savedAutoRotate ~= nil then
@@ -11359,34 +11510,28 @@ watermarkGui.Parent = targetGui
 
 local wmCard = Instance.new("Frame", watermarkGui)
 wmCard.Name = "WatermarkCard"
-wmCard.Position = UDim2.new(0, 16, 0, 16)
-wmCard.Size = UDim2.new(0, 0, 0, 32)
+wmCard.Position = UDim2.new(0, 14, 0, 14)
+wmCard.Size = UDim2.new(0, 0, 0, 26)
 wmCard.AutomaticSize = Enum.AutomaticSize.X
-wmCard.BackgroundColor3 = currentTheme.Background:Lerp(Color3.new(0, 0, 0), 0.08)
-wmCard.BackgroundTransparency = 0.14
+wmCard.BackgroundColor3 = Color3.fromRGB(9, 11, 15)
+wmCard.BackgroundTransparency = 0.16
 wmCard.BorderSizePixel = 0
-Instance.new("UICorner", wmCard).CornerRadius = UDim.new(0, 7)
+Instance.new("UICorner", wmCard).CornerRadius = UDim.new(0, 4)
 
 local wmStroke = Instance.new("UIStroke", wmCard)
 wmStroke.Name = "GlassRim"
-wmStroke.Color = currentTheme.TextPrimary:Lerp(currentTheme.Accent, 0.28)
+wmStroke.Color = Color3.fromRGB(76, 91, 112)
 wmStroke.Thickness = 1
-wmStroke.Transparency = 0.48
+wmStroke.Transparency = 0.52
 
 do
     local glass = Instance.new("UIGradient", wmCard)
     glass.Name = "WatermarkGlass"
-    glass.Rotation = 88
-    glass.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.48, Color3.fromRGB(228, 232, 238)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(184, 190, 198)),
-    })
+    glass.Rotation = 90
+    glass.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(200, 211, 226))
     glass.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 0.18),
-        NumberSequenceKeypoint.new(0.22, 0.38),
-        NumberSequenceKeypoint.new(0.68, 0.70),
-        NumberSequenceKeypoint.new(1, 0.84),
+        NumberSequenceKeypoint.new(0, 0.92),
+        NumberSequenceKeypoint.new(1, 0.98),
     })
 end
 
@@ -11397,17 +11542,17 @@ do
 end
 
 local wmPad = Instance.new("UIPadding", wmCard)
-wmPad.PaddingLeft = UDim.new(0, 11)
-wmPad.PaddingRight = UDim.new(0, 11)
+wmPad.PaddingLeft = UDim.new(0, 8)
+wmPad.PaddingRight = UDim.new(0, 8)
 
 local wmLayout = Instance.new("UIListLayout", wmCard)
 wmLayout.FillDirection = Enum.FillDirection.Horizontal
 wmLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-wmLayout.Padding = UDim.new(0, 7)
+wmLayout.Padding = UDim.new(0, 5)
 
 local wmDot = Instance.new("Frame", wmCard)
 wmDot.Name = "StatusDot"
-wmDot.Size = UDim2.fromOffset(6, 6)
+wmDot.Size = UDim2.fromOffset(4, 4)
 wmDot.BackgroundColor3 = currentTheme.Accent
 wmDot.BorderSizePixel = 0
 Instance.new("UICorner", wmDot).CornerRadius = UDim.new(1, 0)
@@ -11424,11 +11569,11 @@ wmTitle.Size = UDim2.new(0, 0, 1, 0)
 wmTitle.BackgroundTransparency = 1
 wmTitle.Text = "XOSE"
 wmTitle.TextColor3 = currentTheme.TextPrimary
-wmTitle.TextSize = 11
+wmTitle.TextSize = 10
 wmTitle.Font = Enum.Font.GothamBold
 
 local wmDivider = Instance.new("Frame", wmCard)
-wmDivider.Size = UDim2.fromOffset(1, 14)
+wmDivider.Size = UDim2.fromOffset(1, 12)
 wmDivider.BackgroundColor3 = currentTheme.Border
 wmDivider.BackgroundTransparency = 0.20
 wmDivider.BorderSizePixel = 0
@@ -11439,7 +11584,7 @@ wmMetrics.Size = UDim2.new(0, 0, 1, 0)
 wmMetrics.BackgroundTransparency = 1
 wmMetrics.Text = "60 FPS   0 MS"
 wmMetrics.TextColor3 = currentTheme.TextSecondary
-wmMetrics.TextSize = 10
+wmMetrics.TextSize = 9
 wmMetrics.Font = Enum.Font.GothamMedium
 
 local fpsCounter = 0
@@ -13175,7 +13320,7 @@ function setXCSkeletonLine(line, from, to, color, alpha)
     if length < 0.5 then line.Visible = false return end
     line.AnchorPoint = Vector2.new(0.5, 0.5)
     line.Position = UDim2.fromOffset((from.X + to.X) * 0.5, (from.Y + to.Y) * 0.5)
-    line.Size = UDim2.fromOffset(length, math.clamp(tonumber(XCConfig.skeletonThickness) or 1.5, 1, 4))
+    line.Size = UDim2.fromOffset(length, math.clamp(tonumber(XCConfig.skeletonThickness) or 1.0, 1, 4))
     line.Rotation = math.deg(math.atan2(delta.Y, delta.X))
     line.BackgroundColor3 = color
     line.BackgroundTransparency = 1 - alpha
@@ -13223,8 +13368,8 @@ function renderXCSkeleton(esp, char, color, distance)
         LeftFoot = leftFoot and leftFoot.CFrame:PointToWorldSpace(Vector3.new(0, -leftFoot.Size.Y * 0.45, 0)),
         RightFoot = rightFoot and rightFoot.CFrame:PointToWorldSpace(Vector3.new(0, -rightFoot.Size.Y * 0.45, 0)),
     }
-    local alpha = XCConfig.skeletonDistanceFade
-        and math.clamp(1 - distance / math.max(1, XCConfig.espMaxDist), 0.18, 1) or 1
+    local alpha = (XCConfig.skeletonDistanceFade
+        and math.clamp(1 - distance / math.max(1, XCConfig.espMaxDist), 0.18, 1) or 1) * 0.72
     local projections = esp.SkeletonProjections
     if not projections then projections = {}; esp.SkeletonProjections = projections end
     table.clear(projections)
@@ -13273,8 +13418,8 @@ function getOrCreateScreenEsp(plr)
 
     local outlineStroke = Instance.new("UIStroke", boxOutline)
     outlineStroke.Color = Color3.fromRGB(5, 7, 9)
-    outlineStroke.Thickness = XCConfig.boxThickness + 2
-    outlineStroke.Transparency = 0.12
+    outlineStroke.Thickness = XCConfig.boxThickness + 1
+    outlineStroke.Transparency = 0.42
     outlineStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
     local stroke = Instance.new("UIStroke", box)
@@ -13350,7 +13495,7 @@ function getOrCreateScreenEsp(plr)
         local hOutline = Instance.new("UIStroke", hLine)
         hOutline.Color = Color3.fromRGB(5, 7, 9)
         hOutline.Thickness = 1
-        hOutline.Transparency = 0.1
+        hOutline.Transparency = 0.38
 
         local vLine = Instance.new("Frame", overlayContainer)
         vLine.Name = "CornerV_" .. plr.Name .. "_" .. i
@@ -13361,7 +13506,7 @@ function getOrCreateScreenEsp(plr)
         local vOutline = Instance.new("UIStroke", vLine)
         vOutline.Color = Color3.fromRGB(5, 7, 9)
         vOutline.Thickness = 1
-        vOutline.Transparency = 0.1
+        vOutline.Transparency = 0.38
 
         table.insert(corners, {H = hLine, V = vLine, HOutline = hOutline, VOutline = vOutline})
     end
@@ -13778,11 +13923,11 @@ function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxW
     local displayName = xcWeaponDisplayName(weaponName)
     if esp.WeaponLabel.Text ~= displayName then esp.WeaponLabel.Text = displayName end
     local scale = math.clamp(tonumber(XCConfig.weaponEspScale) or 1, 0.75, 1.5)
-    local iconWidth = math.floor(56 * scale + 0.5)
-    local iconHeight = math.floor(24 * scale + 0.5)
-    local labelWidth = showName and math.clamp(#displayName * 7 + 12, 46, 152) * scale or 0
+    local iconWidth = math.floor(50 * scale + 0.5)
+    local iconHeight = math.floor(21 * scale + 0.5)
+    local labelWidth = showName and math.clamp(#displayName * 6.4 + 10, 42, 140) * scale or 0
     local width = math.max(math.floor(labelWidth + 0.5), hasVisual and iconWidth or 0, 40)
-    local height = (hasVisual and iconHeight or 0) + (showName and math.floor(15 * scale + 0.5) or 0)
+    local height = (hasVisual and iconHeight or 0) + (showName and math.floor(13 * scale + 0.5) or 0)
     esp.WeaponCard.Size = UDim2.fromOffset(width, height)
     local iconX = math.floor((width - iconWidth) * 0.5)
     local imageSize = UDim2.fromOffset(iconWidth, iconHeight)
@@ -13797,13 +13942,13 @@ function updateXCWeaponPreview(esp, plr, char, sideColor, boxPosX, boxPosY, boxW
     end
     esp.WeaponLabel.Visible = showName
     esp.WeaponLabel.Position = UDim2.fromOffset(0, hasVisual and iconHeight or 0)
-    esp.WeaponLabel.Size = UDim2.new(1, 0, 0, math.floor(15 * scale + 0.5))
+    esp.WeaponLabel.Size = UDim2.new(1, 0, 0, math.floor(13 * scale + 0.5))
     esp.WeaponLabel.TextXAlignment = Enum.TextXAlignment.Center
     esp.WeaponLabel.TextColor3 = accent:Lerp(Color3.new(1, 1, 1), 0.55)
     esp.WeaponLabel.TextTransparency = 1 - alpha
     esp.WeaponLabel.TextStrokeColor3 = Color3.fromRGB(3, 5, 9)
-    esp.WeaponLabel.TextStrokeTransparency = 0.22
-    esp.WeaponLabel.TextSize = math.floor(12 * scale + 0.5)
+    esp.WeaponLabel.TextStrokeTransparency = 0.42
+    esp.WeaponLabel.TextSize = math.floor(11 * scale + 0.5)
     local slot = XCConfig.espWeaponPosition
     local stacked = XCConfig.nametagsEnabled and XCConfig.espNamePosition == slot
     local stackGap = 5
@@ -14245,8 +14390,8 @@ function renderTacticalOverlay()
                         esp.Box.Size = UDim2.new(0, boxWidth, 0, boxHeight)
                         esp.Box.Position = UDim2.new(0, boxPosX, 0, boxPosY)
                         esp.Box.Visible = true
-                        esp.BoxOutlineStroke.Thickness = boxStrokeWidth + 2
-                        esp.BoxOutlineStroke.Transparency = math.clamp(0.12 + (1 - espAlpha), 0, 1)
+                        esp.BoxOutlineStroke.Thickness = boxStrokeWidth + 1
+                        esp.BoxOutlineStroke.Transparency = math.clamp(0.42 + (1 - espAlpha) * 0.58, 0, 1)
                         esp.BoxOutline.Size = esp.Box.Size
                         esp.BoxOutline.Position = esp.Box.Position
                         esp.BoxOutline.Visible = XCConfig.espBoxOutline
@@ -15077,13 +15222,14 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         end
         local watermarkGlass = math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86, 0, 1)
         local watermarkOpacity = math.clamp(tonumber(XCConfig.watermarkOpacity) or 0.88, 0.35, 1)
-        wmCard.BackgroundColor3 = currentTheme.Background:Lerp(Color3.new(0, 0, 0), 0.08)
-        wmCard.BackgroundTransparency = math.clamp((1 - watermarkOpacity) + watermarkGlass * 0.09, 0.04, 0.58)
-        wmStroke.Color = currentTheme.TextPrimary:Lerp(currentTheme.Accent, 0.28)
-        wmStroke.Transparency = math.clamp(0.82 - watermarkGlass * 0.43, 0.28, 0.82)
-        wmDot.BackgroundColor3 = currentTheme.Accent
-        wmTitle.TextColor3 = currentTheme.TextPrimary
-        wmMetrics.TextColor3 = currentTheme.TextSecondary
+        local hudAccent = rgb(XCConfig.espVisibleR, XCConfig.espVisibleG, XCConfig.espVisibleB)
+        wmCard.BackgroundColor3 = Color3.fromRGB(9, 11, 15)
+        wmCard.BackgroundTransparency = math.clamp((1 - watermarkOpacity) + watermarkGlass * 0.06, 0.08, 0.52)
+        wmStroke.Color = hudAccent:Lerp(Color3.fromRGB(210, 224, 242), 0.45)
+        wmStroke.Transparency = math.clamp(0.78 - watermarkGlass * 0.28, 0.38, 0.78)
+        wmDot.BackgroundColor3 = hudAccent
+        wmTitle.TextColor3 = Color3.fromRGB(235, 240, 248)
+        wmMetrics.TextColor3 = Color3.fromRGB(166, 176, 190)
 
         if fovFrame then
             local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
