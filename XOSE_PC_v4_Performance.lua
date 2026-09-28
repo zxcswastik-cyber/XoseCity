@@ -11746,27 +11746,37 @@ end
 local function classifyXCGrenadeName(name)
     name = tostring(name or ""):lower()
     if name == "" then return nil end
-    -- Reject area/effect containers: this ESP marks the grenade object itself only.
+    -- Effect areas are deliberately excluded: only the thrown object gets a marker.
     for _, reject in ipairs({"zone", "radius", "volume", "voxel", "cloud", "emitter", "particle", "area"}) do
         if name:find(reject, 1, true) then return nil end
     end
-    if name:find("molotov", 1, true) or name:find("incendiary", 1, true) then return "MOLOTOV" end
-    if name:find("smokegrenade", 1, true) or name:find("smoke_grenade", 1, true)
-        or name:find("smoke grenade", 1, true) then return "SMOKE" end
-    if name:find("flashbang", 1, true) or name:find("flashgrenade", 1, true)
-        or name:find("flash_grenade", 1, true) or name:find("flash grenade", 1, true) then return "FLASH" end
-    if name:find("hegrenade", 1, true) or name:find("he_grenade", 1, true) or name:find("he grenade", 1, true)
-        or name:find("fraggrenade", 1, true) or name:find("frag_grenade", 1, true) or name:find("frag grenade", 1, true)
-        or name == "frag" or name == "grenade" or name:find("grenadeprojectile", 1, true) then return "HE" end
+    name = name:gsub("[%s_%-]", "")
+    if name:find("molotov", 1, true) or name:find("incendiary", 1, true)
+        or name:find("incgrenade", 1, true) or name == "molly" or name == "mollyprojectile" then
+        return "MOLOTOV"
+    end
+    if name == "smoke" or name:find("smokegrenade", 1, true)
+        or name:find("smokeprojectile", 1, true) then return "SMOKE" end
+    if name == "flash" or name:find("flashbang", 1, true)
+        or name:find("flashgrenade", 1, true) or name:find("flashprojectile", 1, true) then return "FLASH" end
+    if name == "he" or name == "frag" or name:find("hegrenade", 1, true)
+        or name:find("fraggrenade", 1, true) then return "HE" end
+    -- Generic meshes are a fallback, never stronger evidence than a named parent.
+    if name == "grenade" or name:find("grenadeprojectile", 1, true) then return "HE", true end
     return nil
 end
 
 local function getXCGrenadeKindFromAttributes(object)
-    for _, attributeName in ipairs({"GrenadeType", "UtilityType", "WeaponName", "ItemName", "ProjectileType"}) do
+    for _, attributeName in ipairs({"GrenadeType", "UtilityType", "WeaponName", "ItemName", "ProjectileType", "WeaponType"}) do
         local ok, value = pcall(function() return object:GetAttribute(attributeName) end)
-        if ok and value ~= nil then
-            local kind = classifyXCGrenadeName(value)
-            if kind then return kind end
+        if ok and type(value) == "string" then
+            local kind, generic = classifyXCGrenadeName(value)
+            if kind then return kind, generic end
+        end
+        local child = object:FindFirstChild(attributeName)
+        if child and child:IsA("StringValue") then
+            local kind, generic = classifyXCGrenadeName(child.Value)
+            if kind then return kind, generic end
         end
     end
     return nil
@@ -11774,23 +11784,32 @@ end
 
 function classifyXCGrenadeMarker(object)
     if not object or not object.Parent then return nil end
+    if not (object:IsA("BasePart") or object:IsA("Model") or object:IsA("StringValue")) then return nil end
     local cursor = object
-    for _ = 1, 4 do
+    local bestRoot, bestPart, bestKind, bestScore
+    for _ = 1, 8 do
         if not cursor or cursor == Workspace then break end
         if cursor:IsA("BasePart") or cursor:IsA("Model") then
-            local kind = getXCGrenadeKindFromAttributes(cursor) or classifyXCGrenadeName(cursor.Name)
+            local kind, generic = getXCGrenadeKindFromAttributes(cursor)
+            local fromAttribute = kind ~= nil
+            if not kind then kind, generic = classifyXCGrenadeName(cursor.Name) end
             if kind then
-                local part = cursor:IsA("BasePart") and cursor
-                    or cursor.PrimaryPart or cursor:FindFirstChildWhichIsA("BasePart", true)
-                if part and part.Parent and part:IsDescendantOf(Workspace) and part.Size.Magnitude <= 14 then
-                    return cursor, part, kind
+                local part = cursor:IsA("BasePart") and cursor or cursor.PrimaryPart
+                if not part and bestPart and bestPart:IsDescendantOf(cursor) then part = bestPart end
+                if not part then part = cursor:FindFirstChildWhichIsA("BasePart", true) end
+                local score = generic and 1 or (fromAttribute and 3 or 2)
+                if part and part.Parent and part:IsDescendantOf(Workspace) and part.Size.Magnitude <= 14
+                    and (not bestScore or score > bestScore
+                        or (score == bestScore and kind == bestKind and cursor:IsA("Model"))) then
+                    bestRoot, bestPart, bestKind, bestScore = cursor, part, kind, score
                 end
             end
         end
         cursor = cursor.Parent
     end
-    return nil
+    return bestRoot, bestPart, bestKind
 end
+
 
 function getOrCreateGrenadeUI(root, part, kind)
     local existing = grenadePool[root]
@@ -11905,25 +11924,64 @@ function destroyXCGrenadeUI(ui)
 end
 
 local function trackXCGrenadeMarker(object)
+    if not xcSessionActive() or not mainContainer.Parent then return end
     local root, part, kind = classifyXCGrenadeMarker(object)
     if not root then return end
+    -- Late type replication can promote a generic child to its typed model.
+    for trackedRoot, ui in pairs(grenadePool) do
+        if trackedRoot ~= root and ui.Part == part then
+            destroyXCGrenadeUI(ui)
+            grenadePool[trackedRoot] = nil
+        end
+    end
     getOrCreateGrenadeUI(root, part, kind)
 end
 
--- Catch grenades that already exist when the script is injected. Yield in chunks
--- so large maps do not hitch while the marker cache is being primed.
+-- A projectile may enter Workspace before its name/attributes finish replicating.
+-- Retry only new physical candidates, with a fixed lifetime and bounded capacity.
+XC_GRENADE_ICON.Pending = {}
+XC_GRENADE_ICON.PendingCount = 0
+function XC_GRENADE_ICON.queue(object)
+    if not xcSessionActive() or not mainContainer.Parent then return end
+    if not (object:IsA("BasePart") or object:IsA("Model") or object:IsA("StringValue")) then return end
+    if XC_GRENADE_ICON.Pending[object] then return end
+    if XC_GRENADE_ICON.PendingCount >= 128 then
+        trackXCGrenadeMarker(object)
+        return
+    end
+    XC_GRENADE_ICON.Pending[object] = true
+    XC_GRENADE_ICON.PendingCount = XC_GRENADE_ICON.PendingCount + 1
+    local attempt = 0
+    local function release()
+        XC_GRENADE_ICON.Pending[object] = nil
+        XC_GRENADE_ICON.PendingCount = XC_GRENADE_ICON.PendingCount - 1
+    end
+    local function retry()
+        if not xcSessionActive() or not mainContainer.Parent
+            or not object.Parent or not object:IsDescendantOf(Workspace) then
+            release()
+            return
+        end
+        trackXCGrenadeMarker(object)
+        attempt = attempt + 1
+        local delay = ({0.15, 0.45, 0.90})[attempt]
+        if delay then task.delay(delay, retry) else release() end
+    end
+    task.defer(retry)
+end
+
+-- Existing objects need one initial scan; retries never rescan the whole map.
 task.spawn(function()
     local descendants = Workspace:GetDescendants()
     for index, object in ipairs(descendants) do
-        if not xcSessionActive() then break end
+        if not xcSessionActive() or not mainContainer.Parent then break end
         trackXCGrenadeMarker(object)
         if index % 220 == 0 then task.wait() end
     end
 end)
 
-table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
-    task.defer(trackXCGrenadeMarker, object)
-end))
+table.insert(connections, Workspace.DescendantAdded:Connect(XC_GRENADE_ICON.queue))
+
 
 function renderGrenadeOverlays()
     local enabled = XCConfig.grenadeEspEnabled == true
