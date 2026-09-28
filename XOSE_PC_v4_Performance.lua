@@ -1,4 +1,4 @@
---// XOSE v78 | original RenderStepped ESP path, per-frame refresh and player isolation
+--// XOSE PC fixed_v2 | optimized visual workloads | 2026-09-28
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
     local Players = game:GetService("Players")
@@ -5617,6 +5617,7 @@ end
 task.spawn(function()
     while xcSessionActive() do
         task.wait(0.25)
+        if not xcSessionActive() then break end
         pcall(function()
             if XCConfig.skinChangerEnabled then
                 applyXCKnifeChanger()
@@ -7936,6 +7937,73 @@ local originalSkyboxes = {}
 local originalPostFX = nil
 local weaponVisualState = setmetatable({}, {__mode = "k"})
 local weaponGlowObjects = setmetatable({}, {__mode = "k"})
+local weaponVisualCache = {Parts = {}, Dirty = true, NextScan = 0, Connections = {}}
+
+function setXCVisualProperty(object, property, value)
+    if object[property] ~= value then object[property] = value end
+end
+
+function disconnectXCWeaponVisualCache()
+    for _, connection in ipairs(weaponVisualCache.Connections) do
+        pcall(function() connection:Disconnect() end)
+    end
+    weaponVisualCache.Connections = {}
+    weaponVisualCache.Camera = nil
+    weaponVisualCache.Model = nil
+    weaponVisualCache.Parts = {}
+    if weaponVisualCache.ActiveParts then table.clear(weaponVisualCache.ActiveParts) end
+    weaponVisualCache.Dirty = true
+    weaponVisualCache.NextScan = 0
+end
+
+function getXCWeaponVisualParts()
+    local cam = Workspace.CurrentCamera or camera
+    if weaponVisualCache.Camera ~= cam then
+        disconnectXCWeaponVisualCache()
+        weaponVisualCache.Camera = cam
+        if cam then
+            local function invalidate(object)
+                if weaponVisualCache.Mutating then return end
+                if object:IsA("Model") or object:IsA("BasePart")
+                    or object:IsA("SurfaceAppearance") or object:IsA("Texture") or object:IsA("Decal") then
+                    weaponVisualCache.Dirty = true
+                end
+            end
+            for _, event in ipairs({cam.DescendantAdded, cam.DescendantRemoving}) do
+                table.insert(weaponVisualCache.Connections, event:Connect(invalidate))
+            end
+        end
+    end
+    if not cam then return nil, weaponVisualCache.Parts end
+
+    local now = os.clock()
+    local cached = weaponVisualCache.Model
+    if not weaponVisualCache.Dirty and now < weaponVisualCache.NextScan
+        and (not cached or (cached.Parent and cached:IsDescendantOf(cam))) then
+        return cached, weaponVisualCache.Parts
+    end
+
+    -- Hierarchy changes invalidate immediately; a low-rate safety scan catches
+    -- renames/custom viewmodel swaps that do not emit structural changes.
+    local model = resolveWeaponModel()
+    local parts = {}
+    if model then
+        for _, part in ipairs(model:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "Hitbox"
+                and part.Name ~= "HumanoidRootPart" and part.Name ~= "ViewmodelLight"
+                and not part:FindFirstAncestor("ViewmodelLight") then
+                table.insert(parts, part)
+                local state = weaponVisualState[part]
+                if state then state.surfacesDirty = true end
+            end
+        end
+    end
+    weaponVisualCache.Model = model
+    weaponVisualCache.Parts = parts
+    weaponVisualCache.Dirty = false
+    weaponVisualCache.NextScan = now + 2
+    return model, parts
+end
 
 -- Weapon visual engine.
 -- Supports the five visual variants used by the reference implementation,
@@ -7995,6 +8063,7 @@ function saveWeaponPartState(part)
         color = part.Color,
         transparency = part.Transparency,
         reflectance = part.Reflectance,
+        surfacesDirty = true,
         children = {}
     }
 
@@ -8033,11 +8102,18 @@ function restoreWeaponPart(part, state)
     end)
 end
 
+function releaseXCWeaponPartState(state)
+    for _, clone in ipairs(state.children or {}) do pcall(function() clone:Destroy() end) end
+    state.children = {}
+end
+
 function clearWeaponVisuals()
+    disconnectXCWeaponVisualCache()
     for part, state in pairs(weaponVisualState) do
         if part and part.Parent then
             restoreWeaponPart(part, state)
         end
+        releaseXCWeaponPartState(state)
         weaponVisualState[part] = nil
     end
     for part, obj in pairs(weaponGlowObjects) do
@@ -8060,38 +8136,37 @@ function setWeaponVisuals()
         return
     end
 
-    local model = resolveWeaponModel()
+    local model, parts = getXCWeaponVisualParts()
     if not model then
-        clearWeaponVisuals()
+        -- Keep the empty lookup cache/watchers while waiting for a viewmodel.
+        if weaponVisualCache.ActiveParts then table.clear(weaponVisualCache.ActiveParts) end
+        for part, state in pairs(weaponVisualState) do
+            if part and part.Parent then restoreWeaponPart(part, state) end
+            releaseXCWeaponPartState(state)
+            weaponVisualState[part] = nil
+            clearWeaponGlow(part)
+        end
         return
     end
 
     local style = XCConfig.weaponChamsMode or "Glass"
-    local validStyles = {
-        Glass = true,
-        ForceField = true,
-        Metal = true,
-        Highlight = true,
-        Neon = true,
-    }
-    if not validStyles[style] then style = "Glass" end
+    if style ~= "Glass" and style ~= "ForceField" and style ~= "Metal"
+        and style ~= "Highlight" and style ~= "Neon" then style = "Glass" end
 
     local tint = rgb(
         XCConfig.weaponChamsColorR,
         XCConfig.weaponChamsColorG,
         XCConfig.weaponChamsColorB
     )
-    local activeParts = {}
+    local activeParts = weaponVisualCache.ActiveParts or {}
+    weaponVisualCache.ActiveParts = activeParts
+    table.clear(activeParts)
 
-    for _, part in ipairs(model:GetDescendants()) do
-        if part:IsA("BasePart")
-            and part.Name ~= "Hitbox"
-            and part.Name ~= "HumanoidRootPart"
-            and part.Name ~= "ViewmodelLight"
-            and not part:FindFirstAncestor("ViewmodelLight")
-        then
+    for _, part in ipairs(parts) do
+        if part.Parent then
             activeParts[part] = true
             saveWeaponPartState(part)
+            local state = weaponVisualState[part]
 
             pcall(function()
                 if style == "Highlight" then
@@ -8106,43 +8181,41 @@ function setWeaponVisuals()
                         h.Parent = part
                         weaponGlowObjects[part] = h
                     end
-                    h.FillColor = tint
+                    setXCVisualProperty(h, "FillColor", tint)
                 else
                     clearWeaponGlow(part)
 
                     -- Match the reference behavior: remove surface overlays for
                     -- material-based variants so the selected material is visible.
-                    for _, child in ipairs(part:GetChildren()) do
-                        if child:IsA("SurfaceAppearance") or child:IsA("Texture") or child:IsA("Decal") then
-                            child:Destroy()
-                        end
+                    if state.surfacesDirty then
+                        weaponVisualCache.Mutating = true
+                        local ok = pcall(function()
+                            for _, child in ipairs(part:GetChildren()) do
+                                if child:IsA("SurfaceAppearance") or child:IsA("Texture") or child:IsA("Decal") then
+                                    child:Destroy()
+                                end
+                            end
+                        end)
+                        weaponVisualCache.Mutating = false
+                        if ok then state.surfacesDirty = false end
                     end
 
+                    local material = Enum.Material.Glass
+                    local transparency, reflectance = 0, 0
                     if style == "Glass" then
-                        part.Material = Enum.Material.Glass
-                        part.Color = tint
-                        part.Transparency = math.clamp(
-                            tonumber(XCConfig.weaponChamsTransparency) or 0.4, 0, 1
-                        )
-                        part.Reflectance = 0
+                        transparency = math.clamp(tonumber(XCConfig.weaponChamsTransparency) or 0.4, 0, 1)
                     elseif style == "ForceField" then
-                        part.Material = Enum.Material.ForceField
-                        part.Color = tint
-                        part.Transparency = 0
-                        part.Reflectance = 0
+                        material = Enum.Material.ForceField
                     elseif style == "Metal" then
-                        part.Material = Enum.Material.Metal
-                        part.Color = tint
-                        part.Reflectance = math.clamp(
-                            tonumber(XCConfig.weaponChamsReflectance) or 1.0, 0, 1
-                        )
-                        part.Transparency = 0
+                        material = Enum.Material.Metal
+                        reflectance = math.clamp(tonumber(XCConfig.weaponChamsReflectance) or 1.0, 0, 1)
                     elseif style == "Neon" then
-                        part.Material = Enum.Material.Neon
-                        part.Color = tint
-                        part.Transparency = 0
-                        part.Reflectance = 0
+                        material = Enum.Material.Neon
                     end
+                    setXCVisualProperty(part, "Material", material)
+                    setXCVisualProperty(part, "Color", tint)
+                    setXCVisualProperty(part, "Transparency", transparency)
+                    setXCVisualProperty(part, "Reflectance", reflectance)
                 end
             end)
         end
@@ -8153,6 +8226,7 @@ function setWeaponVisuals()
     for part, state in pairs(weaponVisualState) do
         if not activeParts[part] then
             if part and part.Parent then restoreWeaponPart(part, state) end
+            releaseXCWeaponPartState(state)
             weaponVisualState[part] = nil
             clearWeaponGlow(part)
         end
@@ -11133,6 +11207,7 @@ function cleanup()
     pcall(function() updateXCAntiFlashState(false) end)
     restoreXCCharacterInputHook()
     pcall(restoreXCCameraFov)
+    pcall(clearWeaponVisuals)
 
     pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_CAMERA_SYNC") end)
     pcall(function() RunService:UnbindFromRenderStep("XOSE_PC_ESP_FRAME_BEGIN") end)
@@ -13798,11 +13873,14 @@ local function getXCEspVisibility(char, targetPart)
     if not char or not targetPart then return false end
     local now = os.clock()
     local cached = xcEspVisibilityCache[char]
-    if cached and (now - (cached.At or 0)) < XC_ESP_VISIBILITY_INTERVAL then
+    if cached and cached.Target == targetPart
+        and (now - (cached.At or 0)) < XC_ESP_VISIBILITY_INTERVAL then
         return cached.Value == true
     end
     local visible = isVisibleThroughWalls(targetPart, char) == true
-    xcEspVisibilityCache[char] = {Value = visible, At = now}
+    cached = cached or {}
+    cached.Value, cached.At, cached.Target = visible, now, targetPart
+    xcEspVisibilityCache[char] = cached
     return visible
 end
 
@@ -13863,11 +13941,6 @@ end
 
 function xcEspResolveCharacter(plr)
     if not plr then return nil end
-    local cached = XCFeatureState.espCharacterCache[plr]
-    if cached and cached.Parent and cached:IsDescendantOf(Workspace) then
-        return cached
-    end
-
     local direct = plr.Character
     local folder = Workspace:FindFirstChild("Characters")
     local localChar = player and player.Character
@@ -13878,6 +13951,24 @@ function xcEspResolveCharacter(plr)
         XCFeatureState.espCharacterCache[plr] = direct
         return direct
     end
+
+    local cached = XCFeatureState.espCharacterCache[plr]
+    if cached and cached.Parent and cached:IsDescendantOf(Workspace)
+        and (not folderIsCanonical or cached:IsDescendantOf(folder)) then
+        return cached
+    end
+    XCFeatureState.espCharacterCache[plr] = nil
+    -- Missing/streaming characters can be requested by ESP, chams and tracers
+    -- in the same frame. Cache misses too; a direct respawn still wins above.
+    local misses = XCFeatureState.espCharacterMisses
+    if not misses then
+        misses = setmetatable({}, {__mode = "k"})
+        XCFeatureState.espCharacterMisses = misses
+    end
+    local now = os.clock()
+    local miss = misses[plr]
+    if miss and miss.Folder == folder and now < miss.NextScan then return nil end
+    misses[plr] = {Folder = folder, NextScan = now + 0.20}
 
     if folder then
         for _, model in ipairs(folder:GetChildren()) do
@@ -13896,6 +13987,7 @@ function xcEspResolveCharacter(plr)
                 end
                 if matched then
                     XCFeatureState.espCharacterCache[plr] = model
+                    misses[plr] = nil
                     return model
                 end
             end
@@ -14525,15 +14617,20 @@ local function destroyXCChamShells(data)
     data.ChamLastColor = nil
     data.NextPartScan = nil
     data.ChamExcludeAccessories = nil
+    data.ChamShellScale = nil
+    data.ChamShellHidden = nil
 end
 
 local function hideXCChamShells(data)
-    if not data then return end
+    if not data or data.ChamShellHidden then return end
     for _, entry in ipairs(data.ChamShells or {}) do
         pcall(function()
             if entry.Shell then entry.Shell.Transparency = 1 end
         end)
     end
+    data.ChamShellHidden = true
+    data.ChamLastStyle = nil
+    data.ChamLastAnimation = 0
 end
 
 local function ensureXCChamShells(data, char)
@@ -14542,58 +14639,60 @@ local function ensureXCChamShells(data, char)
     local now = os.clock()
     local valid = data.ChamShellCharacter == char
         and data.ChamShellFolder and data.ChamShellFolder.Parent
-        and data.ChamShells and #data.ChamShells == data.ChamShellPartCount
+        and data.ChamShells
+    local scale = math.clamp(tonumber(XCConfig.chamsShellScale) or 1.012, 1.002, 1.04)
+    if valid and now < (data.NextPartScan or 0)
         and data.ChamExcludeAccessories == XCConfig.chamsExcludeAccessories
-
-    if valid then
-        for _, entry in ipairs(data.ChamShells) do
-            if not entry.Original or not entry.Original:IsDescendantOf(char)
-                or not entry.Shell or not entry.Shell.Parent then
-                valid = false
-                break
-            end
-        end
+        and data.ChamShellScale == scale then
+        return #data.ChamShells > 0
     end
-    if valid and now < (data.NextPartScan or 0) then return true end
 
+    if not valid then
+        destroyXCChamShells(data)
+        local folder = Instance.new("Folder")
+        folder.Name = "XCMaterial_" .. tostring(char.Name)
+        folder.Parent = chamsWorldFolder
+        data.ChamShellFolder = folder
+        data.ChamShellCharacter = char
+    end
+
+    -- Retry only missing parts, at most once per scan interval. A failed Clone
+    -- must not invalidate every successful shell on every visual refresh.
     local parts = xcEligibleChamParts(char)
-    local currentCount = #parts
-    if valid and currentCount == data.ChamShellPartCount then
-        for index, original in ipairs(parts) do
-            if data.ChamShells[index].Original ~= original then valid = false; break end
-        end
-        if valid then
-            data.NextPartScan = now + 1.5
-            return true
-        end
-    end
-
-    destroyXCChamShells(data)
-
-    local folder = Instance.new("Folder")
-    folder.Name = "XCMaterial_" .. tostring(char.Name)
-    folder.Parent = chamsWorldFolder
-
-    data.ChamShellFolder = folder
-    data.ChamShellCharacter = char
-    data.ChamShellPartCount = currentCount
+    local previous = {}
+    for _, entry in ipairs(data.ChamShells) do previous[entry.Original] = entry end
+    local shells = {}
+    local changed = not valid
+    data.ChamShellPartCount = #parts
     data.ChamExcludeAccessories = XCConfig.chamsExcludeAccessories
+    data.ChamShellScale = scale
     data.NextPartScan = now + 1.5
-    data.ChamShells = {}
-    data.ChamLastAnimation = 0
-
     for index, original in ipairs(parts) do
-        local shell = xcCloneChamPart(original, folder)
-        if shell then
-            table.insert(data.ChamShells, {
-                Original = original,
-                Shell = shell,
-                Index = index,
-            })
+        local entry = previous[original]
+        previous[original] = nil
+        if not entry or not entry.Shell or not entry.Shell.Parent then
+            local ok, shell = pcall(xcCloneChamPart, original, data.ChamShellFolder)
+            entry = ok and shell and {Original = original, Shell = shell, Index = index} or nil
+            changed = true
+        end
+        if entry then
+            if entry.Index ~= index then changed = true end
+            entry.Index = index
+            local size = original.Size * scale
+            if entry.Shell.Size ~= size then entry.Shell.Size = size end
+            table.insert(shells, entry)
         end
     end
-
-    return #data.ChamShells > 0
+    for _, entry in pairs(previous) do
+        pcall(function() if entry.Shell then entry.Shell:Destroy() end end)
+        changed = true
+    end
+    data.ChamShells = shells
+    if changed then
+        data.ChamLastStyle = nil
+        data.ChamLastAnimation = 0
+    end
+    return #shells > 0
 end
 
 local function getXCChamsColor(ally, isVisible)
@@ -14637,6 +14736,8 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
         and data.ChamLastGlossFill == XCConfig.chamsGlossFill
         and data.ChamLastGlossEdge == XCConfig.chamsGlossEdgeFalloff
         and data.ChamLastGlossShade == XCConfig.chamsGlossShade
+        and data.ChamLastGlowBrightness == XCConfig.chamsGlowBrightness
+        and data.ChamLastGlossBrightness == XCConfig.chamsGlossBrightness
     then
         return
     end
@@ -14649,6 +14750,9 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
     data.ChamLastGlossFill = XCConfig.chamsGlossFill
     data.ChamLastGlossEdge = XCConfig.chamsGlossEdgeFalloff
     data.ChamLastGlossShade = XCConfig.chamsGlossShade
+    data.ChamLastGlowBrightness = XCConfig.chamsGlowBrightness
+    data.ChamLastGlossBrightness = XCConfig.chamsGlossBrightness
+    data.ChamShellHidden = false
 
     local fillTransparency = xcClamp01(XCConfig.chamsFillTransparency)
     local roughness = xcClamp01(XCConfig.chamsRoughness)
@@ -14668,27 +14772,25 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
         local original = entry.Original
 
         if shell and shell.Parent and original and original.Parent then
-            shell.CastShadow = false
-
             if style == "Solid" then
-                shell.Material = Enum.Material.SmoothPlastic
-                shell.Color = color
-                shell.Reflectance = 0
-                shell.Transparency = math.clamp(0.04 + fillTransparency * 0.24, 0.03, 0.30)
+                setXCVisualProperty(shell, "Material", Enum.Material.SmoothPlastic)
+                setXCVisualProperty(shell, "Color", color)
+                setXCVisualProperty(shell, "Reflectance", 0)
+                setXCVisualProperty(shell, "Transparency", math.clamp(0.04 + fillTransparency * 0.24, 0.03, 0.30))
 
             elseif style == "Shaded" then
-                shell.Material = metal >= 0.52 and Enum.Material.Metal or Enum.Material.SmoothPlastic
-                shell.Color = color:Lerp(Color3.new(0, 0, 0), roughness * 0.22)
-                shell.Reflectance = math.clamp(metal * (1 - roughness) * 0.46, 0, 0.46)
-                shell.Transparency = math.clamp(0.04 + fillTransparency * 0.20, 0.03, 0.27)
+                setXCVisualProperty(shell, "Material", metal >= 0.52 and Enum.Material.Metal or Enum.Material.SmoothPlastic)
+                setXCVisualProperty(shell, "Color", color:Lerp(Color3.new(0, 0, 0), roughness * 0.22))
+                setXCVisualProperty(shell, "Reflectance", math.clamp(metal * (1 - roughness) * 0.46, 0, 0.46))
+                setXCVisualProperty(shell, "Transparency", math.clamp(0.04 + fillTransparency * 0.20, 0.03, 0.27))
 
             elseif style == "Glow" or style == "Glow Outline" then
-                shell.Material = Enum.Material.Neon
-                shell.Color = xcScaleColor(color, 1 + glowBrightness * 0.11)
-                shell.Reflectance = 0
-                shell.Transparency = style == "Glow Outline"
+                setXCVisualProperty(shell, "Material", Enum.Material.Neon)
+                setXCVisualProperty(shell, "Color", xcScaleColor(color, 1 + glowBrightness * 0.11))
+                setXCVisualProperty(shell, "Reflectance", 0)
+                setXCVisualProperty(shell, "Transparency", style == "Glow Outline"
                     and 0.42
-                    or math.clamp(0.08 + fillTransparency * 0.18, 0.07, 0.28)
+                    or math.clamp(0.08 + fillTransparency * 0.18, 0.07, 0.28))
 
             elseif style == "Iridescent" then
                 local hue = (
@@ -14701,10 +14803,10 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
                     math.clamp(0.46 + irIntensity * 0.50, 0, 1),
                     1
                 )
-                shell.Material = Enum.Material.Metal
-                shell.Color = rainbow:Lerp(color, 1 - irIntensity)
-                shell.Reflectance = math.clamp(0.18 + (1 - irRoughness) * 0.28, 0.18, 0.46)
-                shell.Transparency = math.clamp(0.07 + irRoughness * 0.12, 0.06, 0.20)
+                setXCVisualProperty(shell, "Material", Enum.Material.Metal)
+                setXCVisualProperty(shell, "Color", rainbow:Lerp(color, 1 - irIntensity))
+                setXCVisualProperty(shell, "Reflectance", math.clamp(0.18 + (1 - irRoughness) * 0.28, 0.18, 0.46))
+                setXCVisualProperty(shell, "Transparency", math.clamp(0.07 + irRoughness * 0.12, 0.06, 0.20))
 
             elseif style == "Water Flow" then
                 local phase = now * waterSpeed * 2.0
@@ -14714,26 +14816,26 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
                 local cool = color:Lerp(Color3.fromRGB(105, 220, 255), 0.34)
                 local water = color:Lerp(cool, wave * 0.72)
 
-                shell.Material = Enum.Material.Neon
-                shell.Color = water
-                shell.Reflectance = 0
-                shell.Transparency = math.clamp(0.13 + (1 - wave) * 0.07, 0.12, 0.21)
+                setXCVisualProperty(shell, "Material", Enum.Material.Neon)
+                setXCVisualProperty(shell, "Color", water)
+                setXCVisualProperty(shell, "Reflectance", 0)
+                setXCVisualProperty(shell, "Transparency", math.clamp(0.13 + (1 - wave) * 0.07, 0.12, 0.21))
 
             elseif style == "Glossy" then
                 local glossyColor = xcShadeColor(
                     xcScaleColor(color, glossBrightness),
                     glossShade
                 )
-                shell.Material = Enum.Material.Metal
-                shell.Color = glossyColor
-                shell.Reflectance = math.clamp(0.20 + glossEdge * 0.52, 0.20, 0.72)
-                shell.Transparency = math.clamp(0.18 - glossFill * 0.13, 0.025, 0.18)
+                setXCVisualProperty(shell, "Material", Enum.Material.Metal)
+                setXCVisualProperty(shell, "Color", glossyColor)
+                setXCVisualProperty(shell, "Reflectance", math.clamp(0.20 + glossEdge * 0.52, 0.20, 0.72))
+                setXCVisualProperty(shell, "Transparency", math.clamp(0.18 - glossFill * 0.13, 0.025, 0.18))
 
             else
-                shell.Material = Enum.Material.SmoothPlastic
-                shell.Color = color
-                shell.Reflectance = 0
-                shell.Transparency = 0.08
+                setXCVisualProperty(shell, "Material", Enum.Material.SmoothPlastic)
+                setXCVisualProperty(shell, "Color", color)
+                setXCVisualProperty(shell, "Reflectance", 0)
+                setXCVisualProperty(shell, "Transparency", 0.08)
             end
         end
     end
@@ -14766,30 +14868,30 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     -- layer; this Highlight owns reliable wall visibility.
     syncXCChamMaterialShells(data, char, style, isVisible and visibleColor or throughColor, now or os.clock())
 
-    through.DepthMode = XCConfig.chamsThroughWallsEnabled ~= false
+    setXCVisualProperty(through, "DepthMode", XCConfig.chamsThroughWallsEnabled ~= false
         and Enum.HighlightDepthMode.AlwaysOnTop
-        or Enum.HighlightDepthMode.Occluded
-    through.Enabled = true
-    through.FillColor = throughColor
-    through.OutlineColor = (style == "Glow" or style == "Glow Outline")
-        and xcScaleColor(throughColor, 1.12) or throughColor
+        or Enum.HighlightDepthMode.Occluded)
+    setXCVisualProperty(through, "Enabled", true)
+    setXCVisualProperty(through, "FillColor", throughColor)
+    setXCVisualProperty(through, "OutlineColor", (style == "Glow" or style == "Glow Outline")
+        and xcScaleColor(throughColor, 1.12) or throughColor)
 
     -- Keep a readable fill even when hidden. The visible material shell adds
     -- the richer surface style on top when the target is not occluded.
-    through.FillTransparency = math.clamp(fill + 0.08, 0.18, 0.86)
-    through.OutlineTransparency = math.clamp(outline + 0.02, 0.01, 0.72)
+    setXCVisualProperty(through, "FillTransparency", math.clamp(fill + 0.08, 0.18, 0.86))
+    setXCVisualProperty(through, "OutlineTransparency", math.clamp(outline + 0.02, 0.01, 0.72))
 end
 
 local function disableXCChamsForData(data, clearAdornee)
     if not data then return end
 
     if data.Highlight then
-        data.Highlight.Enabled = false
-        if clearAdornee then data.Highlight.Adornee = nil end
+        setXCVisualProperty(data.Highlight, "Enabled", false)
+        if clearAdornee then setXCVisualProperty(data.Highlight, "Adornee", nil) end
     end
     if data.VisibleHighlight then
-        data.VisibleHighlight.Enabled = false
-        if clearAdornee then data.VisibleHighlight.Adornee = nil end
+        setXCVisualProperty(data.VisibleHighlight, "Enabled", false)
+        if clearAdornee then setXCVisualProperty(data.VisibleHighlight, "Adornee", nil) end
     end
 
     if clearAdornee then
@@ -15179,11 +15281,14 @@ end
 function renderXCTracersFrame()
     if not camera then return end
     if not XCConfig.tracersEnabled then
+        if not XCFeatureState.tracersWereActive then return end
         for _, data in pairs(activeEspHolders) do
             data.Tracer.Visible = false
         end
+        XCFeatureState.tracersWereActive = false
         return
     end
+    XCFeatureState.tracersWereActive = true
 
     local origin = Vector2.new(camera.ViewportSize.X * 0.5, camera.ViewportSize.Y)
     local camPos = camera.CFrame.Position
@@ -21118,6 +21223,11 @@ end
 function scanXCFireRateObjects()
     if xcFireRateScanDone then return #xcFireRateObjects > 0 end
     if type(getgc) ~= "function" then return false end
+    local now = os.clock()
+    if now < (XCFeatureState.fireRateNextGcScan or 0) then return false end
+    -- Empty or failed discovery is not a reason to walk the entire executor
+    -- heap every 100 ms. Native equipped-weapon lookup is still checked normally.
+    XCFeatureState.fireRateNextGcScan = now + 2
 
     local found = false
     pcall(function()
@@ -21187,6 +21297,7 @@ end
 task.spawn(function()
     local wasEnabled = false
     while xcSessionActive() and task.wait(0.1) do
+        if not xcSessionActive() then break end
         pcall(function()
             if XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate then
                 local nativeApplied = applyXCNativeFireRate()
@@ -21196,12 +21307,11 @@ task.spawn(function()
                     -- weapon can be modified through its native Properties.
                     if #xcFireRateObjects > 0 then restoreXCFireRates() end
                 elseif not UserInputService.TouchEnabled then
-                    if not xcFireRateScanDone then scanXCFireRateObjects() end
                     if #xcFireRateObjects == 0 then
                         -- The game can create weapon data after injection/respawn.
                         xcFireRateScanDone = false
-                        scanXCFireRateObjects()
                     end
+                    if not xcFireRateScanDone then scanXCFireRateObjects() end
                     applyXCFireRate()
                     if #xcFireRateObjects > 0 then XCFeatureState.fireRateStatus = "FALL" end
                 else
