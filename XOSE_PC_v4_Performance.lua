@@ -492,7 +492,6 @@ local XCConfig = {
     headDotEnabled = false,
     tracersEnabled = false,
     grenadeEspEnabled = false,
-    grenadeDangerZonesEnabled = false,
     soundPositionEspEnabled = false,
     weaponEspEnabled = false,
     weaponEspStyle = "Icon",
@@ -748,10 +747,6 @@ local XCConfig = {
     jumpCircleStyle = "GradientWave",
 
     grenadeMaxDist = 1500,
-    showGrenadePath = true,
-    showMolotovRadius = true,
-    showSmokeRadius = true,
-    grenadeDangerOpacity = 0.82,
     soundEspDuration = 1.15,
     soundEspMaxDist = 1200,
 
@@ -6374,9 +6369,7 @@ chamsWorldFolder.Parent = Workspace
 local jumpCircleFolder = Instance.new("Folder", Workspace)
 jumpCircleFolder.Name = "XC_JumpCircleWorld"
 
-local grenadePool = {}
-local grenadeDangerPool = setmetatable({}, {__mode = "k"})
-local grenadeDangerScanStarted = false
+local grenadePool = setmetatable({}, {__mode = "k"})
 local soundEspTracked = setmetatable({}, {__mode = "k"})
 local soundEspPulses = {}
 local soundEspConnections = {}
@@ -10949,7 +10942,7 @@ XCFeatureState = {
     streamerHiddenKeys = {
         "watermarkEnabled", "spectatorListEnabled", "nametagsEnabled", "boxEspEnabled",
         "cornerBoxEnabled", "healthBarEnabled", "headDotEnabled", "tracersEnabled",
-        "grenadeEspEnabled", "grenadeDangerZonesEnabled", "soundPositionEspEnabled", "weaponEspEnabled",
+        "grenadeEspEnabled", "soundPositionEspEnabled", "weaponEspEnabled",
         "jumpCircleEnabled", "motionTrailEnabled", "hitmarkerEnabled", "chamsEnabled", "skeletonEspEnabled",
         "selfVisualEnabled", "showFovCircle", "showSilentFovCircle",
     },
@@ -11440,9 +11433,6 @@ function cleanup()
     for _, gUi in pairs(grenadePool) do
         pcall(function() destroyXCGrenadeUI(gUi) end)
     end
-    for _, danger in pairs(grenadeDangerPool) do
-        pcall(function() destroyXCGrenadeDanger(danger) end)
-    end
     pcall(disconnectXCSoundPositionEsp)
     pcall(function()
         for _, sound in ipairs(SoundService:GetChildren()) do
@@ -11479,9 +11469,7 @@ function cleanup()
     mobileJumpHookedButton = nil
     activeEspHolders = {}
     screenEspCache = {}
-    grenadePool = {}
-    grenadeDangerPool = setmetatable({}, {__mode = "k"})
-    grenadeDangerScanStarted = false
+    grenadePool = setmetatable({}, {__mode = "k"})
     soundEspTracked = setmetatable({}, {__mode = "k"})
     soundEspPulses = {}
     pcall(function() restoreXCMapStyle(true) end)
@@ -11639,12 +11627,24 @@ wmMetrics.Font = Enum.Font.GothamMedium
 
 local fpsCounter = 0
 local lastFpsUpdate = tick()
---// GRENADE TRAJECTORY ENGINE
-local grenadeRayParams = RaycastParams.new()
-grenadeRayParams.FilterType = Enum.RaycastFilterType.Exclude
-grenadeRayParams.IgnoreWater = true
+--// GRENADE ESP 2.0 | NEVERLOSE SPHERE MARKERS
+-- Minimal world-space utility ESP: a compact 3D sphere plus a clean icon card.
+-- No trajectory, danger radius, smoke radius or damage-zone rendering is kept here.
+local XC_GRENADE_ICON = {
+    HE = "●",
+    FLASH = "✦",
+    SMOKE = "☁",
+    MOLOTOV = "♨",
+}
+local XC_GRENADE_LABEL = {
+    HE = "HE",
+    FLASH = "FLASH",
+    SMOKE = "SMOKE",
+    MOLOTOV = "FIRE",
+}
 
 function isEntityCharacter(inst)
+    if not inst then return false end
     for _, p in ipairs(Players:GetPlayers()) do
         if p.Character and inst:IsDescendantOf(p.Character) then
             return true
@@ -11653,778 +11653,252 @@ function isEntityCharacter(inst)
     return false
 end
 
-local function setXCGrenadeLine(line, a, b, color, thickness, transparency)
-    if not a or not b then line.Visible = false return end
-    local delta = b - a
-    if delta.Magnitude < 0.5 then line.Visible = false return end
-    line.Size = UDim2.fromOffset(delta.Magnitude + 1, thickness)
-    line.Position = UDim2.fromOffset((a.X + b.X) * 0.5, (a.Y + b.Y) * 0.5)
-    line.Rotation = math.deg(math.atan2(delta.Y, delta.X))
-    line.BackgroundColor3 = color
-    line.BackgroundTransparency = transparency
-    line.Visible = true
+local function getXCGrenadeColor(kind)
+    if kind == "HE" then return currentTheme.HEColor end
+    if kind == "SMOKE" then return currentTheme.SmokeColor end
+    if kind == "MOLOTOV" then return currentTheme.MolotovColor end
+    return Color3.fromRGB(245, 235, 120)
 end
 
-function getOrCreateGrenadeUI(nadeInstance)
-    if grenadePool[nadeInstance] then return grenadePool[nadeInstance] end
-
-    local tag = Instance.new("Frame", grenadeContainer)
-    tag.Size = UDim2.new(0, 0, 0, 20)
-    tag.AutomaticSize = Enum.AutomaticSize.X
-    tag.AnchorPoint = Vector2.new(0.5, 1)
-    tag.BackgroundColor3 = Color3.fromRGB(8, 10, 12)
-    tag.BackgroundTransparency = 0.12
-    tag.BorderSizePixel = 0
-    tag.Visible = false
-    tag.ZIndex = 12
-    Instance.new("UICorner", tag).CornerRadius = UDim.new(0, 4)
-    local tagStroke = Instance.new("UIStroke", tag)
-    tagStroke.Thickness = 1
-    tagStroke.Transparency = 0.22
-
-    local pad = Instance.new("UIPadding", tag)
-    pad.PaddingLeft = UDim.new(0, 9)
-    pad.PaddingRight = UDim.new(0, 7)
-
-    local accent = Instance.new("Frame", tag)
-    accent.Name = "Accent"
-    accent.AnchorPoint = Vector2.new(0, 0.5)
-    accent.Position = UDim2.new(0, -7, 0.5, 0)
-    accent.Size = UDim2.fromOffset(2, 12)
-    accent.BorderSizePixel = 0
-    accent.ZIndex = 13
-    Instance.new("UICorner", accent).CornerRadius = UDim.new(1, 0)
-
-    local lbl = Instance.new("TextLabel", tag)
-    lbl.AutomaticSize = Enum.AutomaticSize.X
-    lbl.Size = UDim2.new(0, 0, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.TextSize = 9.5
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    lbl.ZIndex = 13
-
-    local radiusCircle = Instance.new("Frame", grenadeContainer)
-    radiusCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-    radiusCircle.BackgroundTransparency = 1
-    radiusCircle.BorderSizePixel = 0
-    radiusCircle.Visible = false
-    Instance.new("UICorner", radiusCircle).CornerRadius = UDim.new(1, 0)
-    local radStroke = Instance.new("UIStroke", radiusCircle)
-    radStroke.Thickness = 1.5
-
-    local landingGlow = Instance.new("Frame", grenadeContainer)
-    landingGlow.Name = "GrenadeLandingGlow"
-    landingGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-    landingGlow.Size = UDim2.fromOffset(15, 15)
-    landingGlow.BorderSizePixel = 0
-    landingGlow.Rotation = 45
-    landingGlow.BackgroundTransparency = 0.72
-    landingGlow.Visible = false
-    landingGlow.ZIndex = 9
-    Instance.new("UICorner", landingGlow).CornerRadius = UDim.new(0, 3)
-
-    local landing = Instance.new("Frame", grenadeContainer)
-    landing.Name = "GrenadeLanding"
-    landing.AnchorPoint = Vector2.new(0.5, 0.5)
-    landing.Size = UDim2.fromOffset(8, 8)
-    landing.BorderSizePixel = 0
-    landing.Rotation = 45
-    landing.Visible = false
-    landing.ZIndex = 11
-    Instance.new("UICorner", landing).CornerRadius = UDim.new(0, 2)
-    local landingStroke = Instance.new("UIStroke", landing)
-    landingStroke.Color = Color3.fromRGB(5, 6, 7)
-    landingStroke.Thickness = 1
-
-    local data = {
-        Tag = tag,
-        TagStroke = tagStroke,
-        Accent = accent,
-        Label = lbl,
-        RadiusCircle = radiusCircle,
-        RadiusStroke = radStroke,
-        Landing = landing,
-        LandingGlow = landingGlow,
-        Lines = {},
-        RadiusLines = {},
-        PathWorld = {},
-        LandingWorld = nil,
-        RadiusCenter = nil,
-        NextTrajectory = 0,
-        NextRadius = 0,
-    }
-
-    for j = 1, 18 do
-        local glow = Instance.new("Frame", grenadeContainer)
-        glow.Name = "TrajectoryGlow_" .. j
-        glow.BorderSizePixel = 0
-        glow.AnchorPoint = Vector2.new(0.5, 0.5)
-        glow.Visible = false
-        glow.ZIndex = 8
-        local core = Instance.new("Frame", grenadeContainer)
-        core.Name = "TrajectoryCore_" .. j
-        core.BorderSizePixel = 0
-        core.AnchorPoint = Vector2.new(0.5, 0.5)
-        core.Visible = false
-        core.ZIndex = 10
-        table.insert(data.Lines, {Glow = glow, Core = core})
+local function classifyXCGrenadeName(name)
+    name = tostring(name or ""):lower()
+    if name == "" then return nil end
+    -- Reject area/effect containers: this ESP marks the grenade object itself only.
+    for _, reject in ipairs({"zone", "radius", "volume", "voxel", "cloud", "emitter", "particle", "area"}) do
+        if name:find(reject, 1, true) then return nil end
     end
-
-    for j = 1, 24 do
-        local seg = Instance.new("Frame", grenadeContainer)
-        seg.Name = "GrenadeRadius_" .. j
-        seg.BorderSizePixel = 0
-        seg.AnchorPoint = Vector2.new(0.5, 0.5)
-        seg.Visible = false
-        seg.ZIndex = 7
-        table.insert(data.RadiusLines, seg)
-    end
-
-    grenadePool[nadeInstance] = data
-    return data
-end
-
-function hideXCGrenadeUI(ui)
-    ui.Tag.Visible = false
-    ui.RadiusCircle.Visible = false
-    ui.Landing.Visible = false
-    ui.LandingGlow.Visible = false
-    for _, line in ipairs(ui.Lines) do
-        line.Glow.Visible = false
-        line.Core.Visible = false
-    end
-    for _, line in ipairs(ui.RadiusLines) do line.Visible = false end
-end
-
-function destroyXCGrenadeUI(ui)
-    hideXCGrenadeUI(ui)
-    ui.Tag:Destroy()
-    ui.RadiusCircle:Destroy()
-    ui.Landing:Destroy()
-    ui.LandingGlow:Destroy()
-    for _, line in ipairs(ui.Lines) do
-        line.Glow:Destroy()
-        line.Core:Destroy()
-    end
-    for _, line in ipairs(ui.RadiusLines) do line:Destroy() end
-end
-
-function renderGrenadeOverlays()
-    if not XCConfig.grenadeEspEnabled then
-        for _, ui in pairs(grenadePool) do hideXCGrenadeUI(ui) end
-        return
-    end
-
-    local now = os.clock()
-    local camPos = camera.CFrame.Position
-    local activeGrenades = {}
-
-    for _, item in ipairs(Workspace:GetChildren()) do
-        if not isEntityCharacter(item) then
-            local nName = item.Name:lower()
-            local nadeType, nadeColor, effectRadiusStuds
-
-            -- Specific types must be checked before generic "grenade" names.
-            if nName:find("molotov", 1, true) or nName:find("incendiary", 1, true)
-                or nName:find("fire", 1, true) then
-                nadeType, nadeColor, effectRadiusStuds = "MOLOTOV", currentTheme.MolotovColor, 17
-            elseif nName:find("smoke", 1, true) then
-                nadeType, nadeColor, effectRadiusStuds = "SMOKE", currentTheme.SmokeColor, 20
-            elseif nName:find("flash", 1, true) then
-                nadeType, nadeColor, effectRadiusStuds = "FLASH", Color3.fromRGB(245, 235, 120), 10
-            elseif nName:find("hegrenade", 1, true) or nName:find("frag", 1, true)
-                or nName:find("grenade", 1, true) then
-                nadeType, nadeColor, effectRadiusStuds = "HE", currentTheme.HEColor, 15
-            end
-
-            if nadeType then
-                local part = item:IsA("BasePart") and item or item:FindFirstChildWhichIsA("BasePart", true)
-                if part and part.Parent and part:IsDescendantOf(Workspace) then
-                    local dist = (part.Position - camPos).Magnitude
-                    if dist <= XCConfig.grenadeMaxDist then
-                        activeGrenades[item] = true
-                        local ui = getOrCreateGrenadeUI(item)
-                        local screen, onScreen = camera:WorldToViewportPoint(part.Position)
-                        ui.Accent.BackgroundColor3 = nadeColor
-                        ui.TagStroke.Color = nadeColor
-                        ui.Label.TextColor3 = nadeColor
-                        ui.Label.Text = string.format("%s  ·  %dm", nadeType, math.floor(dist + 0.5))
-                        ui.Tag.Position = UDim2.fromOffset(screen.X, screen.Y - 9)
-                        ui.Tag.Visible = onScreen and screen.Z > 0
-                        ui.RadiusCircle.Visible = false
-
-                        grenadeRayParams.FilterDescendantsInstances = {player.Character, item, camera}
-                        local velocity = part.AssemblyLinearVelocity or Vector3.zero
-                        local pathEnabled = XCConfig.showGrenadePath and velocity.Magnitude > 2
-                        if pathEnabled and now >= ui.NextTrajectory then
-                            ui.NextTrajectory = now + (1 / 30)
-                            table.clear(ui.PathWorld)
-                            local simPosition = part.Position
-                            local gravity = Vector3.new(0, -Workspace.Gravity, 0)
-                            local stepTime = 0.075
-                            local bounces = 0
-                            ui.PathWorld[1] = simPosition
-                            ui.LandingWorld = simPosition
-                            for _ = 1, #ui.Lines do
-                                local nextPosition = simPosition + velocity * stepTime
-                                    + gravity * (0.5 * stepTime * stepTime)
-                                local nextVelocity = velocity + gravity * stepTime
-                                local hit = Workspace:Raycast(simPosition, nextPosition - simPosition, grenadeRayParams)
-                                if hit then nextPosition = hit.Position end
-                                ui.PathWorld[#ui.PathWorld + 1] = nextPosition
-                                ui.LandingWorld = nextPosition
-                                if hit then
-                                    bounces = bounces + (1)
-                                    local reflected = nextVelocity - 2 * nextVelocity:Dot(hit.Normal) * hit.Normal
-                                    velocity = reflected * (hit.Normal.Y > 0.45 and 0.43 or 0.52)
-                                    simPosition = hit.Position + hit.Normal * 0.06
-                                    if bounces >= 3 or velocity.Magnitude < 8 then break end
-                                else
-                                    simPosition = nextPosition
-                                    velocity = nextVelocity
-                                end
-                            end
-                        elseif not pathEnabled then
-                            table.clear(ui.PathWorld)
-                            ui.LandingWorld = nil
-                        end
-
-                        for step, line in ipairs(ui.Lines) do
-                            local worldA, worldB = ui.PathWorld[step], ui.PathWorld[step + 1]
-                            if worldA and worldB then
-                                local p1, visible1 = camera:WorldToViewportPoint(worldA)
-                                local p2, visible2 = camera:WorldToViewportPoint(worldB)
-                                if visible1 and visible2 and p1.Z > 0 and p2.Z > 0 then
-                                    local a = Vector2.new(p1.X, p1.Y)
-                                    local b = Vector2.new(p2.X, p2.Y)
-                                    local progress = step / #ui.Lines
-                                    setXCGrenadeLine(line.Glow, a, b, nadeColor, 4.5, 0.72 + progress * 0.18)
-                                    setXCGrenadeLine(line.Core, a, b, nadeColor, 1.55, 0.05 + progress * 0.45)
-                                else
-                                    line.Glow.Visible = false
-                                    line.Core.Visible = false
-                                end
-                            else
-                                line.Glow.Visible = false
-                                line.Core.Visible = false
-                            end
-                        end
-
-                        if pathEnabled and ui.LandingWorld then
-                            local landingScreen, landingVisible = camera:WorldToViewportPoint(ui.LandingWorld)
-                            local showLanding = landingVisible and landingScreen.Z > 0
-                            local pulse = 0.65 + math.sin(now * 6) * 0.15
-                            ui.Landing.Position = UDim2.fromOffset(landingScreen.X, landingScreen.Y)
-                            ui.Landing.BackgroundColor3 = nadeColor
-                            ui.Landing.Visible = showLanding
-                            ui.LandingGlow.Position = ui.Landing.Position
-                            ui.LandingGlow.BackgroundColor3 = nadeColor
-                            ui.LandingGlow.BackgroundTransparency = pulse
-                            ui.LandingGlow.Visible = showLanding
-                        else
-                            ui.Landing.Visible = false
-                            ui.LandingGlow.Visible = false
-                            for _, line in ipairs(ui.Lines) do
-                                line.Glow.Visible = false
-                                line.Core.Visible = false
-                            end
-                        end
-
-                        local shouldShowRadius = (nadeType == "MOLOTOV" and XCConfig.showMolotovRadius)
-                            or (nadeType == "SMOKE" and XCConfig.showSmokeRadius)
-                        if shouldShowRadius then
-                            if now >= ui.NextRadius or not ui.RadiusCenter then
-                                ui.NextRadius = now + 0.08
-                                local groundCast = Workspace:Raycast(part.Position + Vector3.new(0, 1, 0),
-                                    Vector3.new(0, -60, 0), grenadeRayParams)
-                                ui.RadiusCenter = groundCast and groundCast.Position or part.Position
-                            end
-                            local groundPosition = ui.RadiusCenter
-                            local points = table.create(#ui.RadiusLines)
-                            for index = 1, #ui.RadiusLines do
-                                local angle = math.pi * 2 * ((index - 1) / #ui.RadiusLines)
-                                local worldPoint = groundPosition + Vector3.new(
-                                    math.cos(angle) * effectRadiusStuds, 0.16,
-                                    math.sin(angle) * effectRadiusStuds
-                                )
-                                local point, visible = camera:WorldToViewportPoint(worldPoint)
-                                points[index] = visible and point.Z > 0 and Vector2.new(point.X, point.Y) or nil
-                            end
-                            for index, line in ipairs(ui.RadiusLines) do
-                                local a = points[index]
-                                local b = points[index == #ui.RadiusLines and 1 or index + 1]
-                                local alternating = index % 2 == 0
-                                setXCGrenadeLine(line, a, b, nadeColor, alternating and 1.8 or 1.2,
-                                    alternating and 0.2 or 0.48)
-                            end
-                        else
-                            for _, line in ipairs(ui.RadiusLines) do line.Visible = false end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    for instance, ui in pairs(grenadePool) do
-        if not activeGrenades[instance] or not instance.Parent then
-            destroyXCGrenadeUI(ui)
-            grenadePool[instance] = nil
-        end
-    end
-end
---// GRENADE DANGER ZONES
-function classifyXCGrenadeDanger(object)
-    if not object or not object.Parent or isEntityCharacter(object) then return nil end
-    local name = object.Name:lower()
-    local grenadeAttribute = object:GetAttribute("GrenadeName")
-    if type(grenadeAttribute) == "string" then name = name .. (" " .. grenadeAttribute:lower()) end
-    if name:find("smokezone", 1, true) or name:find("smoke_zone", 1, true)
-        or name:find("voxelsmoke", 1, true) or name:find("smokearea", 1, true)
-        or name:find("gaszone", 1, true) then
-        return "SMOKE", currentTheme.SmokeColor, 20, true
-    end
-    if name:find("firezone", 1, true) or name:find("fire_zone", 1, true)
-        or name:find("voxelfire", 1, true) or name:find("molotov", 1, true)
-        or name:find("incendiary", 1, true) or name:find("ignite", 1, true)
-        or name:find("flamezone", 1, true) or name:find("burnzone", 1, true) then
-        return "FIRE", currentTheme.MolotovColor, 17, name:find("zone", 1, true) ~= nil or name:find("voxel", 1, true) ~= nil
-    end
-    if name:find("flashbang", 1, true) or name:find("flash_grenade", 1, true) or name:find("flash grenade", 1, true) then
-        return "FLASH", Color3.fromRGB(245, 235, 120), 10, false
-    end
-    if name:find("smokegrenade", 1, true) or name:find("smoke_grenade", 1, true) or name:find("smoke grenade", 1, true) then
-        return "SMOKE", currentTheme.SmokeColor, 20, false
-    end
+    if name:find("molotov", 1, true) or name:find("incendiary", 1, true) then return "MOLOTOV" end
+    if name:find("smokegrenade", 1, true) or name:find("smoke_grenade", 1, true)
+        or name:find("smoke grenade", 1, true) then return "SMOKE" end
+    if name:find("flashbang", 1, true) or name:find("flashgrenade", 1, true)
+        or name:find("flash_grenade", 1, true) or name:find("flash grenade", 1, true) then return "FLASH" end
     if name:find("hegrenade", 1, true) or name:find("he_grenade", 1, true) or name:find("he grenade", 1, true)
-        or name:find("frag", 1, true) or name == "grenade" or name:find("grenadeprojectile", 1, true) then
-        return "HE", currentTheme.HEColor, 15, false
+        or name:find("fraggrenade", 1, true) or name:find("frag_grenade", 1, true) or name:find("frag grenade", 1, true)
+        or name == "frag" or name == "grenade" or name:find("grenadeprojectile", 1, true) then return "HE" end
+    return nil
+end
+
+local function getXCGrenadeKindFromAttributes(object)
+    for _, attributeName in ipairs({"GrenadeType", "UtilityType", "WeaponName", "ItemName", "ProjectileType"}) do
+        local ok, value = pcall(function() return object:GetAttribute(attributeName) end)
+        if ok and value ~= nil then
+            local kind = classifyXCGrenadeName(value)
+            if kind then return kind end
+        end
     end
     return nil
 end
 
-function getXCDangerPart(object)
-    if object:IsA("BasePart") then return object end
-    if object:IsA("Model") and object.PrimaryPart then return object.PrimaryPart end
-    return object:FindFirstChildWhichIsA("BasePart", true)
+function classifyXCGrenadeMarker(object)
+    if not object or not object.Parent then return nil end
+    local cursor = object
+    for _ = 1, 4 do
+        if not cursor or cursor == Workspace then break end
+        if cursor:IsA("BasePart") or cursor:IsA("Model") then
+            local kind = getXCGrenadeKindFromAttributes(cursor) or classifyXCGrenadeName(cursor.Name)
+            if kind then
+                local part = cursor:IsA("BasePart") and cursor
+                    or cursor.PrimaryPart or cursor:FindFirstChildWhichIsA("BasePart", true)
+                if part and part.Parent and part:IsDescendantOf(Workspace) and part.Size.Magnitude <= 14 then
+                    return cursor, part, kind
+                end
+            end
+        end
+        cursor = cursor.Parent
+    end
+    return nil
 end
 
-function createXCGrenadeDanger(object)
-    if grenadeDangerPool[object] then return grenadeDangerPool[object] end
-    local kind, color, radius, isZone = classifyXCGrenadeDanger(object)
-    if not kind then return nil end
+function getOrCreateGrenadeUI(root, part, kind)
+    local existing = grenadePool[root]
+    if existing then
+        if existing.Part ~= part then
+            existing.Part = part
+            pcall(function() existing.Sphere.Adornee = part end)
+            pcall(function() existing.Glow.Adornee = part end)
+            pcall(function() existing.Billboard.Adornee = part end)
+        end
+        existing.Kind = kind
+        return existing
+    end
+
+    local color = getXCGrenadeColor(kind)
+    local sphere = Instance.new("SphereHandleAdornment")
+    sphere.Name = "XC_GrenadeSphere"
+    sphere.Adornee = part
+    sphere.AlwaysOnTop = true
+    sphere.Color3 = color
+    sphere.Transparency = 0.68
+    sphere.Radius = 0.68
+    sphere.ZIndex = 7
+    sphere.Parent = part
+
+    local glow = Instance.new("SphereHandleAdornment")
+    glow.Name = "XC_GrenadeSphereGlow"
+    glow.Adornee = part
+    glow.AlwaysOnTop = true
+    glow.Color3 = color
+    glow.Transparency = 0.90
+    glow.Radius = 0.88
+    glow.ZIndex = 6
+    glow.Parent = part
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "GrenadeIconBillboard"
+    billboard.Adornee = part
+    billboard.Size = UDim2.fromOffset(42, 52)
+    billboard.StudsOffsetWorldSpace = Vector3.new(0, 1.05, 0)
+    billboard.AlwaysOnTop = true
+    billboard.LightInfluence = 0
+    billboard.MaxDistance = math.max(1, tonumber(XCConfig.grenadeMaxDist) or 1500)
+    billboard.Enabled = false
+    billboard.Parent = grenadeContainer
+
+    local card = Instance.new("Frame")
+    card.Name = "IconCard"
+    card.AnchorPoint = Vector2.new(0.5, 0)
+    card.Position = UDim2.new(0.5, 0, 0, 0)
+    card.Size = UDim2.fromOffset(30, 30)
+    card.BackgroundColor3 = Color3.fromRGB(7, 9, 12)
+    card.BackgroundTransparency = 0.16
+    card.BorderSizePixel = 0
+    card.Parent = billboard
+    Instance.new("UICorner", card).CornerRadius = UDim.new(1, 0)
+
+    local rim = Instance.new("UIStroke")
+    rim.Name = "TypeRim"
+    rim.Color = color
+    rim.Thickness = 1.25
+    rim.Transparency = 0.08
+    rim.Parent = card
+
+    local icon = Instance.new("TextLabel")
+    icon.Name = "TypeIcon"
+    icon.Size = UDim2.fromScale(1, 1)
+    icon.BackgroundTransparency = 1
+    icon.Text = XC_GRENADE_ICON[kind] or "●"
+    icon.TextColor3 = color
+    icon.TextStrokeColor3 = Color3.fromRGB(2, 3, 5)
+    icon.TextStrokeTransparency = 0.24
+    icon.Font = Enum.Font.GothamBold
+    icon.TextSize = kind == "SMOKE" and 18 or 20
+    icon.Parent = card
+
+    local label = Instance.new("TextLabel")
+    label.Name = "TypeLabel"
+    label.AnchorPoint = Vector2.new(0.5, 0)
+    label.Position = UDim2.new(0.5, 0, 0, 33)
+    label.Size = UDim2.fromOffset(42, 13)
+    label.BackgroundTransparency = 1
+    label.Text = XC_GRENADE_LABEL[kind] or kind
+    label.TextColor3 = color:Lerp(Color3.new(1, 1, 1), 0.30)
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.TextStrokeTransparency = 0.18
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 8
+    label.Parent = billboard
 
     local data = {
-        Object = object,
+        Root = root,
+        Part = part,
         Kind = kind,
-        Color = color,
-        Radius = radius,
-        IsZone = isZone,
-        Center = nil,
-        NextPhysics = 0,
-        Segments = {},
-        InnerSegments = {},
-        Spokes = {},
-        Ticks = {},
+        Sphere = sphere,
+        Glow = glow,
+        Billboard = billboard,
+        Card = card,
+        Rim = rim,
+        Icon = icon,
+        Label = label,
+        Phase = math.random() * math.pi * 2,
+        BaseRadius = math.clamp(part.Size.Magnitude * 0.30, 0.58, 0.78),
     }
-    for index = 1, 28 do
-        local line = Instance.new("Frame", grenadeContainer)
-        line.Name = "DangerOuter_" .. kind .. "_" .. index
-        line.AnchorPoint = Vector2.new(0.5, 0.5)
-        line.BorderSizePixel = 0
-        line.BackgroundColor3 = color
-        line.Visible = false
-        line.ZIndex = 5
-        data.Segments[index] = line
-    end
-    for index = 1, 16 do
-        local line = Instance.new("Frame", grenadeContainer)
-        line.Name = "DangerInner_" .. kind .. "_" .. index
-        line.AnchorPoint = Vector2.new(0.5, 0.5)
-        line.BorderSizePixel = 0
-        line.BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.22)
-        line.Visible = false
-        line.ZIndex = 4
-        data.InnerSegments[index] = line
-    end
-    for index = 1, 6 do
-        local line = Instance.new("Frame", grenadeContainer)
-        line.Name = "DangerSpoke_" .. kind .. "_" .. index
-        line.AnchorPoint = Vector2.new(0.5, 0.5)
-        line.BorderSizePixel = 0
-        line.BackgroundColor3 = color
-        line.Visible = false
-        line.ZIndex = 3
-        data.Spokes[index] = line
-    end
-    for index = 1, 8 do
-        local line = Instance.new("Frame", grenadeContainer)
-        line.Name = "DangerTick_" .. kind .. "_" .. index
-        line.AnchorPoint = Vector2.new(0.5, 0.5)
-        line.BorderSizePixel = 0
-        line.BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.35)
-        line.Visible = false
-        line.ZIndex = 6
-        data.Ticks[index] = line
-    end
-
-    local label = Instance.new("TextLabel", grenadeContainer)
-    label.Name = "DangerLabel_" .. kind
-    label.AnchorPoint = Vector2.new(0.5, 1)
-    label.Size = UDim2.fromOffset(112, 22)
-    label.BackgroundColor3 = Color3.fromRGB(8, 10, 12)
-    label.BackgroundTransparency = 0.14
-    label.BorderSizePixel = 0
-    label.Text = "[ " .. kind .. " ]"
-    label.TextColor3 = color
-    label.TextSize = 10
-    label.Font = Enum.Font.GothamBold
-    label.Visible = false
-    label.ZIndex = 7
-    Instance.new("UICorner", label).CornerRadius = UDim.new(0, 5)
-    local labelStroke = Instance.new("UIStroke", label)
-    labelStroke.Color = color
-    labelStroke.Thickness = 1
-    labelStroke.Transparency = 0.22
-    local centerGlow = Instance.new("Frame", grenadeContainer)
-    centerGlow.Name = "DangerCenterGlow_" .. kind
-    centerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-    centerGlow.Size = UDim2.fromOffset(22, 22)
-    centerGlow.BackgroundColor3 = color
-    centerGlow.BackgroundTransparency = 0.82
-    centerGlow.BorderSizePixel = 0
-    centerGlow.Rotation = 45
-    centerGlow.Visible = false
-    centerGlow.ZIndex = 2
-    Instance.new("UICorner", centerGlow).CornerRadius = UDim.new(0, 5)
-    local pulseRing = Instance.new("Frame", grenadeContainer)
-    pulseRing.Name = "DangerPulse_" .. kind
-    pulseRing.AnchorPoint = Vector2.new(0.5, 0.5)
-    pulseRing.Size = UDim2.fromOffset(28, 28)
-    pulseRing.BackgroundTransparency = 1
-    pulseRing.Visible = false
-    pulseRing.ZIndex = 2
-    local pulseStroke = Instance.new("UIStroke", pulseRing)
-    pulseStroke.Color = color
-    pulseStroke.Thickness = 1.25
-    pulseStroke.Transparency = 0.55
-    Instance.new("UICorner", pulseRing).CornerRadius = UDim.new(1, 0)
-    local centerDot = Instance.new("Frame", grenadeContainer)
-    centerDot.Name = "DangerCenter_" .. kind
-    centerDot.AnchorPoint = Vector2.new(0.5, 0.5)
-    centerDot.Size = UDim2.fromOffset(7, 7)
-    centerDot.BackgroundColor3 = color
-    centerDot.BorderSizePixel = 0
-    centerDot.Rotation = 45
-    centerDot.Visible = false
-    centerDot.ZIndex = 8
-    Instance.new("UICorner", centerDot).CornerRadius = UDim.new(0, 2)
-    data.Label = label
-    data.LabelStroke = labelStroke
-    data.CenterGlow = centerGlow
-    data.CenterDot = centerDot
-    data.PulseRing = pulseRing
-    data.PulseStroke = pulseStroke
-    grenadeDangerPool[object] = data
+    grenadePool[root] = data
     return data
 end
 
-function destroyXCGrenadeDanger(data)
-    if not data then return end
-    for _, collection in ipairs({data.Segments or {}, data.InnerSegments or {}, data.Spokes or {}, data.Ticks or {}}) do
-        for _, line in ipairs(collection) do pcall(function() line:Destroy() end) end
-    end
-    pcall(function() data.Label:Destroy() end)
-    pcall(function() data.CenterGlow:Destroy() end)
-    pcall(function() data.CenterDot:Destroy() end)
-    pcall(function() data.PulseRing:Destroy() end)
+function hideXCGrenadeUI(ui)
+    if not ui then return end
+    pcall(function() ui.Sphere.Visible = false end)
+    pcall(function() ui.Glow.Visible = false end)
+    pcall(function() ui.Billboard.Enabled = false end)
 end
 
-function hideXCGrenadeDanger(data)
-    for _, collection in ipairs({data.Segments or {}, data.InnerSegments or {}, data.Spokes or {}, data.Ticks or {}}) do
-        for _, line in ipairs(collection) do line.Visible = false end
-    end
-    data.Label.Visible = false
-    data.CenterGlow.Visible = false
-    data.CenterDot.Visible = false
-    if data.PulseRing then data.PulseRing.Visible = false end
+function destroyXCGrenadeUI(ui)
+    if not ui then return end
+    hideXCGrenadeUI(ui)
+    pcall(function() ui.Sphere:Destroy() end)
+    pcall(function() ui.Glow:Destroy() end)
+    pcall(function() ui.Billboard:Destroy() end)
 end
 
-function computeXCZoneBounds(object, fallbackPart, fallbackRadius)
-    local sumX, sumZ, minY, count = 0, 0, math.huge, 0
-    local parts = {}
-    if object:IsA("BasePart") then table.insert(parts, object) end
-    for _, descendant in ipairs(object:GetDescendants()) do
-        if descendant:IsA("BasePart") then table.insert(parts, descendant) end
-    end
-    for _, part in ipairs(parts) do
-        if part.Transparency < 1 or part.CanQuery then
-            sumX = sumX + (part.Position.X)
-            sumZ = sumZ + (part.Position.Z)
-            minY = math.min(minY, part.Position.Y - part.Size.Y * 0.5)
-            count = count + (1)
-        end
-    end
-    if count == 0 then return fallbackPart.Position, fallbackRadius end
-    local center = Vector3.new(sumX / count, minY, sumZ / count)
-    local radius = 0
-    for _, part in ipairs(parts) do
-        local horizontal = Vector2.new(part.Position.X - center.X, part.Position.Z - center.Z).Magnitude
-        radius = math.max(radius, horizontal + math.max(part.Size.X, part.Size.Z) * 0.5)
-    end
-    return center, math.clamp(radius, 2, fallbackRadius * 1.35)
+local function trackXCGrenadeMarker(object)
+    local root, part, kind = classifyXCGrenadeMarker(object)
+    if not root then return end
+    getOrCreateGrenadeUI(root, part, kind)
 end
 
-local XC_DANGER_WHITE = Color3.new(1, 1, 1)
-local XCGrenadeDangerStylePresets = {
-    FIRE = {
-        OuterPulse = 0.022, PulseSpeed = 5.2, InnerScale = 0.72,
-        OuterMajorEvery = 2, OuterGap = 0.055, OuterMajorGap = 0.18,
-        OuterThickness = 1.75, OuterMajorThickness = 2.75,
-        InnerThickness = 1.15, InnerAlphaBias = 0.23,
-        SpokeCount = 6, SpokeThickness = 1.05, SpokeAlphaBias = 0.39,
-        TickCount = 8, TickThickness = 2.45,
-        CenterPulseSpeed = 7.0, CenterPulseSize = 6, RingAlphaBias = 0.13,
-        RotateSpeed = 0.0, LabelPrefix = "FIRE",
-    },
-    SMOKE = {
-        OuterPulse = 0.010, PulseSpeed = 2.3, InnerScale = 0.86,
-        OuterMajorEvery = 4, OuterGap = 0.02, OuterMajorGap = 0.055,
-        OuterThickness = 1.45, OuterMajorThickness = 1.8,
-        InnerThickness = 1.0, InnerAlphaBias = 0.42,
-        SpokeCount = 0, SpokeThickness = 0.8, SpokeAlphaBias = 0.62,
-        TickCount = 4, TickThickness = 1.45,
-        CenterPulseSpeed = 2.8, CenterPulseSize = 3, RingAlphaBias = 0.35,
-        RotateSpeed = 0.0, LabelPrefix = "SMOKE",
-    },
-    FLASH = {
-        OuterPulse = 0.030, PulseSpeed = 7.5, InnerScale = 0.76,
-        OuterMajorEvery = 2, OuterGap = 0.12, OuterMajorGap = 0.24,
-        OuterThickness = 1.6, OuterMajorThickness = 2.35,
-        InnerThickness = 0.95, InnerAlphaBias = 0.34,
-        SpokeCount = 4, SpokeThickness = 0.9, SpokeAlphaBias = 0.48,
-        TickCount = 8, TickThickness = 2.2,
-        CenterPulseSpeed = 9.0, CenterPulseSize = 8, RingAlphaBias = 0.18,
-        RotateSpeed = 0.55, LabelPrefix = "FLASH",
-    },
-    HE = {
-        OuterPulse = 0.018, PulseSpeed = 6.0, InnerScale = 0.70,
-        OuterMajorEvery = 3, OuterGap = 0.085, OuterMajorGap = 0.20,
-        OuterThickness = 1.75, OuterMajorThickness = 2.65,
-        InnerThickness = 1.05, InnerAlphaBias = 0.30,
-        SpokeCount = 4, SpokeThickness = 0.95, SpokeAlphaBias = 0.44,
-        TickCount = 8, TickThickness = 2.35,
-        CenterPulseSpeed = 7.5, CenterPulseSize = 7, RingAlphaBias = 0.18,
-        RotateSpeed = 0.28, LabelPrefix = "HE",
-    },
-}
-
-local function getXCGrenadeDangerStyle(kind)
-    return XCGrenadeDangerStylePresets[tostring(kind or "HE")] or XCGrenadeDangerStylePresets.HE
-end
-
-function updateXCGrenadeDangerPhysics(data, now)
-    if now < data.NextPhysics then return end
-    data.NextPhysics = now + 0.12
-    local object = data.Object
-    local part = getXCDangerPart(object)
-    if not part then data.Center = nil return end
-
-    if data.IsZone then
-        data.Center, data.RenderRadius = computeXCZoneBounds(object, part, data.Radius)
-        return
+-- Catch grenades that already exist when the script is injected. Yield in chunks
+-- so large maps do not hitch while the marker cache is being primed.
+task.spawn(function()
+    local descendants = Workspace:GetDescendants()
+    for index, object in ipairs(descendants) do
+        if not xcSessionActive() then break end
+        trackXCGrenadeMarker(object)
+        if index % 220 == 0 then task.wait() end
     end
-
-    local position = part.Position
-    local velocity = part.AssemblyLinearVelocity
-    grenadeRayParams.FilterDescendantsInstances = {player.Character, object, camera}
-    if velocity.Magnitude > 1.5 then
-        local gravity = Vector3.new(0, -Workspace.Gravity, 0)
-        local stepTime = 0.08
-        for _ = 1, 32 do
-            local nextPosition = position + velocity * stepTime + gravity * (0.5 * stepTime * stepTime)
-            local result = Workspace:Raycast(position, nextPosition - position, grenadeRayParams)
-            if result then
-                position = result.Position
-                if result.Normal.Y > 0.42 then break end
-                velocity = (velocity - 2 * velocity:Dot(result.Normal) * result.Normal) * 0.42
-                position = position + (result.Normal * 0.08)
-            else
-                position = nextPosition
-            end
-            velocity = velocity + (gravity * stepTime)
-        end
-    end
-    local ground = Workspace:Raycast(position + Vector3.new(0, 3, 0), Vector3.new(0, -45, 0), grenadeRayParams)
-    data.Center = ground and ground.Position or position
-    data.RenderRadius = data.Radius
-end
-
-function renderXCGrenadeDangerZones()
-    local now = os.clock()
-    if not XCConfig.grenadeDangerZonesEnabled then
-        grenadeDangerScanStarted = false
-        for object, data in pairs(grenadeDangerPool) do
-            if not object.Parent then destroyXCGrenadeDanger(data) grenadeDangerPool[object] = nil
-            else hideXCGrenadeDanger(data) end
-        end
-        return
-    end
-
-    if not grenadeDangerScanStarted then
-        grenadeDangerScanStarted = true
-        task.spawn(function()
-            local queue, index, visited = {Workspace}, 1, 0
-            while queue[index] and xcSessionActive() and XCConfig.grenadeDangerZonesEnabled do
-                local parent = queue[index]
-                index = index + (1)
-                for _, child in ipairs(parent:GetChildren()) do
-                    if classifyXCGrenadeDanger(child) then createXCGrenadeDanger(child) end
-                    if child:IsA("Folder") or child:IsA("Model") then table.insert(queue, child) end
-                    visited = visited + (1)
-                    if visited % 160 == 0 then task.wait() end
-                end
-            end
-        end)
-    end
-
-    local camPosition = camera.CFrame.Position
-    for object, data in pairs(grenadeDangerPool) do
-        repeat
-        if not object.Parent or isEntityCharacter(object) then
-            destroyXCGrenadeDanger(data)
-            grenadeDangerPool[object] = nil
-        else
-            updateXCGrenadeDangerPhysics(data, now)
-            local center = data.Center
-            if not center or (center - camPosition).Magnitude > XCConfig.grenadeMaxDist then
-                hideXCGrenadeDanger(data)
-                break
-            end
-
-            local opacity = math.clamp(tonumber(XCConfig.grenadeDangerOpacity) or 0.82, 0.1, 1)
-            local style = getXCGrenadeDangerStyle(data.Kind)
-            local pulse = 1 + math.sin(now * style.PulseSpeed) * style.OuterPulse
-            local radius = (data.RenderRadius or data.Radius) * pulse
-            local innerRadius = radius * style.InnerScale
-            local angleOffset = now * style.RotateSpeed
-            local outerPoints = {}
-            local innerPoints = {}
-            for index = 1, #data.Segments do
-                local angle = math.pi * 2 * ((index - 1) / #data.Segments) + angleOffset
-                local worldPoint = center + Vector3.new(math.cos(angle) * radius, 0.18, math.sin(angle) * radius)
-                local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
-                outerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
-            end
-            for index = 1, #data.InnerSegments do
-                local angle = math.pi * 2 * ((index - 1) / #data.InnerSegments) - angleOffset * 0.35
-                local worldPoint = center + Vector3.new(math.cos(angle) * innerRadius, 0.16, math.sin(angle) * innerRadius)
-                local screenPoint, visible = camera:WorldToViewportPoint(worldPoint)
-                innerPoints[index] = visible and screenPoint.Z > 0 and Vector2.new(screenPoint.X, screenPoint.Y) or nil
-            end
-            for index, line in ipairs(data.Segments) do
-                local a = outerPoints[index]
-                local b = outerPoints[index == #data.Segments and 1 or index + 1]
-                if a and b then
-                    local major = index % style.OuterMajorEvery == 0
-                    local gap = major and style.OuterMajorGap or style.OuterGap
-                    local extraAlpha = major and 0.02 or 0.10
-                    if data.Kind == "SMOKE" then extraAlpha = major and 0.18 or 0.28 end
-                    setXCGrenadeLine(line, a:Lerp(b, gap), b:Lerp(a, gap), data.Color,
-                        major and style.OuterMajorThickness or style.OuterThickness,
-                        math.clamp(1 - opacity + extraAlpha, 0, 0.94))
-                else
-                    line.Visible = false
-                end
-            end
-            for index, line in ipairs(data.InnerSegments or {}) do
-                local a = innerPoints[index]
-                local b = innerPoints[index == #data.InnerSegments and 1 or index + 1]
-                if a and b then
-                    local innerColor = data.Kind == "SMOKE"
-                        and data.Color:Lerp(XC_DANGER_WHITE, 0.10)
-                        or data.Color:Lerp(XC_DANGER_WHITE, 0.24)
-                    setXCGrenadeLine(line, a:Lerp(b, 0.055), b:Lerp(a, 0.055), innerColor,
-                        style.InnerThickness,
-                        math.clamp(1 - opacity + style.InnerAlphaBias, 0.08, 0.96))
-                else
-                    line.Visible = false
-                end
-            end
-            local centerScreen, centerVisible = camera:WorldToViewportPoint(center + Vector3.new(0, 0.35, 0))
-            local center2D = centerVisible and centerScreen.Z > 0 and Vector2.new(centerScreen.X, centerScreen.Y) or nil
-            for index, line in ipairs(data.Spokes or {}) do
-                if index <= style.SpokeCount then
-                    local pointIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, style.SpokeCount))) + 1
-                    local point = innerPoints[pointIndex]
-                    if point and center2D then
-                        setXCGrenadeLine(line, center2D, point, data.Color, style.SpokeThickness,
-                            math.clamp(1 - opacity + style.SpokeAlphaBias, 0.12, 0.97))
-                    else
-                        line.Visible = false
-                    end
-                else
-                    line.Visible = false
-                end
-            end
-            for index, line in ipairs(data.Ticks or {}) do
-                if index <= style.TickCount then
-                    local outerIndex = math.floor((index - 1) * (#data.Segments / math.max(1, style.TickCount))) + 1
-                    local innerIndex = math.floor((index - 1) * (#data.InnerSegments / math.max(1, style.TickCount))) + 1
-                    local outer = outerPoints[outerIndex]
-                    local inner = innerPoints[innerIndex]
-                    if outer and inner then
-                        local startPoint = inner:Lerp(outer, data.Kind == "SMOKE" and 0.82 or 0.69)
-                        local endPoint = inner:Lerp(outer, data.Kind == "SMOKE" and 0.96 or 0.97)
-                        local tickColor = data.Color:Lerp(XC_DANGER_WHITE, data.Kind == "SMOKE" and 0.18 or 0.40)
-                        setXCGrenadeLine(line, startPoint, endPoint, tickColor, style.TickThickness,
-                            math.clamp(1 - opacity + (data.Kind == "SMOKE" and 0.25 or 0.01), 0, 0.92))
-                    else
-                        line.Visible = false
-                    end
-                else
-                    line.Visible = false
-                end
-            end
-            local distance = math.floor((center - camPosition).Magnitude + 0.5)
-            data.Label.TextColor3 = data.Color
-            data.LabelStroke.Color = data.Color
-            data.Label.Text = string.format("[ %s ]  •  %dm", style.LabelPrefix, distance)
-            data.Label.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y - (data.Kind == "FIRE" and 8 or 6))
-            data.Label.Visible = centerVisible and centerScreen.Z > 0
-            data.CenterDot.Position = UDim2.fromOffset(centerScreen.X, centerScreen.Y)
-            data.CenterDot.BackgroundColor3 = data.Color
-            data.CenterDot.Visible = centerVisible and centerScreen.Z > 0
-            data.CenterGlow.Position = data.CenterDot.Position
-            data.CenterGlow.BackgroundColor3 = data.Color
-            local glowBase = data.Kind == "SMOKE" and 0.88 or 0.76
-            local glowSwing = data.Kind == "SMOKE" and 0.035 or 0.08
-            data.CenterGlow.BackgroundTransparency = math.clamp(glowBase + math.sin(now * style.CenterPulseSpeed) * glowSwing, 0.6, 0.95)
-            data.CenterGlow.Visible = data.CenterDot.Visible
-            if data.PulseRing then
-                local baseSize = data.Kind == "SMOKE" and 30 or 24
-                local ringSize = baseSize + math.sin(now * style.CenterPulseSpeed) * style.CenterPulseSize
-                data.PulseRing.Size = UDim2.fromOffset(ringSize, ringSize)
-                data.PulseRing.Position = data.CenterDot.Position
-                data.PulseRing.Visible = data.CenterDot.Visible
-            end
-            if data.PulseStroke then
-                data.PulseStroke.Color = data.Color
-                local pulseAlpha = style.RingAlphaBias + math.sin(now * style.CenterPulseSpeed) * 0.07
-                data.PulseStroke.Transparency = math.clamp(1 - opacity + pulseAlpha, 0.10, 0.94)
-                data.PulseStroke.Thickness = data.Kind == "FIRE" and 1.55 or (data.Kind == "SMOKE" and 1.0 or 1.25)
-            end
-        end
-        until true
-    end
-end
+end)
 
 table.insert(connections, Workspace.DescendantAdded:Connect(function(object)
-    if XCConfig.grenadeDangerZonesEnabled and classifyXCGrenadeDanger(object) then
-        createXCGrenadeDanger(object)
-    end
+    task.defer(trackXCGrenadeMarker, object)
 end))
+
+function renderGrenadeOverlays()
+    local enabled = XCConfig.grenadeEspEnabled == true
+    local maxDistance = math.max(1, tonumber(XCConfig.grenadeMaxDist) or 1500)
+    local cameraNow = Workspace.CurrentCamera or camera
+    local camPosition = cameraNow and cameraNow.CFrame.Position
+    local now = os.clock()
+
+    for root, ui in pairs(grenadePool) do
+        local part = ui and ui.Part
+        if not root or not root.Parent or not part or not part.Parent or not part:IsDescendantOf(Workspace) then
+            destroyXCGrenadeUI(ui)
+            grenadePool[root] = nil
+        else
+            local visible = enabled and camPosition ~= nil and not isEntityCharacter(root)
+                and (part.Position - camPosition).Magnitude <= maxDistance
+            if not visible then
+                hideXCGrenadeUI(ui)
+            else
+                local color = getXCGrenadeColor(ui.Kind)
+                local pulse = 1 + math.sin(now * 4.4 + ui.Phase) * 0.065
+                local baseRadius = math.clamp(part.Size.Magnitude * 0.30, 0.58, 0.78)
+                ui.BaseRadius = baseRadius
+                ui.Sphere.Adornee = part
+                ui.Glow.Adornee = part
+                ui.Sphere.Color3 = color
+                ui.Glow.Color3 = color
+                ui.Sphere.Radius = baseRadius * pulse
+                ui.Glow.Radius = baseRadius * (1.26 + math.sin(now * 3.1 + ui.Phase) * 0.055)
+                ui.Sphere.Transparency = math.clamp(0.66 + math.sin(now * 4.4 + ui.Phase) * 0.035, 0.58, 0.74)
+                ui.Glow.Transparency = math.clamp(0.90 + math.sin(now * 3.1 + ui.Phase) * 0.025, 0.84, 0.94)
+                ui.Sphere.Visible = true
+                ui.Glow.Visible = true
+
+                ui.Billboard.Adornee = part
+                ui.Billboard.MaxDistance = maxDistance
+                ui.Billboard.Enabled = true
+                ui.Rim.Color = color
+                ui.Icon.Text = XC_GRENADE_ICON[ui.Kind] or "●"
+                ui.Icon.TextColor3 = color
+                ui.Label.Text = XC_GRENADE_LABEL[ui.Kind] or ui.Kind
+                ui.Label.TextColor3 = color:Lerp(Color3.new(1, 1, 1), 0.30)
+                local cardPulse = 30 + math.sin(now * 4.4 + ui.Phase) * 1.2
+                ui.Card.Size = UDim2.fromOffset(cardPulse, cardPulse)
+            end
+        end
+    end
+end
 --// ENEMY SOUND POSITION ESP
 function getXCSoundSource(sound)
     local cursor = sound.Parent
@@ -15447,7 +14921,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
     if visualRefreshDue then
         renderGrenadeOverlays()
-        renderXCGrenadeDangerZones()
         renderXCSoundPositionEsp()
 
         local threeDEspActive = XCConfig.chamsEnabled or XCConfig.headDotEnabled
@@ -17750,12 +17223,7 @@ function buildXCUI()
         priorityPlayerName = "Roblox player selected as the preferred target. The list uses live server usernames.",
         customScopeEnabled = "Draws the XC scope overlay when scoped.",
         customHandsEnabled = "Offsets the detected first-person weapon or hands model.",
-        grenadeEspEnabled = "Shows styled grenade labels, bounce trajectory and landing marker.",
-        showGrenadePath = "Predicts the grenade arc with surface bounces and a landing marker.",
-        grenadeDangerZonesEnabled = "Draws perspective-correct smoke, fire and grenade danger rings.",
-        showMolotovRadius = "Shows the projected fire effect radius on the ground.",
-        showSmokeRadius = "Shows the projected smoke effect radius on the ground.",
-        grenadeDangerOpacity = "Controls danger-ring visibility without changing trajectory brightness.",
+        grenadeEspEnabled = "Neverlose-style grenade marker: compact 3D sphere with a utility-type icon. No danger radius or trajectory overlay.",
         weaponEspEnabled = "Shows the equipped weapon with an icon when available and a readable name as fallback.",
         weaponEspStyle = "Icon shows a native weapon image without a frame; Text shows only the name; 3D permits a model when no image exists.",
         weaponEspShowName = "Displays the weapon name alongside its icon; a name is always shown when the icon is unavailable.",
@@ -20572,11 +20040,7 @@ function buildXCUI()
     addESPPreview(R)
     section(R, "ESP indicators")
     toggle(R, "Grenade ESP", "grenadeEspEnabled")
-    toggle(R, "Trajectory prediction", "showGrenadePath")
-    toggle(R, "Grenade danger zones", "grenadeDangerZonesEnabled")
-    toggle(R, "Molotov radius", "showMolotovRadius")
-    toggle(R, "Smoke radius", "showSmokeRadius")
-    addSlider(R, "Danger opacity", "grenadeDangerOpacity", 0.1, 1, 0.05, "")
+    addNote(R, "3D sphere + HE / FLASH / SMOKE / FIRE icon. No danger zones or trajectory clutter.")
     toggle(R, "Sound position ESP", "soundPositionEspEnabled")
     addSlider(R, "Sound marker duration", "soundEspDuration", 0.4, 2.5, 0.05, "s")
     toggle(R, "Tracers", "tracersEnabled")
