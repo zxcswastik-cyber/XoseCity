@@ -11628,14 +11628,99 @@ wmMetrics.Font = Enum.Font.GothamMedium
 local fpsCounter = 0
 local lastFpsUpdate = tick()
 --// GRENADE ESP 2.0 | NEVERLOSE SPHERE MARKERS
--- Minimal world-space utility ESP: a compact 3D sphere plus a clean icon card.
+-- Minimal monochrome utility ESP: a compact sphere and reference-inspired silhouettes.
 -- No trajectory, danger radius, smoke radius or damage-zone rendering is kept here.
-local XC_GRENADE_ICON = {
-    HE = "●",
-    FLASH = "✦",
-    SMOKE = "☁",
-    MOLOTOV = "♨",
-}
+-- Geometry is built once per type, without fonts or external image assets.
+local XC_GRENADE_ICON = {}
+function XC_GRENADE_ICON.create(parent, kind)
+    local canvas = Instance.new("Frame")
+    canvas.Name = "TypeIcon"
+    canvas.AnchorPoint = Vector2.new(0.5, 0.5)
+    canvas.Position = UDim2.fromScale(0.5, 0.5)
+    canvas.Size = UDim2.fromOffset(32, 32)
+    canvas.BackgroundTransparency = 1
+    canvas.BorderSizePixel = 0
+    canvas.Parent = parent
+    canvas:SetAttribute("GrenadeKind", kind)
+    local white = Color3.new(1, 1, 1)
+    local black = Color3.new(0, 0, 0)
+    local function shape(owner, x, y, w, h, radius, fill, outline, rotation)
+        local frame = Instance.new("Frame")
+        frame.AnchorPoint = Vector2.new(0.5, 0.5)
+        frame.Position = UDim2.fromOffset(x, y)
+        frame.Size = UDim2.fromOffset(w, h)
+        frame.BackgroundColor3 = fill or black
+        frame.BorderSizePixel = 0
+        frame.Rotation = rotation or 0
+        frame.Parent = owner
+        if radius and radius > 0 then
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, radius)
+        end
+        if outline then
+            local stroke = Instance.new("UIStroke")
+            stroke.Color = white
+            stroke.Thickness = 1.2
+            stroke.Parent = frame
+        end
+        return frame
+    end
+    local function line(owner, x1, y1, x2, y2, width, color)
+        local dx, dy = x2 - x1, y2 - y1
+        return shape(owner, (x1+x2)*0.5, (y1+y2)*0.5,
+            math.sqrt(dx*dx+dy*dy), width or 1.2, 0.6,
+            color or white, false, math.deg(math.atan2(dy, dx)))
+    end
+    if kind == "HE" then
+        shape(canvas, 17, 20, 20, 20, 10, black, true)
+        shape(canvas, 17, 8, 8, 6, 1, black, true)
+        shape(canvas, 10, 8, 7, 7, 4, black, true)
+        line(canvas, 20, 6, 24, 7)
+        line(canvas, 24, 7, 27, 21)
+        line(canvas, 27, 21, 26, 25)
+        line(canvas, 10, 20, 24, 20, 1)
+        line(canvas, 11, 16, 13, 14, 1.5)
+    elseif kind == "FLASH" then
+        canvas.Rotation = -18
+        shape(canvas, 16, 19, 12, 22, 3, black, true)
+        shape(canvas, 16, 8, 14, 4, 1, black, true)
+        shape(canvas, 16, 28, 14, 3, 1, white)
+        shape(canvas, 15, 4, 6, 5, 3, black, true)
+        line(canvas, 22, 7, 25, 26)
+        for _, y in ipairs({13, 19, 24}) do
+            shape(canvas, 13.5, y, 2.5, 3, 1.2, white)
+            shape(canvas, 18.5, y, 2.5, 3, 1.2, white)
+        end
+    elseif kind == "SMOKE" then
+        shape(canvas, 16, 20, 17, 20, 2, black, true)
+        shape(canvas, 16, 10, 19, 3, 1, white)
+        shape(canvas, 16, 28.5, 19, 2, 1, white)
+        shape(canvas, 16, 6, 8, 5, 1, black, true)
+        shape(canvas, 11, 5, 6, 6, 3, black, true)
+        line(canvas, 20, 5, 25, 7)
+        line(canvas, 25, 7, 27, 25)
+        line(canvas, 11, 22, 21, 22, 2)
+        line(canvas, 11, 25, 21, 25, 1)
+    elseif kind == "MOLOTOV" then
+        local bottle = shape(canvas, 13, 20, 20, 28, 0, black)
+        bottle.BackgroundTransparency = 1
+        bottle.Rotation = 35
+        shape(bottle, 10, 18, 11, 17, 3, black, true)
+        shape(bottle, 10, 7, 4.5, 8, 1, black, true)
+        shape(bottle, 10, 3, 7, 2, 0.5, white)
+        line(bottle, 7.5, 17, 7.5, 22, 1.2)
+        line(canvas, 19, 7, 23, 9, 1.5)
+        line(canvas, 23, 9, 22, 5)
+        line(canvas, 22, 5, 25, 7)
+        line(canvas, 25, 7, 27, 2)
+        line(canvas, 27, 2, 29, 8)
+        line(canvas, 29, 8, 27, 12)
+        line(canvas, 27, 12, 23, 9)
+        line(canvas, 26, 10, 27, 7, 1)
+    else
+        shape(canvas, 16, 16, 12, 16, 4, black, true)
+    end
+    return canvas
+end
 local XC_GRENADE_LABEL = {
     HE = "HE",
     FLASH = "FLASH",
@@ -11654,10 +11739,8 @@ function isEntityCharacter(inst)
 end
 
 local function getXCGrenadeColor(kind)
-    if kind == "HE" then return currentTheme.HEColor end
-    if kind == "SMOKE" then return currentTheme.SmokeColor end
-    if kind == "MOLOTOV" then return currentTheme.MolotovColor end
-    return Color3.fromRGB(245, 235, 120)
+    -- Fixed monochrome palette; legacy saved color keys remain import-compatible.
+    return Color3.new(1, 1, 1)
 end
 
 local function classifyXCGrenadeName(name)
@@ -11728,7 +11811,7 @@ function getOrCreateGrenadeUI(root, part, kind)
     sphere.Adornee = part
     sphere.AlwaysOnTop = true
     sphere.Color3 = color
-    sphere.Transparency = 0.68
+    sphere.Transparency = 0.84
     sphere.Radius = 0.68
     sphere.ZIndex = 7
     sphere.Parent = part
@@ -11738,7 +11821,7 @@ function getOrCreateGrenadeUI(root, part, kind)
     glow.Adornee = part
     glow.AlwaysOnTop = true
     glow.Color3 = color
-    glow.Transparency = 0.90
+    glow.Transparency = 0.96
     glow.Radius = 0.88
     glow.ZIndex = 6
     glow.Parent = part
@@ -11746,7 +11829,7 @@ function getOrCreateGrenadeUI(root, part, kind)
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "GrenadeIconBillboard"
     billboard.Adornee = part
-    billboard.Size = UDim2.fromOffset(42, 52)
+    billboard.Size = UDim2.fromOffset(44, 54)
     billboard.StudsOffsetWorldSpace = Vector3.new(0, 1.05, 0)
     billboard.AlwaysOnTop = true
     billboard.LightInfluence = 0
@@ -11758,9 +11841,9 @@ function getOrCreateGrenadeUI(root, part, kind)
     card.Name = "IconCard"
     card.AnchorPoint = Vector2.new(0.5, 0)
     card.Position = UDim2.new(0.5, 0, 0, 0)
-    card.Size = UDim2.fromOffset(30, 30)
-    card.BackgroundColor3 = Color3.fromRGB(7, 9, 12)
-    card.BackgroundTransparency = 0.16
+    card.Size = UDim2.fromOffset(36, 36)
+    card.BackgroundColor3 = Color3.new(0, 0, 0)
+    card.BackgroundTransparency = 0.24
     card.BorderSizePixel = 0
     card.Parent = billboard
     Instance.new("UICorner", card).CornerRadius = UDim.new(1, 0)
@@ -11768,26 +11851,16 @@ function getOrCreateGrenadeUI(root, part, kind)
     local rim = Instance.new("UIStroke")
     rim.Name = "TypeRim"
     rim.Color = color
-    rim.Thickness = 1.25
-    rim.Transparency = 0.08
+    rim.Thickness = 1
+    rim.Transparency = 0.72
     rim.Parent = card
 
-    local icon = Instance.new("TextLabel")
-    icon.Name = "TypeIcon"
-    icon.Size = UDim2.fromScale(1, 1)
-    icon.BackgroundTransparency = 1
-    icon.Text = XC_GRENADE_ICON[kind] or "●"
-    icon.TextColor3 = color
-    icon.TextStrokeColor3 = Color3.fromRGB(2, 3, 5)
-    icon.TextStrokeTransparency = 0.24
-    icon.Font = Enum.Font.GothamBold
-    icon.TextSize = kind == "SMOKE" and 18 or 20
-    icon.Parent = card
+    local icon = XC_GRENADE_ICON.create(card, kind)
 
     local label = Instance.new("TextLabel")
     label.Name = "TypeLabel"
     label.AnchorPoint = Vector2.new(0.5, 0)
-    label.Position = UDim2.new(0.5, 0, 0, 33)
+    label.Position = UDim2.new(0.5, 0, 0, 39)
     label.Size = UDim2.fromOffset(42, 13)
     label.BackgroundTransparency = 1
     label.Text = XC_GRENADE_LABEL[kind] or kind
@@ -11880,8 +11953,8 @@ function renderGrenadeOverlays()
                 ui.Glow.Color3 = color
                 ui.Sphere.Radius = baseRadius * pulse
                 ui.Glow.Radius = baseRadius * (1.26 + math.sin(now * 3.1 + ui.Phase) * 0.055)
-                ui.Sphere.Transparency = math.clamp(0.66 + math.sin(now * 4.4 + ui.Phase) * 0.035, 0.58, 0.74)
-                ui.Glow.Transparency = math.clamp(0.90 + math.sin(now * 3.1 + ui.Phase) * 0.025, 0.84, 0.94)
+                ui.Sphere.Transparency = 0.84
+                ui.Glow.Transparency = 0.96
                 ui.Sphere.Visible = true
                 ui.Glow.Visible = true
 
@@ -11889,12 +11962,13 @@ function renderGrenadeOverlays()
                 ui.Billboard.MaxDistance = maxDistance
                 ui.Billboard.Enabled = true
                 ui.Rim.Color = color
-                ui.Icon.Text = XC_GRENADE_ICON[ui.Kind] or "●"
-                ui.Icon.TextColor3 = color
+                if ui.Icon:GetAttribute("GrenadeKind") ~= ui.Kind then
+                    ui.Icon:Destroy()
+                    ui.Icon = XC_GRENADE_ICON.create(ui.Card, ui.Kind)
+                end
                 ui.Label.Text = XC_GRENADE_LABEL[ui.Kind] or ui.Kind
                 ui.Label.TextColor3 = color:Lerp(Color3.new(1, 1, 1), 0.30)
-                local cardPulse = 30 + math.sin(now * 4.4 + ui.Phase) * 1.2
-                ui.Card.Size = UDim2.fromOffset(cardPulse, cardPulse)
+                -- Fixed icon size keeps thin monochrome details crisp.
             end
         end
     end
@@ -17223,7 +17297,7 @@ function buildXCUI()
         priorityPlayerName = "Roblox player selected as the preferred target. The list uses live server usernames.",
         customScopeEnabled = "Draws the XC scope overlay when scoped.",
         customHandsEnabled = "Offsets the detected first-person weapon or hands model.",
-        grenadeEspEnabled = "Neverlose-style grenade marker: compact 3D sphere with a utility-type icon. No danger radius or trajectory overlay.",
+        grenadeEspEnabled = "Monochrome grenade silhouettes: HE, flash, smoke and Molotov, with a subtle white sphere. No danger radius or trajectory overlay.",
         weaponEspEnabled = "Shows the equipped weapon with an icon when available and a readable name as fallback.",
         weaponEspStyle = "Icon shows a native weapon image without a frame; Text shows only the name; 3D permits a model when no image exists.",
         weaponEspShowName = "Displays the weapon name alongside its icon; a name is always shown when the icon is unavailable.",
@@ -20420,10 +20494,7 @@ function buildXCUI()
     addColorPicker(L,"Health high","espHealthHigh",function() syncXCUserTheme();refreshESPPreview() end)
     addColorPicker(L,"Health medium","espHealthMid",function() syncXCUserTheme();refreshESPPreview() end)
     addColorPicker(L,"Health low","espHealthLow",function() syncXCUserTheme();refreshESPPreview() end)
-    section(L,"grenade palette")
-    addColorPicker(L,"HE grenade","grenadeHE",function() syncXCUserTheme() end)
-    addColorPicker(L,"Smoke","grenadeSmoke",function() syncXCUserTheme() end)
-    addColorPicker(L,"Molotov / fire","grenadeMolotov",function() syncXCUserTheme() end)
+    -- Grenade ESP uses a fixed black/white palette; legacy config keys remain supported.
     section(L, "menu & hud")
     toggle(L, "Notifications", "settingsShowNotifications")
     toggle(L, "Compact mode", "settingsCompactMode")
