@@ -2340,7 +2340,7 @@ function XCNotify(title, message, kind, duration)
     icon.Position = UDim2.new(0, 17, 0, 10)
     icon.BackgroundColor3 = currentTheme.Sidebar
     icon.BackgroundTransparency = 0.1
-    icon.Text = kind == "error" and "!" or kind == "warning" and "!" or "вњ“"
+    icon.Text = kind == "error" and "!" or kind == "warning" and "!" or "✓"
     icon.TextColor3 = accent
     icon.TextSize = 14
     icon.Font = Enum.Font.GothamBold
@@ -11629,7 +11629,7 @@ local fpsCounter = 0
 local lastFpsUpdate = tick()
 --// GRENADE ESP 2.0 | NEVERLOSE SPHERE MARKERS
 -- Minimal monochrome utility ESP: a compact sphere and reference-inspired silhouettes.
--- No trajectory, danger radius, smoke radius or damage-zone rendering is kept here.
+-- Compact icons only: Molotov fire keeps its marker after the bottle breaks; no radius or trajectory.
 -- Geometry is built once per type, without fonts or external image assets.
 local XC_GRENADE_ICON = {}
 function XC_GRENADE_ICON.create(parent, kind)
@@ -11782,8 +11782,60 @@ local function getXCGrenadeKindFromAttributes(object)
     return nil
 end
 
+-- Burning Molotov areas outlive the bottle. Track their own lifecycle, not a guessed fuse timer.
+XC_GRENADE_ICON.FireObserved = setmetatable({}, {__mode = "k"})
+XC_GRENADE_ICON.FireCache = setmetatable({}, {__mode = "k"})
+function XC_GRENADE_ICON.resolveFire(object)
+    if not object or not object.Parent then return nil end
+    local zone, structural
+    local cursor = object
+    for _ = 1, 8 do
+        if not cursor or cursor == Workspace then break end
+        if cursor:IsA("BasePart") or cursor:IsA("Model") or cursor:IsA("Folder") then
+            local name = cursor.Name:lower():gsub("[%s_%-]", "")
+            local isZone = name:match("^firezone%d*$") or name:match("^voxelfire%d*$")
+                or name:match("^flamezone%d*$") or name:match("^burnzone%d*$")
+            local isArea = name:match("^molotovarea%d*$") or name:match("^molotovfire%d*$")
+                or name:match("^incendiaryfire%d*$")
+            if isZone or isArea then zone, structural = cursor, isZone ~= nil end
+        end
+        cursor = cursor.Parent
+    end
+    if not zone then return nil end
+    local now = os.clock()
+    local cache = XC_GRENADE_ICON.FireCache[zone]
+    if cache and now - cache.Time < 0.1 and cache.Part and cache.Part.Parent
+        and cache.Part:IsDescendantOf(Workspace) then
+        if cache.Active then return zone, cache.Part, true end
+        return nil, nil, true
+    end
+    local part = zone:IsA("BasePart") and zone or (zone:IsA("Model") and zone.PrimaryPart)
+    local sawEffect, enabledEffect = false, false
+    for _, child in ipairs(zone:GetDescendants()) do
+        if not part and child:IsA("BasePart") then part = child end
+        if child:IsA("Fire") or (child:IsA("ParticleEmitter")
+            and not child.Name:lower():find("smoke", 1, true)) then
+            sawEffect = true
+            if child.Enabled then enabledEffect = true end
+        end
+    end
+    if sawEffect then XC_GRENADE_ICON.FireObserved[zone] = true end
+    local active = (enabledEffect or (structural and not XC_GRENADE_ICON.FireObserved[zone]))
+        and zone:GetAttribute("Active") ~= false and zone:GetAttribute("Enabled") ~= false
+        and part and part.Parent ~= nil and part:IsDescendantOf(Workspace)
+    XC_GRENADE_ICON.FireCache[zone] = {Time = now, Part = part, Active = active}
+    if active then return zone, part, true end
+    return nil, nil, true
+end
+
+
 function classifyXCGrenadeMarker(object)
     if not object or not object.Parent then return nil end
+    local fireRoot, firePart, fireArea = XC_GRENADE_ICON.resolveFire(object)
+    if fireArea then
+        if fireRoot then return fireRoot, firePart, "MOLOTOV" end
+        return nil
+    end
     if not (object:IsA("BasePart") or object:IsA("Model") or object:IsA("StringValue") or object:IsA("Folder")) then return nil end
     -- Reject whole effect hierarchies before inspecting child metadata.
     local check = object
@@ -11841,8 +11893,8 @@ function getOrCreateGrenadeUI(root, part, kind)
     if existing then
         if existing.Part ~= part then
             existing.Part = part
-            pcall(function() existing.Sphere.Adornee = part end)
-            pcall(function() existing.Glow.Adornee = part end)
+            pcall(function() existing.Sphere.Adornee = part; existing.Sphere.Parent = part end)
+            pcall(function() existing.Glow.Adornee = part; existing.Glow.Parent = part end)
             pcall(function() existing.Billboard.Adornee = part end)
         end
         existing.Kind = kind
@@ -11974,7 +12026,7 @@ XC_GRENADE_ICON.Pending = {}
 XC_GRENADE_ICON.PendingCount = 0
 function XC_GRENADE_ICON.queue(object)
     if not xcSessionActive() or not mainContainer.Parent then return end
-    if not (object:IsA("BasePart") or object:IsA("Model") or object:IsA("StringValue") or object:IsA("Folder")) then return end
+    if not (object:IsA("BasePart") or object:IsA("Model") or object:IsA("StringValue") or object:IsA("Folder") or object:IsA("Fire") or object:IsA("ParticleEmitter")) then return end
     XC_GRENADE_ICON.Seen = (XC_GRENADE_ICON.Seen or 0) + 1
     XC_GRENADE_ICON.LastCandidate = object.ClassName .. ":" .. object.Name
     if XC_GRENADE_ICON.Pending[object] then return end
@@ -12084,7 +12136,7 @@ end
 -- Visible diagnostics belong to this script; no separate console probe is needed.
 XC_GRENADE_ICON.Started = os.clock()
 XC_GRENADE_ICON.Status = Instance.new("TextLabel")
-XC_GRENADE_ICON.Status.Name = "XCGrenadeStatusR3"
+XC_GRENADE_ICON.Status.Name = "XCGrenadeStatusR4"
 XC_GRENADE_ICON.Status.Position = UDim2.fromOffset(12, 85)
 XC_GRENADE_ICON.Status.Size = UDim2.fromOffset(420, 64)
 XC_GRENADE_ICON.Status.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -12095,7 +12147,7 @@ XC_GRENADE_ICON.Status.Font = Enum.Font.GothamBold
 XC_GRENADE_ICON.Status.TextSize = 11
 XC_GRENADE_ICON.Status.TextWrapped = true
 XC_GRENADE_ICON.Status.ZIndex = 100
-XC_GRENADE_ICON.Status.Text = "Grenade ESP r3 | starting"
+XC_GRENADE_ICON.Status.Text = "Grenade ESP r4 | starting"
 XC_GRENADE_ICON.Status.Parent = mainContainer
 function XC_GRENADE_ICON.renderSafely()
     local now = os.clock()
@@ -12120,7 +12172,7 @@ function XC_GRENADE_ICON.statusTick()
     local state = not enabled and "OFF" or (stale and "RENDER NOT RUNNING" or "ON")
     XC_GRENADE_ICON.Status.Visible = now - XC_GRENADE_ICON.Started < 10
         or (enabled and (now < (XC_GRENADE_ICON.ShowUntil or 0) or stale or XC_GRENADE_ICON.LastError ~= nil))
-    XC_GRENADE_ICON.Status.Text = string.format("Grenade ESP r3 | %s | objects %d | markers %d | icons %d\n%s\n%s",
+    XC_GRENADE_ICON.Status.Text = string.format("Grenade ESP r4 | %s | objects %d | markers %d | icons %d\n%s\n%s",
         state, XC_GRENADE_ICON.Seen or 0, count, XC_GRENADE_ICON.VisibleCount or 0,
         XC_GRENADE_ICON.LastError and ("ERROR: " .. XC_GRENADE_ICON.LastError)
             or ("matched: " .. (XC_GRENADE_ICON.LastMatch or "none")),
@@ -14281,7 +14333,7 @@ function renderTacticalOverlay()
                             end
                         end
 
-                        local infoText = table.concat(details, "  В·  ")
+                        local infoText = table.concat(details, "  ·  ")
                         if esp.TagLabel.Text ~= baseName then esp.TagLabel.Text = baseName end
                         if esp.LastText ~= infoText then
                             esp.TagDetails.Text = infoText
@@ -14358,7 +14410,7 @@ function renderTacticalOverlay()
         end
     end
 end
---// CHAMS 4.1 вЂ” STABLE MATERIAL SHELL ENGINE
+--// CHAMS 4.1 — STABLE MATERIAL SHELL ENGINE
 -- Stable rules:
 --   * one physical shell layer only
 --   * shells are WeldConstraint-followed, not CFrame-updated each frame
@@ -17455,7 +17507,7 @@ function buildXCUI()
         priorityPlayerName = "Roblox player selected as the preferred target. The list uses live server usernames.",
         customScopeEnabled = "Draws the XC scope overlay when scoped.",
         customHandsEnabled = "Offsets the detected first-person weapon or hands model.",
-        grenadeEspEnabled = "Monochrome grenade silhouettes: HE, flash, smoke and Molotov, with a subtle white sphere. No danger radius or trajectory overlay.",
+        grenadeEspEnabled = "Monochrome grenade silhouettes; Molotov markers remain on active fire after the bottle breaks. No radius or trajectory overlay.",
         weaponEspEnabled = "Shows the equipped weapon with an icon when available and a readable name as fallback.",
         weaponEspStyle = "Icon shows a native weapon image without a frame; Text shows only the name; 3D permits a model when no image exists.",
         weaponEspShowName = "Displays the weapon name alongside its icon; a name is always shown when the icon is unavailable.",
@@ -18742,7 +18794,7 @@ function buildXCUI()
         subtitle.Position = UDim2.fromOffset(12, 23)
         subtitle.Size = UDim2.new(1, -142, 0, 15)
         subtitle.BackgroundTransparency = 1
-        subtitle.Text = "Loadout browser В· instant preview В· saved selections"
+        subtitle.Text = "Loadout browser · instant preview · saved selections"
         subtitle.TextColor3 = C.Muted
         subtitle.Font = Enum.Font.Gotham
         subtitle.TextSize = 9
@@ -18967,7 +19019,7 @@ function buildXCUI()
         studio.WearMinus.Size = UDim2.new(0.5, -13, 0, 27)
         studio.WearMinus.BackgroundColor3 = C.Control
         studio.WearMinus.BorderSizePixel = 0
-        studio.WearMinus.Text = "в€’"
+        studio.WearMinus.Text = "−"
         studio.WearMinus.TextColor3 = C.Text
         studio.WearMinus.Font = Enum.Font.GothamBold
         studio.WearMinus.TextSize = 15
@@ -19011,7 +19063,7 @@ function buildXCUI()
             button.BackgroundColor3 = C.Control
             button.BorderSizePixel = 0
             button.Font = Enum.Font.GothamBold
-            button.Text = delta < 0 and "вЂ№" or "вЂє"
+            button.Text = delta < 0 and "‹" or "›"
             button.TextSize = 18
             button.TextColor3 = C.Text
             Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
@@ -19330,7 +19382,7 @@ function buildXCUI()
         end
         local function updateStudioStatus()
             local enabled = XCConfig.skinChangerEnabled == true
-            studio.EnableButton.Text = enabled and "в—Џ  ENABLED" or "в—‹  DISABLED"
+            studio.EnableButton.Text = enabled and "●  ENABLED" or "○  DISABLED"
             studio.EnableButton.TextColor3 = enabled and C.White or C.Muted
             studio.EnableButton.BackgroundColor3 = enabled and C.Lime:Lerp(C.Panel, 0.72) or C.Control
             studio.SelectedStroke.Color = enabled and C.Lime:Lerp(C.Border, 0.25) or C.Border
@@ -19340,8 +19392,8 @@ function buildXCUI()
             itemName = itemName or currentItem()
             local selected = currentSelection(itemName)
             studio.SelectedName.Text = tostring(selected or "Default")
-            studio.SelectedItem.Text = string.upper(tostring(XCConfig.skinGalleryMode or "Weapon")) .. "  В·  " .. tostring(itemName)
-            studio.PreviewModeButton.Text = "PREVIEW  В·  " .. string.upper(tostring(XCConfig.skinPreviewMode or "Icons"))
+            studio.SelectedItem.Text = string.upper(tostring(XCConfig.skinGalleryMode or "Weapon")) .. "  ·  " .. tostring(itemName)
+            studio.PreviewModeButton.Text = "PREVIEW  ·  " .. string.upper(tostring(XCConfig.skinPreviewMode or "Icons"))
 
             local wear
             if XCConfig.skinGalleryMode == "Knife" then
@@ -19352,7 +19404,7 @@ function buildXCUI()
             local showWear = wear ~= nil
             studio.WearTitle.Visible = showWear; studio.WearValue.Visible = showWear
             studio.WearMinus.Visible = showWear; studio.WearPlus.Visible = showWear
-            if showWear then studio.WearValue.Text = string.format("%.2f  В·  %d%%", wear, math.floor(wear * 100 + 0.5)) end
+            if showWear then studio.WearValue.Text = string.format("%.2f  ·  %d%%", wear, math.floor(wear * 100 + 0.5)) end
 
             for _, child in ipairs(studio.SelectedVisual:GetChildren()) do
                 if not child:IsA("UICorner") then child:Destroy() end
@@ -19509,9 +19561,9 @@ function buildXCUI()
             local result=xcSkinCatalogPage(choices,search.Text,galleryState.Page,UserInputService.TouchEnabled and 6 or 8)
             galleryState.Page,galleryState.Pages=result.Page,result.Pages
             heading.Text=tostring(itemName).."  /  "..tostring(result.Total).." finishes"
-            hint.Text=XCConfig.skinChangerEnabled and "Loadout enabled В· changes apply instantly" or "Loadout disabled В· selections are still saved"
+            hint.Text=XCConfig.skinChangerEnabled and "Loadout enabled · changes apply instantly" or "Loadout disabled · selections are still saved"
             refreshSelectedPanel(itemName)
-            pageLabel.Text=string.format("%d / %d   В·   %d results",result.Page,result.Pages,result.Total)
+            pageLabel.Text=string.format("%d / %d   ·   %d results",result.Page,result.Pages,result.Total)
             pagerButtons[1].TextColor3=result.Page>1 and C.Text or C.Muted
             pagerButtons[2].TextColor3=result.Page<result.Pages and C.Text or C.Muted
             empty.Visible=result.Total==0
@@ -19608,7 +19660,7 @@ function buildXCUI()
                         XCConfig.weaponSkinWear[itemName]=XCConfig.skinWear;refreshConfigControls("skinEditorFinish",skinName);applyXCSelectedWeaponSkin() end
                     updateCardSelection(itemName)
                     refreshSelectedPanel(itemName)
-                    hint.Text=XCConfig.skinChangerEnabled and "Equipped В· applied to current loadout" or "Saved В· enable Skin Studio to apply"
+                    hint.Text=XCConfig.skinChangerEnabled and "Equipped · applied to current loadout" or "Saved · enable Skin Studio to apply"
                     scheduleConfigAutoSave()
                 end)
                 card.MouseEnter:Connect(function() card.BackgroundColor3=C.Control end)
@@ -20058,7 +20110,7 @@ function buildXCUI()
     local L, R = columns("Rage", "Rage & silent", "Aim & weapon")
     section(L, "Ragebot")
     toggle(L, "Ragebot", "rageBotEnabled")
-    addSlider(L, "Rage FOV", "rageFov", 30, 360, 1, "В°")
+    addSlider(L, "Rage FOV", "rageFov", 30, 360, 1, "°")
     addChoice(L, "Target priority", "rageTargetMode", {"Distance", "Health", "FOV", "Priority"})
     toggle(L, "Rage auto fire", "rageAutoFire")
 
@@ -20078,7 +20130,7 @@ function buildXCUI()
 
     section(R, "Aimbot")
     toggle(R, "Tracking", "aimbotEnabled")
-    addSlider(R, "Aim FOV", "aimFov", 10, 360, 1, "В°")
+    addSlider(R, "Aim FOV", "aimFov", 10, 360, 1, "°")
     addSlider(R, "Aim speed", "aimbotSpeed", 1, 100, 1, "%")
     addSlider(R, "Smoothness", "aimbotSmoothness", 0.01, 1, 0.01, "")
     toggle(R, "Visible check", "visibleCheck")
@@ -20172,8 +20224,8 @@ function buildXCUI()
     toggle(R, "Anti-bruteforce", "antiAimAntiBruteforceEnabled")
     toggle(R, "Shot-safe desync", "antiAimShotSafeEnabled")
     addSlider(R, "Desync speed", "antiAimDesyncSpeed", 8, 60, 1, "hz")
-    addSlider(R, "Desync range", "antiAimDesyncRange", 20, 180, 1, "В°")
-    addSlider(R, "Base offset (legacy modes)", "antiAimYaw", -180, 180, 1, "В°")
+    addSlider(R, "Desync range", "antiAimDesyncRange", 20, 180, 1, "°")
+    addSlider(R, "Base offset (legacy modes)", "antiAimYaw", -180, 180, 1, "°")
     addNote(R, "Desync uses native replicated input. Freestand tracks the nearest active enemy; damage flips the phase.")
 
     section(R, "Third person")
@@ -20445,7 +20497,7 @@ function buildXCUI()
     section(L, "sky")
     toggle(L, "Custom skybox", "worldSkyboxEnabled")
     addChoice(L, "Skybox preset", "worldSkyboxPreset", {"Night", "Ocean Sunset", "My Summer Car", "Standard", "Minecraft", "Spongebob", "Deep Space", "Clouded Sky", "Retro", "City", "Purple Nebula", "Pink Sky"}, function() updateWorldChanger() end)
-    addSlider(L, "Sky rotation", "worldSkyRotation", -180, 180, 1, "В°", function() updateWorldChanger() end)
+    addSlider(L, "Sky rotation", "worldSkyRotation", -180, 180, 1, "°", function() updateWorldChanger() end)
     addSlider(L, "Stars", "worldSkyStars", 0, 5000, 100, "", function() updateWorldChanger() end)
     toggle(L, "Sun & moon", "worldSkyCelestial")
     addSlider(L, "Sun size", "worldSkySunSize", 0, 60, 1, "", function() updateWorldChanger() end)
@@ -20518,11 +20570,11 @@ function buildXCUI()
             refreshConfigControls("customAdsFov", XCConfig.customAdsFov)
         end
     end)
-    addSlider(R, "Hip FOV", "customFov", 70, 120, 1, "В°", function()
+    addSlider(R, "Hip FOV", "customFov", 70, 120, 1, "°", function()
         XCConfig.customFovPreset = "Custom"
         refreshConfigControls("customFovPreset", "Custom")
     end)
-    addSlider(R, "ADS FOV", "customAdsFov", 20, 120, 1, "В°", function()
+    addSlider(R, "ADS FOV", "customAdsFov", 20, 120, 1, "°", function()
         XCConfig.customFovPreset = "Custom"
         refreshConfigControls("customFovPreset", "Custom")
     end)
@@ -20532,7 +20584,7 @@ function buildXCUI()
     section(R, "scope")
     toggle(R, "Custom scope", "customScopeEnabled")
     toggle(R, "Scope FOV override", "scopeFovEnabled")
-    addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "В°")
+    addSlider(R, "Scope FOV", "scopeFov", 10, 120, 1, "°")
     toggle(R, "Remove original scope", "scopeRemoveOriginal")
     toggle(R, "Scope crosshair", "scopeCrosshairEnabled")
     addChoice(R, "Crosshair style", "scopeCrosshairStyle", {"Cross", "T", "X", "Dot"})
@@ -20571,9 +20623,9 @@ function buildXCUI()
     addSlider(R, "Hands X", "customHandsX", -2, 2, 0.1, "")
     addSlider(R, "Hands Y", "customHandsY", -2, 2, 0.1, "")
     addSlider(R, "Hands Z", "customHandsZ", -2, 2, 0.1, "")
-    addSlider(R, "Hands pitch", "customHandsPitch", -45, 45, 1, "В°")
-    addSlider(R, "Hands yaw", "customHandsYaw", -45, 45, 1, "В°")
-    addSlider(R, "Hands roll", "customHandsRoll", -90, 90, 1, "В°")
+    addSlider(R, "Hands pitch", "customHandsPitch", -45, 45, 1, "°")
+    addSlider(R, "Hands yaw", "customHandsYaw", -45, 45, 1, "°")
+    addSlider(R, "Hands roll", "customHandsRoll", -90, 90, 1, "°")
     section(R, "Weapon visuals")
     toggle(R, "Weapon chams", "weaponChamsEnabled")
     addChoice(R, "Weapon material", "weaponChamsMode", {"Glass", "ForceField", "Metal", "Highlight", "Neon"})
@@ -20915,7 +20967,7 @@ function buildXCUI()
             communityLabels = {}
             communityByLabel = {}
             for _, item in ipairs(XCPublicConfigs.Items) do
-                local label = string.format("%s В· %s [%s]", tostring(item.name or "Unnamed"),
+                local label = string.format("%s · %s [%s]", tostring(item.name or "Unnamed"),
                     tostring(item.author or "Anonymous"), tostring(item.id or ""):sub(1, 8))
                 table.insert(communityLabels, label)
                 communityByLabel[label] = item.id
@@ -20992,7 +21044,7 @@ function buildXCUI()
         end
         clearSearch.TextColor3 = query ~= "" and C.Lime or C.Muted
         pageSubtitle.Text = query == "" and (pageDescriptions[currentPage] or "Customize your session")
-            or matches == 0 and "No matches вЂ” clear search or try another term"
+            or matches == 0 and "No matches — clear search or try another term"
             or tostring(matches) .. " matching settings in this tab"
     end
     local searchRevision = 0
