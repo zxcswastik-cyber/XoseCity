@@ -426,8 +426,8 @@ local XCConfig = {
     menuPanelR = 12, menuPanelG = 12, menuPanelB = 12,
     menuTextR = 235, menuTextG = 235, menuTextB = 235,
     linkMenuAndEspColor = false,
-    espVisibleR = 152, espVisibleG = 204, espVisibleB = 0,
-    espHiddenR = 112, espHiddenG = 116, espHiddenB = 122,
+    espVisibleR = 242, espVisibleG = 245, espVisibleB = 255,
+    espHiddenR = 190, espHiddenG = 112, espHiddenB = 230,
     espHealthHighR = 152, espHealthHighG = 204, espHealthHighB = 0,
     espHealthMidR = 205, espHealthMidG = 170, espHealthMidB = 42,
     espHealthLowR = 205, espHealthLowG = 72, espHealthLowB = 72,
@@ -592,8 +592,8 @@ local XCConfig = {
     extremeWallbangEnabled = false,
     showSilentFovCircle = true,
 
-    chamsFillTransparency = 0.58,
-    chamsOutlineTransparency = 0.32,
+    chamsFillTransparency = 0.62,
+    chamsOutlineTransparency = 0.18,
     chamsTeamCheck = true,
     chamsShowTeammates = false,
     chamsOcclusion = true,
@@ -601,8 +601,8 @@ local XCConfig = {
     -- Chams 2.0
     chamsStyle = "Solid",
     chamsUseEspPalette = true,
-    chamsVisibleR = 152, chamsVisibleG = 204, chamsVisibleB = 0,
-    chamsHiddenR = 112, chamsHiddenG = 116, chamsHiddenB = 122,
+    chamsVisibleR = 242, chamsVisibleG = 245, chamsVisibleB = 255,
+    chamsHiddenR = 190, chamsHiddenG = 112, chamsHiddenB = 230,
     chamsTeamR = 90, chamsTeamG = 170, chamsTeamB = 255,
     chamsPulseSpeed = 2.0,
     chamsIridescentSpeed = 0.12,
@@ -626,7 +626,7 @@ local XCConfig = {
     chamsSoftGlowSize = 0.045,
 
     -- Stable renderer
-    chamsShellScale = 1.012,
+    chamsShellScale = 1.006,
     chamsExcludeAccessories = true,
     chamsAnimationFPS = 20, -- FPS fix: animated material shells do not need 30 Hz
 
@@ -646,11 +646,11 @@ local XCConfig = {
     -- Lightweight local-player presentation used only in third person.
     -- Kept config-backed so old JSON profiles simply fall back to these defaults.
     selfVisualEnabled = false,
-    selfVisualFillTransparency = 0.76,
-    selfVisualOutlineTransparency = 0.34,
-    selfVisualColorR = 220,
-    selfVisualColorG = 229,
-    selfVisualColorB = 241,
+    selfVisualFillTransparency = 0.82,
+    selfVisualOutlineTransparency = 0.16,
+    selfVisualColorR = 192,
+    selfVisualColorG = 202,
+    selfVisualColorB = 224,
     selfVisualOutlineR = 242,
     selfVisualOutlineG = 247,
     selfVisualOutlineB = 255,
@@ -767,7 +767,7 @@ local XCConfig = {
     espFixedBoxHeight = 36,
     espPerspectiveScale = 1.0,
     espBoxAspect = 0.52,
-    espBoxOutline = true,
+    espBoxOutline = false,
     -- ESP Builder
     espNamePosition = "Top",
     espHealthPosition = "Left",
@@ -865,16 +865,16 @@ local XCConfig = {
     worldColorB = 255,
     -- Tracers 2.0
     bulletTracerStyle = "Neverlose",
-    bulletTracerDuration = 0.35,
-    bulletTracerWidth = 0.05,
+    bulletTracerDuration = 0.30,
+    bulletTracerWidth = 0.045,
     bulletTracerRainbow = false,
     bulletTracerGlowStrength = 0.55,
     bulletTracerCoreBrightness = 1.45,
     bulletTracerTaper = 0.82,
     bulletTracerDualGap = 0.10,
-    bulletTracerSecondaryR = 235,
-    bulletTracerSecondaryG = 245,
-    bulletTracerSecondaryB = 255,
+    bulletTracerSecondaryR = 255,
+    bulletTracerSecondaryG = 242,
+    bulletTracerSecondaryB = 247,
 
     bulletImpactEnabled = false,
     bulletImpactSize = 0.22,
@@ -985,27 +985,28 @@ end
 local XCVisualLookPresets = {
     ["NeverLose Video"] = {
         -- In-game only: deliberately does not write menu theme/palette fields.
-        espVisibleR=112, espVisibleG=178, espVisibleB=255,
-        espHiddenR=196, espHiddenG=108, espHiddenB=126,
+        espVisibleR=242, espVisibleG=245, espVisibleB=255,
+        espHiddenR=190, espHiddenG=112, espHiddenB=230,
         espHealthHighR=116, espHealthHighG=214, espHealthHighB=156,
         espHealthMidR=235, espHealthMidG=190, espHealthMidB=86,
         espHealthLowR=244, espHealthLowG=92, espHealthLowB=104,
         boxThickness=1.0, skeletonThickness=1.0,
         espTextSize=10, tagTransparency=0.88,
         espNamePosition="Top", espHealthPosition="Left", espWeaponPosition="Bottom",
-        espTextOutline=true, espBoxOutline=true,
+        espTextOutline=true, espBoxOutline=false,
         espDistanceFade=true, espFadeStart=0.68, espMinOpacity=0.22,
         weaponEspStyle="Icon", weaponEspScale=0.90,
 
-        chamsVisibleR=112, chamsVisibleG=178, chamsVisibleB=255,
-        chamsHiddenR=196, chamsHiddenG=108, chamsHiddenB=126,
-        chamsStyle="Solid", chamsFillTransparency=0.58,
-        chamsOutlineTransparency=0.32, chamsAnimationFPS=20,
+        chamsVisibleR=242, chamsVisibleG=245, chamsVisibleB=255,
+        chamsHiddenR=190, chamsHiddenG=112, chamsHiddenB=230,
+        chamsStyle="Solid", chamsFillTransparency=0.62,
+        chamsOutlineTransparency=0.18, chamsAnimationFPS=20,
+        chamsShellScale=1.006,
         chamsSoftGlowEnabled=false,
 
         selfVisualEnabled=true,
-        selfVisualFillTransparency=0.76, selfVisualOutlineTransparency=0.34,
-        selfVisualColorR=220, selfVisualColorG=229, selfVisualColorB=241,
+        selfVisualFillTransparency=0.82, selfVisualOutlineTransparency=0.16,
+        selfVisualColorR=192, selfVisualColorG=202, selfVisualColorB=224,
         selfVisualOutlineR=242, selfVisualOutlineG=247, selfVisualOutlineB=255,
 
         -- Coordinated low-overhead Fatality/Neverlose world look.
@@ -1017,23 +1018,23 @@ local XCVisualLookPresets = {
         worldColorShiftTopR=0, worldColorShiftTopG=3, worldColorShiftTopB=8,
         worldColorShiftBottomR=0, worldColorShiftBottomG=0, worldColorShiftBottomB=3,
         worldPostFXEnabled=true, worldTonePreset="Cold",
-        worldExposure=0.05, worldSaturation=-0.12,
-        worldContrast=0.14, worldPostBrightness=-0.02,
-        worldBloomEnabled=true, worldBloomIntensity=0.18,
+        worldExposure=0.02, worldSaturation=-0.20,
+        worldContrast=0.20, worldPostBrightness=-0.03,
+        worldBloomEnabled=true, worldBloomIntensity=0.14,
         worldBloomSize=18, worldBloomThreshold=1.25,
         worldDepthOfFieldEnabled=false, worldBlurEnabled=false,
         worldSunRaysEnabled=false, worldAtmosphereEnabled=false,
         removeFogEnabled=true, worldFogEnabled=false,
         mapStylePreset="Cold Minimal", mapStyleTextureMode="Soft Tint",
-        mapStyleStrength=0.35, mapStyleTextureDetail=0.82,
+        mapStyleStrength=0.24, mapStyleTextureDetail=0.88,
 
         bulletTrailEnabled=true, bulletFlashEnabled=true,
-        bulletTracerStyle="Neverlose", bulletTracerDuration=0.35,
-        bulletTracerWidth=0.05, bulletTracerRainbow=false,
-        bulletTracerGlowStrength=0.55, bulletTracerCoreBrightness=1.45,
-        bulletTracerTaper=0.82,
-        bulletTracerColorR=148, bulletTracerColorG=204, bulletTracerColorB=255,
-        bulletTracerSecondaryR=235, bulletTracerSecondaryG=245, bulletTracerSecondaryB=255,
+        bulletTracerStyle="Neverlose", bulletTracerDuration=0.30,
+        bulletTracerWidth=0.045, bulletTracerRainbow=false,
+        bulletTracerGlowStrength=0.62, bulletTracerCoreBrightness=1.58,
+        bulletTracerTaper=0.86,
+        bulletTracerColorR=255, bulletTracerColorG=82, bulletTracerColorB=108,
+        bulletTracerSecondaryR=255, bulletTracerSecondaryG=242, bulletTracerSecondaryB=247,
         bulletImpactEnabled=true, bulletImpactStyle="Glow Ring",
         bulletImpactSize=0.22, bulletImpactDuration=0.24, bulletImpactGlow=true,
 
@@ -2942,7 +2943,7 @@ local function renderXCTracerV2(group, origin, destination, width, primary, seco
             group, origin, destination, 0,
             width * 0.78,
             width * math.max(0.08, 0.78 * (1 - taper)),
-            core, hot,
+            hot, Color3.new(1, 1, 1),
             0,
             duration
         )
@@ -3104,8 +3105,8 @@ local function renderXCBulletEffects(shot, bullet)
         return
     end
 
-    local duration = math.clamp(tonumber(XCConfig.bulletTracerDuration) or 0.65, 0.05, 3)
-    local width = math.clamp(tonumber(XCConfig.bulletTracerWidth) or 0.08, 0.02, 0.5)
+    local duration = math.clamp(tonumber(XCConfig.bulletTracerDuration) or 0.30, 0.05, 3)
+    local width = math.clamp(tonumber(XCConfig.bulletTracerWidth) or 0.045, 0.02, 0.5)
 
     local primary
     local secondary
@@ -14464,8 +14465,8 @@ function renderTacticalOverlay()
                     if XCConfig.healthBarEnabled and health then
                         local hpPercent = math.clamp(health / maxHealth, 0, 1)
 
-                        local barWidth = boxHeight < 32 and 3 or 4
-                        local barGap = boxHeight < 32 and 2 or 3
+                        local barWidth = boxHeight < 32 and 2 or 3
+                        local barGap = 2
                         local healthSide = tostring(XCConfig.espHealthPosition or "Left")
                         local barX = healthSide == "Right"
                             and (boxPosX + boxWidth + barGap)
@@ -14619,6 +14620,20 @@ local XC_CHAM_STYLES = {
     Iridescent = true, ["Water Flow"] = true, Glossy = true,
 }
 
+-- Canonical body order makes the shell layer deterministic on R15. Body parts
+-- are always admitted before custom/direct extras, so the 18-part budget cannot
+-- accidentally lose a hand/foot/limb on layered avatars.
+local XC_R15_CHAM_PART_ORDER = {
+    "Head", "UpperTorso", "LowerTorso",
+    "LeftUpperArm", "LeftLowerArm", "LeftHand",
+    "RightUpperArm", "RightLowerArm", "RightHand",
+    "LeftUpperLeg", "LeftLowerLeg", "LeftFoot",
+    "RightUpperLeg", "RightLowerLeg", "RightFoot",
+}
+local XC_R6_CHAM_PART_ORDER = {
+    "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg",
+}
+
 local function xcClamp01(v)
     return math.clamp(tonumber(v) or 0, 0, 1)
 end
@@ -14644,29 +14659,45 @@ local function xcEligibleChamParts(char)
     local result = {}
     if not char then return result end
 
+    local seen = {}
     local function tryAdd(part)
         if #result >= XC_CHAM_PART_CAP then return true end
-        if part and part:IsA("BasePart")
+        if part and not seen[part] and part:IsA("BasePart")
             and part.Name ~= "HumanoidRootPart"
             and part.Transparency < 0.98
             and not part:FindFirstAncestorOfClass("Tool")
         then
+            seen[part] = true
             table.insert(result, part)
         end
         return #result >= XC_CHAM_PART_CAP
     end
 
-    -- Body parts are direct Character children on normal R6/R15 rigs. Avoid a full
-    -- GetDescendants walk every rescan; only traverse accessories when the user
-    -- explicitly asks to include them.
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local order = hum and hum.RigType == Enum.HumanoidRigType.R15
+        and XC_R15_CHAM_PART_ORDER
+        or XC_R6_CHAM_PART_ORDER
+
+    -- First take the canonical rig pieces. This is the important R15 path.
+    for _, name in ipairs(order) do
+        if tryAdd(char:FindFirstChild(name)) then return result end
+    end
+
+    -- Then admit direct custom body parts as a compatibility fallback.
     for _, child in ipairs(char:GetChildren()) do
         if child:IsA("BasePart") then
-            if tryAdd(child) then break end
-        elseif not XCConfig.chamsExcludeAccessories and child:IsA("Accessory") then
-            for _, desc in ipairs(child:GetDescendants()) do
-                if tryAdd(desc) then break end
+            if tryAdd(child) then return result end
+        end
+    end
+
+    -- Accessories are deliberately last so they can never steal the R15 body budget.
+    if not XCConfig.chamsExcludeAccessories then
+        for _, child in ipairs(char:GetChildren()) do
+            if child:IsA("Accessory") then
+                for _, desc in ipairs(child:GetDescendants()) do
+                    if tryAdd(desc) then return result end
+                end
             end
-            if #result >= XC_CHAM_PART_CAP then break end
         end
     end
 
@@ -14705,6 +14736,34 @@ local function xcStripChamClone(clone)
     end
 end
 
+local function xcChamEffectiveScale(original, baseScale)
+    baseScale = math.clamp(tonumber(baseScale) or 1.006, 1.002, 1.04)
+    local delta = baseScale - 1
+    if original and original:IsA("MeshPart") then
+        return 1 + delta * 0.45
+    end
+    if original and original.Name == "Head" then
+        return 1 + delta * 0.60
+    end
+    return baseScale
+end
+
+local function xcApplyChamShellScale(shell, original, baseScale)
+    if not shell or not original then return end
+    local effective = xcChamEffectiveScale(original, baseScale)
+    local originalMesh = original:FindFirstChildOfClass("SpecialMesh")
+    local shellMesh = shell:FindFirstChildOfClass("SpecialMesh")
+
+    if originalMesh and shellMesh then
+        if shell.Size ~= original.Size then shell.Size = original.Size end
+        local targetScale = originalMesh.Scale * effective
+        if shellMesh.Scale ~= targetScale then shellMesh.Scale = targetScale end
+    else
+        local targetSize = original.Size * effective
+        if shell.Size ~= targetSize then shell.Size = targetSize end
+    end
+end
+
 local function xcCloneChamPart(original, parent)
     if not original or not original.Parent then return nil end
 
@@ -14732,7 +14791,7 @@ local function xcCloneChamPart(original, parent)
     )
 
     clone.CFrame = original.CFrame
-    clone.Size = original.Size * scale
+    xcApplyChamShellScale(clone, original, scale)
     clone.Parent = parent
 
     local weld = Instance.new("WeldConstraint")
@@ -14823,8 +14882,7 @@ local function ensureXCChamShells(data, char)
         if entry then
             if entry.Index ~= index then changed = true end
             entry.Index = index
-            local size = original.Size * scale
-            if entry.Shell.Size ~= size then entry.Shell.Size = size end
+            xcApplyChamShellScale(entry.Shell, original, scale)
             table.insert(shells, entry)
         end
     end
@@ -14852,13 +14910,12 @@ local function getXCChamsColor(ally, isVisible)
         or xcConfigColor("chamsHidden", currentTheme.Enemy_Hidden)
 end
 
-local function syncXCChamMaterialShells(data, char, style, color, now)
-    -- FPS FIX: Solid chams already have a full Highlight fill/outline. Creating a
-    -- welded clone for every limb duplicated character geometry for no meaningful
-    -- gain and was the main GPU cost of simply enabling chams. Keep Solid entirely
-    -- Highlight-based; richer material styles still use the shell engine below.
-    if style == "Solid" then
-        if data.ChamShellFolder then destroyXCChamShells(data) end
+local function syncXCChamMaterialShells(data, char, style, color, now, surfaceVisible)
+    -- Video-style hybrid: wall visibility stays in one cheap AlwaysOnTop Highlight,
+    -- while a normal world-occluded shell gives directly visible R15 limbs the bright
+    -- white surface seen in the reference clips. Hidden targets keep no active shell.
+    if style == "Solid" and not surfaceVisible then
+        hideXCChamShells(data)
         return
     end
 
@@ -14919,9 +14976,9 @@ local function syncXCChamMaterialShells(data, char, style, color, now)
         if shell and shell.Parent and original and original.Parent then
             if style == "Solid" then
                 setXCVisualProperty(shell, "Material", Enum.Material.SmoothPlastic)
-                setXCVisualProperty(shell, "Color", color)
-                setXCVisualProperty(shell, "Reflectance", 0)
-                setXCVisualProperty(shell, "Transparency", math.clamp(0.04 + fillTransparency * 0.24, 0.03, 0.30))
+                setXCVisualProperty(shell, "Color", color:Lerp(Color3.new(1, 1, 1), 0.10))
+                setXCVisualProperty(shell, "Reflectance", 0.03)
+                setXCVisualProperty(shell, "Transparency", math.clamp(0.12 + fillTransparency * 0.30, 0.20, 0.38))
 
             elseif style == "Shaded" then
                 setXCVisualProperty(shell, "Material", metal >= 0.52 and Enum.Material.Metal or Enum.Material.SmoothPlastic)
@@ -15007,11 +15064,11 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     local fill = xcClamp01(XCConfig.chamsFillTransparency)
     local outline = xcClamp01(XCConfig.chamsOutlineTransparency)
 
-    -- One authoritative Highlight per player. Two Highlights on the same
-    -- Adornee can fight for render budget/order and Roblox has a small active
-    -- Highlight budget. The material shell remains the high-detail visible
-    -- layer; this Highlight owns reliable wall visibility.
-    syncXCChamMaterialShells(data, char, style, isVisible and visibleColor or throughColor, now or os.clock())
+    -- One wall Highlight + one ordinary visible surface shell avoids the two-Highlight
+    -- stencil conflict while still producing the white-body / colored-wall split from
+    -- the reference videos. The shell is only active when the target is directly seen.
+    local surfaceVisible = isVisible == true
+    syncXCChamMaterialShells(data, char, style, visibleColor, now or os.clock(), surfaceVisible)
 
     setXCVisualProperty(through, "DepthMode", XCConfig.chamsThroughWallsEnabled ~= false
         and Enum.HighlightDepthMode.AlwaysOnTop
@@ -15021,10 +15078,15 @@ local function applyXCChamsStyle(data, char, ally, isVisible, now)
     setXCVisualProperty(through, "OutlineColor", (style == "Glow" or style == "Glow Outline")
         and xcScaleColor(throughColor, 1.12) or throughColor)
 
-    -- Keep a readable fill even when hidden. The visible material shell adds
-    -- the richer surface style on top when the target is not occluded.
-    setXCVisualProperty(through, "FillTransparency", math.clamp(fill + 0.08, 0.18, 0.86))
-    setXCVisualProperty(through, "OutlineTransparency", math.clamp(outline + 0.02, 0.01, 0.72))
+    -- When directly visible, make the through-wall layer nearly transparent so the
+    -- normal occluded shell owns the surface. Behind cover the Highlight becomes the
+    -- stronger violet silhouette. This also makes partial R15 occlusion read cleanly.
+    local visibleThroughFill = math.clamp(fill + 0.30, 0.76, 0.94)
+    local hiddenThroughFill = math.clamp(fill + 0.02, 0.30, 0.78)
+    local visibleThroughOutline = math.clamp(outline + 0.24, 0.28, 0.70)
+    local hiddenThroughOutline = math.clamp(outline, 0.04, 0.58)
+    setXCVisualProperty(through, "FillTransparency", surfaceVisible and visibleThroughFill or hiddenThroughFill)
+    setXCVisualProperty(through, "OutlineTransparency", surfaceVisible and visibleThroughOutline or hiddenThroughOutline)
 end
 
 local function disableXCChamsForData(data, clearAdornee)
