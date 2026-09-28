@@ -515,6 +515,9 @@ local XCConfig = {
     minimumDamageEnabled = false,
     minimumDamage = 20,
     minimumDamageWall = 12,
+    -- Read-only weapon/min-damage diagnostics; never alters target selection or firing.
+    rageDiagnosticsEnabled = false,
+    rageDiagnosticsWallThickness = 1.0,
 
     bulletTrailEnabled = true,
     bulletFlashEnabled = true,
@@ -4445,6 +4448,46 @@ function XCPassesMinimumDamage(origin, targetPart, targetCharacter, properties, 
     return damage + 1e-4 >= required, damage
 end
 
+-- Read-only diagnostic model. It mirrors the existing visible/wall damage math
+-- but does not feed getRageTarget, Silent Aim, Triggerbot or any fire path.
+function XCBuildWeaponDamageDiagnostic(properties)
+    properties = type(properties) == "table" and properties or resolveXCAutoWallProperties()
+    if type(properties) ~= "table" then return nil end
+
+    local visibleDamage = XCEstimateShotDamage(
+        properties, nil, 0, {Visible = true, Reachable = true, Thickness = 0, Surfaces = 0}
+    )
+    if visibleDamage == nil then return nil end
+
+    local penetration = XCReadWeaponNumber(properties, {
+        "Penetration", "BulletPenetration", "PenetrationPower"
+    }) or tonumber(properties.Penetration) or 0
+    penetration = math.max(0, penetration)
+    local thickness = math.clamp(tonumber(XCConfig.rageDiagnosticsWallThickness) or 1.0, 0.05, 25)
+
+    local wallDamage = 0
+    local reachable = penetration > 0
+    if reachable then
+        local thicknessLoss = math.clamp((thickness / math.max(penetration, 0.001)) * 0.55, 0, 0.72)
+        local surfaceLoss = 0.055
+        wallDamage = visibleDamage * math.clamp(1 - thicknessLoss - surfaceLoss, 0.08, 1)
+    end
+
+    local visibleRequired = math.max(1, tonumber(XCConfig.minimumDamage) or 20)
+    local wallRequired = math.max(1, tonumber(XCConfig.minimumDamageWall) or 12)
+    return {
+        VisibleDamage = visibleDamage,
+        WallDamage = wallDamage,
+        Penetration = penetration,
+        WallThickness = thickness,
+        VisibleRequired = visibleRequired,
+        WallRequired = wallRequired,
+        VisiblePass = visibleDamage + 1e-4 >= visibleRequired,
+        WallPass = reachable and wallDamage + 1e-4 >= wallRequired,
+        Reachable = reachable,
+    }
+end
+
 local function castXCNativeSilentShot(origin, direction, properties)
     if not xcNativeRaycast or type(xcNativeRaycast.cast) ~= "function"
         or type(xcNativeRaycast.castThrough) ~= "function"
@@ -6170,11 +6213,16 @@ local xcCharacterInputHook = {
     AntiCharacter = nil,
     AntiStarted = nil,
     AntiLastStep = nil,
+    AntiSampleSerial = 0,
+    AntiDesyncPhase = 0,
+    AntiDesyncAccumulator = 0,
+    AntiDesyncLastSampleWall = nil,
     RandomYaw = nil,
     AntiFireUntil = 0, -- legacy field retained for reinjection compatibility
     AntiLastYaw = nil,
     AntiShotHeldYaw = nil,
-    AntiShotHoldUntil = 0,
+    AntiShotHoldUntil = 0, -- legacy time field retained for config/reinjection compatibility
+    AntiShotHoldUntilSample = 0,
     AntiWasFiring = false,
     AntiLastHealth = nil,
     AntiBruteforcePhase = 0,
@@ -6186,6 +6234,7 @@ local xcCharacterInputHook = {
     AntiRayParams = nil,
     Calls = 0,
     LastCall = 0,
+    NativeActiveUntil = 0,
     LastError = nil,
 }
 
@@ -15727,6 +15776,10 @@ function resetXCCharacterInputState()
     xcCharacterInputHook.AntiCharacter = nil
     xcCharacterInputHook.AntiStarted = nil
     xcCharacterInputHook.AntiLastStep = nil
+    xcCharacterInputHook.AntiSampleSerial = 0
+    xcCharacterInputHook.AntiDesyncPhase = 0
+    xcCharacterInputHook.AntiDesyncAccumulator = 0
+    xcCharacterInputHook.AntiDesyncLastSampleWall = nil
     xcCharacterInputHook.RandomYaw = nil
     xcCharacterInputHook.AntiComputedStep = nil
     xcCharacterInputHook.AntiComputedRandomYaw = nil
@@ -15734,6 +15787,7 @@ function resetXCCharacterInputState()
     xcCharacterInputHook.AntiLastYaw = nil
     xcCharacterInputHook.AntiShotHeldYaw = nil
     xcCharacterInputHook.AntiShotHoldUntil = 0
+    xcCharacterInputHook.AntiShotHoldUntilSample = 0
     xcCharacterInputHook.AntiWasFiring = false
     xcCharacterInputHook.AntiLastHealth = nil
     xcCharacterInputHook.AntiBruteforcePhase = 0
@@ -15742,6 +15796,7 @@ function resetXCCharacterInputState()
     xcCharacterInputHook.AntiThreatYaw = nil
     xcCharacterInputHook.AntiThreatNext = 0
     xcCharacterInputHook.AntiThreatPlayer = nil
+    xcCharacterInputHook.NativeActiveUntil = 0
 end
 
 function restoreXCCharacterInputHook()
@@ -15762,6 +15817,52 @@ XCAntiAimDesyncSequence = {1.00, -0.73, 0.39, -1.00, 0.17, 0.86, -0.48, 0.61, -0
 
 function XCWrapAntiAimYaw(yaw)
     return (yaw + math.pi) % (math.pi * 2) - math.pi
+end
+
+-- Advance desync only on actual samples. Time controls the requested rate, but
+-- a stalled frame/input stream can advance at most one pattern state per sample,
+-- preventing large elapsed-time jumps from skipping across the sequence.
+function XCAdvanceAntiAimDesyncSample(state, sampleNow)
+    sampleNow = tonumber(sampleNow) or os.clock()
+    local last = tonumber(state.AntiDesyncLastSampleWall)
+    local dt = last and math.clamp(sampleNow - last, 1 / 240, 0.05) or (1 / 60)
+    state.AntiDesyncLastSampleWall = sampleNow
+
+    local desyncSpeed = math.clamp(tonumber(XCConfig.antiAimDesyncSpeed) or 30, 8, 60)
+    local accumulator = (tonumber(state.AntiDesyncAccumulator) or 0) + dt * desyncSpeed
+    local phase = tonumber(state.AntiDesyncPhase) or 0
+    if accumulator >= 1 then
+        phase = phase + 1
+        accumulator = math.min(accumulator - 1, 1)
+    end
+    state.AntiDesyncAccumulator = accumulator
+    state.AntiDesyncPhase = phase
+    return phase
+end
+
+function XCUpdateAntiAimDiagnostics(source, state, originalYaw, sentYaw)
+    if not XCFeatureState then return end
+    local diag = XCFeatureState.AntiAimDiagnostics
+    if type(diag) ~= "table" then
+        diag = {}
+        XCFeatureState.AntiAimDiagnostics = diag
+    end
+    local now = os.clock()
+    diag.Active = XCConfig.antiAimEnabled == true
+    diag.Source = tostring(source or "unknown")
+    diag.HookReady = xcCharacterInputHook.Ready == true
+    diag.HookHealthy = xcCharacterInputHook.Ready == true
+        and now < (tonumber(xcCharacterInputHook.NativeActiveUntil) or 0)
+    diag.NativeCalls = tonumber(xcCharacterInputHook.Calls) or 0
+    diag.SampleSerial = tonumber(state and state.AntiSampleSerial) or 0
+    diag.OriginalYaw = tonumber(originalYaw)
+    diag.SentYaw = tonumber(sentYaw)
+    if type(diag.OriginalYaw) == "number" and type(diag.SentYaw) == "number" then
+        diag.DeltaYaw = XCWrapAntiAimYaw(diag.SentYaw - diag.OriginalYaw)
+    else
+        diag.DeltaYaw = nil
+    end
+    diag.LastUpdate = now
 end
 
 function XCReadAntiAimHealth(model)
@@ -15887,9 +15988,8 @@ local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, root
     end
 
     if mode == "Desync" then
-        local desyncSpeed = math.clamp(tonumber(XCConfig.antiAimDesyncSpeed) or 30, 8, 60)
         local desyncRange = math.clamp(tonumber(XCConfig.antiAimDesyncRange) or 112, 20, 180)
-        local desyncStep = math.floor(elapsed * desyncSpeed)
+        local desyncStep = XCAdvanceAntiAimDesyncSample(state, wallNow or os.clock())
         local phaseBias = (state.AntiBruteforcePhase or 0) * 3
         local sequence = XCAntiAimDesyncSequence
         local value = sequence[((desyncStep + phaseBias) % #sequence) + 1]
@@ -15995,8 +16095,13 @@ function setupXCCharacterInputHook()
 
         xcCharacterInputHook.Wrapper = function(character, context, ...)
             local input = original(character, context, ...)
+            local callWallNow = os.clock()
             xcCharacterInputHook.Calls = (xcCharacterInputHook.Calls or 0) + 1
-            xcCharacterInputHook.LastCall = os.clock()
+            xcCharacterInputHook.LastCall = callWallNow
+            -- Hysteresis prevents RenderStepped fallback from flapping on brief
+            -- input gaps. If this wrapper is genuinely bypassed/cached, the
+            -- deadline expires and the compatibility path takes over.
+            xcCharacterInputHook.NativeActiveUntil = callWallNow + 0.85
             if type(input) ~= "table" or not xcSessionActive() then return input end
             local success, modified = pcall(function()
                 local model = player.Character
@@ -16064,7 +16169,10 @@ function setupXCCharacterInputHook()
 
                 -- Shot-safe never exposes real yaw. On the first firing sample
                 -- hold the previous fake/desync yaw through the weapon transition.
-                local wallNow = os.clock()
+                local wallNow = callWallNow
+                if XCConfig.antiAimEnabled then
+                    xcCharacterInputHook.AntiSampleSerial = (xcCharacterInputHook.AntiSampleSerial or 0) + 1
+                end
                 local weaponIsFiring = false
                 if skinData and type(skinData.GetWeapon) == "function" then
                     pcall(function()
@@ -16076,6 +16184,7 @@ function setupXCCharacterInputHook()
                     and type(xcCharacterInputHook.AntiLastYaw) == "number" then
                     xcCharacterInputHook.AntiShotHeldYaw = xcCharacterInputHook.AntiLastYaw
                     xcCharacterInputHook.AntiShotHoldUntil = wallNow + 0.035
+                    xcCharacterInputHook.AntiShotHoldUntilSample = (xcCharacterInputHook.AntiSampleSerial or 0) + 2
                 end
                 xcCharacterInputHook.AntiWasFiring = weaponIsFiring
 
@@ -16086,6 +16195,9 @@ function setupXCCharacterInputHook()
                         xcCharacterInputHook.AntiLastStep = nil
                         xcCharacterInputHook.RandomYaw = nil
                         xcCharacterInputHook.AntiLastHealth = XCReadAntiAimHealth(model)
+                        xcCharacterInputHook.AntiDesyncPhase = 0
+                        xcCharacterInputHook.AntiDesyncAccumulator = 0
+                        xcCharacterInputHook.AntiDesyncLastSampleWall = nil
                         xcCharacterInputHook.AntiBruteforcePhase = 0
                         xcCharacterInputHook.AntiBruteforceSide = 1
                         xcCharacterInputHook.AntiDamageSwitchUntil = 0
@@ -16104,7 +16216,8 @@ function setupXCCharacterInputHook()
                     local yaw = resolveXCAntiAimYaw(
                         mode, originalYaw, elapsed, step, xcCharacterInputHook, rootPart, wallNow
                     )
-                    if XCConfig.antiAimShotSafeEnabled and wallNow < (xcCharacterInputHook.AntiShotHoldUntil or 0)
+                    if XCConfig.antiAimShotSafeEnabled
+                        and (xcCharacterInputHook.AntiSampleSerial or 0) <= (xcCharacterInputHook.AntiShotHoldUntilSample or 0)
                         and type(xcCharacterInputHook.AntiShotHeldYaw) == "number" then
                         yaw = xcCharacterInputHook.AntiShotHeldYaw
                     end
@@ -16118,13 +16231,17 @@ function setupXCCharacterInputHook()
                     result.LookYaw = yaw
                     xcCharacterInputHook.AntiLastStep = step
                     xcCharacterInputHook.AntiLastYaw = yaw
+                    XCUpdateAntiAimDiagnostics("native", xcCharacterInputHook, originalYaw, yaw)
                 elseif not XCConfig.antiAimEnabled then
                     xcCharacterInputHook.AntiCharacter = nil
                     xcCharacterInputHook.AntiStarted = nil
                     xcCharacterInputHook.AntiLastYaw = nil
                     xcCharacterInputHook.AntiShotHeldYaw = nil
                     xcCharacterInputHook.AntiShotHoldUntil = 0
+                    xcCharacterInputHook.AntiShotHoldUntilSample = 0
                     xcCharacterInputHook.AntiWasFiring = false
+                    xcCharacterInputHook.AntiDesyncAccumulator = 0
+                    xcCharacterInputHook.AntiDesyncLastSampleWall = nil
                 end
                 return result
             end)
@@ -16159,6 +16276,13 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         XCFeatureState.AntiBruteforceSide = 1
         XCFeatureState.AntiThreatNext = 0
         XCFeatureState.AntiThreatYaw = nil
+        XCFeatureState.AntiSampleSerial = 0
+        XCFeatureState.AntiDesyncPhase = 0
+        XCFeatureState.AntiDesyncAccumulator = 0
+        XCFeatureState.AntiDesyncLastSampleWall = nil
+        if type(XCFeatureState.AntiAimDiagnostics) == "table" then
+            XCFeatureState.AntiAimDiagnostics.Active = false
+        end
         if hum and savedAutoRotate ~= nil then
             hum.AutoRotate = savedAutoRotate
             savedAutoRotate = nil
@@ -16168,11 +16292,20 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
 
     -- The native Blox Strike input hook is authoritative. The HRP rotation
     -- below remains only as a compatibility fallback for other experiences.
-    -- Some executors allow replacing SampleInput but the game continues to
-    -- call a cached closure. Treat the hook as authoritative only when it was
-    -- actually invoked recently; otherwise use the compatible HRP fallback.
-    if xcCharacterInputHook.Ready
-        and os.clock() - (xcCharacterInputHook.LastCall or 0) < 0.5 then return end
+    -- Use a short hysteresis deadline rather than a raw LastCall threshold so
+    -- transient input gaps cannot make native and fallback paths flap.
+    local renderNow = os.clock()
+    local nativeStillAuthoritative = xcCharacterInputHook.Ready
+        and renderNow < (tonumber(xcCharacterInputHook.NativeActiveUntil) or 0)
+    if nativeStillAuthoritative then
+        -- If fallback owned AutoRotate before native input recovered, restore it
+        -- before leaving this frame; otherwise recovery could leave it disabled.
+        if hum and savedAutoRotate ~= nil then
+            hum.AutoRotate = savedAutoRotate
+            savedAutoRotate = nil
+        end
+        return
+    end
 
     if not hrp or not hum or hum.Health <= 0 then return end
 
@@ -16184,7 +16317,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local activeCamera = Workspace.CurrentCamera or camera
     if not activeCamera then return end
     local _, cameraYaw = activeCamera.CFrame:ToOrientation()
-    local now = os.clock()
+    local now = renderNow
+    XCFeatureState.AntiSampleSerial = (XCFeatureState.AntiSampleSerial or 0) + 1
     XCUpdateAntiAimDamageState(char, now, XCFeatureState)
     XCFeatureState.antiAimStarted = XCFeatureState.antiAimStarted or now
     local elapsed = now - XCFeatureState.antiAimStarted
@@ -16195,6 +16329,7 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local targetYaw = resolveXCAntiAimYaw(mode, cameraYaw, elapsed, step, XCFeatureState, hrp, now)
     targetYaw = XCWrapAntiAimYaw(targetYaw)
     hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, targetYaw, 0)
+    XCUpdateAntiAimDiagnostics("fallback", XCFeatureState, cameraYaw, targetYaw)
 end))
 
 --// XC stage-2 wrapper | Keeps the main chunk below Luau's 200-local limit.
@@ -17527,6 +17662,8 @@ function buildXCUI()
         minimumDamageEnabled = "Rejects shots whose estimated current-weapon damage is below the selected threshold.",
         minimumDamage = "Minimum estimated damage for a direct visible shot.",
         minimumDamageWall = "Minimum estimated damage after a penetrated wall path.",
+        rageDiagnosticsEnabled = "Shows a read-only current-weapon damage/penetration simulation. It never changes target selection or firing.",
+        rageDiagnosticsWallThickness = "Wall thickness used only by the read-only penetration damage simulation.",
         killEffectEnabled = "Spawns the selected local visual effect after a recently registered local hit is confirmed as a kill.",
         killEffectStyle = "Selects the local kill-effect style. Headshot Crown is currently a manual style; the kill tracker does not yet expose hit-bone metadata.",
         killEffectRainbow = "Cycles kill-effect colors through the hue spectrum where supported.",
@@ -17539,7 +17676,7 @@ function buildXCUI()
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
         fireRateEnabled = "Adjusts the active supported weapon's fire interval. WAIT means no supported active weapon; FALL means a legacy table fallback.",
-        fireRate = "Requested seconds between shots. The effective minimum is 0.03 s or 40% of the original interval, whichever is greater.",
+        fireRate = "Requested seconds between shots. The effective client-side minimum is 0.01 s; the game server may still enforce its own cadence.",
         menuGlassEnabled = "Applies translucent layered navigation and static glass highlights without full-screen blur.",
         menuGlassStrength = "Controls the transparency and highlight strength of the menu glass surfaces.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
@@ -20258,6 +20395,32 @@ function buildXCUI()
     addSlider(R, "Visible min damage", "minimumDamage", 1, 100, 1, " HP")
     addSlider(R, "Wall min damage", "minimumDamageWall", 1, 100, 1, " HP")
 
+    section(R, "Damage diagnostics")
+    toggle(R, "Damage diagnostics", "rageDiagnosticsEnabled")
+    addSlider(R, "Test wall thickness", "rageDiagnosticsWallThickness", 0.05, 10, 0.05, " st")
+    local rageDiagnosticNote = addNote(R, "Damage diagnostics: off")
+    task.spawn(function()
+        while xcSessionActive() and rageDiagnosticNote and rageDiagnosticNote.Parent do
+            if XCConfig.rageDiagnosticsEnabled then
+                local data = XCBuildWeaponDamageDiagnostic(resolveXCAutoWallProperties())
+                if data then
+                    local visibleState = data.VisiblePass and "PASS" or "FAIL"
+                    local wallState = data.WallPass and "PASS" or "FAIL"
+                    rageDiagnosticNote.Text = string.format(
+                        "BODY %.1f | PEN %.2f | WALL %.2f st -> %.1f | MIN %.0f/%.0f | V %s / W %s",
+                        data.VisibleDamage, data.Penetration, data.WallThickness, data.WallDamage,
+                        data.VisibleRequired, data.WallRequired, visibleState, wallState
+                    )
+                else
+                    rageDiagnosticNote.Text = "Damage diagnostics: no supported equipped weapon"
+                end
+            else
+                rageDiagnosticNote.Text = "Damage diagnostics: off"
+            end
+            task.wait(0.20) -- 5 Hz keeps the panel cheap; combat code is untouched.
+        end
+    end)
+
     section(R, "Weapon assistance")
     toggle(R, "No recoil", "noRecoilEnabled")
     toggle(R, "No spread", "noSpreadEnabled")
@@ -21398,9 +21561,8 @@ local function applyXCNativeFireRate()
         xcFireRateWeaponRecords[weapon] = record
     end
 
-    local requested = math.max(tonumber(XCConfig.fireRate) or 0.03, 0.01)
-    local originalRate = tonumber(record.OriginalFireRate) or requested
-    local stableRate = math.max(requested, 0.03, originalRate * 0.40)
+    local requested = math.max(tonumber(XCConfig.fireRate) or 0.01, 0.01)
+    local stableRate = requested
     if record.Rate == stableRate
         and rawget(record.Properties, "FireRate") == stableRate then
         return true
@@ -21486,15 +21648,11 @@ function restoreXCFireRates()
 end
 
 function applyXCFireRate()
-    local requested = math.max(tonumber(XCConfig.fireRate) or 0.03, 0.01)
+    local requested = math.max(tonumber(XCConfig.fireRate) or 0.01, 0.01)
     for _, obj in ipairs(xcFireRateObjects) do
         pcall(function()
             if type(setreadonly) == "function" then setreadonly(obj, false) end
-            local original = tonumber(xcFireRateOriginal[obj]) or requested
-            -- Limit acceleration to a stable interval. Extremely small values
-            -- flood ShootWeapon and are rejected after the first few rounds.
-            local stableMinimum = math.max(0.03, original * 0.40)
-            rawset(obj, "FireRate", math.max(requested, stableMinimum))
+            rawset(obj, "FireRate", requested)
             if type(setreadonly) == "function" and xcFireRateReadonly[obj] ~= nil then
                 setreadonly(obj, xcFireRateReadonly[obj])
             end
@@ -21538,8 +21696,8 @@ end)
 
 -- Native hold-to-fire for semi-automatic weapons. This replaces the old
 -- 10 ms polling loop with the engine heartbeat, avoiding ~100 wakeups/sec.
--- The supported fire-rate floor is 30 ms, so one heartbeat check is precise
--- enough while also being automatically cleaned up with the other connections.
+-- Fire-rate can be requested down to 10 ms. Heartbeat still gates actual
+-- semi-auto dispatch cadence to the engine frame rate and cleans up with connections.
 do
     local heldLast = false
     local heldWeapon = nil
@@ -21561,14 +21719,14 @@ do
         end
         if weapon ~= heldWeapon or not heldLast then
             heldWeapon, heldLast = weapon, true
-            nextShot = os.clock() + math.max(tonumber(record.Rate) or 0.08, 0.03)
+            nextShot = os.clock() + math.max(tonumber(record.Rate) or 0.01, 0.01)
             return
         end
 
         local now = os.clock()
         if now >= nextShot and type(weapon.shoot) == "function"
             and not weapon.IsShooting and not weapon.IsBurstShooting then
-            nextShot = now + math.max(tonumber(record.Rate) or 0.08, 0.03)
+            nextShot = now + math.max(tonumber(record.Rate) or 0.01, 0.01)
             pcall(function() weapon:shoot() end)
         end
     end))
