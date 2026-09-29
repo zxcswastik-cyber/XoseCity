@@ -11960,7 +11960,10 @@ function XCHudGlass.surface(frame,radius)
     frame.BackgroundTransparency=0.30
     frame.BorderSizePixel=0
     Instance.new("UICorner",frame).CornerRadius=UDim.new(0,radius or 18)
-    XCLensSurface(frame,radius or 18)
+    local lens=XCLensSurface(frame,radius or 18)
+    lens.DiagonalReflection.Visible=false
+    lens.InnerContour.Visible=false
+    lens.BeveledEdge:FindFirstChildOfClass("UIStroke").Thickness=1
     local stroke=Instance.new("UIStroke",frame)
     stroke.Transparency=1
     return stroke
@@ -11981,22 +11984,22 @@ function XCHudGlass.card(name,title,width,height)
     local stroke=XCHudGlass.surface(frame,18)
     local scale=Instance.new("UIScale",frame)
     local heading=XCHudGlass.label(frame,10,true)
-    heading.Position=UDim2.fromOffset(16,12); heading.Size=UDim2.new(1,-32,0,14)
+    heading.Position=UDim2.fromOffset(16,10); heading.Size=UDim2.new(1,-32,0,14)
     heading.Text=title; heading.TextColor3=Color3.fromRGB(155,163,168)
-    local text=XCHudGlass.label(frame,16,true)
-    text.Position=UDim2.fromOffset(16,30); text.Size=UDim2.new(1,-32,0,25)
+    local text=XCHudGlass.label(frame,14,true)
+    text.Position=UDim2.fromOffset(16,28); text.Size=UDim2.new(1,-32,0,25)
     local detail=XCHudGlass.label(frame,10,false)
-    detail.Position=UDim2.fromOffset(16,58); detail.Size=UDim2.new(1,-32,0,15)
+    detail.Position=UDim2.fromOffset(16,52); detail.Size=UDim2.new(1,-32,0,15)
     detail.TextColor3=Color3.fromRGB(169,177,181)
     local data={Frame=frame,Stroke=stroke,Scale=scale,Text=text,Detail=detail,Heading=heading,Width=width,Height=height}
     XCHudGlass.Cards[name]=data
     return data
 end
 watermarkGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
-XCHudGlass.Session=XCHudGlass.card("Session","SESSION",206,86)
+XCHudGlass.Session=XCHudGlass.card("Session","SESSION",206,78)
 XCHudGlass.Features=XCHudGlass.card("Features","ENABLED",206,78)
-XCHudGlass.Player=XCHudGlass.card("Player","PLAYER",230,90)
-XCHudGlass.Performance=XCHudGlass.card("Performance","PERFORMANCE",230,86)
+XCHudGlass.Player=XCHudGlass.card("Player","PLAYER",230,84)
+XCHudGlass.Performance=XCHudGlass.card("Performance","PERFORMANCE",230,78)
 XCHudGlass.Features.Rows={}
 for i=1,8 do
     local row=XCHudGlass.label(XCHudGlass.Features.Frame,11,false)
@@ -12027,14 +12030,14 @@ wmCard:FindFirstChild("WatermarkGlass"):Destroy()
 wmStroke:Destroy()
 wmTitle.Visible=false;wmMetrics.Visible=false;wmDot.Visible=false;wmDivider.Visible=false
 XCHudGlass.Watermark={Frame=wmCard,Scale=wmCard:FindFirstChild("WatermarkScale"),
-    Stroke=XCHudGlass.surface(wmCard,22),Width=360,Height=44}
+    Stroke=XCHudGlass.surface(wmCard,18),Width=360,Height=36}
 XCHudGlass.Brand=XCHudGlass.label(wmCard,12,true)
-XCHudGlass.Brand.Position=UDim2.fromOffset(18,0);XCHudGlass.Brand.Size=UDim2.fromOffset(80,44)
+XCHudGlass.Brand.Position=UDim2.fromOffset(18,0);XCHudGlass.Brand.Size=UDim2.fromOffset(80,36)
 XCHudGlass.TextService=game:GetService("TextService")
 XCHudGlass.Metrics={}
 for _,entry in ipairs({{"FPS",72},{"Ping",76},{"Clock",68},{"Session",88},{"Players",76},{"Name",130}}) do
     local label=XCHudGlass.label(wmCard,11,false)
-    label.Size=UDim2.fromOffset(entry[2],44)
+    label.Size=UDim2.fromOffset(entry[2],36)
     local divider=Instance.new("Frame",wmCard)
     divider.Size=UDim2.fromOffset(1,12);divider.BackgroundColor3=Color3.fromRGB(165,175,178)
     divider.BackgroundTransparency=0.75;divider.BorderSizePixel=0
@@ -12055,26 +12058,45 @@ function XCHudGlass.renderWatermark(now)
     XCHudGlass.Brand.Text=brand
     if XCHudGlass.BrandValue~=brand then
         XCHudGlass.BrandValue=brand
-        XCHudGlass.BrandWidth=math.clamp(XCHudGlass.TextService:GetTextSize(brand,12,Enum.Font.GothamBold,Vector2.new(300,44)).X,34,180)
+        XCHudGlass.BrandWidth=math.clamp(XCHudGlass.TextService:GetTextSize(brand,12,Enum.Font.GothamBold,Vector2.new(300,36)).X,34,180)
     end
-    XCHudGlass.Brand.Size=UDim2.fromOffset(XCHudGlass.BrandWidth,44)
+    XCHudGlass.Brand.Size=UDim2.fromOffset(XCHudGlass.BrandWidth,36)
     local x=18+XCHudGlass.BrandWidth+16
     for _,entry in ipairs(XCHudGlass.metricValues(now)) do
         local slot=XCHudGlass.Metrics[entry[1]]
         slot.Label.Visible=entry[2]==true;slot.Divider.Visible=slot.Label.Visible
         if slot.Label.Visible then
-            slot.Divider.Position=UDim2.fromOffset(x,16)
+            slot.Divider.Position=UDim2.fromOffset(x,12)
             slot.Label.Position=UDim2.fromOffset(x+13,0)
             slot.Label.Text=entry[3]
             x=x+slot.Width
         end
     end
     XCHudGlass.Watermark.Width=x+6
-    wmCard.Size=UDim2.fromOffset(x+6,44)
+    wmCard.Size=UDim2.fromOffset(x+6,36)
 end
+-- HUD decoration never consumes input. Only the panel itself becomes interactive in edit mode.
+function XCHudGlass.inputMode(data,editing)
+    if data.Editing==editing then return end
+    data.Editing=editing
+    local frame=data.Frame
+    frame.Active=editing
+    frame.Selectable=false
+    frame.Interactable=editing
+    -- Older clients may not expose InputSink; Active remains the compatibility path.
+    pcall(function() frame.InputSink=editing and Enum.InputSink.All or Enum.InputSink.None end)
+    if not editing and XCHudGlass.Drag and XCHudGlass.Drag.Data==data then XCHudGlass.Drag=nil end
+end
+XCConfig.hudEditLayout=false
 function XCHudGlass.installDrag(data, prefix)
     local frame=data.Frame
-    frame.Active=true
+    for _,child in ipairs(frame:GetDescendants()) do
+        if child:IsA("GuiObject") then
+            child.Active=false;child.Interactable=false;child.Selectable=false
+            pcall(function() child.InputSink=Enum.InputSink.None end)
+        end
+    end
+    XCHudGlass.inputMode(data,false)
     table.insert(connections,frame.InputBegan:Connect(function(input)
         if not XCConfig.hudEditLayout then return end
         if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
@@ -12103,6 +12125,7 @@ table.insert(connections,UserInputService.InputEnded:Connect(function(input)
 end))
 function XCHudGlass.place(data,prefix,enabled,viewport)
     local frame=data.Frame
+    XCHudGlass.inputMode(data,XCConfig.hudEditLayout==true)
     frame.Visible=enabled or XCConfig.hudEditLayout==true
     if not frame.Visible then return end
     local wanted=prefix=="hudWatermark" and XCConfig.watermarkScale or XCConfig.hudScale
@@ -12114,7 +12137,7 @@ function XCHudGlass.place(data,prefix,enabled,viewport)
         math.clamp(tonumber(XCConfig[prefix.."X"]) or 0,0,1)*math.max(1,viewport.X-size.X),
         math.clamp(tonumber(XCConfig[prefix.."Y"]) or 0,0,1)*math.max(1,viewport.Y-size.Y),size.X,size.Y,viewport)
     frame.Position=UDim2.fromOffset(x,y)
-    XCLensIntensity(frame:FindFirstChild("OpticalGlass"),prefix=="hudWatermark" and XCConfig.watermarkGlassStrength or 0.85)
+    XCLensIntensity(frame:FindFirstChild("OpticalGlass"),prefix=="hudWatermark" and (tonumber(XCConfig.watermarkGlassStrength) or 0.86)*0.60 or 0.48)
     local opacity=prefix=="hudWatermark" and XCConfig.watermarkOpacity or XCConfig.hudOpacity
     frame.BackgroundTransparency=1-math.clamp(tonumber(opacity) or 0.82,0.35,1)
     data.Stroke.Transparency=XCConfig.hudEditLayout and 0.45 or 1
@@ -12156,7 +12179,7 @@ function XCHudGlass.update()
     local speed=velocity and math.sqrt(velocity.X*velocity.X+velocity.Z*velocity.Z) or 0
     XCHudGlass.Player.Text.Text=hum and string.format("%d / %d HP",health,maximum) or "Respawning"
     XCHudGlass.Player.Detail.Text=string.format("Movement  %.0f studs/s",speed)
-    XCHudGlass.Player.Detail.Position=UDim2.fromOffset(16,55)
+    XCHudGlass.Player.Detail.Position=UDim2.fromOffset(16,50)
     XCHudGlass.HealthFill.Size=UDim2.fromScale(math.clamp(health/maximum,0,1),1)
     XCHudGlass.HealthFill.BackgroundColor3=Color3.fromRGB(242,116,132):Lerp(Color3.fromRGB(218,235,235),math.clamp(health/maximum,0,1))
     XCHudGlass.Performance.Text.Text=string.format("%d fps  /  %s ms",XCHudGlass.FPS,XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--")
@@ -21211,7 +21234,7 @@ function buildXCUI()
     toggle(R,"Edit layout / drag panels","hudEditLayout")
     addSlider(R,"Widget size","hudScale",0.70,1.50,0.05,"x")
     addSlider(R,"Glass opacity","hudOpacity",0.35,1,0.05,"")
-    addNote(R,"Enable Edit layout to reveal and drag every panel. Mouse and touch are supported. Save your profile to keep positions.")
+    addNote(R,"HUD clicks pass through to Roblox. Enable Edit layout only to drag panels; turn it off when finished. Save your profile to keep positions.")
     addButton(R,"RESET HUD POSITIONS",function()
         for _,prefix in ipairs({"hudWatermark","hudSession","hudFeatures","hudPlayer","hudPerformance"}) do
             XCConfig[prefix.."X"]=XCConfigDefaults[prefix.."X"]
