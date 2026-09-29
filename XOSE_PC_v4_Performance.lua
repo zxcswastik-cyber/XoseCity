@@ -1,3 +1,54 @@
+-- Neutral optical rim shared by access, menu and HUD. No external textures.
+local function XCLensSurface(surface, radius)
+    local old=surface:FindFirstChild("OpticalGlass")
+    if old then old:Destroy() end
+    local root=Instance.new("Frame",surface)
+    root.Name="OpticalGlass"; root.Size=UDim2.fromScale(1,1)
+    root.BackgroundTransparency=1; root.BorderSizePixel=0; root.ZIndex=0
+    root.Active=false
+    local function layer(name,inset,color,alpha)
+        local f=Instance.new("Frame",root)
+        f.Name=name; f.Position=UDim2.fromOffset(inset,inset)
+        f.Size=UDim2.new(1,-inset*2,1,-inset*2)
+        f.BackgroundColor3=color; f.BackgroundTransparency=alpha
+        f.BorderSizePixel=0; f.ZIndex=0; f.Active=false
+        Instance.new("UICorner",f).CornerRadius=UDim.new(0,math.max(2,radius-inset))
+        return f
+    end
+    local function gradient(parent,rotation,stops)
+        local g=Instance.new("UIGradient",parent); g.Rotation=rotation
+        local points={}
+        for _,p in ipairs(stops) do points[#points+1]=NumberSequenceKeypoint.new(p[1],p[2]) end
+        g.Transparency=NumberSequence.new(points)
+        return g
+    end
+    local shell=layer("OuterLens",0,Color3.fromRGB(255,255,255),0.80)
+    gradient(shell,90,{{0,0.12},{0.10,0.74},{0.28,0.98},{0.70,1},{0.93,0.84},{1,0.14}})
+    local edge=Instance.new("UIStroke",shell)
+    edge.Color=Color3.fromRGB(244,248,250); edge.Thickness=1.2; edge.Transparency=0.12
+    gradient(edge,52,{{0,0.02},{0.20,0.38},{0.45,0.91},{0.70,0.75},{0.91,0.12},{1,0.35}})
+    local bevel=layer("BeveledEdge",2,Color3.new(1,1,1),1)
+    local rim=Instance.new("UIStroke",bevel)
+    rim.Thickness=2.5; rim.Color=Color3.new(1,1,1); rim.Transparency=0.68
+    gradient(rim,90,{{0,0.05},{0.12,0.50},{0.38,1},{0.73,1},{1,0.30}})
+    local reflection=layer("DiagonalReflection",3,Color3.new(1,1,1),0.91)
+    gradient(reflection,65,{{0,0.15},{0.46,0.50},{0.49,0.62},{0.50,1},{1,1}})
+    local inset=layer("InnerContour",5,Color3.new(0,0,0),1)
+    local dark=Instance.new("UIStroke",inset)
+    dark.Color=Color3.new(0,0,0); dark.Transparency=0.48; dark.Thickness=1
+    gradient(dark,90,{{0,1},{0.58,1},{1,0.05}})
+    return root
+end
+
+local function XCLensIntensity(root,value)
+    if not root then return end
+    value=math.clamp(tonumber(value) or 0.8,0,1)
+    root.OuterLens.BackgroundTransparency=0.92-value*0.18
+    root.OuterLens:FindFirstChildOfClass("UIStroke").Transparency=0.50-value*0.40
+    root.BeveledEdge:FindFirstChildOfClass("UIStroke").Transparency=0.86-value*0.36
+    root.DiagonalReflection.BackgroundTransparency=0.97-value*0.08
+end
+
 --// XOSE PC fixed_v2 | optimized visual workloads | 2026-09-28
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
@@ -232,18 +283,19 @@ do
     footer.Parent = card
 
     -- Glass access card: all changes below are presentation and input affordances.
-    ACCENT = Color3.fromRGB(143, 163, 255)
+    ACCENT = Color3.fromRGB(221, 231, 235)
     ACCENT_HOVER = Color3.fromRGB(176, 193, 255)
-    BG, PANEL, SIDEBAR = Color3.fromRGB(15, 20, 34), Color3.fromRGB(28, 35, 54), Color3.fromRGB(22, 29, 47)
+    BG, PANEL, SIDEBAR = Color3.fromRGB(23, 24, 26), Color3.fromRGB(28, 35, 54), Color3.fromRGB(29, 30, 32)
     card.Size = UDim2.fromOffset(480, 382)
     card.BackgroundColor3 = BG
-    card.BackgroundTransparency = 0.14
-    cardCorner.CornerRadius = UDim.new(0, 20)
+    card.BackgroundTransparency = 0.25
+    cardCorner.CornerRadius = UDim.new(0, 24)
+    XCLensSurface(card,24)
     cardStroke.Color = Color3.fromRGB(168, 188, 255)
-    cardStroke.Transparency = 0.62
+    cardStroke.Transparency = 1
     shade.BackgroundTransparency = 0.48
     local glassGradient = Instance.new("UIGradient", card)
-    glassGradient.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(171, 184, 222))
+    glassGradient.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(195, 199, 202))
     glassGradient.Rotation = 65
     local accessScale = Instance.new("UIScale", card)
     local function fitAccess()
@@ -358,7 +410,7 @@ do
     linkBox.Text = ""
     linkBox.Visible = false
     local entrance = TweenService:Create(card,TweenInfo.new(0.28,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),
-        {BackgroundTransparency=0.14})
+        {BackgroundTransparency=0.25})
     card.BackgroundTransparency = 0.75
     entrance:Play()
 
@@ -581,7 +633,7 @@ local XCConfig = {
     menuTransparency = 0,
     menuGlassEnabled = true,
     menuGlassStrength = 0.78,
-    menuAccentR = 143, menuAccentG = 163, menuAccentB = 255,
+    menuAccentR = 221, menuAccentG = 231, menuAccentB = 235,
     menuBackgroundR = 15, menuBackgroundG = 20, menuBackgroundB = 34,
     menuPanelR = 22, menuPanelG = 29, menuPanelB = 47,
     menuTextR = 238, menuTextG = 243, menuTextB = 255,
@@ -1306,14 +1358,14 @@ if sharedXCEnv then
 end
 
 -- One-time presentation migration for the user-selected Glass Studio design.
-if not sharedXCEnv or sharedXCEnv.XOSE_GLASS_STUDIO_V1 ~= true then
+if not sharedXCEnv or sharedXCEnv.XOSE_OPTICAL_GLASS_V2 ~= true then
     XCConfig.menuThemePreset = "Glass Studio"
-    XCConfig.menuBackgroundR, XCConfig.menuBackgroundG, XCConfig.menuBackgroundB = 15, 20, 34
-    XCConfig.menuPanelR, XCConfig.menuPanelG, XCConfig.menuPanelB = 22, 29, 47
-    XCConfig.menuAccentR, XCConfig.menuAccentG, XCConfig.menuAccentB = 143, 163, 255
+    XCConfig.menuBackgroundR, XCConfig.menuBackgroundG, XCConfig.menuBackgroundB = 23, 24, 26
+    XCConfig.menuPanelR, XCConfig.menuPanelG, XCConfig.menuPanelB = 29, 30, 32
+    XCConfig.menuAccentR, XCConfig.menuAccentG, XCConfig.menuAccentB = 221, 231, 235
     XCConfig.menuTextR, XCConfig.menuTextG, XCConfig.menuTextB = 238, 243, 255
     XCConfig.menuGlassEnabled, XCConfig.menuGlassStrength = true, 0.78
-    if sharedXCEnv then sharedXCEnv.XOSE_GLASS_STUDIO_V1 = true end
+    if sharedXCEnv then sharedXCEnv.XOSE_OPTICAL_GLASS_V2 = true end
 end
 
 -- A reinjection must start from safe toggle defaults. Numeric/user settings
@@ -11903,63 +11955,123 @@ function XCHudGlass.clampPosition(x, y, width, height, viewport)
     return math.clamp(x, 8, math.max(8, viewport.X-width-8)),
         math.clamp(y, 8, math.max(8, viewport.Y-height-8))
 end
-function XCHudGlass.surface(frame)
-    frame.BackgroundColor3 = Color3.fromRGB(17, 23, 39)
-    frame.BackgroundTransparency = 0.20
-    frame.BorderSizePixel = 0
-    Instance.new("UICorner",frame).CornerRadius = UDim.new(0,12)
-    local stroke = Instance.new("UIStroke",frame)
-    stroke.Color = Color3.fromRGB(160,180,240)
-    stroke.Transparency = 0.66
-    local sheen = Instance.new("UIGradient",frame)
-    sheen.Rotation = 65
-    sheen.Color = ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(182,195,228))
+function XCHudGlass.surface(frame,radius)
+    frame.BackgroundColor3=Color3.fromRGB(24,25,27)
+    frame.BackgroundTransparency=0.30
+    frame.BorderSizePixel=0
+    Instance.new("UICorner",frame).CornerRadius=UDim.new(0,radius or 18)
+    XCLensSurface(frame,radius or 18)
+    local stroke=Instance.new("UIStroke",frame)
+    stroke.Transparency=1
     return stroke
 end
-function XCHudGlass.card(name, title, width, height)
+function XCHudGlass.label(parent,size,bold)
+    local label=Instance.new("TextLabel",parent)
+    label.BackgroundTransparency=1; label.BorderSizePixel=0
+    label.Font=bold and Enum.Font.GothamBold or Enum.Font.GothamMedium
+    label.TextSize=size; label.TextColor3=Color3.fromRGB(236,240,242)
+    label.TextXAlignment=Enum.TextXAlignment.Left
+    label.TextTruncate=Enum.TextTruncate.AtEnd; label.Text=""
+    label.ZIndex=2
+    return label
+end
+function XCHudGlass.card(name,title,width,height)
     local frame=Instance.new("Frame",watermarkGui)
-    frame.Name=name
-    frame.Size=UDim2.fromOffset(width,height)
-    frame.Visible=false
-    frame.Active=true
-    local stroke=XCHudGlass.surface(frame)
+    frame.Name=name; frame.Size=UDim2.fromOffset(width,height); frame.Visible=false
+    local stroke=XCHudGlass.surface(frame,18)
     local scale=Instance.new("UIScale",frame)
-    local heading=Instance.new("TextLabel",frame)
-    heading.Position=UDim2.fromOffset(14,9); heading.Size=UDim2.new(1,-28,0,16)
-    heading.BackgroundTransparency=1; heading.Text=title
-    heading.Font=Enum.Font.GothamBold; heading.TextSize=10
-    heading.TextColor3=Color3.fromRGB(169,185,226)
-    heading.TextXAlignment=Enum.TextXAlignment.Left
-    local text=Instance.new("TextLabel",frame)
-    text.Position=UDim2.fromOffset(14,31); text.Size=UDim2.new(1,-28,1,-40)
-    text.BackgroundTransparency=1; text.TextColor3=Color3.fromRGB(241,245,255)
-    text.Font=Enum.Font.GothamMedium; text.TextSize=12; text.Text=""
-    text.TextWrapped=true; text.TextXAlignment=Enum.TextXAlignment.Left
-    text.TextYAlignment=Enum.TextYAlignment.Top
-    local data={Frame=frame,Stroke=stroke,Scale=scale,Text=text,Heading=heading}
+    local heading=XCHudGlass.label(frame,10,true)
+    heading.Position=UDim2.fromOffset(16,12); heading.Size=UDim2.new(1,-32,0,14)
+    heading.Text=title; heading.TextColor3=Color3.fromRGB(155,163,168)
+    local text=XCHudGlass.label(frame,16,true)
+    text.Position=UDim2.fromOffset(16,30); text.Size=UDim2.new(1,-32,0,25)
+    local detail=XCHudGlass.label(frame,10,false)
+    detail.Position=UDim2.fromOffset(16,58); detail.Size=UDim2.new(1,-32,0,15)
+    detail.TextColor3=Color3.fromRGB(169,177,181)
+    local data={Frame=frame,Stroke=stroke,Scale=scale,Text=text,Detail=detail,Heading=heading,Width=width,Height=height}
     XCHudGlass.Cards[name]=data
     return data
 end
-XCHudGlass.Session=XCHudGlass.card("Session","SESSION",224,100)
-XCHudGlass.Features=XCHudGlass.card("Features","ACTIVE FEATURES",204,164)
-XCHudGlass.Player=XCHudGlass.card("Player","LOCAL PLAYER",250,86)
-XCHudGlass.Performance=XCHudGlass.card("Performance","PERFORMANCE",224,96)
+watermarkGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+XCHudGlass.Session=XCHudGlass.card("Session","SESSION",206,86)
+XCHudGlass.Features=XCHudGlass.card("Features","ENABLED",206,78)
+XCHudGlass.Player=XCHudGlass.card("Player","PLAYER",230,90)
+XCHudGlass.Performance=XCHudGlass.card("Performance","PERFORMANCE",230,86)
+XCHudGlass.Features.Rows={}
+for i=1,8 do
+    local row=XCHudGlass.label(XCHudGlass.Features.Frame,11,false)
+    row.Position=UDim2.fromOffset(16,32+(i-1)*23); row.Size=UDim2.new(1,-45,0,20)
+    local dot=Instance.new("Frame",row)
+    dot.Position=UDim2.new(1,10,0.5,-2);dot.Size=UDim2.fromOffset(4,4)
+    dot.BorderSizePixel=0;dot.BackgroundColor3=Color3.fromRGB(213,230,230)
+    Instance.new("UICorner",dot).CornerRadius=UDim.new(1,0)
+    XCHudGlass.Features.Rows[i]=row
+end
+XCHudGlass.Features.Text.Visible=false
+XCHudGlass.Features.Detail.Visible=false
 do
-    local bg=Instance.new("Frame",XCHudGlass.Player.Frame)
-    bg.Position=UDim2.new(0,14,1,-15); bg.Size=UDim2.new(1,-28,0,4)
-    bg.BackgroundColor3=Color3.fromRGB(54,66,91); bg.BorderSizePixel=0
-    Instance.new("UICorner",bg).CornerRadius=UDim.new(1,0)
-    local fill=Instance.new("Frame",bg)
-    fill.Size=UDim2.fromScale(1,1); fill.BackgroundColor3=Color3.fromRGB(131,219,193); fill.BorderSizePixel=0
+    local track=Instance.new("Frame",XCHudGlass.Player.Frame)
+    track.Position=UDim2.new(0,16,1,-14);track.Size=UDim2.new(1,-32,0,3)
+    track.BackgroundColor3=Color3.fromRGB(70,76,80);track.BorderSizePixel=0
+    Instance.new("UICorner",track).CornerRadius=UDim.new(1,0)
+    local fill=Instance.new("Frame",track)
+    fill.Size=UDim2.fromScale(1,1);fill.BackgroundColor3=Color3.fromRGB(221,235,235);fill.BorderSizePixel=0
     Instance.new("UICorner",fill).CornerRadius=UDim.new(1,0)
     XCHudGlass.HealthFill=fill
 end
-XCHudGlass.Watermark={Frame=wmCard,Scale=wmCard:FindFirstChild("WatermarkScale"),Stroke=wmStroke}
-wmCard:FindFirstChildOfClass("UICorner").CornerRadius=UDim.new(0,10)
-wmCard.Size=UDim2.new(0,0,0,32)
-wmPad.PaddingLeft,wmPad.PaddingRight=UDim.new(0,12),UDim.new(0,12)
-wmLayout.Padding=UDim.new(0,8)
-wmCard:FindFirstChild("WatermarkGlass").Transparency=NumberSequence.new(0)
+-- Remove automatic layout: optical decorations must never participate in sizing.
+wmLayout:Destroy(); wmPad:Destroy()
+wmCard.AutomaticSize=Enum.AutomaticSize.None
+wmCard:FindFirstChildOfClass("UICorner"):Destroy()
+wmCard:FindFirstChild("WatermarkGlass"):Destroy()
+wmStroke:Destroy()
+wmTitle.Visible=false;wmMetrics.Visible=false;wmDot.Visible=false;wmDivider.Visible=false
+XCHudGlass.Watermark={Frame=wmCard,Scale=wmCard:FindFirstChild("WatermarkScale"),
+    Stroke=XCHudGlass.surface(wmCard,22),Width=360,Height=44}
+XCHudGlass.Brand=XCHudGlass.label(wmCard,12,true)
+XCHudGlass.Brand.Position=UDim2.fromOffset(18,0);XCHudGlass.Brand.Size=UDim2.fromOffset(80,44)
+XCHudGlass.TextService=game:GetService("TextService")
+XCHudGlass.Metrics={}
+for _,entry in ipairs({{"FPS",72},{"Ping",76},{"Clock",68},{"Session",88},{"Players",76},{"Name",130}}) do
+    local label=XCHudGlass.label(wmCard,11,false)
+    label.Size=UDim2.fromOffset(entry[2],44)
+    local divider=Instance.new("Frame",wmCard)
+    divider.Size=UDim2.fromOffset(1,12);divider.BackgroundColor3=Color3.fromRGB(165,175,178)
+    divider.BackgroundTransparency=0.75;divider.BorderSizePixel=0
+    XCHudGlass.Metrics[entry[1]]={Label=label,Divider=divider,Width=entry[2]}
+end
+function XCHudGlass.metricValues(now)
+    return {
+        {"FPS",XCConfig.watermarkShowFPS,tostring(XCHudGlass.FPS).." fps"},
+        {"Ping",XCConfig.watermarkShowPing,(XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--").." ms"},
+        {"Clock",XCConfig.watermarkShowClock,os.date("%H:%M")},
+        {"Session",XCConfig.watermarkShowSession,XCHudGlass.duration(now-XCHudGlass.Started)},
+        {"Players",XCConfig.watermarkShowPlayers,tostring(#Players:GetPlayers()).." online"},
+        {"Name",XCConfig.watermarkShowName,XCConfig.streamerModeEnabled and "PLAYER" or player.DisplayName},
+    }
+end
+function XCHudGlass.renderWatermark(now)
+    local brand=tostring(XCConfig.watermarkText or "XOSE"):sub(1,28)
+    XCHudGlass.Brand.Text=brand
+    if XCHudGlass.BrandValue~=brand then
+        XCHudGlass.BrandValue=brand
+        XCHudGlass.BrandWidth=math.clamp(XCHudGlass.TextService:GetTextSize(brand,12,Enum.Font.GothamBold,Vector2.new(300,44)).X,34,180)
+    end
+    XCHudGlass.Brand.Size=UDim2.fromOffset(XCHudGlass.BrandWidth,44)
+    local x=18+XCHudGlass.BrandWidth+16
+    for _,entry in ipairs(XCHudGlass.metricValues(now)) do
+        local slot=XCHudGlass.Metrics[entry[1]]
+        slot.Label.Visible=entry[2]==true;slot.Divider.Visible=slot.Label.Visible
+        if slot.Label.Visible then
+            slot.Divider.Position=UDim2.fromOffset(x,16)
+            slot.Label.Position=UDim2.fromOffset(x+13,0)
+            slot.Label.Text=entry[3]
+            x=x+slot.Width
+        end
+    end
+    XCHudGlass.Watermark.Width=x+6
+    wmCard.Size=UDim2.fromOffset(x+6,44)
+end
 function XCHudGlass.installDrag(data, prefix)
     local frame=data.Frame
     frame.Active=true
@@ -11994,52 +12106,47 @@ function XCHudGlass.place(data,prefix,enabled,viewport)
     frame.Visible=enabled or XCConfig.hudEditLayout==true
     if not frame.Visible then return end
     local wanted=prefix=="hudWatermark" and XCConfig.watermarkScale or XCConfig.hudScale
-    data.Scale.Scale=math.min(math.clamp(tonumber(wanted) or 1,0.7,1.8),
-        math.max(0.25,(viewport.X-16)/math.max(1,frame.AbsoluteSize.X/data.Scale.Scale)),
-        math.max(0.25,(viewport.Y-16)/math.max(1,frame.AbsoluteSize.Y/data.Scale.Scale)))
-    local size=frame.AbsoluteSize
+    local scale=math.min(math.clamp(tonumber(wanted) or 1,0.7,1.8),
+        math.max(0.1,(viewport.X-16)/data.Width),math.max(0.1,(viewport.Y-16)/data.Height))
+    data.Scale.Scale=scale
+    local size=Vector2.new(data.Width*scale,data.Height*scale)
     local x,y=XCHudGlass.clampPosition(
         math.clamp(tonumber(XCConfig[prefix.."X"]) or 0,0,1)*math.max(1,viewport.X-size.X),
         math.clamp(tonumber(XCConfig[prefix.."Y"]) or 0,0,1)*math.max(1,viewport.Y-size.Y),size.X,size.Y,viewport)
     frame.Position=UDim2.fromOffset(x,y)
+    XCLensIntensity(frame:FindFirstChild("OpticalGlass"),prefix=="hudWatermark" and XCConfig.watermarkGlassStrength or 0.85)
     local opacity=prefix=="hudWatermark" and XCConfig.watermarkOpacity or XCConfig.hudOpacity
     frame.BackgroundTransparency=1-math.clamp(tonumber(opacity) or 0.82,0.35,1)
-    data.Stroke.Transparency=XCConfig.hudEditLayout and 0.12 or 0.66
-    if prefix=="hudWatermark" and not XCConfig.hudEditLayout then
-        data.Stroke.Transparency=0.78-math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86,0,1)*0.28
-    end
-    data.Stroke.Color=xcConfigColor("menuAccent",Color3.fromRGB(143,163,255))
+    data.Stroke.Transparency=XCConfig.hudEditLayout and 0.45 or 1
+    data.Stroke.Color=Color3.fromRGB(220,233,238)
+
 end
 function XCHudGlass.update()
     local cam=Workspace.CurrentCamera or camera
     if not cam then return end
     local viewport=cam.ViewportSize
     local elapsed=XCHudGlass.duration(os.clock()-XCHudGlass.Started)
-    local metrics={}
-    if XCConfig.watermarkShowFPS then table.insert(metrics,tostring(XCHudGlass.FPS).." FPS") end
-    if XCConfig.watermarkShowPing then table.insert(metrics,(XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--").." MS") end
-    if XCConfig.watermarkShowClock then table.insert(metrics,os.date("%H:%M")) end
-    if XCConfig.watermarkShowSession then table.insert(metrics,elapsed) end
-    if XCConfig.watermarkShowPlayers then table.insert(metrics,#Players:GetPlayers().." PLAYERS") end
-    wmMetrics.Text=table.concat(metrics,"  /  ")
-    wmMetrics.Visible=#metrics>0; wmDivider.Visible=#metrics>0
-    local user=XCConfig.streamerModeEnabled and "PLAYER" or player.DisplayName
-    wmTitle.Text=tostring(XCConfig.watermarkText or "XOSE"):sub(1,28)
-    if XCConfig.watermarkShowName then wmTitle.Text=wmTitle.Text.." / "..tostring(user):sub(1,20) end
+    XCHudGlass.renderWatermark(os.clock())
     XCHudGlass.place(XCHudGlass.Watermark,"hudWatermark",XCConfig.watermarkEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Session,"hudSession",XCConfig.hudSessionEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Features,"hudFeatures",XCConfig.hudFeaturesEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Player,"hudPlayer",XCConfig.hudPlayerEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Performance,"hudPerformance",XCConfig.hudPerformanceEnabled,viewport)
-    XCHudGlass.Session.Text.Text=elapsed.."  online\n"..#Players:GetPlayers().." players  /  "..os.date("%H:%M:%S")
+    XCHudGlass.Session.Text.Text=elapsed
+    XCHudGlass.Session.Detail.Text=tostring(#Players:GetPlayers()).." players  /  "..os.date("%H:%M")
     local active={}
     for _,entry in ipairs({{"silentAimEnabled","Silent aim"},{"aimbotEnabled","Aim tracking"},
         {"rageBotEnabled","Ragebot"},{"boxEspEnabled","Box ESP"},{"grenadeEspEnabled","Grenade ESP"},
         {"thirdPersonEnabled","Third person"},{"bunnyHopEnabled","Bunny hop"},{"noRecoilEnabled","No recoil"}}) do
-        if XCConfig[entry[1]]==true then table.insert(active,entry[2].."  [ON]") end
+        if XCConfig[entry[1]]==true then table.insert(active,entry[2]) end
     end
-    XCHudGlass.Features.Text.Text=#active>0 and table.concat(active,"\n") or "No active features\nMenu: "..tostring(XCConfig.menuKey)
-    XCHudGlass.Features.Frame.Size=UDim2.fromOffset(204,math.max(86,46+#active*17))
+    for i,row in ipairs(XCHudGlass.Features.Rows) do
+        row.Visible=active[i]~=nil or (#active==0 and i==1)
+        row.Text=active[i] or "No active features"
+        row:FindFirstChildOfClass("Frame").Visible=active[i]~=nil
+    end
+    XCHudGlass.Features.Height=math.max(70,44+#active*23)
+    XCHudGlass.Features.Frame.Size=UDim2.fromOffset(206,XCHudGlass.Features.Height)
     local char=player.Character
     local hum=char and char:FindFirstChildOfClass("Humanoid")
     local root=char and char:FindFirstChild("HumanoidRootPart")
@@ -12047,12 +12154,13 @@ function XCHudGlass.update()
     local maximum=hum and math.max(1,hum.MaxHealth) or 100
     local velocity=root and root.AssemblyLinearVelocity
     local speed=velocity and math.sqrt(velocity.X*velocity.X+velocity.Z*velocity.Z) or 0
-    XCHudGlass.Player.Text.Text=hum and string.format("%d / %d HP    %.0f studs/s",health,maximum,speed) or "Waiting for respawn..."
+    XCHudGlass.Player.Text.Text=hum and string.format("%d / %d HP",health,maximum) or "Respawning"
+    XCHudGlass.Player.Detail.Text=string.format("Movement  %.0f studs/s",speed)
+    XCHudGlass.Player.Detail.Position=UDim2.fromOffset(16,55)
     XCHudGlass.HealthFill.Size=UDim2.fromScale(math.clamp(health/maximum,0,1),1)
-    XCHudGlass.HealthFill.BackgroundColor3=Color3.fromRGB(242,116,132):Lerp(Color3.fromRGB(131,219,193),math.clamp(health/maximum,0,1))
-    XCHudGlass.Performance.Text.Text=string.format("%d FPS   /   %s ms\n%.1f ms estimated frame time",
-        XCHudGlass.FPS,XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--",
-        XCHudGlass.FPS>0 and 1000/XCHudGlass.FPS or 0)
+    XCHudGlass.HealthFill.BackgroundColor3=Color3.fromRGB(242,116,132):Lerp(Color3.fromRGB(218,235,235),math.clamp(health/maximum,0,1))
+    XCHudGlass.Performance.Text.Text=string.format("%d fps  /  %s ms",XCHudGlass.FPS,XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--")
+    XCHudGlass.Performance.Detail.Text=XCHudGlass.FPS>0 and string.format("Frame estimate  %.1f ms",1000/XCHudGlass.FPS) or "Collecting samples"
 end
 
 local fpsCounter = 0
@@ -15497,11 +15605,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
                 end
             end)
         end
-        local parts = {}
-        if XCConfig.watermarkShowFPS then table.insert(parts, string.format("%d FPS", currentFps)) end
-        if XCConfig.watermarkShowPing then table.insert(parts, (pingVal and string.format("%d MS", pingVal) or "-- MS")) end
-        wmMetrics.Text = table.concat(parts, "   ")
-        XCHudGlass.FPS, XCHudGlass.Ping = currentFps, pingVal
+        XCHudGlass.FPS = currentFps
+        if pingVal ~= nil then XCHudGlass.Ping, XCHudGlass.PingAt = pingVal, os.clock() end
+        if XCHudGlass.PingAt and os.clock()-XCHudGlass.PingAt > 5 then XCHudGlass.Ping=nil end
         fpsCounter = 0
         lastFpsUpdate = nowTick
     end
@@ -15510,28 +15616,6 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     interfaceRefreshAccumulator = interfaceRefreshAccumulator + (dt)
     if interfaceRefreshAccumulator >= 0.1 then
         interfaceRefreshAccumulator = 0
-        wmCard.Visible = XCConfig.watermarkEnabled
-        wmTitle.Text = XCConfig.watermarkText or "XOSE"
-        if XCConfig.watermarkShowName then
-            wmTitle.Text = (XCConfig.watermarkText or "XOSE") .. "  |  " .. player.Name
-        end
-        wmMetrics.Visible = XCConfig.watermarkShowFPS or XCConfig.watermarkShowPing
-        wmDivider.Visible = wmMetrics.Visible
-
-        local watermarkScale = wmCard:FindFirstChild("WatermarkScale")
-        if watermarkScale and watermarkScale:IsA("UIScale") then
-            watermarkScale.Scale = math.clamp(tonumber(XCConfig.watermarkScale) or 1, 0.70, 1.80)
-        end
-        local watermarkGlass = math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86, 0, 1)
-        local watermarkOpacity = math.clamp(tonumber(XCConfig.watermarkOpacity) or 0.88, 0.35, 1)
-        local hudAccent = rgb(XCConfig.espVisibleR, XCConfig.espVisibleG, XCConfig.espVisibleB)
-        wmCard.BackgroundColor3 = Color3.fromRGB(9, 11, 15)
-        wmCard.BackgroundTransparency = math.clamp((1 - watermarkOpacity) + watermarkGlass * 0.06, 0.08, 0.52)
-        wmStroke.Color = hudAccent:Lerp(Color3.fromRGB(210, 224, 242), 0.45)
-        wmStroke.Transparency = math.clamp(0.78 - watermarkGlass * 0.28, 0.38, 0.78)
-        wmDot.BackgroundColor3 = hudAccent
-        wmTitle.TextColor3 = Color3.fromRGB(235, 240, 248)
-        wmMetrics.TextColor3 = Color3.fromRGB(186, 201, 231)
         XCHudGlass.update()
 
         if fovFrame then
@@ -17520,7 +17604,7 @@ function buildXCUI()
     main.BorderColor3 = C.Border
     main.BorderSizePixel = 0
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 16)
+    mainCorner.CornerRadius = UDim.new(0, 24)
     mainCorner.Parent = main
     main.Active = true
     main.Parent = screenGui
@@ -17529,20 +17613,7 @@ function buildXCUI()
     mainStroke.Color = C.Black
     mainStroke.Thickness = 1
     mainStroke.Parent = main
-    do
-        local glow = Instance.new("Frame", main)
-        glow.Name = "GlassHalo"
-        glow.Position = UDim2.fromOffset(-4,-4)
-        glow.Size = UDim2.new(1,8,1,8)
-        glow.BackgroundTransparency = 1
-        glow.ZIndex = 0
-        Instance.new("UICorner",glow).CornerRadius = UDim.new(0,20)
-        local edge = Instance.new("UIStroke",glow)
-        edge.Name = "GlowEdge"
-        edge.Thickness = 8
-        edge.Color = C.Lime
-        edge.Transparency = 0.94
-    end
+    XCLensSurface(main,24)
 
     -- Static layered highlights: no per-frame blur or viewport captures.
     local glassSurfaces = {}
@@ -17561,11 +17632,10 @@ function buildXCUI()
         local enabled = XCConfig.menuGlassEnabled == true
         local strength = XCConfig.menuGlassStrength
         local base = XCConfig.menuTransparency
-        local halo = main:FindFirstChild("GlassHalo")
-        if halo then
-            halo.Visible = enabled and (tonumber(XCConfig.menuGlowStrength) or 0) > 0
-            halo.GlowEdge.Color = C.Lime
-            halo.GlowEdge.Transparency = 1 - math.clamp(tonumber(XCConfig.menuGlowStrength) or 0.65,0,1)*0.12
+        local optical=main:FindFirstChild("OpticalGlass")
+        if optical then
+            optical.Visible=enabled
+            XCLensIntensity(optical,(tonumber(strength) or 0.8)*(0.5+0.5*(tonumber(XCConfig.menuGlowStrength) or 0.65)))
         end
         for _, entry in ipairs(glassSurfaces) do
             local role = entry.role
@@ -17584,7 +17654,7 @@ function buildXCUI()
             end
             if entry.stroke then
                 entry.stroke.Color = enabled and C.White or (role == "main" and C.Black or C.Border)
-                entry.stroke.Transparency = enabled and (role == "main" and 0.58 or 0.82) or 0
+                entry.stroke.Transparency = enabled and (role == "main" and 1 or 0.82) or 0
                 entry.stroke.Thickness = role == "main" and 1.3 or 1
                 entry.rim.Enabled = enabled
                 if enabled then
@@ -21170,7 +21240,7 @@ function buildXCUI()
     task.wait()
     L, R = columns("Settings", "Interface", "Advanced settings")
     local menuPresets={
-        ["Glass Studio"]={15,20,34,22,29,47,143,163,255,238,243,255},
+        ["Glass Studio"]={23,24,26,29,30,32,221,231,235,238,243,255},
         ["Liquid Glass"]={16,17,26,25,26,38,126,139,255,238,239,249},
         ["NeverLose"]={10,17,25,7,12,19,65,180,235,230,240,250},
         ["Video Blue"]={10,17,25,7,12,19,89,115,255,230,240,250},
