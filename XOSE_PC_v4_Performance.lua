@@ -231,6 +231,138 @@ do
     footer.TextXAlignment = Enum.TextXAlignment.Left
     footer.Parent = card
 
+    -- Glass access card: all changes below are presentation and input affordances.
+    ACCENT = Color3.fromRGB(143, 163, 255)
+    ACCENT_HOVER = Color3.fromRGB(176, 193, 255)
+    BG, PANEL, SIDEBAR = Color3.fromRGB(15, 20, 34), Color3.fromRGB(28, 35, 54), Color3.fromRGB(22, 29, 47)
+    card.Size = UDim2.fromOffset(480, 382)
+    card.BackgroundColor3 = BG
+    card.BackgroundTransparency = 0.14
+    cardCorner.CornerRadius = UDim.new(0, 20)
+    cardStroke.Color = Color3.fromRGB(168, 188, 255)
+    cardStroke.Transparency = 0.62
+    shade.BackgroundTransparency = 0.48
+    local glassGradient = Instance.new("UIGradient", card)
+    glassGradient.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(171, 184, 222))
+    glassGradient.Rotation = 65
+    local accessScale = Instance.new("UIScale", card)
+    local function fitAccess()
+        local width, height = shade.AbsoluteSize.X, shade.AbsoluteSize.Y
+        if width > 0 and height > 0 then
+            accessScale.Scale = math.min(1, (width-24)/480, (height-24)/382)
+        end
+    end
+    local resizeAccess = shade:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitAccess)
+    authGui.Destroying:Connect(function() resizeAccess:Disconnect() end)
+    task.defer(fitAccess)
+    accentBar.Size = UDim2.new(1, -48, 0, 2)
+    accentBar.Position = UDim2.fromOffset(24, 1)
+    accentBar.BackgroundColor3 = ACCENT
+    local accentGradient = Instance.new("UIGradient", accentBar)
+    accentGradient.Color = ColorSequence.new(ACCENT, Color3.fromRGB(113, 222, 237))
+    brand.Position = UDim2.fromOffset(28, 24)
+    brand.Size = UDim2.new(1, -108, 0, 34)
+    brand.TextSize = 28
+    brand.Text = "XOSE / ACCESS"
+    xAccent.Visible = false
+    subtitle.Position = UDim2.fromOffset(28, 63)
+    subtitle.Size = UDim2.new(1, -56, 0, 38)
+    subtitle.Text = "Your workspace. Your settings.\nEnter a valid access key to continue."
+    subtitle.TextWrapped = true
+    subtitle.TextSize = 12
+    field.Position = UDim2.fromOffset(28, 121)
+    field.Size = UDim2.new(1, -56, 0, 50)
+    field.BackgroundColor3 = PANEL
+    field.BackgroundTransparency = 0.22
+    fieldCorner.CornerRadius = UDim.new(0, 12)
+    fieldStroke.Color = ACCENT
+    fieldStroke.Transparency = 0.70
+    keyBox.Size = UDim2.new(1, -88, 1, 0)
+    keyBox.TextSize = 14
+    keyBox.TextTransparency = 1
+    local mask = Instance.new("TextLabel", field)
+    mask.Position, mask.Size = keyBox.Position, keyBox.Size
+    mask.BackgroundTransparency = 1
+    mask.TextColor3, mask.Font, mask.TextSize = TEXT, Enum.Font.GothamMedium, 14
+    mask.TextXAlignment = Enum.TextXAlignment.Left
+    mask.TextTruncate = Enum.TextTruncate.AtEnd
+    local keyVisible = false
+    local function refreshMask()
+        mask.Text = keyBox.Text == "" and "" or string.rep("*", math.min(#keyBox.Text, 42))
+        mask.Visible = not keyVisible and keyBox.Text ~= ""
+        keyBox.TextTransparency = (keyVisible or keyBox.Text == "") and 0 or 1
+    end
+    keyBox:GetPropertyChangedSignal("Text"):Connect(refreshMask)
+    refreshMask()
+    local function utility(label, parent, position, size)
+        local button = Instance.new("TextButton", parent)
+        button.Position, button.Size = position, size
+        button.BackgroundColor3 = SIDEBAR
+        button.BackgroundTransparency = 0.22
+        button.BorderSizePixel = 0
+        button.Font, button.TextSize, button.TextColor3 = Enum.Font.GothamBold, 10, TEXT
+        button.AutoButtonColor = false
+        button.Text = label
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+        return button
+    end
+    local revealKey = utility("SHOW", field, UDim2.new(1,-68,0,8), UDim2.fromOffset(60,34))
+    revealKey.Activated:Connect(function()
+        keyVisible = not keyVisible
+        revealKey.Text = keyVisible and "HIDE" or "SHOW"
+        refreshMask()
+    end)
+    local pasteKey = utility("PASTE", card, UDim2.fromOffset(28,180), UDim2.fromOffset(72,28))
+    local clearKey = utility("CLEAR", card, UDim2.fromOffset(108,180), UDim2.fromOffset(72,28))
+    local retryAccess = utility("RECONNECT", card, UDim2.new(1,-138,0,180), UDim2.fromOffset(110,28))
+    local closeAccess = utility("X", card, UDim2.new(1,-56,0,25), UDim2.fromOffset(28,28))
+    pasteKey.Activated:Connect(function()
+        local reader = type(getclipboard) == "function" and getclipboard or nil
+        if not reader then status.Text = "Paste with Ctrl+V or your device keyboard."; return end
+        local ok, text = pcall(reader)
+        if ok and type(text) == "string" then keyBox.Text = text else status.Text = "Clipboard unavailable. Paste manually." end
+    end)
+    clearKey.Activated:Connect(function() keyBox.Text = ""; keyBox:CaptureFocus() end)
+    keyBox.Focused:Connect(function()
+        TweenService:Create(fieldStroke,TweenInfo.new(0.16),{Transparency=0.08}):Play()
+    end)
+    keyBox.FocusLost:Connect(function()
+        TweenService:Create(fieldStroke,TweenInfo.new(0.2),{Transparency=0.70}):Play()
+    end)
+    status.Position = UDim2.fromOffset(28, 219)
+    status.Size = UDim2.new(1, -56, 0, 42)
+    status.TextWrapped = true
+    status.TextTruncate = Enum.TextTruncate.None
+    status.TextSize = 12
+    buttons.Position = UDim2.fromOffset(28, 273)
+    buttons.Size = UDim2.new(1, -56, 0, 46)
+    getKey.BackgroundColor3 = SIDEBAR
+    unlock.BackgroundColor3 = ACCENT
+    unlock.TextColor3 = Color3.fromRGB(14, 20, 38)
+    getKeyCorner.CornerRadius, unlockCorner.CornerRadius = UDim.new(0,12), UDim.new(0,12)
+    footer.Position = UDim2.fromOffset(28, 342)
+    footer.Size = UDim2.new(1, -56, 0, 16)
+    footer.Text = "SESSION ACCESS  /  Key is kept in memory only"
+    local accessProgress = Instance.new("Frame", card)
+    accessProgress.Name = "AccessProgress"
+    accessProgress.Position = UDim2.new(0,28,0,330)
+    accessProgress.Size = UDim2.new(0,0,0,2)
+    accessProgress.BackgroundColor3 = ACCENT
+    accessProgress.BorderSizePixel = 0
+    local linkBox = Instance.new("TextBox", card)
+    linkBox.Position, linkBox.Size = footer.Position, footer.Size
+    linkBox.BackgroundTransparency = 1
+    linkBox.Font, linkBox.TextSize, linkBox.TextColor3 = Enum.Font.Code, 10, TEXT
+    linkBox.ClearTextOnFocus = false
+    linkBox.TextEditable = false
+    linkBox.Text = ""
+    linkBox.Visible = false
+    local entrance = TweenService:Create(card,TweenInfo.new(0.28,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),
+        {BackgroundTransparency=0.14})
+    card.BackgroundTransparency = 0.75
+    entrance:Play()
+
+
     local function tweenButton(button, color)
         pcall(function()
             TweenService:Create(button, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
@@ -247,19 +379,32 @@ do
     local authEvent = Instance.new("BindableEvent")
     local validating = false
     local PUSL = nil
+    local authFinished, authResult = false, false
+    local function completeAuth(ok)
+        if authFinished then return end
+        authFinished, authResult = true, ok
+        authEvent:Fire(ok)
+    end
+    authGui.Destroying:Connect(function() completeAuth(false) end)
+    closeAccess.Activated:Connect(function() completeAuth(false) end)
 
     local function setStatus(message, color)
         status.Text = tostring(message or "")
         status.TextColor3 = color or MUTED
+        TweenService:Create(accessProgress,TweenInfo.new(0.22),{
+            Size=UDim2.new(color==SUCCESS and 1 or (validating and 0.65 or 0.14),color==SUCCESS and -56 or 0,0,2),
+            BackgroundColor3=color or ACCENT
+        }):Play()
     end
 
     local function finish(ok, result, key)
+        if authFinished or not authGui.Parent then return end
         if ok then
             env.XOSE_AUTH_KEY = key
             env.XOSE_PREMIUM = result and result.isPremium == true or false
             setStatus("Access granted. Loading XOSE...", SUCCESS)
             task.wait(0.16)
-            authEvent:Fire(true)
+            if not authFinished and authGui.Parent then completeAuth(true) end
         end
     end
 
@@ -279,6 +424,7 @@ do
             local ok, result = pcall(function()
                 return PUSL.validate(key)
             end)
+            if authFinished or not authGui.Parent then return end
             if ok and type(result) == "table" and result.success == true then
                 finish(true, result, key)
                 return
@@ -286,7 +432,8 @@ do
             validating = false
             unlock.Text = "UNLOCK XOSE"
             unlock.Active = true
-            setStatus("Key rejected. Check it and try again.", ERROR)
+            setStatus(ok and "Key rejected. Check the key or request a new one."
+                or "Verification service did not respond. Try again.", ERROR)
         end)
     end
 
@@ -296,6 +443,7 @@ do
             return
         end
         local ok, url = pcall(function() return PUSL.getKeyUrl() end)
+        if authFinished or not authGui.Parent then return end
         if not ok or type(url) ~= "string" or url == "" then
             setStatus("Could not create a key link.", ERROR)
             return
@@ -310,7 +458,10 @@ do
             setStatus("Key link copied to clipboard.", SUCCESS)
         else
             setStatus("Clipboard is unavailable in this executor.", ERROR)
-            pcall(function() print("[XOSE] Key URL:", url) end)
+            linkBox.Text = url
+            linkBox.Visible = true
+            footer.Visible = false
+            setStatus("Select the link below and copy it manually.", MUTED)
         end
     end)
 
@@ -321,34 +472,43 @@ do
         if enterPressed then validateKey(keyBox.Text) end
     end)
 
-    local initOk, initResult = pcall(function()
-        local library = loadstring(game:HttpGet("https://secure.pandauth.com/pv4/lib"))()
-        if not library or type(library.configure) ~= "function" or type(library.validate) ~= "function" then
-            error("authorization library unavailable")
-        end
-        library.configure({ serviceId = "xosecity" })
-        return library
-    end)
-
-    if not initOk or not initResult then
-        setStatus("XOSE access service failed to initialize.", ERROR)
-        warn("[XOSE] Authorization service failed to initialize.")
-        return
+    local initializing = false
+    local function initializeAccess()
+        if initializing or validating or not authGui.Parent then return end
+        initializing = true
+        PUSL = nil
+        setStatus("Connecting to access service...", MUTED)
+        retryAccess.Text = "CONNECTING"
+        task.spawn(function()
+            local initOk, initResult = pcall(function()
+                local library = loadstring(game:HttpGet("https://secure.pandauth.com/pv4/lib"))()
+                if not library or type(library.configure) ~= "function" or type(library.validate) ~= "function" then
+                    error("authorization library unavailable")
+                end
+                library.configure({ serviceId = "xosecity" })
+                return library
+            end)
+            if authFinished or not authGui.Parent then return end
+            initializing = false
+            retryAccess.Text = "RECONNECT"
+            if not initOk or not initResult then
+                setStatus("Service unavailable. Reconnect or close and try later.", ERROR)
+                return
+            end
+            PUSL = initResult
+            setStatus("Ready. Enter your key to continue.", MUTED)
+            local cachedKey = type(env.XOSE_AUTH_KEY) == "string" and env.XOSE_AUTH_KEY or nil
+            if cachedKey and cachedKey ~= "" then keyBox.Text = cachedKey; validateKey(cachedKey) end
+        end)
     end
+    retryAccess.Activated:Connect(initializeAccess)
+    initializeAccess()
 
-    PUSL = initResult
-    setStatus("Enter your key to continue.", MUTED)
-
-    local cachedKey = type(env.XOSE_AUTH_KEY) == "string" and env.XOSE_AUTH_KEY or nil
-    if cachedKey and cachedKey ~= "" then
-        keyBox.Text = cachedKey
-        validateKey(cachedKey)
-    end
-
-    local authenticated = authEvent.Event:Wait()
+    local authenticated = authResult
+    if not authFinished then authenticated = authEvent.Event:Wait() end
     authEvent:Destroy()
-    if not authenticated then return end
     pcall(function() authGui:Destroy() end)
+    if not authenticated then return end
     print("[XOSE] Authenticated. Premium:", env.XOSE_PREMIUM == true)
 end
 --// END XOSE ACCESS GATEWAY ---------------------------------------------------
@@ -416,15 +576,15 @@ local XCConfig = {
     customHandsYaw = 0,
     customHandsRoll = 0,
     uiScale = 1.0,
-    menuThemePreset = "Gamesense",
+    menuThemePreset = "Glass Studio",
     visualLookPreset = "Custom",
     menuTransparency = 0,
     menuGlassEnabled = true,
-    menuGlassStrength = 0.58,
-    menuAccentR = 152, menuAccentG = 204, menuAccentB = 0,
-    menuBackgroundR = 17, menuBackgroundG = 17, menuBackgroundB = 17,
-    menuPanelR = 12, menuPanelG = 12, menuPanelB = 12,
-    menuTextR = 235, menuTextG = 235, menuTextB = 235,
+    menuGlassStrength = 0.78,
+    menuAccentR = 143, menuAccentG = 163, menuAccentB = 255,
+    menuBackgroundR = 15, menuBackgroundG = 20, menuBackgroundB = 34,
+    menuPanelR = 22, menuPanelG = 29, menuPanelB = 47,
+    menuTextR = 238, menuTextG = 243, menuTextB = 255,
     linkMenuAndEspColor = false,
     espVisibleR = 242, espVisibleG = 245, espVisibleB = 255,
     espHiddenR = 190, espHiddenG = 112, espHiddenB = 230,
@@ -436,6 +596,16 @@ local XCConfig = {
     grenadeMolotovR = 255, grenadeMolotovG = 95, grenadeMolotovB = 35,
     advancedCategory = "Combat",
     advancedSettingKey = "aimFov",
+    hudSessionEnabled = true, hudFeaturesEnabled = false, hudPlayerEnabled = false,
+    hudPerformanceEnabled = false, hudEditLayout = false, hudDiagnosticsEnabled = false,
+    hudScale = 1.0, hudOpacity = 0.82,
+    hudWatermarkX = 0.015, hudWatermarkY = 0.025,
+    hudSessionX = 0.985, hudSessionY = 0.12,
+    hudFeaturesX = 0.985, hudFeaturesY = 0.40,
+    hudPlayerX = 0.50, hudPlayerY = 0.96,
+    hudPerformanceX = 0.015, hudPerformanceY = 0.85,
+    watermarkShowClock = true, watermarkShowSession = true, watermarkShowPlayers = false,
+    menuMotionEnabled = true, menuGlowStrength = 0.65,
     watermarkEnabled = true,
     watermarkShowFPS = true,
     watermarkShowPing = true,
@@ -944,6 +1114,10 @@ local function xcApplyConfigValues(data, skipPublicSelection)
                     if value == value and math.abs(value) <= 1000000 then
                         if key == "uiScale" then value = math.clamp(value, 0.65, 1.25)
                         elseif key == "menuTransparency" then value = math.clamp(value, 0, 0.45)
+                        elseif key:match("^hud.*[XY]$") then value = math.clamp(value, 0, 1)
+                        elseif key == "hudScale" then value = math.clamp(value, 0.70, 1.50)
+                        elseif key == "hudOpacity" then value = math.clamp(value, 0.35, 1)
+                        elseif key == "menuGlowStrength" then value = math.clamp(value, 0, 1)
                         elseif key == "watermarkScale" then value = math.clamp(value, 0.70, 1.80)
                         elseif key == "watermarkOpacity" then value = math.clamp(value, 0.35, 1)
                         elseif key == "watermarkGlassStrength" then value = math.clamp(value, 0, 1)
@@ -1129,6 +1303,17 @@ if sharedXCEnv then
         end
         sharedXCEnv.XOSE_GS_UI_V2 = true
     end
+end
+
+-- One-time presentation migration for the user-selected Glass Studio design.
+if not sharedXCEnv or sharedXCEnv.XOSE_GLASS_STUDIO_V1 ~= true then
+    XCConfig.menuThemePreset = "Glass Studio"
+    XCConfig.menuBackgroundR, XCConfig.menuBackgroundG, XCConfig.menuBackgroundB = 15, 20, 34
+    XCConfig.menuPanelR, XCConfig.menuPanelG, XCConfig.menuPanelB = 22, 29, 47
+    XCConfig.menuAccentR, XCConfig.menuAccentG, XCConfig.menuAccentB = 143, 163, 255
+    XCConfig.menuTextR, XCConfig.menuTextG, XCConfig.menuTextB = 238, 243, 255
+    XCConfig.menuGlassEnabled, XCConfig.menuGlassStrength = true, 0.78
+    if sharedXCEnv then sharedXCEnv.XOSE_GLASS_STUDIO_V1 = true end
 end
 
 -- A reinjection must start from safe toggle defaults. Numeric/user settings
@@ -2430,6 +2615,10 @@ function rgb(r,g,b)
 end
 
 local silentAimResolved = nil
+local xcSilentDiagnostics = {
+    Calls = 0, Guided = 0, NoTarget = 0, ChanceSkipped = 0, Inactive = 0,
+    NoRay = 0, RayMiss = 0, Errors = 0, MaxMs = 0, Last = "no native shots yet",
+}
 -- Forward declarations: the shoot hook is defined before the Silent Aim helpers.
 local getSilentAimTarget
 local canXCSilentAutoWallTarget
@@ -4670,12 +4859,20 @@ end
 local function redirectXCNativeSilentShot(bullet, shot)
     if not isXCSilentAimRequested() or type(shot) ~= "table"
         or typeof(shot.Origin) ~= "Vector3" then return shot end
-    if type(bullet) ~= "table" or bullet.IsDestroyed or not bullet.IsActive then return shot end
+    if type(bullet) ~= "table" or bullet.IsDestroyed or not bullet.IsActive then
+        xcSilentDiagnostics.Inactive = xcSilentDiagnostics.Inactive + 1
+        xcSilentDiagnostics.Last = "bullet inactive at redirect"
+        return shot
+    end
     local weapon = bullet.Weapon
     if not weapon or weapon.Player ~= player then return shot end
 
     local chance = math.clamp(tonumber(XCConfig.silentAimHitChance) or 100, 0, 100)
-    if chance < 100 and math.random(1, 100) > chance then return shot end
+    if chance < 100 and math.random(1, 100) > chance then
+        xcSilentDiagnostics.ChanceSkipped = xcSilentDiagnostics.ChanceSkipped + 1
+        xcSilentDiagnostics.Last = "hit chance roll skipped"
+        return shot
+    end
 
     -- In native third person the camera sits behind the avatar, while bullets
     -- must originate at the character/weapon side. Using the camera-built
@@ -4683,7 +4880,11 @@ local function redirectXCNativeSilentShot(bullet, shot)
     local shotOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
     local target = selectXCNativeSilentTarget(shotOrigin, bullet.Properties or {})
     local targetPart = target and target.Part
-    if not targetPart or not targetPart.Parent then return shot end
+    if not targetPart or not targetPart.Parent then
+        xcSilentDiagnostics.NoTarget = xcSilentDiagnostics.NoTarget + 1
+        xcSilentDiagnostics.Last = "no eligible target (FOV / range / filters)"
+        return shot
+    end
 
     local aimPosition = target.Position
     local offset = aimPosition - shotOrigin
@@ -4697,7 +4898,27 @@ local function redirectXCNativeSilentShot(bullet, shot)
     else
         redirectedRay = castXCNativeSilentShot(shotOrigin, offset.Unit, bullet.Properties or {})
     end
-    if not redirectedRay then return shot end
+    if not redirectedRay then
+        xcSilentDiagnostics.NoRay = xcSilentDiagnostics.NoRay + 1
+        xcSilentDiagnostics.Last = "ray builder unavailable"
+        return shot
+    end
+    xcSilentDiagnostics.Guided = xcSilentDiagnostics.Guided + 1
+    local intersectsTarget = false
+    for _, hit in ipairs(redirectedRay.Hits or {}) do
+        local instance = hit.Instance
+        if typeof(instance) == "Instance" and hit.Exit ~= true
+            and (instance == targetPart or instance:IsDescendantOf(target.Character)) then
+            intersectsTarget = true
+            break
+        end
+    end
+    if not intersectsTarget then
+        xcSilentDiagnostics.RayMiss = xcSilentDiagnostics.RayMiss + 1
+    end
+    xcSilentDiagnostics.Last = intersectsTarget and "client ray intersects target (not server confirmation)"
+        or "redirected client ray did not intersect target"
+
     local redirected = mergeXCShotPayload(shot, redirectedRay)
     silentAimResolved = targetPart
     if registerXCLocalHitCandidate then registerXCLocalHitCandidate(targetPart) end
@@ -4832,13 +5053,30 @@ local function processXCNativeLocalShot(bullet, shot)
     return redirectXCNativeSilentShot(bullet, shot)
 end
 
+local function traceXCNativeLocalShot(bullet, shot)
+    local observe = isXCSilentAimRequested() and type(bullet) == "table"
+        and bullet.Weapon and bullet.Weapon.Player == player
+    if observe then xcSilentDiagnostics.Calls = xcSilentDiagnostics.Calls + 1 end
+    local started = os.clock()
+    local ok, result = pcall(processXCNativeLocalShot, bullet, shot)
+    if observe then
+        xcSilentDiagnostics.MaxMs = math.max(xcSilentDiagnostics.MaxMs, (os.clock() - started) * 1000)
+        if not ok then
+            xcSilentDiagnostics.Errors = xcSilentDiagnostics.Errors + 1
+            xcSilentDiagnostics.Last = tostring(result)
+        end
+    end
+    if not ok then return shot end
+    return result
+end
+
 if sharedXCEnv then
     -- Disable persistent pre-v36 redirectors; the new wrapper below owns the
     -- only per-bullet redirect and performs Hit Chance exactly once.
     sharedXCEnv.XCNativeSilentRedirectV24 = function(_, shot) return shot end
     -- Existing v36 wrappers survive reinjection and fetch this callback on
     -- every shot, so upgrading it also fixes trails without stacking hooks.
-    sharedXCEnv.XCNativeSilentRedirectV36 = processXCNativeLocalShot
+    sharedXCEnv.XCNativeSilentRedirectV36 = traceXCNativeLocalShot
 end
 
 function setupXCNativeSilentHook()
@@ -4875,7 +5113,7 @@ function setupXCNativeSilentHook()
         local originalRaycast = bulletModule._performRaycast
         bulletModule._performRaycast = function(self, spread, ...)
             local shot = originalRaycast(self, spread, ...)
-            local redirect = sharedXCEnv and sharedXCEnv.XCNativeSilentRedirectV36 or processXCNativeLocalShot
+            local redirect = sharedXCEnv and sharedXCEnv.XCNativeSilentRedirectV36 or traceXCNativeLocalShot
             if type(redirect) ~= "function" then return shot end
             local ok, redirected = pcall(redirect, self, shot)
             return ok and redirected or shot
@@ -6351,6 +6589,36 @@ mainContainer.ResetOnSpawn = false
 mainContainer.DisplayOrder = 10
 mainContainer.IgnoreGuiInset = true
 mainContainer.Parent = targetGui
+
+-- Temporary live diagnostics: observes native shots without changing aim or FOV.
+xcSilentDiagnostics.Panel = Instance.new("TextLabel")
+xcSilentDiagnostics.Panel.Name = "XCSilentDiagnostics"
+xcSilentDiagnostics.Panel.Position = UDim2.fromOffset(12, 155)
+xcSilentDiagnostics.Panel.Size = UDim2.fromOffset(490, 78)
+xcSilentDiagnostics.Panel.BackgroundColor3 = Color3.new(0, 0, 0)
+xcSilentDiagnostics.Panel.BackgroundTransparency = 0.18
+xcSilentDiagnostics.Panel.BorderSizePixel = 0
+xcSilentDiagnostics.Panel.TextColor3 = Color3.new(1, 1, 1)
+xcSilentDiagnostics.Panel.Font = Enum.Font.GothamBold
+xcSilentDiagnostics.Panel.TextSize = 11
+xcSilentDiagnostics.Panel.TextWrapped = true
+xcSilentDiagnostics.Panel.ZIndex = 100
+xcSilentDiagnostics.Panel.Visible = false
+xcSilentDiagnostics.Panel.Parent = mainContainer
+xcSilentDiagnostics.Update = function()
+    if not xcSessionActive() or not mainContainer.Parent then return end
+    local d = xcSilentDiagnostics
+    d.Panel.Visible = XCConfig.hudDiagnosticsEnabled == true and XCConfig.silentAimEnabled == true
+    if d.Panel.Visible then
+        d.Panel.Text = string.format(
+            "SILENT DIAG | native %s | FOV %s | HC %s | rage %s\nshots %d | guided %d | no target %d | ray miss %d\ninactive %d | roll %d | no ray %d | errors %d | max %.1fms\n%s",
+            xcNativeSilentHooked and "ready" or "unavailable", tostring(XCConfig.silentAimFov),
+            tostring(XCConfig.silentAimHitChance), XCConfig.rageBotEnabled and "ON" or "OFF",
+            d.Calls, d.Guided, d.NoTarget, d.RayMiss, d.Inactive, d.ChanceSkipped, d.NoRay, d.Errors, d.MaxMs, d.Last)
+    end
+    task.delay(0.25, d.Update)
+end
+task.defer(xcSilentDiagnostics.Update)
 
 local overlayContainer = Instance.new("Folder", mainContainer)
 overlayContainer.Name = "XC_2DOverlay"
@@ -11625,6 +11893,168 @@ wmMetrics.TextColor3 = currentTheme.TextSecondary
 wmMetrics.TextSize = 9
 wmMetrics.Font = Enum.Font.GothamMedium
 
+--// GLASS HUD STUDIO
+local XCHudGlass = {Started = os.clock(), Cards = {}, Connections = {}, FPS = 0, Ping = nil}
+function XCHudGlass.duration(seconds)
+    seconds = math.max(0, math.floor(tonumber(seconds) or 0))
+    return string.format("%02d:%02d:%02d", math.floor(seconds/3600), math.floor(seconds/60)%60, seconds%60)
+end
+function XCHudGlass.clampPosition(x, y, width, height, viewport)
+    return math.clamp(x, 8, math.max(8, viewport.X-width-8)),
+        math.clamp(y, 8, math.max(8, viewport.Y-height-8))
+end
+function XCHudGlass.surface(frame)
+    frame.BackgroundColor3 = Color3.fromRGB(17, 23, 39)
+    frame.BackgroundTransparency = 0.20
+    frame.BorderSizePixel = 0
+    Instance.new("UICorner",frame).CornerRadius = UDim.new(0,12)
+    local stroke = Instance.new("UIStroke",frame)
+    stroke.Color = Color3.fromRGB(160,180,240)
+    stroke.Transparency = 0.66
+    local sheen = Instance.new("UIGradient",frame)
+    sheen.Rotation = 65
+    sheen.Color = ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(182,195,228))
+    return stroke
+end
+function XCHudGlass.card(name, title, width, height)
+    local frame=Instance.new("Frame",watermarkGui)
+    frame.Name=name
+    frame.Size=UDim2.fromOffset(width,height)
+    frame.Visible=false
+    frame.Active=true
+    local stroke=XCHudGlass.surface(frame)
+    local scale=Instance.new("UIScale",frame)
+    local heading=Instance.new("TextLabel",frame)
+    heading.Position=UDim2.fromOffset(14,9); heading.Size=UDim2.new(1,-28,0,16)
+    heading.BackgroundTransparency=1; heading.Text=title
+    heading.Font=Enum.Font.GothamBold; heading.TextSize=10
+    heading.TextColor3=Color3.fromRGB(169,185,226)
+    heading.TextXAlignment=Enum.TextXAlignment.Left
+    local text=Instance.new("TextLabel",frame)
+    text.Position=UDim2.fromOffset(14,31); text.Size=UDim2.new(1,-28,1,-40)
+    text.BackgroundTransparency=1; text.TextColor3=Color3.fromRGB(241,245,255)
+    text.Font=Enum.Font.GothamMedium; text.TextSize=12; text.Text=""
+    text.TextWrapped=true; text.TextXAlignment=Enum.TextXAlignment.Left
+    text.TextYAlignment=Enum.TextYAlignment.Top
+    local data={Frame=frame,Stroke=stroke,Scale=scale,Text=text,Heading=heading}
+    XCHudGlass.Cards[name]=data
+    return data
+end
+XCHudGlass.Session=XCHudGlass.card("Session","SESSION",224,100)
+XCHudGlass.Features=XCHudGlass.card("Features","ACTIVE FEATURES",204,164)
+XCHudGlass.Player=XCHudGlass.card("Player","LOCAL PLAYER",250,86)
+XCHudGlass.Performance=XCHudGlass.card("Performance","PERFORMANCE",224,96)
+do
+    local bg=Instance.new("Frame",XCHudGlass.Player.Frame)
+    bg.Position=UDim2.new(0,14,1,-15); bg.Size=UDim2.new(1,-28,0,4)
+    bg.BackgroundColor3=Color3.fromRGB(54,66,91); bg.BorderSizePixel=0
+    Instance.new("UICorner",bg).CornerRadius=UDim.new(1,0)
+    local fill=Instance.new("Frame",bg)
+    fill.Size=UDim2.fromScale(1,1); fill.BackgroundColor3=Color3.fromRGB(131,219,193); fill.BorderSizePixel=0
+    Instance.new("UICorner",fill).CornerRadius=UDim.new(1,0)
+    XCHudGlass.HealthFill=fill
+end
+XCHudGlass.Watermark={Frame=wmCard,Scale=wmCard:FindFirstChild("WatermarkScale"),Stroke=wmStroke}
+wmCard:FindFirstChildOfClass("UICorner").CornerRadius=UDim.new(0,10)
+wmCard.Size=UDim2.new(0,0,0,32)
+wmPad.PaddingLeft,wmPad.PaddingRight=UDim.new(0,12),UDim.new(0,12)
+wmLayout.Padding=UDim.new(0,8)
+wmCard:FindFirstChild("WatermarkGlass").Transparency=NumberSequence.new(0)
+function XCHudGlass.installDrag(data, prefix)
+    local frame=data.Frame
+    frame.Active=true
+    table.insert(connections,frame.InputBegan:Connect(function(input)
+        if not XCConfig.hudEditLayout then return end
+        if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
+            XCHudGlass.Drag={Data=data,Prefix=prefix,Input=input,Start=input.Position,Position=frame.AbsolutePosition}
+        end
+    end))
+end
+XCHudGlass.installDrag(XCHudGlass.Watermark,"hudWatermark")
+for _,entry in ipairs({{XCHudGlass.Session,"hudSession"},{XCHudGlass.Features,"hudFeatures"},
+    {XCHudGlass.Player,"hudPlayer"},{XCHudGlass.Performance,"hudPerformance"}}) do
+    XCHudGlass.installDrag(entry[1],entry[2])
+end
+table.insert(connections,UserInputService.InputChanged:Connect(function(input)
+    local drag=XCHudGlass.Drag
+    if not drag or not XCConfig.hudEditLayout then return end
+    if input~=drag.Input and input.UserInputType~=Enum.UserInputType.MouseMovement then return end
+    local viewport=(Workspace.CurrentCamera or camera).ViewportSize
+    local delta=input.Position-drag.Start
+    local size=drag.Data.Frame.AbsoluteSize
+    local x,y=XCHudGlass.clampPosition(drag.Position.X+delta.X,drag.Position.Y+delta.Y,size.X,size.Y,viewport)
+    XCConfig[drag.Prefix.."X"]=x/math.max(1,viewport.X-size.X)
+    XCConfig[drag.Prefix.."Y"]=y/math.max(1,viewport.Y-size.Y)
+end))
+table.insert(connections,UserInputService.InputEnded:Connect(function(input)
+    if XCHudGlass.Drag and input==XCHudGlass.Drag.Input then XCHudGlass.Drag=nil end
+end))
+function XCHudGlass.place(data,prefix,enabled,viewport)
+    local frame=data.Frame
+    frame.Visible=enabled or XCConfig.hudEditLayout==true
+    if not frame.Visible then return end
+    local wanted=prefix=="hudWatermark" and XCConfig.watermarkScale or XCConfig.hudScale
+    data.Scale.Scale=math.min(math.clamp(tonumber(wanted) or 1,0.7,1.8),
+        math.max(0.25,(viewport.X-16)/math.max(1,frame.AbsoluteSize.X/data.Scale.Scale)),
+        math.max(0.25,(viewport.Y-16)/math.max(1,frame.AbsoluteSize.Y/data.Scale.Scale)))
+    local size=frame.AbsoluteSize
+    local x,y=XCHudGlass.clampPosition(
+        math.clamp(tonumber(XCConfig[prefix.."X"]) or 0,0,1)*math.max(1,viewport.X-size.X),
+        math.clamp(tonumber(XCConfig[prefix.."Y"]) or 0,0,1)*math.max(1,viewport.Y-size.Y),size.X,size.Y,viewport)
+    frame.Position=UDim2.fromOffset(x,y)
+    local opacity=prefix=="hudWatermark" and XCConfig.watermarkOpacity or XCConfig.hudOpacity
+    frame.BackgroundTransparency=1-math.clamp(tonumber(opacity) or 0.82,0.35,1)
+    data.Stroke.Transparency=XCConfig.hudEditLayout and 0.12 or 0.66
+    if prefix=="hudWatermark" and not XCConfig.hudEditLayout then
+        data.Stroke.Transparency=0.78-math.clamp(tonumber(XCConfig.watermarkGlassStrength) or 0.86,0,1)*0.28
+    end
+    data.Stroke.Color=xcConfigColor("menuAccent",Color3.fromRGB(143,163,255))
+end
+function XCHudGlass.update()
+    local cam=Workspace.CurrentCamera or camera
+    if not cam then return end
+    local viewport=cam.ViewportSize
+    local elapsed=XCHudGlass.duration(os.clock()-XCHudGlass.Started)
+    local metrics={}
+    if XCConfig.watermarkShowFPS then table.insert(metrics,tostring(XCHudGlass.FPS).." FPS") end
+    if XCConfig.watermarkShowPing then table.insert(metrics,(XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--").." MS") end
+    if XCConfig.watermarkShowClock then table.insert(metrics,os.date("%H:%M")) end
+    if XCConfig.watermarkShowSession then table.insert(metrics,elapsed) end
+    if XCConfig.watermarkShowPlayers then table.insert(metrics,#Players:GetPlayers().." PLAYERS") end
+    wmMetrics.Text=table.concat(metrics,"  /  ")
+    wmMetrics.Visible=#metrics>0; wmDivider.Visible=#metrics>0
+    local user=XCConfig.streamerModeEnabled and "PLAYER" or player.DisplayName
+    wmTitle.Text=tostring(XCConfig.watermarkText or "XOSE"):sub(1,28)
+    if XCConfig.watermarkShowName then wmTitle.Text=wmTitle.Text.." / "..tostring(user):sub(1,20) end
+    XCHudGlass.place(XCHudGlass.Watermark,"hudWatermark",XCConfig.watermarkEnabled,viewport)
+    XCHudGlass.place(XCHudGlass.Session,"hudSession",XCConfig.hudSessionEnabled,viewport)
+    XCHudGlass.place(XCHudGlass.Features,"hudFeatures",XCConfig.hudFeaturesEnabled,viewport)
+    XCHudGlass.place(XCHudGlass.Player,"hudPlayer",XCConfig.hudPlayerEnabled,viewport)
+    XCHudGlass.place(XCHudGlass.Performance,"hudPerformance",XCConfig.hudPerformanceEnabled,viewport)
+    XCHudGlass.Session.Text.Text=elapsed.."  online\n"..#Players:GetPlayers().." players  /  "..os.date("%H:%M:%S")
+    local active={}
+    for _,entry in ipairs({{"silentAimEnabled","Silent aim"},{"aimbotEnabled","Aim tracking"},
+        {"rageBotEnabled","Ragebot"},{"boxEspEnabled","Box ESP"},{"grenadeEspEnabled","Grenade ESP"},
+        {"thirdPersonEnabled","Third person"},{"bunnyHopEnabled","Bunny hop"},{"noRecoilEnabled","No recoil"}}) do
+        if XCConfig[entry[1]]==true then table.insert(active,entry[2].."  [ON]") end
+    end
+    XCHudGlass.Features.Text.Text=#active>0 and table.concat(active,"\n") or "No active features\nMenu: "..tostring(XCConfig.menuKey)
+    XCHudGlass.Features.Frame.Size=UDim2.fromOffset(204,math.max(86,46+#active*17))
+    local char=player.Character
+    local hum=char and char:FindFirstChildOfClass("Humanoid")
+    local root=char and char:FindFirstChild("HumanoidRootPart")
+    local health=hum and math.max(0,hum.Health) or 0
+    local maximum=hum and math.max(1,hum.MaxHealth) or 100
+    local velocity=root and root.AssemblyLinearVelocity
+    local speed=velocity and math.sqrt(velocity.X*velocity.X+velocity.Z*velocity.Z) or 0
+    XCHudGlass.Player.Text.Text=hum and string.format("%d / %d HP    %.0f studs/s",health,maximum,speed) or "Waiting for respawn..."
+    XCHudGlass.HealthFill.Size=UDim2.fromScale(math.clamp(health/maximum,0,1),1)
+    XCHudGlass.HealthFill.BackgroundColor3=Color3.fromRGB(242,116,132):Lerp(Color3.fromRGB(131,219,193),math.clamp(health/maximum,0,1))
+    XCHudGlass.Performance.Text.Text=string.format("%d FPS   /   %s ms\n%.1f ms estimated frame time",
+        XCHudGlass.FPS,XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--",
+        XCHudGlass.FPS>0 and 1000/XCHudGlass.FPS or 0)
+end
+
 local fpsCounter = 0
 local lastFpsUpdate = tick()
 --// GRENADE ESP 2.0 | NEVERLOSE SPHERE MARKERS
@@ -12170,8 +12600,9 @@ function XC_GRENADE_ICON.statusTick()
     for _ in pairs(grenadePool) do count = count + 1 end
     local stale = enabled and now - (XC_GRENADE_ICON.LastRender or XC_GRENADE_ICON.Started) > 1
     local state = not enabled and "OFF" or (stale and "RENDER NOT RUNNING" or "ON")
-    XC_GRENADE_ICON.Status.Visible = now - XC_GRENADE_ICON.Started < 10
-        or (enabled and (now < (XC_GRENADE_ICON.ShowUntil or 0) or stale or XC_GRENADE_ICON.LastError ~= nil))
+    XC_GRENADE_ICON.Status.Visible = XCConfig.hudDiagnosticsEnabled == true
+        and (now - XC_GRENADE_ICON.Started < 10
+        or (enabled and (now < (XC_GRENADE_ICON.ShowUntil or 0) or stale or XC_GRENADE_ICON.LastError ~= nil)))
     XC_GRENADE_ICON.Status.Text = string.format("Grenade ESP r4 | %s | objects %d | markers %d | icons %d\n%s\n%s",
         state, XC_GRENADE_ICON.Seen or 0, count, XC_GRENADE_ICON.VisibleCount or 0,
         XC_GRENADE_ICON.LastError and ("ERROR: " .. XC_GRENADE_ICON.LastError)
@@ -15057,8 +15488,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     local nowTick = tick()
     if nowTick - lastFpsUpdate >= 0.5 then
         local currentFps = math.floor(fpsCounter / (nowTick - lastFpsUpdate))
-        local pingVal = 0
-        if XCConfig.watermarkEnabled and XCConfig.watermarkShowPing then
+        local pingVal = nil
+        if (XCConfig.watermarkEnabled and XCConfig.watermarkShowPing) or XCConfig.hudPerformanceEnabled or XCConfig.hudEditLayout then
             pcall(function()
                 local serverStats = Stats:FindFirstChild("Network") and Stats.Network:FindFirstChild("ServerStatsItem")
                 if serverStats and serverStats:FindFirstChild("Data Ping") then
@@ -15068,8 +15499,9 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         end
         local parts = {}
         if XCConfig.watermarkShowFPS then table.insert(parts, string.format("%d FPS", currentFps)) end
-        if XCConfig.watermarkShowPing then table.insert(parts, string.format("%d MS", pingVal)) end
+        if XCConfig.watermarkShowPing then table.insert(parts, (pingVal and string.format("%d MS", pingVal) or "-- MS")) end
         wmMetrics.Text = table.concat(parts, "   ")
+        XCHudGlass.FPS, XCHudGlass.Ping = currentFps, pingVal
         fpsCounter = 0
         lastFpsUpdate = nowTick
     end
@@ -15099,7 +15531,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
         wmStroke.Transparency = math.clamp(0.78 - watermarkGlass * 0.28, 0.38, 0.78)
         wmDot.BackgroundColor3 = hudAccent
         wmTitle.TextColor3 = Color3.fromRGB(235, 240, 248)
-        wmMetrics.TextColor3 = Color3.fromRGB(166, 176, 190)
+        wmMetrics.TextColor3 = Color3.fromRGB(186, 201, 231)
+        XCHudGlass.update()
 
         if fovFrame then
             local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
@@ -17087,7 +17520,7 @@ function buildXCUI()
     main.BorderColor3 = C.Border
     main.BorderSizePixel = 0
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 5)
+    mainCorner.CornerRadius = UDim.new(0, 16)
     mainCorner.Parent = main
     main.Active = true
     main.Parent = screenGui
@@ -17096,6 +17529,20 @@ function buildXCUI()
     mainStroke.Color = C.Black
     mainStroke.Thickness = 1
     mainStroke.Parent = main
+    do
+        local glow = Instance.new("Frame", main)
+        glow.Name = "GlassHalo"
+        glow.Position = UDim2.fromOffset(-4,-4)
+        glow.Size = UDim2.new(1,8,1,8)
+        glow.BackgroundTransparency = 1
+        glow.ZIndex = 0
+        Instance.new("UICorner",glow).CornerRadius = UDim.new(0,20)
+        local edge = Instance.new("UIStroke",glow)
+        edge.Name = "GlowEdge"
+        edge.Thickness = 8
+        edge.Color = C.Lime
+        edge.Transparency = 0.94
+    end
 
     -- Static layered highlights: no per-frame blur or viewport captures.
     local glassSurfaces = {}
@@ -17114,6 +17561,12 @@ function buildXCUI()
         local enabled = XCConfig.menuGlassEnabled == true
         local strength = XCConfig.menuGlassStrength
         local base = XCConfig.menuTransparency
+        local halo = main:FindFirstChild("GlassHalo")
+        if halo then
+            halo.Visible = enabled and (tonumber(XCConfig.menuGlowStrength) or 0) > 0
+            halo.GlowEdge.Color = C.Lime
+            halo.GlowEdge.Transparency = 1 - math.clamp(tonumber(XCConfig.menuGlowStrength) or 0.65,0,1)*0.12
+        end
         for _, entry in ipairs(glassSurfaces) do
             local role = entry.role
             local surface = entry.surface
@@ -17193,7 +17646,7 @@ function buildXCUI()
     brand.Text = "XOSE"
     brand.TextColor3 = C.Lime
     brand.Font = Enum.Font.GothamBold
-    brand.TextSize = 15
+    brand.TextSize = 19
     brand.TextXAlignment = Enum.TextXAlignment.Left
     brand.Parent = header
     local brandAccent = Instance.new("Frame")
@@ -19990,14 +20443,14 @@ function buildXCUI()
     local tabs = {
         {"Rage", "target"}, {"AntiAim", "antiaim"}, {"Visuals", "visuals"}, {"Players", "players"},
         {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"},
-        {"Settings", "settings"}, {"Configs", "configs"},
+        {"HUD", "visuals"}, {"Settings", "settings"}, {"Configs", "configs"},
     }
     local pageDescriptions = {
         Rage = "Aim, targeting & weapons", AntiAim = "Movement, camera & anti-aim",
         Visuals = "ESP & on-screen effects", Players = "Target filtering & overlays",
         World = "Environment & lighting", Skins = "Weapon finishes & gloves",
         Misc = "Viewmodel & utilities", Settings = "Appearance & preferences",
-        Configs = "Profiles & community",
+        HUD = "Glass widgets, watermark & layout", Configs = "Profiles & community",
     }
     local function switchPage(name)
         closeDropdown()
@@ -20005,7 +20458,14 @@ function buildXCUI()
         currentPage = name
         pageTitle.Text = name == "AntiAim" and "MOVEMENT" or string.upper(name)
         pageSubtitle.Text = pageDescriptions[name] or "Customize your session"
-        for pageName, page in pairs(pages) do page.Visible = pageName == name end
+        for pageName, page in pairs(pages) do
+            page.Visible = pageName == name
+            if page.Visible and not isMobileLayout and XCConfig.menuMotionEnabled then
+                page.Position = UDim2.fromOffset(0,6)
+                TweenService:Create(page,TweenInfo.new(0.18,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),
+                    {Position=UDim2.fromOffset(0,0)}):Play()
+            end
+        end
         for tabName, data in pairs(tabData) do
             data.active.Visible = tabName == name
             data.button.BackgroundColor3 = tabName == name and C.Control2:Lerp(C.Lime, 0.08) or C.Sidebar
@@ -20659,9 +21119,58 @@ function buildXCUI()
     addSlider(R, "Box thickness", "boxThickness", 1, 3, 0.1, "")
     addSlider(R, "Grenade distance", "grenadeMaxDist", 200, 3000, 50, "")
 
+    L, R = columns("HUD", "HUD Studio", "Layout & widgets")
+    section(L,"watermark")
+    toggle(L,"Watermark","watermarkEnabled")
+    toggle(L,"FPS","watermarkShowFPS")
+    toggle(L,"Network latency","watermarkShowPing")
+    toggle(L,"Local clock","watermarkShowClock")
+    toggle(L,"Session duration","watermarkShowSession")
+    toggle(L,"Player count","watermarkShowPlayers")
+    toggle(L,"Player name","watermarkShowName")
+    addSlider(L,"Watermark size","watermarkScale",0.70,1.80,0.05,"x")
+    addSlider(L,"Watermark opacity","watermarkOpacity",0.35,1,0.05,"")
+    addSlider(L,"Watermark glass","watermarkGlassStrength",0,1,0.05,"")
+    addNote(L,"Name is anonymized in Streamer mode. Session time starts when XOSE loads.")
+    section(L,"widgets")
+    toggle(L,"Session card","hudSessionEnabled")
+    toggle(L,"Active features","hudFeaturesEnabled")
+    toggle(L,"Health & movement speed","hudPlayerEnabled")
+    toggle(L,"Performance card","hudPerformanceEnabled")
+    section(R,"glass layout")
+    toggle(R,"Edit layout / drag panels","hudEditLayout")
+    addSlider(R,"Widget size","hudScale",0.70,1.50,0.05,"x")
+    addSlider(R,"Glass opacity","hudOpacity",0.35,1,0.05,"")
+    addNote(R,"Enable Edit layout to reveal and drag every panel. Mouse and touch are supported. Save your profile to keep positions.")
+    addButton(R,"RESET HUD POSITIONS",function()
+        for _,prefix in ipairs({"hudWatermark","hudSession","hudFeatures","hudPlayer","hudPerformance"}) do
+            XCConfig[prefix.."X"]=XCConfigDefaults[prefix.."X"]
+            XCConfig[prefix.."Y"]=XCConfigDefaults[prefix.."Y"]
+        end
+        scheduleConfigAutoSave()
+    end)
+    section(R,"diagnostics")
+    toggle(R,"Show diagnostic panels","hudDiagnosticsEnabled")
+    addNote(R,"Enables the Silent Aim and Grenade ESP diagnostic panels when those features are active.")
+    section(R,"quick setup")
+    addButton(R,"MINIMAL HUD",function()
+        for key,value in pairs({watermarkEnabled=true,hudSessionEnabled=false,hudFeaturesEnabled=false,
+            hudPlayerEnabled=false,hudPerformanceEnabled=false,hudEditLayout=false}) do
+            XCConfig[key]=value;refreshConfigControls(key,value)
+        end
+        scheduleConfigAutoSave()
+    end)
+    addButton(R,"FULL HUD",function()
+        for key,value in pairs({watermarkEnabled=true,hudSessionEnabled=true,hudFeaturesEnabled=true,
+            hudPlayerEnabled=true,hudPerformanceEnabled=true,hudEditLayout=false}) do
+            XCConfig[key]=value;refreshConfigControls(key,value)
+        end
+        scheduleConfigAutoSave()
+    end)
     task.wait()
     L, R = columns("Settings", "Interface", "Advanced settings")
     local menuPresets={
+        ["Glass Studio"]={15,20,34,22,29,47,143,163,255,238,243,255},
         ["Liquid Glass"]={16,17,26,25,26,38,126,139,255,238,239,249},
         ["NeverLose"]={10,17,25,7,12,19,65,180,235,230,240,250},
         ["Video Blue"]={10,17,25,7,12,19,89,115,255,230,240,250},
@@ -20681,10 +21190,12 @@ function buildXCUI()
         applyMenuTheme();scheduleConfigAutoSave()
     end
     section(L,"menu appearance")
-    addChoice(L,"Theme preset","menuThemePreset",{"Liquid Glass","NeverLose","XC Lime","Video Blue","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
+    addChoice(L,"Theme preset","menuThemePreset",{"Glass Studio","Liquid Glass","NeverLose","XC Lime","Video Blue","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
     addSlider(L,"Interface scale","uiScale",0.65,1.25,0.05,"x",applyMenuTheme)
     addSlider(L,"Menu transparency","menuTransparency",0,0.45,0.05,"",applyMenuTheme)
     addToggle(L,"Liquid glass","menuGlassEnabled",applyMenuTheme)
+    toggle(L,"Smooth menu transitions","menuMotionEnabled")
+    addSlider(L,"Soft glow","menuGlowStrength",0,1,0.05,"",applyMenuTheme)
     local glassRefreshRevision = 0
     addSlider(L,"Glass strength","menuGlassStrength",0,1,0.05,"",function()
         glassRefreshRevision = glassRefreshRevision + 1
@@ -20709,13 +21220,7 @@ function buildXCUI()
     toggle(L, "Notifications", "settingsShowNotifications")
     toggle(L, "Compact mode", "settingsCompactMode")
     toggle(L, "Autosave config", "settingsAutoSave")
-    toggle(L, "Watermark", "watermarkEnabled")
-    toggle(L, "Show FPS", "watermarkShowFPS")
-    toggle(L, "Show ping", "watermarkShowPing")
-    toggle(L, "Show name", "watermarkShowName")
-    addSlider(L, "Watermark size", "watermarkScale", 0.70, 1.80, 0.05, "x")
-    addSlider(L, "Watermark opacity", "watermarkOpacity", 0.35, 1.00, 0.05, "")
-    addSlider(L, "Watermark glass", "watermarkGlassStrength", 0, 1, 0.05, "")
+    addNote(L,"Watermark and widget settings are available in HUD Studio. Ctrl+K focuses search.")
     section(L, "startup greeting")
     XCBuildGreetingSettings(L, toggle, addSlider, addButton, addNote, activeSectionByParent, C)
     addChoice(L, "Menu key", "menuKey", {"RightShift", "LeftControl", "RightControl", "F6", "F7", "F8", "F9", "F10"})
@@ -21067,7 +21572,7 @@ function buildXCUI()
         end
     end)
     refreshGlassSurfaces()
-    switchPage("Rage")
+    switchPage("HUD")
 
     local menuVisible = true
     local function toggleMenu()
@@ -21077,6 +21582,12 @@ function buildXCUI()
         menuVisible = main.Visible
         XCFeatureState.menuOpen = main.Visible
         if main.Visible then
+            if XCConfig.menuMotionEnabled then
+                local destination = main.Position
+                main.Position = destination + UDim2.fromOffset(0,8)
+                TweenService:Create(main,TweenInfo.new(0.20,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),
+                    {Position=destination}):Play()
+            end
             for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
         end
     end
@@ -21085,6 +21596,12 @@ function buildXCUI()
     end)
     table.insert(connections, UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
+        if input.KeyCode == Enum.KeyCode.K and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
+            or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+            if not main.Visible then toggleMenu() end
+            searchBox:CaptureFocus()
+            return
+        end
         local key = Enum.KeyCode[XCConfig.menuKey or "RightShift"]
         if key and input.KeyCode == key then toggleMenu() end
     end))
