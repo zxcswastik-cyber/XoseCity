@@ -2686,6 +2686,10 @@ local silentAimResolved = nil
 local xcSilentDiagnostics = {
     Calls = 0, Guided = 0, NoTarget = 0, ChanceSkipped = 0, Inactive = 0,
     NoRay = 0, RayMiss = 0, Errors = 0, MaxMs = 0, Last = "no native shots yet",
+    Scan = {Players = 0, Alive = 0, Parts = 0, Points = 0, Candidates = 0},
+    SelectedPlayer = nil, SelectedPart = nil, SelectedPoint = nil,
+    SelectedRadius = nil, SelectedDistance = nil, SelectedDamage = nil,
+    SelectedVisible = nil, SelectedBlocker = nil, LastReject = "not scanned yet",
 }
 -- Forward declarations: the shoot hook is defined before the Silent Aim helpers.
 local getSilentAimTarget
@@ -4524,15 +4528,34 @@ function XCReadWeaponNumber(properties, names)
     return nil
 end
 
+function XCPublishShotPathDiagnostic(info)
+    if XCConfig.hudDiagnosticsEnabled and type(XCFeatureState) == "table" and type(info) == "table" then
+        local blocker = info.Blocker
+        XCFeatureState.AutoWallDiagnostics = {
+            State = tostring(info.State or (info.Visible and "VISIBLE" or (info.Reachable and "PENETRABLE" or "BLOCKED"))),
+            Penetration = tonumber(info.Penetration) or 0,
+            Thickness = tonumber(info.Thickness) or 0,
+            Surfaces = tonumber(info.Surfaces) or 0,
+            Reason = tostring(info.Reason or "unknown"),
+            Blocker = typeof(blocker) == "Instance" and blocker:GetFullName() or "none",
+            At = os.clock(),
+        }
+    end
+    return info
+end
+
 function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targetPosition)
     local info = {
         Visible = false,
         Reachable = false,
         Thickness = 0,
         Surfaces = 0,
+        Penetration = 0,
+        State = "BLOCKED",
+        Reason = "invalid path input",
     }
     if typeof(origin) ~= "Vector3" or not targetPart or not targetPart.Parent then
-        return info
+        return XCPublishShotPathDiagnostic(info)
     end
 
     local position = typeof(targetPosition) == "Vector3" and targetPosition or targetPart.Position
@@ -4540,13 +4563,17 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
     if offset.Magnitude <= 0.05 then
         info.Visible = true
         info.Reachable = true
-        return info
+        info.State = "VISIBLE"
+        info.Reason = "origin already at target"
+        return XCPublishShotPathDiagnostic(info)
     end
 
     if not ensureXCAutoWallRaycast() then
         info.Visible = isVisibleThroughWalls(targetPart, targetCharacter)
         info.Reachable = info.Visible
-        return info
+        info.State = info.Visible and "VISIBLE" or "BLOCKED"
+        info.Reason = info.Visible and "fallback visibility clear" or "native raycast unavailable"
+        return XCPublishShotPathDiagnostic(info)
     end
 
     properties = type(properties) == "table" and properties or resolveXCAutoWallProperties() or {}
@@ -4559,18 +4586,30 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
     if not firstInstance then
         info.Visible = true
         info.Reachable = true
-        return info
+        info.State = "VISIBLE"
+        info.Reason = "native ray clear"
+        return XCPublishShotPathDiagnostic(info)
     end
     if typeof(firstInstance) == "Instance"
         and (firstInstance == targetPart or (targetCharacter and firstInstance:IsDescendantOf(targetCharacter))) then
         info.Visible = true
         info.Reachable = true
-        return info
+        info.State = "VISIBLE"
+        info.Reason = "native ray hit target directly"
+        return XCPublishShotPathDiagnostic(info)
     end
+    -- Read-only diagnostic metadata. This does not change visibility or penetration decisions.
+    info.Blocker = firstInstance
 
     local penetration = math.max(0, tonumber(properties.Penetration) or 0)
-    if penetration <= 0 or typeof(first.position) ~= "Vector3" then
-        return info
+    info.Penetration = penetration
+    if penetration <= 0 then
+        info.Reason = "weapon penetration is zero"
+        return XCPublishShotPathDiagnostic(info)
+    end
+    if typeof(first.position) ~= "Vector3" then
+        info.Reason = "blocker has no native hit position"
+        return XCPublishShotPathDiagnostic(info)
     end
 
     local hits = xcNativeRaycast.castThrough(
@@ -4579,7 +4618,10 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
         penetration,
         ignore
     )
-    if type(hits) ~= "table" then return info end
+    if type(hits) ~= "table" then
+        info.Reason = "native castThrough returned no hit list"
+        return XCPublishShotPathDiagnostic(info)
+    end
 
     local entryPosition = nil
     for index, hit in ipairs(hits) do
@@ -4592,7 +4634,9 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
             if typeof(instance) == "Instance" and not isExit
                 and (instance == targetPart or (targetCharacter and instance:IsDescendantOf(targetCharacter))) then
                 info.Reachable = true
-                return info
+                info.State = "PENETRABLE"
+                info.Reason = "native castThrough reaches target"
+                return XCPublishShotPathDiagnostic(info)
             end
 
             if typeof(positionHit) == "Vector3" then
@@ -4606,7 +4650,9 @@ function XCInspectShotPath(origin, targetPart, targetCharacter, properties, targ
             end
         end
     end
-    return info
+    info.State = "BLOCKED"
+    info.Reason = "native castThrough did not reach target"
+    return XCPublishShotPathDiagnostic(info)
 end
 
 function XCEstimateShotDamage(properties, targetPart, distance, pathInfo)
@@ -4854,9 +4900,33 @@ end
 
 local function selectXCNativeSilentTarget(origin, properties)
     local cam = Workspace.CurrentCamera or camera
+    local scan = {
+        Players = 0, Alive = 0, Parts = 0, Points = 0, Candidates = 0,
+        Team = 0, Dead = 0, Offscreen = 0, Range = 0, Fov = 0,
+        Obstruction = 0, Damage = 0,
+    }
+    local function publish(candidate, reason, path)
+        xcSilentDiagnostics.Scan = scan
+        xcSilentDiagnostics.LastReject = tostring(reason or "none")
+        xcSilentDiagnostics.SelectedPlayer = candidate and candidate.Player and candidate.Player.DisplayName or nil
+        xcSilentDiagnostics.SelectedPart = candidate and candidate.Part and candidate.Part.Name or nil
+        xcSilentDiagnostics.SelectedPoint = candidate and candidate.PointName or nil
+        xcSilentDiagnostics.SelectedRadius = candidate and candidate.Radius or nil
+        xcSilentDiagnostics.SelectedDistance = candidate and candidate.Distance or nil
+        xcSilentDiagnostics.SelectedDamage = candidate and candidate.EstimatedDamage or nil
+        xcSilentDiagnostics.SelectedVisible = candidate and candidate.Visible or nil
+        xcSilentDiagnostics.SelectedPenetration = path and tonumber(path.Penetration) or 0
+        xcSilentDiagnostics.SelectedThickness = path and tonumber(path.Thickness) or 0
+        xcSilentDiagnostics.SelectedSurfaces = path and tonumber(path.Surfaces) or 0
+        xcSilentDiagnostics.SelectedPathState = path and tostring(path.State or (path.Visible and "VISIBLE" or (path.Reachable and "PENETRABLE" or "BLOCKED"))) or "NONE"
+        xcSilentDiagnostics.SelectedPathReason = path and tostring(path.Reason or "unknown") or "no path inspected"
+        local blocker = path and path.Blocker
+        xcSilentDiagnostics.SelectedBlocker = typeof(blocker) == "Instance" and blocker:GetFullName() or nil
+        return candidate
+    end
     if not cam or typeof(origin) ~= "Vector3" or not xcNativeRaycast
         or type(xcNativeRaycast.cast) ~= "function" or type(xcNativeGetRayIgnore) ~= "function" then
-        return nil
+        return publish(nil, "native raycast unavailable")
     end
 
     properties = type(properties) == "table" and properties or resolveXCAutoWallProperties() or {}
@@ -4868,20 +4938,36 @@ local function selectXCNativeSilentTarget(origin, properties)
     for _, targetPlayer in ipairs(Players:GetPlayers()) do
         repeat
         if targetPlayer == player then break end
-        if XCConfig.silentAimTeamCheck and isAlly(targetPlayer) then break end
+        scan.Players = scan.Players + 1
+        if XCConfig.silentAimTeamCheck and isAlly(targetPlayer) then
+            scan.Team = scan.Team + 1
+            break
+        end
 
         local character = targetPlayer.Character
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-        if not isEntityAlive(character, humanoid) then break end
+        if not isEntityAlive(character, humanoid) then
+            scan.Dead = scan.Dead + 1
+            break
+        end
+        scan.Alive = scan.Alive + 1
 
-        for _,part in ipairs(XCCombatHitParts(character,XCConfig.silentHitboxMode,XCConfig.silentAimAimHead,false)) do
+        local hitParts = XCCombatHitParts(character,XCConfig.silentHitboxMode,XCConfig.silentAimAimHead,false)
+        scan.Parts = scan.Parts + #hitParts
+        for _,part in ipairs(hitParts) do
         for _, multipoint in ipairs(XCBuildMultipoints(part)) do
+            scan.Points = scan.Points + 1
             local position = multipoint.Position
             local point, onScreen = cam:WorldToViewportPoint(position)
             local distance = (position - origin).Magnitude
-            if onScreen and point.Z > 0 and distance > 0.05 and distance <= range then
+            if not onScreen or point.Z <= 0 then
+                scan.Offscreen = scan.Offscreen + 1
+            elseif distance <= 0.05 or distance > range then
+                scan.Range = scan.Range + 1
+            else
                 local radius = (Vector2.new(point.X, point.Y) - center).Magnitude
                 if radius <= radiusLimit then
+                    scan.Candidates = scan.Candidates + 1
                     candidates[#candidates + 1] = {
                         Player = targetPlayer,
                         Character = character,
@@ -4890,7 +4976,10 @@ local function selectXCNativeSilentTarget(origin, properties)
                         PointName = multipoint.Name,
                         PointRank = multipoint.Rank or 0,
                         Radius = radius,
+                        Distance = distance,
                     }
+                else
+                    scan.Fov = scan.Fov + 1
                 end
             end
         end
@@ -4904,11 +4993,13 @@ local function selectXCNativeSilentTarget(origin, properties)
         return a.Player.UserId < b.Player.UserId
     end)
 
+    local lastPath = nil
     for _, candidate in ipairs(candidates) do
         repeat
         local path = XCInspectShotPath(
             origin, candidate.Part, candidate.Character, properties, candidate.Position
         )
+        lastPath = path
         local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
             origin, candidate.Part, candidate.Character, properties, candidate.Position, path
         )
@@ -4916,24 +5007,28 @@ local function selectXCNativeSilentTarget(origin, properties)
         candidate.EstimatedDamage = estimatedDamage
 
         if path.Visible then
-            if minDamageOk then return candidate end
+            if minDamageOk then return publish(candidate, "selected visible", path) end
+            scan.Damage = scan.Damage + 1
             break
         end
 
+        scan.Obstruction = scan.Obstruction + 1
         -- Visible Check ON is a hard gate.
         if XCConfig.silentAimVisibleCheck then
             break
         end
 
         if XCConfig.extremeWallbangEnabled or XCConfig.wallbangEnabled then
-            if minDamageOk then return candidate end
+            if minDamageOk then return publish(candidate, "selected forced wall path", path) end
+            scan.Damage = scan.Damage + 1
             break
         end
 
         if XCConfig.silentAimAutoWallEnabled then
             if path.Reachable and minDamageOk then
-                return candidate
+                return publish(candidate, "selected reachable wall path", path)
             end
+            if not minDamageOk then scan.Damage = scan.Damage + 1 end
             break
         end
 
@@ -4941,11 +5036,16 @@ local function selectXCNativeSilentTarget(origin, properties)
         -- when Visible Check is OFF. Minimum Damage, if enabled, correctly
         -- blocks that shot because the unmodified bullet cannot reach target.
         if not XCConfig.minimumDamageEnabled then
-            return candidate
+            return publish(candidate, "selected obstructed (visibility disabled)", path)
         end
+        if not minDamageOk then scan.Damage = scan.Damage + 1 end
         until true
     end
-    return nil
+    local reason = scan.Candidates == 0 and "no screen/range/FOV candidates"
+        or (scan.Damage > 0 and "minimum damage rejected candidates")
+        or (scan.Obstruction > 0 and "obstruction/visibility rejected candidates")
+        or "no eligible target"
+    return publish(nil, reason, lastPath)
 end
 
 local function redirectXCNativeSilentShot(bullet, shot)
@@ -4973,7 +5073,7 @@ local function redirectXCNativeSilentShot(bullet, shot)
     local targetPart = target and target.Part
     if not targetPart or not targetPart.Parent then
         xcSilentDiagnostics.NoTarget = xcSilentDiagnostics.NoTarget + 1
-        xcSilentDiagnostics.Last = "no eligible target (FOV / range / filters)"
+        xcSilentDiagnostics.Last = "no target: " .. tostring(xcSilentDiagnostics.LastReject or "unknown")
         return shot
     end
 
@@ -6691,7 +6791,7 @@ mainContainer.Parent = targetGui
 xcSilentDiagnostics.Panel = Instance.new("TextLabel")
 xcSilentDiagnostics.Panel.Name = "XCSilentDiagnostics"
 xcSilentDiagnostics.Panel.Position = UDim2.fromOffset(12, 155)
-xcSilentDiagnostics.Panel.Size = UDim2.fromOffset(490, 78)
+xcSilentDiagnostics.Panel.Size = UDim2.fromOffset(620, 124)
 xcSilentDiagnostics.Panel.BackgroundColor3 = Color3.new(0, 0, 0)
 xcSilentDiagnostics.Panel.BackgroundTransparency = 0.18
 xcSilentDiagnostics.Panel.BorderSizePixel = 0
@@ -6707,14 +6807,54 @@ xcSilentDiagnostics.Update = function()
     local d = xcSilentDiagnostics
     d.Panel.Visible = XCConfig.hudDiagnosticsEnabled == true and XCConfig.silentAimEnabled == true
     if d.Panel.Visible then
+        local scan = type(d.Scan) == "table" and d.Scan or {}
+        local selected = d.SelectedPlayer and string.format("%s / %s / %s | %.0fpx | %.1fst | dmg %s | %s",
+            tostring(d.SelectedPlayer), tostring(d.SelectedPart or "?"), tostring(d.SelectedPoint or "center"),
+            tonumber(d.SelectedRadius) or 0, tonumber(d.SelectedDistance) or 0,
+            d.SelectedDamage and string.format("%.1f", d.SelectedDamage) or "?",
+            d.SelectedVisible == true and "VIS" or "WALL") or "none"
         d.Panel.Text = string.format(
-            "SILENT DIAG | native %s | FOV %s | HC %s | rage %s\nshots %d | guided %d | no target %d | ray miss %d\ninactive %d | roll %d | no ray %d | errors %d | max %.1fms\n%s",
+            "SILENT DIAG 2.1 | native %s | FOV %s | HC %s | rage %s\nshots %d | guided %d | no target %d | ray miss %d | inactive %d | roll %d | no ray %d | err %d | max %.1fms\nscan P%d A%d parts%d pts%d cand%d | off%d range%d fov%d wall%d dmg%d\nselected: %s\npath: %s | pen %.2f | thick %.2f | surf %d | reason %s\nlast: %s | blocker: %s",
             xcNativeSilentHooked and "ready" or "unavailable", tostring(XCConfig.silentAimFov),
             tostring(XCConfig.silentAimHitChance), XCConfig.rageBotEnabled and "ON" or "OFF",
-            d.Calls, d.Guided, d.NoTarget, d.RayMiss, d.Inactive, d.ChanceSkipped, d.NoRay, d.Errors, d.MaxMs, d.Last)
+            d.Calls, d.Guided, d.NoTarget, d.RayMiss, d.Inactive, d.ChanceSkipped, d.NoRay, d.Errors, d.MaxMs,
+            scan.Players or 0, scan.Alive or 0, scan.Parts or 0, scan.Points or 0, scan.Candidates or 0,
+            scan.Offscreen or 0, scan.Range or 0, scan.Fov or 0, scan.Obstruction or 0, scan.Damage or 0,
+            selected, tostring(d.SelectedPathState or "NONE"), tonumber(d.SelectedPenetration) or 0,
+            tonumber(d.SelectedThickness) or 0, tonumber(d.SelectedSurfaces) or 0,
+            tostring(d.SelectedPathReason or "unknown"), tostring(d.Last or ""), tostring(d.SelectedBlocker or "none"))
+    end
+    local a = type(XCFeatureState) == "table" and XCFeatureState.AntiAimDiagnostics or nil
+    d.AntiPanel.Visible = XCConfig.hudDiagnosticsEnabled == true and XCConfig.antiAimEnabled == true
+    if d.AntiPanel.Visible then
+        local originalDeg = a and a.OriginalYaw and math.deg(a.OriginalYaw) or 0
+        local sentDeg = a and a.SentYaw and math.deg(a.SentYaw) or 0
+        local deltaDeg = a and a.DeltaYaw and math.deg(a.DeltaYaw) or 0
+        d.AntiPanel.Text = string.format(
+            "ANTI-AIM DIAG 2.0 | source %s | hook %s/%s | native age %.0fms\nsamples %.1f/s | serial %d | desync phase %d | brute %d | threat %s\nyaw real %.1f° | sent %.1f° | delta %.1f°",
+            a and tostring(a.Source or "?") or "waiting",
+            a and a.HookReady and "ready" or "not-ready", a and a.HookHealthy and "healthy" or "stale",
+            (a and tonumber(a.NativeAge) or 0) * 1000, a and tonumber(a.SampleRate) or 0,
+            a and tonumber(a.SampleSerial) or 0, a and tonumber(a.DesyncPhase) or 0,
+            a and tonumber(a.BruteforcePhase) or 0, a and tostring(a.Threat or "none") or "none",
+            originalDeg, sentDeg, deltaDeg)
     end
     task.delay(0.25, d.Update)
 end
+xcSilentDiagnostics.AntiPanel = Instance.new("TextLabel")
+xcSilentDiagnostics.AntiPanel.Name = "XCAntiAimDiagnostics"
+xcSilentDiagnostics.AntiPanel.Position = UDim2.fromOffset(12, 285)
+xcSilentDiagnostics.AntiPanel.Size = UDim2.fromOffset(600, 66)
+xcSilentDiagnostics.AntiPanel.BackgroundColor3 = Color3.new(0, 0, 0)
+xcSilentDiagnostics.AntiPanel.BackgroundTransparency = 0.18
+xcSilentDiagnostics.AntiPanel.BorderSizePixel = 0
+xcSilentDiagnostics.AntiPanel.TextColor3 = Color3.new(1, 1, 1)
+xcSilentDiagnostics.AntiPanel.Font = Enum.Font.GothamBold
+xcSilentDiagnostics.AntiPanel.TextSize = 11
+xcSilentDiagnostics.AntiPanel.TextWrapped = true
+xcSilentDiagnostics.AntiPanel.ZIndex = 100
+xcSilentDiagnostics.AntiPanel.Visible = false
+xcSilentDiagnostics.AntiPanel.Parent = mainContainer
 task.defer(xcSilentDiagnostics.Update)
 
 local overlayContainer = Instance.new("Folder", mainContainer)
@@ -16245,6 +16385,18 @@ function XCUpdateAntiAimDiagnostics(source, state, originalYaw, sentYaw)
         and now < (tonumber(xcCharacterInputHook.NativeActiveUntil) or 0)
     diag.NativeCalls = tonumber(xcCharacterInputHook.Calls) or 0
     diag.SampleSerial = tonumber(state and state.AntiSampleSerial) or 0
+    diag.NativeAge = math.max(0, now - (tonumber(xcCharacterInputHook.LastCall) or now))
+    diag.DesyncPhase = tonumber(state and state.AntiDesyncPhase) or 0
+    diag.BruteforcePhase = tonumber(state and state.AntiBruteforcePhase) or 0
+    local threat = state and state.AntiThreatPlayer
+    diag.Threat = typeof(threat) == "Instance" and threat.Name or (type(threat) == "table" and threat.Name or nil)
+    if not diag.RateTime then
+        diag.RateTime, diag.RateSampleSerial, diag.SampleRate = now, diag.SampleSerial, 0
+    elseif now - diag.RateTime >= 0.25 then
+        local dt = math.max(0.001, now - diag.RateTime)
+        diag.SampleRate = math.max(0, (diag.SampleSerial - (diag.RateSampleSerial or diag.SampleSerial)) / dt)
+        diag.RateTime, diag.RateSampleSerial = now, diag.SampleSerial
+    end
     diag.OriginalYaw = tonumber(originalYaw)
     diag.SentYaw = tonumber(sentYaw)
     if type(diag.OriginalYaw) == "number" and type(diag.SentYaw) == "number" then
@@ -20807,10 +20959,17 @@ function buildXCUI()
                 if data then
                     local visibleState = data.VisiblePass and "PASS" or "FAIL"
                     local wallState = data.WallPass and "PASS" or "FAIL"
+                    local live = type(XCFeatureState.AutoWallDiagnostics) == "table" and XCFeatureState.AutoWallDiagnostics or {}
+                    local liveState = tostring(live.State or "NONE")
+                    local livePen = tonumber(live.Penetration) or 0
+                    local liveThickness = tonumber(live.Thickness) or 0
+                    local liveSurfaces = tonumber(live.Surfaces) or 0
+                    local liveReason = tostring(live.Reason or "no shot path inspected")
                     rageDiagnosticNote.Text = string.format(
-                        "BODY %.1f | PEN %.2f | WALL %.2f st -> %.1f | MIN %.0f/%.0f | V %s / W %s",
+                        "MODEL BODY %.1f | PEN %.2f | WALL %.2f st -> %.1f | MIN %.0f/%.0f | V %s / W %s\nLIVE %s | PEN %.2f | THICK %.2f | SURF %d | %s",
                         data.VisibleDamage, data.Penetration, data.WallThickness, data.WallDamage,
-                        data.VisibleRequired, data.WallRequired, visibleState, wallState
+                        data.VisibleRequired, data.WallRequired, visibleState, wallState,
+                        liveState, livePen, liveThickness, liveSurfaces, liveReason
                     )
                 else
                     rageDiagnosticNote.Text = "Damage diagnostics: no supported equipped weapon"
@@ -20831,9 +20990,30 @@ function buildXCUI()
     addSlider(R, "RCS yaw", "rcsYawFactor", 0.1, 2, 0.1, "x")
     toggle(R, "Fire rate", "fireRateEnabled")
     addSlider(R, "Fire interval", "fireRate", 0.01, 0.2, 0.01, "s")
-    toggle(R,"Fast reload animations","fastReloadEnabled")
+    toggle(R,"Reload animation boost","fastReloadEnabled")
     addSlider(R,"Reload animation speed","fastReloadSpeed",2,50,1,"x")
-    addNote(R,"Accelerates supported reload animations. Actual ammo readiness depends on the game.")
+    addNote(R,"Visual animation boost only. Reload diagnostics below measures the weapon state and readiness without changing them.")
+    local reloadDiagnosticNote = addNote(R,"Reload diagnostics: waiting for weapon state")
+    task.spawn(function()
+        while xcSessionActive() and reloadDiagnosticNote and reloadDiagnosticNote.Parent do
+            local d = XCFeatureState.ReloadDiagnostics
+            if XCConfig.hudDiagnosticsEnabled and type(d) == "table" then
+                local reloadText = d.Reloading and "RELOADING" or (d.Ready and "READY" or "NOT READY")
+                local reloadDuration = d.ReloadDuration and string.format("%.3fs", d.ReloadDuration) or "--"
+                local readyDuration = d.ReadyDuration and string.format("%.3fs", d.ReadyDuration) or "--"
+                reloadDiagnosticNote.Text = string.format(
+                    "Reload diagnostics: %s | reload %.3fs now | last reload %s | ready %s | ammo %s",
+                    reloadText, tonumber(d.CurrentDuration) or 0, reloadDuration, readyDuration,
+                    tostring(d.Ammo or "unknown")
+                )
+            elseif XCConfig.hudDiagnosticsEnabled then
+                reloadDiagnosticNote.Text = "Reload diagnostics: no supported equipped weapon"
+            else
+                reloadDiagnosticNote.Text = "Reload diagnostics: enable HUD diagnostics to observe actual reload/readiness"
+            end
+            task.wait(0.20)
+        end
+    end)
     addChoice(R,"Silent hitbox","silentHitboxMode",{"Legacy","Head","Torso","Root","Best point"})
     addChoice(R,"Rage hitbox","rageHitboxMode",{"Legacy","Head","Torso","Root","Best point"})
 
@@ -21347,7 +21527,7 @@ function buildXCUI()
     end)
     section(R,"diagnostics")
     toggle(R,"Show diagnostic panels","hudDiagnosticsEnabled")
-    addNote(R,"Enables the Silent Aim and Grenade ESP diagnostic panels when those features are active.")
+    addNote(R,"Enables the Silent Aim, Anti-Aim and Grenade ESP diagnostic panels when those features are active.")
     section(R,"quick setup")
     addButton(R,"MINIMAL HUD",function()
         for key,value in pairs({watermarkEnabled=true,hudSessionEnabled=false,hudFeaturesEnabled=false,
@@ -21952,7 +22132,69 @@ local currentCameraConnection = Workspace:GetPropertyChangedSignal("CurrentCamer
 end)
 table.insert(connections, currentCameraConnection)
 --// XC WEAPON MODS (ADAPTED) | XC No Recoil + No Spread + FireRate logic only. FireRate follows the source approach: discover weapon tables containing FireRate, remember their original values, and periodically write the configured interval while the XC toggle is enabled.
-local XCReload = {Tracks=setmetatable({}, {__mode="k"}),Next=0}
+local XCReload = {
+    Tracks=setmetatable({}, {__mode="k"}),
+    Next=0,
+    Diagnostics=XCFeatureState.ReloadDiagnostics or {
+        Weapon=nil, Reloading=false, Ready=false, Started=nil, ReloadEnded=nil,
+        ReloadDuration=nil, ReadyDuration=nil, CurrentDuration=0, Ammo="unknown",
+    },
+}
+XCFeatureState.ReloadDiagnostics = XCReload.Diagnostics
+
+function XCReload.readAmmoSnapshot(weapon)
+    if type(weapon) ~= "table" then return "unknown" end
+    local values = {}
+    local function scan(tbl, prefix)
+        if type(tbl) ~= "table" then return end
+        for key, value in next, tbl do
+            if type(value) == "number" then
+                local lower = tostring(key):lower()
+                if lower:find("ammo",1,true) or lower:find("mag",1,true) or lower:find("clip",1,true) then
+                    values[#values+1] = tostring(prefix or "") .. tostring(key) .. "=" .. tostring(value)
+                    if #values >= 4 then return end
+                end
+            end
+        end
+    end
+    scan(weapon, "")
+    if #values < 4 then scan(rawget(weapon,"State"), "State.") end
+    if #values < 4 then scan(rawget(weapon,"Properties"), "Prop.") end
+    table.sort(values)
+    return #values > 0 and table.concat(values, ", ") or "unknown"
+end
+
+function XCReload.observe(weapon, now)
+    local d = XCReload.Diagnostics
+    now = tonumber(now) or os.clock()
+    if type(weapon) ~= "table" or weapon.IsDestroyed then
+        d.Weapon=nil; d.Reloading=false; d.Ready=false; d.Started=nil
+        d.CurrentDuration=0; d.Ammo="unknown"
+        return
+    end
+    if d.Weapon ~= weapon then
+        d.Weapon=weapon; d.Reloading=false; d.Ready=false; d.Started=nil; d.ReloadEnded=nil
+        d.ReloadDuration=nil; d.ReadyDuration=nil; d.CurrentDuration=0
+    end
+    local reloading = weapon.IsReloading == true or weapon.Reloading == true
+    local ready = xcTriggerWeaponReady(weapon)
+    if reloading and not d.Reloading then
+        d.Started=now; d.ReloadEnded=nil; d.ReloadDuration=nil; d.ReadyDuration=nil
+        d.StartAmmo=XCReload.readAmmoSnapshot(weapon)
+    elseif not reloading and d.Reloading and d.Started then
+        d.ReloadEnded=now
+        d.ReloadDuration=math.max(0, now-d.Started)
+        d.EndAmmo=XCReload.readAmmoSnapshot(weapon)
+    end
+    if d.Started and not reloading and ready and not d.ReadyDuration then
+        d.ReadyDuration=math.max(0, now-d.Started)
+    end
+    d.Reloading=reloading
+    d.Ready=ready
+    d.CurrentDuration=(d.Started and reloading) and math.max(0, now-d.Started) or 0
+    d.Ammo=XCReload.readAmmoSnapshot(weapon)
+end
+
 function XCReload.restore()
     for track,record in pairs(XCReload.Tracks) do
         pcall(function()
@@ -21962,13 +22204,16 @@ function XCReload.restore()
     end
 end
 function XCReload.update()
-    if not XCConfig.fastReloadEnabled then XCReload.restore();return end
     local now=os.clock()
     if now<XCReload.Next then return end
     XCReload.Next=now+0.1
     local weapon=resolveXCTriggerWeapon()
+    if XCConfig.hudDiagnosticsEnabled or XCConfig.fastReloadEnabled then
+        XCReload.observe(weapon, now)
+    end
     if weapon~=XCReload.Weapon then XCReload.restore();XCReload.Weapon=weapon end
-    if not weapon or not weapon.IsReloading then XCReload.restore();return end
+    if not XCConfig.fastReloadEnabled then XCReload.restore();return end
+    if not weapon or not (weapon.IsReloading or weapon.Reloading) then XCReload.restore();return end
     local seen={}
     local speed=math.clamp(tonumber(XCConfig.fastReloadSpeed) or 15,2,50)
     local function visit(animator)
