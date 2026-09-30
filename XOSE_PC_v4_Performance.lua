@@ -713,6 +713,9 @@ local XCConfig = {
     skeletonDistanceFade = true,
     headDotEnabled = false,
     tracersEnabled = false,
+    grenadeTrailEnabled = false, grenadeTrailLifetime = 0.65,
+    silentHitboxMode = "Legacy", rageHitboxMode = "Legacy",
+    fastReloadEnabled = false, fastReloadSpeed = 15,
     grenadeEspEnabled = false,
     soundPositionEspEnabled = false,
     weaponEspEnabled = false,
@@ -4810,6 +4813,30 @@ end
 -- ScriptAdap target pass, executed only from the real Bullet raycast. The
 -- native ray module is also used for visibility so target selection and the
 -- weapon's collision rules cannot disagree.
+function XCCombatHitParts(character,mode,headPreferred,rage)
+    if mode==nil or mode=="Legacy" then
+        local part
+        if rage then
+            part=headPreferred and (character:FindFirstChild("Head") or character:FindFirstChild("UpperTorso") or character:FindFirstChild("HumanoidRootPart"))
+                or (character:FindFirstChild("UpperTorso") or character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso") or character:FindFirstChild("Head"))
+        else
+            part=character:FindFirstChild(headPreferred and "Head" or "HumanoidRootPart") or character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
+        end
+        return part and part:IsA("BasePart") and {part} or {}
+    end
+    local names=mode=="Head" and {"Head"} or mode=="Torso" and {"UpperTorso","Torso"}
+        or mode=="Root" and {"HumanoidRootPart"} or {"Head","UpperTorso","Torso","HumanoidRootPart"}
+    local result={}
+    for _,name in ipairs(names) do
+        local part=character:FindFirstChild(name)
+        if part and part:IsA("BasePart") then
+            result[#result+1]=part
+            if mode~="Best point" or #result>=3 then break end
+        end
+    end
+    return result
+end
+
 local function selectXCNativeSilentTarget(origin, properties)
     local cam = Workspace.CurrentCamera or camera
     if not cam or typeof(origin) ~= "Vector3" or not xcNativeRaycast
@@ -4832,10 +4859,7 @@ local function selectXCNativeSilentTarget(origin, properties)
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
         if not isEntityAlive(character, humanoid) then break end
 
-        local part = character:FindFirstChild(XCConfig.silentAimAimHead and "Head" or "HumanoidRootPart")
-            or character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
-        if not part or not part:IsA("BasePart") then break end
-
+        for _,part in ipairs(XCCombatHitParts(character,XCConfig.silentHitboxMode,XCConfig.silentAimAimHead,false)) do
         for _, multipoint in ipairs(XCBuildMultipoints(part)) do
             local position = multipoint.Position
             local point, onScreen = cam:WorldToViewportPoint(position)
@@ -4854,6 +4878,7 @@ local function selectXCNativeSilentTarget(origin, properties)
                     }
                 end
             end
+        end
         end
         until true
     end
@@ -12449,6 +12474,39 @@ function classifyXCGrenadeMarker(object)
 end
 
 
+XC_GRENADE_ICON.TrailCount = 0
+function XC_GRENADE_ICON.clearTrail(ui)
+    if not ui or not ui.FlightTrail then return end
+    pcall(function() ui.FlightTrail:Destroy() end)
+    pcall(function() ui.TrailA:Destroy() end)
+    pcall(function() ui.TrailB:Destroy() end)
+    ui.FlightTrail,ui.TrailA,ui.TrailB,ui.TrailPart=nil,nil,nil,nil
+    XC_GRENADE_ICON.TrailCount=math.max(0,XC_GRENADE_ICON.TrailCount-1)
+end
+function XC_GRENADE_ICON.updateTrail(ui,allowed)
+    local part=ui.Part
+    if not allowed or not part or not part.Parent then
+        XC_GRENADE_ICON.clearTrail(ui);return
+    end
+    if ui.FlightTrail and ui.TrailPart~=part then XC_GRENADE_ICON.clearTrail(ui) end
+    if not ui.FlightTrail then
+        if XC_GRENADE_ICON.TrailCount>=32 then return end
+        local a=Instance.new("Attachment",part);a.Name="XCFlightA"
+        local b=Instance.new("Attachment",part);b.Name="XCFlightB"
+        a.Position=Vector3.new(0,-0.035,0);b.Position=Vector3.new(0,0.035,0)
+        local trail=Instance.new("Trail",part);trail.Name="XCFlightTrail"
+        trail.Attachment0=a;trail.Attachment1=b;trail.FaceCamera=true
+        trail.MinLength=0.06;trail.LightEmission=0.65
+        trail.Color=ColorSequence.new(Color3.fromRGB(238,242,245))
+        trail.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.15),NumberSequenceKeypoint.new(1,1)})
+        trail.WidthScale=NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(1,0)})
+        ui.FlightTrail,ui.TrailA,ui.TrailB,ui.TrailPart=trail,a,b,part
+        XC_GRENADE_ICON.TrailCount+=1
+    end
+    local life=math.clamp(tonumber(XCConfig.grenadeTrailLifetime) or 0.65,0.15,1.5)
+    if ui.FlightTrail.Lifetime~=life then ui.FlightTrail.Lifetime=life end
+end
+
 function getOrCreateGrenadeUI(root, part, kind)
     local existing = grenadePool[root]
     if existing then
@@ -12557,6 +12615,7 @@ end
 
 function destroyXCGrenadeUI(ui)
     if not ui then return end
+    XC_GRENADE_ICON.clearTrail(ui)
     hideXCGrenadeUI(ui)
     pcall(function() ui.Sphere:Destroy() end)
     pcall(function() ui.Glow:Destroy() end)
@@ -12653,13 +12712,17 @@ function renderGrenadeOverlays()
                 continue
             end
             ui.Kind = currentKind
+            local _,_,fireZone=XC_GRENADE_ICON.resolveFire(root)
+            ui.IsFireZone=fireZone==true
         end
         if not root or not root.Parent or not part or not part.Parent or not part:IsDescendantOf(Workspace) then
             destroyXCGrenadeUI(ui)
             grenadePool[root] = nil
         else
-            local visible = enabled and camPosition ~= nil and not isEntityCharacter(root)
+            local inRange = camPosition ~= nil and not isEntityCharacter(root)
                 and (part.Position - camPosition).Magnitude <= maxDistance
+            XC_GRENADE_ICON.updateTrail(ui,XCConfig.grenadeTrailEnabled==true and inRange and not ui.IsFireZone)
+            local visible = enabled and inRange
             if not visible then
                 hideXCGrenadeUI(ui)
             else
@@ -13149,19 +13212,7 @@ function getRageTarget(originOverride, propertiesOverride)
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         if not isEntityAlive(char, hum) then break end
 
-        local hitPart
-        if XCConfig.silentAimAimHead then
-            hitPart = char:FindFirstChild("Head")
-                or char:FindFirstChild("UpperTorso")
-                or char:FindFirstChild("HumanoidRootPart")
-        else
-            hitPart = char:FindFirstChild("UpperTorso")
-                or char:FindFirstChild("HumanoidRootPart")
-                or char:FindFirstChild("Torso")
-                or char:FindFirstChild("Head")
-        end
-        if not hitPart or not hitPart:IsA("BasePart") then break end
-
+        for _,hitPart in ipairs(XCCombatHitParts(char,XCConfig.rageHitboxMode,XCConfig.silentAimAimHead,true)) do
         for _, multipoint in ipairs(XCBuildMultipoints(hitPart)) do
             repeat
             local shotPosition = multipoint.Position
@@ -13171,18 +13222,6 @@ function getRageTarget(originOverride, propertiesOverride)
 
             local angle = math.acos(math.clamp(camLook:Dot(delta.Unit), -1, 1))
             if angle > maxAngle then break end
-
-            local path = XCInspectShotPath(camPos, hitPart, char, properties, shotPosition)
-            local allowed = path.Visible
-                or XCConfig.extremeWallbangEnabled
-                or XCConfig.wallbangEnabled
-                or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
-            if not allowed then break end
-
-            local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
-                camPos, hitPart, char, properties, shotPosition, path
-            )
-            if not minDamageOk then break end
 
             local score
             if XCConfig.rageTargetMode == "Health" then
@@ -13199,6 +13238,20 @@ function getRageTarget(originOverride, propertiesOverride)
             end
 
             score = score + ((multipoint.Rank or 0) * 0.00001)
+            if score >= bestScore then break end
+
+            local path = XCInspectShotPath(camPos, hitPart, char, properties, shotPosition)
+            local allowed = path.Visible
+                or XCConfig.extremeWallbangEnabled
+                or XCConfig.wallbangEnabled
+                or (XCConfig.silentAimAutoWallEnabled and path.Reachable)
+            if not allowed then break end
+
+            local minDamageOk, estimatedDamage = XCPassesMinimumDamage(
+                camPos, hitPart, char, properties, shotPosition, path
+            )
+            if not minDamageOk then break end
+
             if score < bestScore then
                 bestScore = score
                 bestTarget = {
@@ -13215,6 +13268,7 @@ function getRageTarget(originOverride, propertiesOverride)
                 }
             end
             until true
+        end
         end
         until true
     end
@@ -17978,7 +18032,7 @@ function buildXCUI()
         killEffectDuration = "How long the selected kill effect remains visible.",
         noRecoilEnabled = "Suppresses supported weapon and camera recoil callbacks.",
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
-        fireRateEnabled = "Adjusts the active supported weapon's fire interval. WAIT means no supported active weapon; FALL means a legacy table fallback.",
+        fireRateEnabled = "Adjusts active weapon and discovered desktop weapon tables. WAIT means no supported table; FALL means discovery without native lookup.",
         fireRate = "Requested seconds between shots. The effective client-side minimum is 0.01 s; the game server may still enforce its own cadence.",
         menuGlassEnabled = "Applies translucent layered navigation and static glass highlights without full-screen blur.",
         menuGlassStrength = "Controls the transparency and highlight strength of the menu glass surfaces.",
@@ -18053,7 +18107,7 @@ function buildXCUI()
         priorityPlayerName = "Roblox player selected as the preferred target. The list uses live server usernames.",
         customScopeEnabled = "Draws the XC scope overlay when scoped.",
         customHandsEnabled = "Offsets the detected first-person weapon or hands model.",
-        grenadeEspEnabled = "Monochrome grenade silhouettes; Molotov markers remain on active fire after the bottle breaks. No radius or trajectory overlay.",
+        grenadeEspEnabled = "Monochrome grenade silhouettes; Molotov markers remain on active fire after the bottle breaks. Optional flight trail has its own toggle.",
         weaponEspEnabled = "Shows the equipped weapon with an icon when available and a readable name as fallback.",
         weaponEspStyle = "Icon shows a native weapon image without a frame; Text shows only the name; 3D permits a model when no image exists.",
         weaponEspShowName = "Displays the weapon name alongside its icon; a name is always shown when the icon is unavailable.",
@@ -20735,6 +20789,11 @@ function buildXCUI()
     addSlider(R, "RCS yaw", "rcsYawFactor", 0.1, 2, 0.1, "x")
     toggle(R, "Fire rate", "fireRateEnabled")
     addSlider(R, "Fire interval", "fireRate", 0.01, 0.2, 0.01, "s")
+    toggle(R,"Fast reload animations","fastReloadEnabled")
+    addSlider(R,"Reload animation speed","fastReloadSpeed",2,50,1,"x")
+    addNote(R,"Accelerates supported reload animations. Actual ammo readiness depends on the game.")
+    addChoice(R,"Silent hitbox","silentHitboxMode",{"Legacy","Head","Torso","Root","Best point"})
+    addChoice(R,"Rage hitbox","rageHitboxMode",{"Legacy","Head","Torso","Root","Best point"})
 
     task.wait()
     L, R = columns("AntiAim", "Movement", "Camera & anti-aim")
@@ -20877,7 +20936,9 @@ function buildXCUI()
     addESPPreview(R)
     section(R, "ESP indicators")
     toggle(R, "Grenade ESP", "grenadeEspEnabled")
-    addNote(R, "3D sphere + HE / FLASH / SMOKE / FIRE icon. No danger zones or trajectory clutter.")
+    toggle(R, "Grenade flight trail", "grenadeTrailEnabled")
+    addSlider(R,"Trail lifetime","grenadeTrailLifetime",0.15,1.5,0.05,"s")
+    addNote(R, "3D sphere + HE / FLASH / SMOKE / FIRE icon. Optional monochrome flight trail with bounded lifetime.")
     toggle(R, "Sound position ESP", "soundPositionEspEnabled")
     addSlider(R, "Sound marker duration", "soundEspDuration", 0.4, 2.5, 0.05, "s")
     toggle(R, "Tracers", "tracersEnabled")
@@ -21847,6 +21908,53 @@ local currentCameraConnection = Workspace:GetPropertyChangedSignal("CurrentCamer
 end)
 table.insert(connections, currentCameraConnection)
 --// XC WEAPON MODS (ADAPTED) | XC No Recoil + No Spread + FireRate logic only. FireRate follows the source approach: discover weapon tables containing FireRate, remember their original values, and periodically write the configured interval while the XC toggle is enabled.
+local XCReload = {Tracks=setmetatable({}, {__mode="k"}),Next=0}
+function XCReload.restore()
+    for track,record in pairs(XCReload.Tracks) do
+        pcall(function()
+            if track.Speed==record.Applied then track:AdjustSpeed(record.Original) end
+        end)
+        XCReload.Tracks[track]=nil
+    end
+end
+function XCReload.update()
+    if not XCConfig.fastReloadEnabled then XCReload.restore();return end
+    local now=os.clock()
+    if now<XCReload.Next then return end
+    XCReload.Next=now+0.1
+    local weapon=resolveXCTriggerWeapon()
+    if weapon~=XCReload.Weapon then XCReload.restore();XCReload.Weapon=weapon end
+    if not weapon or not weapon.IsReloading then XCReload.restore();return end
+    local seen={}
+    local speed=math.clamp(tonumber(XCConfig.fastReloadSpeed) or 15,2,50)
+    local function visit(animator)
+        if type(animator)~="table" or type(animator.Animations)~="table" then return end
+        for name,track in pairs(animator.Animations) do
+            if name=="Reload" or name=="ReloadStart" or name=="ReloadAction" or name=="ReloadEnd" then
+                pcall(function()
+                    if not track.IsPlaying then return end
+                    seen[track]=true
+                    local record=XCReload.Tracks[track]
+                    if not record then
+                        if type(track.Speed)~="number" or track.Speed<=0 then return end
+                        record={Original=track.Speed};XCReload.Tracks[track]=record
+                    end
+                    local desired=record.Original*speed
+                    if record.Applied~=desired or track.Speed~=desired then track:AdjustSpeed(desired);record.Applied=desired end
+                end)
+            end
+        end
+    end
+    visit(weapon.Viewmodel and weapon.Viewmodel.Animation)
+    visit(weapon.CharacterAnimator)
+    for track,record in pairs(XCReload.Tracks) do
+        if not seen[track] then
+            pcall(function() if track.Speed==record.Applied then track:AdjustSpeed(record.Original) end end)
+            XCReload.Tracks[track]=nil
+        end
+    end
+end
+
 local xcRecoilSpreadInstalled = false
 local xcFireRateInstalled = false
 local xcFireRateObjects = {}
@@ -21909,7 +22017,7 @@ local function applyXCNativeFireRate()
         end
         record = {
             Properties = weapon.Properties,
-            OriginalFireRate = rawget(weapon.Properties, "FireRate"),
+            OriginalFireRate = xcFireRateOriginal[weapon.Properties] or rawget(weapon.Properties, "FireRate"),
             OriginalAutomatic = rawget(weapon.Properties, "Automatic"),
             Readonly = readonly,
         }
@@ -21940,13 +22048,13 @@ end
 
 if genv then
     genv.XCRestoreWeaponState = function()
+        XCReload.restore()
         restoreXCNativeFireRate(nil)
         restoreXCFireRates()
     end
 end
 
 function scanXCFireRateObjects()
-    if xcFireRateScanDone then return #xcFireRateObjects > 0 end
     if type(getgc) ~= "function" then return false end
     local now = os.clock()
     if now < (XCFeatureState.fireRateNextGcScan or 0) then return false end
@@ -21960,16 +22068,14 @@ function scanXCFireRateObjects()
             if type(obj) == "table" then
                 local fireRate = rawget(obj, "FireRate")
                 if type(fireRate) == "number" then
-                    local already = false
-                    for _, existing in ipairs(xcFireRateObjects) do
-                        if existing == obj then
-                            already = true
-                            break
-                        end
-                    end
+                    local already = xcFireRateOriginal[obj] ~= nil
                     if not already then
                         table.insert(xcFireRateObjects, obj)
-                        xcFireRateOriginal[obj] = fireRate
+                        local original = fireRate
+                        for _, record in pairs(xcFireRateWeaponRecords) do
+                            if record.Properties == obj then original = record.OriginalFireRate; break end
+                        end
+                        xcFireRateOriginal[obj] = original
                         if type(isreadonly) == "function" then
                             local okReadonly, readonly = pcall(isreadonly, obj)
                             if okReadonly then xcFireRateReadonly[obj] = readonly == true end
@@ -22005,6 +22111,7 @@ end
 function applyXCFireRate()
     local requested = math.max(tonumber(XCConfig.fireRate) or 0.01, 0.01)
     for _, obj in ipairs(xcFireRateObjects) do
+        if rawget(obj,"FireRate")==requested then continue end
         pcall(function()
             if type(setreadonly) == "function" then setreadonly(obj, false) end
             rawset(obj, "FireRate", requested)
@@ -22015,36 +22122,44 @@ function applyXCFireRate()
     end
 end
 
+-- One update transaction: broad desktop discovery and the active weapon agree on
+-- the same requested interval. Never restore a tracked table while enabled.
+local function updateXCFireRate()
+    if not UserInputService.TouchEnabled then
+        scanXCFireRateObjects()
+    elseif #xcFireRateObjects > 0 then
+        restoreXCFireRates()
+        table.clear(xcFireRateObjects)
+        table.clear(xcFireRateOriginal)
+        table.clear(xcFireRateReadonly)
+    end
+    local nativeApplied = applyXCNativeFireRate()
+    -- Native weapon switching may restore an old active table. Reapply discovered
+    -- intervals after that restoration without yielding between the two writers.
+    if not UserInputService.TouchEnabled then applyXCFireRate() end
+    XCFeatureState.fireRateStatus = nativeApplied and "ON"
+        or (#xcFireRateObjects > 0 and "FALL" or "WAIT")
+end
+
 task.spawn(function()
     local wasEnabled = false
-    while xcSessionActive() and task.wait(0.1) do
+    while xcSessionActive() and task.wait(0.05) do
         if not xcSessionActive() then break end
         pcall(function()
-            if XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate then
-                local nativeApplied = applyXCNativeFireRate()
-                XCFeatureState.fireRateStatus = nativeApplied and "ON" or "WAIT"
-                if nativeApplied then
-                    -- Undo the broad legacy getgc writer once the equipped
-                    -- weapon can be modified through its native Properties.
-                    if #xcFireRateObjects > 0 then restoreXCFireRates() end
-                elseif not UserInputService.TouchEnabled then
-                    if #xcFireRateObjects == 0 then
-                        -- The game can create weapon data after injection/respawn.
-                        xcFireRateScanDone = false
-                    end
-                    if not xcFireRateScanDone then scanXCFireRateObjects() end
-                    applyXCFireRate()
-                    if #xcFireRateObjects > 0 then XCFeatureState.fireRateStatus = "FALL" end
-                else
-                    -- Never use broad getgc property writes on mobile.
-                    restoreXCFireRates()
-                end
+            XCReload.update()
+            local enabled = XCConfig.fireRateEnabled and lazyFeatureRequests.fireRate
+            if enabled then
+                updateXCFireRate()
             elseif wasEnabled then
                 restoreXCNativeFireRate(nil)
                 restoreXCFireRates()
+                table.clear(xcFireRateObjects)
+                table.clear(xcFireRateOriginal)
+                table.clear(xcFireRateReadonly)
+                XCFeatureState.fireRateNextGcScan = nil
                 XCFeatureState.fireRateStatus = nil
             end
-            wasEnabled = XCConfig.fireRateEnabled
+            wasEnabled = enabled
         end)
     end
 end)
