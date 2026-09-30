@@ -4966,10 +4966,9 @@ local function redirectXCNativeSilentShot(bullet, shot)
         return shot
     end
 
-    -- In native third person the camera sits behind the avatar, while bullets
-    -- must originate at the character/weapon side. Using the camera-built
-    -- origin makes visibility and the redirected ray disagree near cover.
-    local shotOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+    -- The native Bullet origin is authoritative, including third person.
+    -- Screen-space FOV uses the camera; shot paths retain the actual shot origin.
+    local shotOrigin = shot.Origin
     local target = selectXCNativeSilentTarget(shotOrigin, bullet.Properties or {})
     local targetPart = target and target.Part
     if not targetPart or not targetPart.Parent then
@@ -5025,7 +5024,8 @@ local function processXCNativeLocalShot(bullet, shot)
         -- Third-person camera rays originate behind the avatar. Rebuild only
         -- the ray fields from the character-side origin toward the camera
         -- crosshair, then merge them into the original shot payload.
-        if XCConfig.thirdPersonEnabled and type(shot) == "table" and typeof(shot.Origin) == "Vector3" then
+        if XCConfig.thirdPersonEnabled and not (XCConfig.silentAimEnabled or XCConfig.rageBotEnabled)
+            and type(shot) == "table" and typeof(shot.Origin) == "Vector3" then
             local properties = type(bullet.Properties) == "table" and bullet.Properties or {}
             local range = math.max(1, tonumber(properties.Range) or 500)
             local thirdOrigin = getXCSilentShotOrigin()
@@ -5055,7 +5055,7 @@ local function processXCNativeLocalShot(bullet, shot)
             and typeof(shot.Origin) == "Vector3"
             and type(getRageTarget) == "function" then
 
-            local rageOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+            local rageOrigin = shot.Origin
             local rageTarget = getRageTarget(
                 rageOrigin,
                 type(bullet.Properties) == "table" and bullet.Properties or {}
@@ -5090,7 +5090,7 @@ local function processXCNativeLocalShot(bullet, shot)
                 and targetPart.Parent
                 and (not targetCharacter or targetPart:IsDescendantOf(targetCharacter)) then
 
-                local shotOrigin = XCConfig.thirdPersonEnabled and getXCSilentShotOrigin() or shot.Origin
+                local shotOrigin = shot.Origin
                 local targetPosition = typeof(queued.Position) == "Vector3"
                     and queued.Position
                     or targetPart.Position
@@ -11992,6 +11992,9 @@ wmMetrics.Font = Enum.Font.GothamMedium
 
 --// GLASS HUD STUDIO
 local XCHudGlass = {Started = os.clock(), Cards = {}, Connections = {}, FPS = 0, Ping = nil}
+function XCHudGlass.set(object,key,value)
+    if object[key]~=value then object[key]=value end
+end
 function XCHudGlass.duration(seconds)
     seconds = math.max(0, math.floor(tonumber(seconds) or 0))
     return string.format("%02d:%02d:%02d", math.floor(seconds/3600), math.floor(seconds/60)%60, seconds%60)
@@ -12005,12 +12008,11 @@ function XCHudGlass.surface(frame,radius)
     frame.BackgroundTransparency=0.30
     frame.BorderSizePixel=0
     Instance.new("UICorner",frame).CornerRadius=UDim.new(0,radius or 18)
-    local lens=XCLensSurface(frame,radius or 18)
-    lens.DiagonalReflection.Visible=false
-    lens.InnerContour.Visible=false
-    lens.BeveledEdge:FindFirstChildOfClass("UIStroke").Thickness=1
     local stroke=Instance.new("UIStroke",frame)
-    stroke.Transparency=1
+    stroke.Color=Color3.fromRGB(214,224,228);stroke.Transparency=0.72;stroke.Thickness=1
+    local rim=Instance.new("UIGradient",stroke)
+    rim.Rotation=80
+    rim.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(0.5,0.8),NumberSequenceKeypoint.new(1,0.3)})
     return stroke
 end
 function XCHudGlass.label(parent,size,bold)
@@ -12100,25 +12102,26 @@ function XCHudGlass.metricValues(now)
 end
 function XCHudGlass.renderWatermark(now)
     local brand=tostring(XCConfig.watermarkText or "XOSE"):sub(1,28)
-    XCHudGlass.Brand.Text=brand
+    XCHudGlass.set(XCHudGlass.Brand,"Text",brand)
     if XCHudGlass.BrandValue~=brand then
         XCHudGlass.BrandValue=brand
         XCHudGlass.BrandWidth=math.clamp(XCHudGlass.TextService:GetTextSize(brand,12,Enum.Font.GothamBold,Vector2.new(300,36)).X,34,180)
     end
-    XCHudGlass.Brand.Size=UDim2.fromOffset(XCHudGlass.BrandWidth,36)
+    XCHudGlass.set(XCHudGlass.Brand,"Size",UDim2.fromOffset(XCHudGlass.BrandWidth,36))
     local x=18+XCHudGlass.BrandWidth+16
     for _,entry in ipairs(XCHudGlass.metricValues(now)) do
         local slot=XCHudGlass.Metrics[entry[1]]
-        slot.Label.Visible=entry[2]==true;slot.Divider.Visible=slot.Label.Visible
+        XCHudGlass.set(slot.Label,"Visible",entry[2]==true)
+        XCHudGlass.set(slot.Divider,"Visible",slot.Label.Visible)
         if slot.Label.Visible then
-            slot.Divider.Position=UDim2.fromOffset(x,12)
-            slot.Label.Position=UDim2.fromOffset(x+13,0)
-            slot.Label.Text=entry[3]
+            XCHudGlass.set(slot.Divider,"Position",UDim2.fromOffset(x,12))
+            XCHudGlass.set(slot.Label,"Position",UDim2.fromOffset(x+13,0))
+            XCHudGlass.set(slot.Label,"Text",entry[3])
             x=x+slot.Width
         end
     end
     XCHudGlass.Watermark.Width=x+6
-    wmCard.Size=UDim2.fromOffset(x+6,36)
+    XCHudGlass.set(wmCard,"Size",UDim2.fromOffset(x+6,36))
 end
 -- HUD decoration never consumes input. Only the panel itself becomes interactive in edit mode.
 function XCHudGlass.inputMode(data,editing)
@@ -12171,8 +12174,14 @@ end))
 function XCHudGlass.place(data,prefix,enabled,viewport)
     local frame=data.Frame
     XCHudGlass.inputMode(data,XCConfig.hudEditLayout==true)
-    frame.Visible=enabled or XCConfig.hudEditLayout==true
+    XCHudGlass.set(frame,"Visible",enabled or XCConfig.hudEditLayout==true)
     if not frame.Visible then return end
+    local stamp=table.concat({viewport.X,viewport.Y,data.Width,data.Height,
+        tostring(XCConfig.hudEditLayout),tostring(XCConfig.watermarkScale),tostring(XCConfig.hudScale),
+        tostring(XCConfig[prefix.."X"]),tostring(XCConfig[prefix.."Y"]),
+        tostring(XCConfig.watermarkOpacity),tostring(XCConfig.hudOpacity)},"|")
+    if data.LayoutStamp==stamp then return end
+    data.LayoutStamp=stamp
     local wanted=prefix=="hudWatermark" and XCConfig.watermarkScale or XCConfig.hudScale
     local scale=math.min(math.clamp(tonumber(wanted) or 1,0.7,1.8),
         math.max(0.1,(viewport.X-16)/data.Width),math.max(0.1,(viewport.Y-16)/data.Height))
@@ -12182,10 +12191,9 @@ function XCHudGlass.place(data,prefix,enabled,viewport)
         math.clamp(tonumber(XCConfig[prefix.."X"]) or 0,0,1)*math.max(1,viewport.X-size.X),
         math.clamp(tonumber(XCConfig[prefix.."Y"]) or 0,0,1)*math.max(1,viewport.Y-size.Y),size.X,size.Y,viewport)
     frame.Position=UDim2.fromOffset(x,y)
-    XCLensIntensity(frame:FindFirstChild("OpticalGlass"),prefix=="hudWatermark" and (tonumber(XCConfig.watermarkGlassStrength) or 0.86)*0.60 or 0.48)
     local opacity=prefix=="hudWatermark" and XCConfig.watermarkOpacity or XCConfig.hudOpacity
     frame.BackgroundTransparency=1-math.clamp(tonumber(opacity) or 0.82,0.35,1)
-    data.Stroke.Transparency=XCConfig.hudEditLayout and 0.45 or 1
+    data.Stroke.Transparency=XCConfig.hudEditLayout and 0.35 or 0.72
     data.Stroke.Color=Color3.fromRGB(220,233,238)
 
 end
@@ -12194,14 +12202,17 @@ function XCHudGlass.update()
     if not cam then return end
     local viewport=cam.ViewportSize
     local elapsed=XCHudGlass.duration(os.clock()-XCHudGlass.Started)
-    XCHudGlass.renderWatermark(os.clock())
+    if XCConfig.watermarkEnabled or XCConfig.hudEditLayout then XCHudGlass.renderWatermark(os.clock()) end
     XCHudGlass.place(XCHudGlass.Watermark,"hudWatermark",XCConfig.watermarkEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Session,"hudSession",XCConfig.hudSessionEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Features,"hudFeatures",XCConfig.hudFeaturesEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Player,"hudPlayer",XCConfig.hudPlayerEnabled,viewport)
     XCHudGlass.place(XCHudGlass.Performance,"hudPerformance",XCConfig.hudPerformanceEnabled,viewport)
-    XCHudGlass.Session.Text.Text=elapsed
-    XCHudGlass.Session.Detail.Text=tostring(#Players:GetPlayers()).." players  /  "..os.date("%H:%M")
+    if XCHudGlass.Session.Frame.Visible then
+    XCHudGlass.set(XCHudGlass.Session.Text,"Text",elapsed)
+    XCHudGlass.set(XCHudGlass.Session.Detail,"Text",tostring(#Players:GetPlayers()).." players  /  "..os.date("%H:%M"))
+    end
+    if XCHudGlass.Features.Frame.Visible then
     local active={}
     for _,entry in ipairs({{"silentAimEnabled","Silent aim"},{"aimbotEnabled","Aim tracking"},
         {"rageBotEnabled","Ragebot"},{"boxEspEnabled","Box ESP"},{"grenadeEspEnabled","Grenade ESP"},
@@ -12209,12 +12220,14 @@ function XCHudGlass.update()
         if XCConfig[entry[1]]==true then table.insert(active,entry[2]) end
     end
     for i,row in ipairs(XCHudGlass.Features.Rows) do
-        row.Visible=active[i]~=nil or (#active==0 and i==1)
-        row.Text=active[i] or "No active features"
-        row:FindFirstChildOfClass("Frame").Visible=active[i]~=nil
+        XCHudGlass.set(row,"Visible",active[i]~=nil or (#active==0 and i==1))
+        XCHudGlass.set(row,"Text",active[i] or "No active features")
+        XCHudGlass.set(row:FindFirstChildOfClass("Frame"),"Visible",active[i]~=nil)
     end
     XCHudGlass.Features.Height=math.max(70,44+#active*23)
-    XCHudGlass.Features.Frame.Size=UDim2.fromOffset(206,XCHudGlass.Features.Height)
+    XCHudGlass.set(XCHudGlass.Features.Frame,"Size",UDim2.fromOffset(206,XCHudGlass.Features.Height))
+    end
+    if XCHudGlass.Player.Frame.Visible then
     local char=player.Character
     local hum=char and char:FindFirstChildOfClass("Humanoid")
     local root=char and char:FindFirstChild("HumanoidRootPart")
@@ -12222,15 +12235,17 @@ function XCHudGlass.update()
     local maximum=hum and math.max(1,hum.MaxHealth) or 100
     local velocity=root and root.AssemblyLinearVelocity
     local speed=velocity and math.sqrt(velocity.X*velocity.X+velocity.Z*velocity.Z) or 0
-    XCHudGlass.Player.Text.Text=hum and string.format("%d / %d HP",health,maximum) or "Respawning"
-    XCHudGlass.Player.Detail.Text=string.format("Movement  %.0f studs/s",speed)
-    XCHudGlass.Player.Detail.Position=UDim2.fromOffset(16,50)
-    XCHudGlass.HealthFill.Size=UDim2.fromScale(math.clamp(health/maximum,0,1),1)
-    XCHudGlass.HealthFill.BackgroundColor3=Color3.fromRGB(242,116,132):Lerp(Color3.fromRGB(218,235,235),math.clamp(health/maximum,0,1))
-    XCHudGlass.Performance.Text.Text=string.format("%d fps  /  %s ms",XCHudGlass.FPS,XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--")
-    XCHudGlass.Performance.Detail.Text=XCHudGlass.FPS>0 and string.format("Frame estimate  %.1f ms",1000/XCHudGlass.FPS) or "Collecting samples"
+    XCHudGlass.set(XCHudGlass.Player.Text,"Text",hum and string.format("%d / %d HP",health,maximum) or "Respawning")
+    XCHudGlass.set(XCHudGlass.Player.Detail,"Text",string.format("Movement  %.0f studs/s",speed))
+    XCHudGlass.set(XCHudGlass.Player.Detail,"Position",UDim2.fromOffset(16,50))
+    XCHudGlass.set(XCHudGlass.HealthFill,"Size",UDim2.fromScale(math.clamp(health/maximum,0,1),1))
+    XCHudGlass.set(XCHudGlass.HealthFill,"BackgroundColor3",Color3.fromRGB(242,116,132):Lerp(Color3.fromRGB(218,235,235),math.clamp(health/maximum,0,1)))
+    end
+    if XCHudGlass.Performance.Frame.Visible then
+    XCHudGlass.set(XCHudGlass.Performance.Text,"Text",string.format("%d fps  /  %s ms",XCHudGlass.FPS,XCHudGlass.Ping and tostring(XCHudGlass.Ping) or "--"))
+    XCHudGlass.set(XCHudGlass.Performance.Detail,"Text",XCHudGlass.FPS>0 and string.format("Frame estimate  %.1f ms",1000/XCHudGlass.FPS) or "Collecting samples")
+    end
 end
-
 local fpsCounter = 0
 local lastFpsUpdate = tick()
 --// GRENADE ESP 2.0 | NEVERLOSE SPHERE MARKERS
@@ -15713,7 +15728,11 @@ table.insert(connections, RunService.RenderStepped:Connect(function(dt)
     interfaceRefreshAccumulator = interfaceRefreshAccumulator + (dt)
     if interfaceRefreshAccumulator >= 0.1 then
         interfaceRefreshAccumulator = 0
-        XCHudGlass.update()
+        local hudNow=os.clock()
+        if XCConfig.hudEditLayout or hudNow>=(XCHudGlass.NextUpdate or 0) then
+            XCHudGlass.NextUpdate=hudNow+0.25
+            XCHudGlass.update()
+        end
 
         if fovFrame then
             local isFovVisible = XCConfig.aimbotEnabled and XCConfig.showFovCircle
