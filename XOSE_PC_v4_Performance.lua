@@ -1,3 +1,15 @@
+-- Startup isolation for REAL Executor; no keys or personal data are logged.
+local XCStartupLog={}
+local function XCStartupMark(label)
+    if XCStartupLog[label] then return end
+    XCStartupLog[label]=true
+    XCStartupLog[#XCStartupLog+1]=string.format("%.2f %s",os.clock(),label)
+    pcall(function()
+        if type(writefile)=="function" then writefile("xose-startup-v5-safe.log",table.concat(XCStartupLog,"\n")) end
+    end)
+    pcall(function() print("[XOSE startup] "..label) end)
+end
+XCStartupMark("script entered / awaiting authorization")
 -- Neutral optical rim shared by access, menu and HUD. No external textures.
 local function XCLensSurface(surface, radius)
     local old=surface:FindFirstChild("OpticalGlass")
@@ -563,6 +575,7 @@ do
     if not authenticated then return end
     print("[XOSE] Authenticated. Premium:", env.XOSE_PREMIUM == true)
 end
+XCStartupMark("authorization completed")
 --// END XOSE ACCESS GATEWAY ---------------------------------------------------
 
 -- XC Visual Modules 3-4: interface refinement + UI workload optimization
@@ -669,7 +682,7 @@ local XCConfig = {
 
     -- Anime startup greeting
     -- v3 streams the normal + wink PNGs from GitHub and keeps them in executor cache.
-    greetingEnabled = true,
+    greetingEnabled = false,
     greetingDuration = 4.0,
     greetingScale = 1.0,
     greetingGlassStrength = 0.88,
@@ -743,8 +756,8 @@ local XCConfig = {
     rageDiagnosticsEnabled = false,
     rageDiagnosticsWallThickness = 1.0,
 
-    bulletTrailEnabled = true,
-    bulletFlashEnabled = true,
+    bulletTrailEnabled = false,
+    bulletFlashEnabled = false,
     weaponChamsEnabled = false,
     customScopeEnabled = false,
     scopeRemoveOriginal = false,
@@ -3411,6 +3424,8 @@ local function renderXCBulletEffects(shot, bullet)
 end
 
 function setupBloxStrikeShootHook()
+    if not (XCConfig.bulletTrailEnabled or XCConfig.bulletFlashEnabled) then return false end
+    XCStartupMark("requested: setupBloxStrikeShootHook")
     if bloxStrikeShootHooked then return end
     
     pcall(function()
@@ -5157,6 +5172,8 @@ if sharedXCEnv then
 end
 
 function setupXCNativeSilentHook()
+    if not (XCConfig.silentAimEnabled or XCConfig.rageBotEnabled or XCConfig.triggerbotEnabled or XCConfig.thirdPersonEnabled or XCConfig.bulletTrailEnabled or XCConfig.bulletFlashEnabled) then return false end
+    XCStartupMark("requested: setupXCNativeSilentHook")
     if xcNativeSilentHooked then return true end
     -- ScriptAdap-compatible path: hook the weapon's real raycast on every
     -- platform. It runs once per actual local shot and cannot consume mobile
@@ -6064,6 +6081,7 @@ task.spawn(function()
 end)
 --// XC stage-1 wrapper | Split here so each Luau function stays well below the 200-local limit.
 function XCInitStage1()
+XCStartupMark("stage 1 entered")
 --// EXTRA XC MODULES | Skin/knife/gloves are already handled above. These modules are intentionally self-contained so they do not interfere with the existing aim/ESP/render engines.
 
 local noFallLastCharacter = nil
@@ -6401,6 +6419,8 @@ end
 -- not depend on it: a late RenderStepped pass below handles split/renamed
 -- viewmodels too.
 function setupXCCustomHandsHook()
+    if not (XCConfig.customHandsEnabled) then return false end
+    XCStartupMark("requested: setupXCCustomHandsHook")
     pcall(function()
         local candidates = {}
         local classes = ReplicatedStorage:FindFirstChild("Classes")
@@ -11297,11 +11317,11 @@ XCFeatureState = {
 -- network, disk, custom-asset registration and texture decoding off the
 -- animation path. The task yields independently and never blocks XOSE startup.
 task.defer(function()
-    pcall(function() XCGreetingPrewarmAssets() end)
+    if XCConfig.greetingEnabled then pcall(function() XCGreetingPrewarmAssets() end) end
 end)
 
 task.defer(function()
-    pcall(function() XCGreetingVoicePrewarm() end)
+    if XCConfig.greetingEnabled then pcall(function() XCGreetingVoicePrewarm() end) end
 end)
 
 function isXCSmokeObject(object)
@@ -16426,6 +16446,8 @@ local function resolveXCAntiAimYaw(mode, originalYaw, elapsed, step, state, root
 end
 
 function setupXCCharacterInputHook()
+    if not (XCConfig.antiAimEnabled or XCConfig.bunnyHopEnabled) then return false end
+    XCStartupMark("requested: setupXCCharacterInputHook")
     if xcCharacterInputHook.Ready then return true end
     local ok, failure = pcall(function()
         local classes = ReplicatedStorage:FindFirstChild("Classes")
@@ -16685,6 +16707,7 @@ end))
 
 --// XC stage-2 wrapper | Keeps the main chunk below Luau's 200-local limit.
 function XCInitStage2()
+XCStartupMark("stage 2 entered")
 --// GROUND CHECK & MOBILE INPUT HOOKS
 local groundRayParams = RaycastParams.new()
 groundRayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -21823,6 +21846,8 @@ local thirdPersonCameraConnection
 local thirdPersonMetaInstalled = false
 
 function installThirdPersonProtection()
+    if not (XCConfig.thirdPersonEnabled) then return false end
+    XCStartupMark("requested: installThirdPersonProtection")
     if thirdPersonMetaInstalled then return end
     if sharedXCEnv and sharedXCEnv.XCThirdPersonMetaV54 then
         thirdPersonMetaInstalled = true
@@ -22475,6 +22500,8 @@ end
 if sharedXCEnv then sharedXCEnv.XCBeginExtremePayloadTransactionV37 = beginXCExtremePayloadTransactionV37 end
 
 function setupXCSilentSendHook()
+    if not (XCConfig.extremeWallbangEnabled) then return false end
+    XCStartupMark("requested: setupXCSilentSendHook")
     if xcSilentSendHooked then return end
     -- Keep the Send hook available on desktop as well: normal Silent Aim still
     -- prefers the native/InventoryController path, but Extreme Wallbang needs a
@@ -22556,10 +22583,7 @@ function setupXCSilentSendHook()
     xcSilentSendHooked = true
 end
 --// ENGINE LAUNCH / XC VISUAL EXTENSION
-pcall(setupXCNativeSilentHook)
-pcall(setupBloxStrikeShootHook)
-pcall(setupXCSilentSendHook)
-pcall(setupXCCharacterInputHook)
+XCStartupMark("engine launch / hooks deferred")
 task.spawn(function()
     while xcSessionActive() and not xcSilentSendHooked do
         if XCConfig.extremeWallbangEnabled then
@@ -22570,7 +22594,7 @@ task.spawn(function()
         end
     end
 end)
-pcall(setupXCCustomHandsHook)
+XCStartupMark("startup hooks skipped")
 task.spawn(function()
     while xcSessionActive() do
         if not xcCharacterInputHook.Ready and (XCConfig.antiAimEnabled or XCConfig.bunnyHopEnabled) then
@@ -22583,7 +22607,8 @@ task.spawn(function()
 end)
 task.spawn(function()
     while xcSessionActive() and not xcNativeSilentHooked do
-        if XCConfig.silentAimEnabled then
+        if XCConfig.silentAimEnabled or XCConfig.rageBotEnabled or XCConfig.triggerbotEnabled
+            or XCConfig.thirdPersonEnabled or XCConfig.bulletTrailEnabled or XCConfig.bulletFlashEnabled then
             setupXCNativeSilentHook()
             if not xcNativeSilentHooked then task.wait(1.0) end
         else
@@ -22597,7 +22622,20 @@ pcall(function()
     local oldVoice = SoundService:FindFirstChild("XCGreetingVoice")
     if oldVoice then oldVoice:Destroy() end
 end)
+XCStartupMark("UI build begin")
 XCFeatureState.uiBuildOK, XCFeatureState.uiBuildError = pcall(buildXCUI)
+XCStartupMark(XCFeatureState.uiBuildOK and "UI build completed" or "UI build failed")
+if not XCFeatureState.uiBuildOK then pcall(function() warn(XCFeatureState.uiBuildError) end) end
+task.delay(10,function()
+    if xcSessionActive() then XCStartupMark("session alive 10 seconds after UI") end
+end)
+task.spawn(function()
+    while xcSessionActive() do
+        if XCConfig.bulletTrailEnabled or XCConfig.bulletFlashEnabled then pcall(setupBloxStrikeShootHook) end
+        if XCConfig.thirdPersonEnabled then pcall(installThirdPersonProtection) end
+        task.wait(1)
+    end
+end)
 if not XCFeatureState.uiBuildOK then
     warn("[XC] UI startup failed: " .. tostring(XCFeatureState.uiBuildError))
     pcall(function()
@@ -22801,3 +22839,5 @@ end -- XCInitStage1
 
 XCInitStage1()
 XCInitStage1 = nil
+
+XCStartupMark("initialization returned")
