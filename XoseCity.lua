@@ -1,4 +1,4 @@
---// XOSE v80 | Monochrome UI redesign on top of the v78 RenderStepped ESP path, per-frame refresh and player isolation
+--// XOSE v81 COMPATIBILITY PATCH | Monochrome UI redesign on top of the v78 RenderStepped ESP path, per-frame refresh and player isolation
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
     -- XOSE Monochrome access gateway. Only the presentation layer was
@@ -3495,68 +3495,81 @@ end
 
 function xcHasActiveTeam(owner)
     if not owner then return false end
-
-    -- BloxStrike replicates the actual round team through the Player's Team
-    -- attribute. The Roblox Team property can stay populated for users that
-    -- are sitting in the menu/lobby, so it is not a valid combat-state test.
-    local charactersFolder = Workspace:FindFirstChild("Characters")
-    if charactersFolder then
-        return xcBloxStrikeTeamToken(owner) ~= nil
+    -- V81: game updates can change attribute spelling and team labels.
+    -- Do not treat the Roblox Team property alone as an active round marker.
+    local attributes = {owner:GetAttribute("Team"), owner:GetAttribute("Faction"), owner:GetAttribute("Side")}
+    for _, token in pairs(attributes) do
+        if token ~= nil then
+            local name = tostring(token):lower():gsub("[%s_%-]", "")
+            if name ~= "" and name ~= "lobby" and name ~= "menu"
+                and name ~= "spectator" and name ~= "spectators"
+                and name ~= "none" and name ~= "neutral"
+                and name ~= "loading" then
+                return true
+            end
+        end
     end
-
-    -- Generic fallback for places without BloxStrike's Characters contract.
-    local localTeam = player.Team or player:GetAttribute("Team")
-    if localTeam == nil or tostring(localTeam) == "" then return true end
-    local team = owner.Team or owner:GetAttribute("Team")
-    return team ~= nil and tostring(team) ~= ""
+    -- Outside of BloxStrike's combat container, allow Roblox team fallback
+    -- only if the player has a currently live character.
+    local folder = Workspace:FindFirstChild("Characters")
+    if not folder then
+        local char = owner.Character
+        local live = char and char.Parent and char:IsDescendantOf(Workspace)
+        return live and owner.Team ~= nil or false
+    end
+    return false
 end
 
+
 function isEntityAlive(char, hum)
-    if not char or not char.Parent or not char:IsDescendantOf(Workspace) then
-        return false
-    end
+    if not char or not char.Parent or not char:IsDescendantOf(Workspace) then return false end
+    if char:GetAttribute("Dead") == true then return false end
 
     local owner = Players:GetPlayerFromCharacter(char)
-    if char:GetAttribute("Dead") == true then return false end
-    if not owner or owner.Character ~= char or owner:GetAttribute("Dead") == true
-        or owner:GetAttribute("IsSpectating") == true then return false end
-
-    local charactersFolder = Workspace:FindFirstChild("Characters")
-    if not charactersFolder then return false end
-    do
-        -- Port the strict matchCharacter contract from govno.lua instead of
-        -- accepting any humanoid-looking model. Active BloxStrike players must
-        -- have all four replicated round markers below. Menu/lobby users often
-        -- retain a 100-HP stand-in character, which is why Humanoid.Health alone
-        -- caused false ESP icons.
-        if not owner or owner.Character ~= char then return false end
-        if not char:IsDescendantOf(charactersFolder) then return false end
-        if char:GetAttribute("CharacterType") ~= "PlayerCustomCharacter" then return false end
-        if not xcHasActiveTeam(owner) then return false end
-
-        local replicatedHealth = char:GetAttribute("Health")
-        if type(replicatedHealth) ~= "number" or replicatedHealth ~= replicatedHealth
-            or replicatedHealth == math.huge or replicatedHealth <= 0 then
+    -- A custom BloxStrike model can be different from Player.Character.
+    -- Only accept an alternative if it is resolved to a real Player.
+    if not owner and type(xcEspResolveCharacter) == "function" then
+        for _, candidate in ipairs(Players:GetPlayers()) do
+            if candidate ~= player and xcEspResolveCharacter(candidate) == char then
+                owner = candidate
+                break
+            end
+        end
+    end
+    if not owner or owner:GetAttribute("Dead") == true
+        or owner:GetAttribute("IsSpectating") == true
+        or xcUnavailableByAttributes(owner) or xcUnavailableByAttributes(char) then return false end
+    if owner.Character ~= char then
+        if type(xcEspResolveCharacter) ~= "function" or xcEspResolveCharacter(owner) ~= char then
             return false
         end
     end
 
+    -- Don't reject a newly named CharacterType solely for being different
+    -- from the old PlayerCustomCharacter contract.
+    local folder = Workspace:FindFirstChild("Characters")
+    local localChar = player and player.Character
+    local canonical = folder and localChar and localChar:IsDescendantOf(folder)
+    if canonical and not char:IsDescendantOf(folder) then return false end
+    if not xcHasActiveTeam(owner) then return false end
+
+    local hp = char:GetAttribute("Health")
+    if type(hp) ~= "number" then hp = tonumber(hp) end
+    if type(hp) ~= "number" then hp = owner:GetAttribute("Health") end
+    if type(hp) ~= "number" then hp = tonumber(hp) end
+    if type(hp) ~= "number" and hum and hum.Parent then hp = hum.Health end
+    if type(hp) ~= "number" or hp ~= hp or hp <= 0 or hp == math.huge then return false end
     if hum and hum.Parent then
-        local humanoidHealth = 100
-        pcall(function() humanoidHealth = hum.Health end)
-        if humanoidHealth <= 0 then return false end
-
-        local state = nil
-        pcall(function() state = hum:GetState() end)
-        if state == Enum.HumanoidStateType.Dead then return false end
+        if hum.Health <= 0 then return false end
+        local ok, state = pcall(function() return hum:GetState() end)
+        if ok and state == Enum.HumanoidStateType.Dead then return false end
     end
-
-    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
-    local head = char:FindFirstChild("Head")
-    if not root and not head then return false end
-
-    return true
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+        or char:FindFirstChild("UpperTorso")
+    return root ~= nil or char:FindFirstChild("Head") ~= nil
 end
+
+
 --// VISIBILITY CHECK SYSTEM WORK
 local wallRayParams = RaycastParams.new()
 wallRayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -3584,7 +3597,8 @@ getSilentAimTarget = function()
         repeat
         if plr == player then break end
         if XCConfig.silentAimTeamCheck and isAlly(plr) then break end
-        local char = plr.Character
+        local char = (type(xcEspResolveCharacter) == "function"
+            and xcEspResolveCharacter(plr)) or plr.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         if not isEntityAlive(char, hum) then break end
         local part = char:FindFirstChild(XCConfig.silentAimAimHead and "Head" or "HumanoidRootPart")
@@ -4345,7 +4359,8 @@ local function selectXCNativeSilentTarget(origin, properties)
         if targetPlayer == player then break end
         if XCConfig.silentAimTeamCheck and isAlly(targetPlayer) then break end
 
-        local character = targetPlayer.Character
+        local character = (type(xcEspResolveCharacter) == "function"
+            and xcEspResolveCharacter(targetPlayer)) or targetPlayer.Character
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
         if not isEntityAlive(character, humanoid) then break end
 
@@ -4600,12 +4615,17 @@ if sharedXCEnv then
 end
 
 function setupXCNativeSilentHook()
-    if xcNativeSilentHooked then return true end
+    XCFeatureState.silentDiag = XCFeatureState.silentDiag or {Attempts=0, NativeShots=0, Redirects=0}
+    local silentDiag = XCFeatureState.silentDiag
+    silentDiag.Attempts = silentDiag.Attempts + 1
+    if sharedXCEnv then sharedXCEnv.XOSE_SILENT_DIAG = silentDiag end
+    if xcNativeSilentHooked then silentDiag.Status="hook installed";return true end
+    silentDiag.Status = "looking for native Bullet API"
     -- ScriptAdap-compatible path: hook the weapon's real raycast on every
     -- platform. It runs once per actual local shot and cannot consume mobile
     -- UI touches or block automatic/burst fire.
     local installed = false
-    pcall(function()
+    local okNativeInit, nativeError = pcall(function()
         local components = ReplicatedStorage:FindFirstChild("Components")
         local weaponFolder = components and components:FindFirstChild("Weapon")
         local classes = weaponFolder and weaponFolder:FindFirstChild("Classes")
@@ -4614,14 +4634,20 @@ function setupXCNativeSilentHook()
         local ignoreScript = common and common:FindFirstChild("GetRayIgnore")
         local sharedFolder = ReplicatedStorage:FindFirstChild("Shared")
         local raycastScript = sharedFolder and sharedFolder:FindFirstChild("Raycast")
-        if not bulletScript or not ignoreScript or not raycastScript then return end
+        if not bulletScript or not ignoreScript or not raycastScript then
+            silentDiag.Status = "module path missing (Bullet / GetRayIgnore / Raycast)"
+            return
+        end
 
         local bulletModule = require(bulletScript)
         local raycastModule = require(raycastScript)
         local getRayIgnore = require(ignoreScript)
         if type(bulletModule) ~= "table" or type(bulletModule._performRaycast) ~= "function"
             or type(raycastModule) ~= "table" or type(raycastModule.cast) ~= "function"
-            or type(raycastModule.castThrough) ~= "function" or type(getRayIgnore) ~= "function" then return end
+            or type(raycastModule.castThrough) ~= "function" or type(getRayIgnore) ~= "function" then
+            silentDiag.Status = "native API signature changed"
+            return
+        end
 
         xcNativeRaycast = raycastModule
         xcNativeGetRayIgnore = getRayIgnore
@@ -4632,16 +4658,27 @@ function setupXCNativeSilentHook()
 
         local originalRaycast = bulletModule._performRaycast
         bulletModule._performRaycast = function(self, spread, ...)
+            silentDiag.NativeShots = silentDiag.NativeShots + 1
             local shot = originalRaycast(self, spread, ...)
             local redirect = sharedXCEnv and sharedXCEnv.XCNativeSilentRedirectV36 or processXCNativeLocalShot
             if type(redirect) ~= "function" then return shot end
             local ok, redirected = pcall(redirect, self, shot)
+            if not ok then
+                silentDiag.LastError = tostring(redirected)
+            elseif redirected ~= nil and redirected ~= shot then
+                silentDiag.Redirects = silentDiag.Redirects + 1
+            end
             return ok and redirected or shot
         end
         rawset(bulletModule, "__XCSilentRayHookV36", true)
         installed = bulletModule._performRaycast ~= originalRaycast
     end)
+    if not okNativeInit then
+        silentDiag.Status = "native initialization failed"
+        silentDiag.LastError = tostring(nativeError)
+    end
     xcNativeSilentHooked = installed
+    if installed then silentDiag.Status="hook installed" end
     return installed
 end
 
@@ -13718,53 +13755,66 @@ end
 
 function xcEspResolveCharacter(plr)
     if not plr then return nil end
-    local cached = XCFeatureState.espCharacterCache[plr]
-    if cached and cached.Parent and cached:IsDescendantOf(Workspace) then
-        return cached
-    end
-
     local direct = plr.Character
     local folder = Workspace:FindFirstChild("Characters")
-    local localChar = player and player.Character
-    local folderIsCanonical = folder and localChar and localChar:IsDescendantOf(folder)
+    local myChar = player and player.Character
+    local canonical = folder and myChar and myChar:IsDescendantOf(folder)
+    local cache = XCFeatureState.espCharacterCache
 
-    if direct and direct.Parent and direct:IsDescendantOf(Workspace)
-        and (not folderIsCanonical or direct:IsDescendantOf(folder)) then
-        XCFeatureState.espCharacterCache[plr] = direct
+    local function activeModel(model)
+        if not model or not model.Parent or not model:IsDescendantOf(Workspace) then return false end
+        if model:GetAttribute("Dead") == true or model:GetAttribute("IsSpectating") == true then return false end
+        local hp = tonumber(model:GetAttribute("Health"))
+        if hp and (hp <= 0 or hp ~= hp) then return false end
+        return true
+    end
+
+    -- Prefer the latest Player.Character; never return an old cached ragdoll
+    -- after a respawn when a valid new character is available.
+    if activeModel(direct) and (not canonical or direct:IsDescendantOf(folder)) then
+        cache[plr] = direct
         return direct
     end
+    local cached = cache[plr]
+    if activeModel(cached) and (not canonical or cached:IsDescendantOf(folder))
+        and (not activeModel(direct) or direct == cached
+            or (canonical and not direct:IsDescendantOf(folder))) then
+        return cached
+    end
+    cache[plr] = nil
 
     if folder then
         for _, model in ipairs(folder:GetChildren()) do
-            if model:IsA("Model") then
+            if model:IsA("Model") and activeModel(model) then
                 local matched = false
                 local okOwner, owner = pcall(Players.GetPlayerFromCharacter, Players, model)
                 if okOwner and owner == plr then
                     matched = true
                 else
-                    local userId = model:GetAttribute("UserId") or model:GetAttribute("PlayerUserId")
+                    local uid = model:GetAttribute("UserId") or model:GetAttribute("PlayerUserId")
                         or model:GetAttribute("OwnerUserId")
-                    local playerName = model:GetAttribute("PlayerName") or model:GetAttribute("OwnerName")
-                    matched = tonumber(userId) == plr.UserId
-                        or tostring(playerName or "") == plr.Name
+                    local name = model:GetAttribute("PlayerName") or model:GetAttribute("OwnerName")
+                    matched = (uid ~= nil and tonumber(uid) == plr.UserId)
+                        or (name ~= nil and tostring(name) == plr.Name)
                         or model.Name == plr.Name
                 end
                 if matched then
-                    XCFeatureState.espCharacterCache[plr] = model
+                    cache[plr] = model
                     return model
                 end
             end
         end
     end
-
-    -- If the local player's own model is not inside Workspace.Characters, that
-    -- folder is not the authoritative combat container on this desktop build.
-    if direct and direct.Parent and direct:IsDescendantOf(Workspace) and not folderIsCanonical then
-        XCFeatureState.espCharacterCache[plr] = direct
+    -- There may be an old Characters folder left behind by an update.
+    -- Trust a live Player.Character only when it has an active health marker.
+    if activeModel(direct) and tonumber(direct:GetAttribute("Health"))
+        and xcHasActiveTeam(plr) then
+        cache[plr] = direct
         return direct
     end
     return nil
 end
+
 
 function xcEspUnavailable(object)
     if not object then return false end
@@ -13782,8 +13832,16 @@ function xcEspEntityAlive(plr, char, hum)
     local folderIsCanonical = folder and localChar and localChar:IsDescendantOf(folder)
     if folderIsCanonical and not char:IsDescendantOf(folder) then return false end
 
+    -- v81: old model type was PlayerCustomCharacter. An updated player rig
+    -- may be renamed, so use live owner/health and explicit dead/lobby checks.
+    -- Refuse unmatched proxy rigs to avoid drawing non-player characters.
     local characterType = char:GetAttribute("CharacterType")
-    if characterType ~= nil and characterType ~= "PlayerCustomCharacter" then return false end
+    if characterType ~= nil and characterType ~= "PlayerCustomCharacter"
+        and plr.Character ~= char then
+        local uid = char:GetAttribute("UserId") or char:GetAttribute("PlayerUserId")
+            or char:GetAttribute("OwnerUserId")
+        if tonumber(uid) ~= plr.UserId then return false end
+    end
 
     local health = char:GetAttribute("Health")
     if type(health) ~= "number" then health = tonumber(health) end
@@ -13980,7 +14038,9 @@ function renderTacticalOverlay()
     local diag = XCFeatureState.espDiagnostics or {}
     XCFeatureState.espDiagnostics = diag
     diag.Holders, diag.Resolved, diag.Alive, diag.Enemies, diag.Rects = 0, 0, 0, 0, 0
+    diag.Unresolved, diag.MissingRoot, diag.OutOfRange, diag.RejectedAlive = 0, 0, 0, 0
     diag.LastUpdate = os.clock()
+    pcall(function() diag.StreamingEnabled = Workspace.StreamingEnabled end)
     if sharedXCEnv then sharedXCEnv.XOSE_ESP_DIAG = diag end
 
     for plr in pairs(activeEspHolders) do
@@ -13993,10 +14053,13 @@ function renderTacticalOverlay()
         local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
         local isEnemy = xcEspIsEnemy(plr, char)
         local isAlive = xcEspEntityAlive(plr, char, hum)
-        if char then diag.Resolved = diag.Resolved + 1 end
-        if isAlive then diag.Alive = diag.Alive + 1 end
+        if char then diag.Resolved = diag.Resolved + 1 else diag.Unresolved = diag.Unresolved + 1 end
+        if isAlive then diag.Alive = diag.Alive + 1
+        elseif char then diag.RejectedAlive = diag.RejectedAlive + 1 end
         if isEnemy then diag.Enemies = diag.Enemies + 1 end
+        if char and not rootPart then diag.MissingRoot = diag.MissingRoot + 1 end
         local dist = rootPart and (rootPart.Position - camPos).Magnitude or math.huge
+        if rootPart and dist > XCConfig.espMaxDist then diag.OutOfRange = diag.OutOfRange + 1 end
         local esp = screenEspCache[plr]
         if not xcShouldAllocateScreenEsp(isEnemy, isAlive, rootPart ~= nil, dist,
             XCConfig.espMaxDist, esp ~= nil) then break end
