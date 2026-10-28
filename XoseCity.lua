@@ -1,22 +1,26 @@
---// XOSE v78 | original RenderStepped ESP path, per-frame refresh and player isolation
+--// XOSE v79 | Midnight Precision UI redesign on top of the v78 RenderStepped ESP path, per-frame refresh and player isolation
 --// XOSE ACCESS GATEWAY -------------------------------------------------------
 do
+    -- XOSE Midnight Precision access gateway. Only the presentation layer was
+    -- redesigned; key validation, Pandauth loading and the auth hand-off below
+    -- are unchanged from the original gateway.
     local Players = game:GetService("Players")
     local CoreGui = game:GetService("CoreGui")
     local UserInputService = game:GetService("UserInputService")
     local TweenService = game:GetService("TweenService")
 
     local AUTH_GUI_NAME = "XOSEAccessGateway"
-    local ACCENT = Color3.fromRGB(152, 204, 0)
-    local ACCENT_HOVER = Color3.fromRGB(180, 225, 25)
-    local BG = Color3.fromRGB(18, 18, 22)
-    local PANEL = Color3.fromRGB(28, 28, 34)
-    local SIDEBAR = Color3.fromRGB(22, 22, 27)
-    local BORDER = Color3.fromRGB(45, 45, 55)
-    local TEXT = Color3.fromRGB(240, 240, 245)
-    local MUTED = Color3.fromRGB(150, 150, 160)
-    local ERROR = Color3.fromRGB(225, 65, 70)
-    local SUCCESS = Color3.fromRGB(75, 190, 105)
+    local ACCENT = Color3.fromRGB(179, 212, 106)
+    local ACCENT_HOVER = Color3.fromRGB(196, 225, 132)
+    local ACCENT_INK = Color3.fromRGB(16, 17, 20)
+    local BG = Color3.fromRGB(21, 22, 25)
+    local PANEL = Color3.fromRGB(28, 29, 33)
+    local PANEL_HOVER = Color3.fromRGB(39, 40, 45)
+    local BORDER = Color3.fromRGB(48, 49, 55)
+    local TEXT = Color3.fromRGB(241, 241, 243)
+    local MUTED = Color3.fromRGB(155, 156, 165)
+    local ERROR = Color3.fromRGB(224, 108, 108)
+    local SUCCESS = Color3.fromRGB(139, 205, 145)
 
     local function getEnv()
         if type(getgenv) == "function" then
@@ -59,144 +63,201 @@ do
     end
     authGui.Parent = guiParent
 
+    -- Every connection that outlives a single button is tracked and released
+    -- when the gateway closes.
+    local gatewayConnections = {}
+    local function releaseConnections()
+        for _, connection in ipairs(gatewayConnections) do
+            pcall(function() connection:Disconnect() end)
+        end
+        table.clear(gatewayConnections)
+    end
+
+    local function tween(object, seconds, properties, style, direction)
+        pcall(function()
+            TweenService:Create(object, TweenInfo.new(seconds, style or Enum.EasingStyle.Quad,
+                direction or Enum.EasingDirection.Out), properties):Play()
+        end)
+    end
+
     local shade = Instance.new("Frame")
     shade.Name = "Shade"
     shade.Size = UDim2.fromScale(1, 1)
-    shade.BackgroundColor3 = Color3.new(0, 0, 0)
-    shade.BackgroundTransparency = 0.34
+    shade.BackgroundColor3 = Color3.fromRGB(8, 9, 11)
+    shade.BackgroundTransparency = 1
     shade.BorderSizePixel = 0
+    shade.Active = true
     shade.Parent = authGui
 
+    local CARD_HEIGHT = 312
     local card = Instance.new("Frame")
     card.Name = "Card"
     card.AnchorPoint = Vector2.new(0.5, 0.5)
-    card.Position = UDim2.fromScale(0.5, 0.5)
-    card.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 342 or 382, 250)
+    card.Position = UDim2.new(0.5, 0, 0.5, 14)
+    card.Size = UDim2.new(0.92, 0, 0, CARD_HEIGHT)
     card.BackgroundColor3 = BG
-    card.BackgroundTransparency = 0.03
     card.BorderSizePixel = 0
     card.ClipsDescendants = true
     card.Parent = shade
 
+    local cardSize = Instance.new("UISizeConstraint")
+    cardSize.MinSize = Vector2.new(280, CARD_HEIGHT)
+    cardSize.MaxSize = Vector2.new(408, CARD_HEIGHT)
+    cardSize.Parent = card
+
     local cardCorner = Instance.new("UICorner")
-    cardCorner.CornerRadius = UDim.new(0, 12)
+    cardCorner.CornerRadius = UDim.new(0, 16)
     cardCorner.Parent = card
 
     local cardStroke = Instance.new("UIStroke")
     cardStroke.Color = BORDER
     cardStroke.Thickness = 1
-    cardStroke.Transparency = 0.02
     cardStroke.Parent = card
 
-    local accentBar = Instance.new("Frame")
-    accentBar.Name = "Accent"
-    accentBar.Size = UDim2.new(0, 4, 1, -20)
-    accentBar.Position = UDim2.fromOffset(8, 10)
-    accentBar.BackgroundColor3 = ACCENT
-    accentBar.BorderSizePixel = 0
-    accentBar.Parent = card
-    local accentCorner = Instance.new("UICorner")
-    accentCorner.CornerRadius = UDim.new(0, 3)
-    accentCorner.Parent = accentBar
+    local cardPadding = Instance.new("UIPadding")
+    cardPadding.PaddingLeft = UDim.new(0, 28)
+    cardPadding.PaddingRight = UDim.new(0, 28)
+    cardPadding.Parent = card
+
+    -- Brand block
+    local mark = Instance.new("Frame")
+    mark.Name = "BrandMark"
+    mark.Position = UDim2.fromOffset(0, 28)
+    mark.Size = UDim2.fromOffset(40, 40)
+    mark.BackgroundColor3 = ACCENT
+    mark.BorderSizePixel = 0
+    mark.Parent = card
+    local markCorner = Instance.new("UICorner")
+    markCorner.CornerRadius = UDim.new(0, 12)
+    markCorner.Parent = mark
+    local markGlyph = Instance.new("TextLabel")
+    markGlyph.Size = UDim2.fromScale(1, 1)
+    markGlyph.BackgroundTransparency = 1
+    markGlyph.Font = Enum.Font.GothamBold
+    markGlyph.Text = "X"
+    markGlyph.TextColor3 = ACCENT_INK
+    markGlyph.TextSize = 22
+    markGlyph.Parent = mark
 
     local brand = Instance.new("TextLabel")
     brand.Name = "Brand"
-    brand.Position = UDim2.fromOffset(24, 18)
-    brand.Size = UDim2.new(1, -48, 0, 29)
+    brand.Position = UDim2.fromOffset(54, 26)
+    brand.Size = UDim2.new(1, -54, 0, 26)
     brand.BackgroundTransparency = 1
     brand.Font = Enum.Font.GothamBold
     brand.Text = "XOSE"
     brand.TextColor3 = TEXT
-    brand.TextSize = 21
+    brand.TextSize = 24
     brand.TextXAlignment = Enum.TextXAlignment.Left
     brand.Parent = card
 
-    local xAccent = Instance.new("Frame")
-    xAccent.Name = "BrandAccent"
-    xAccent.Position = UDim2.fromOffset(24, 49)
-    xAccent.Size = UDim2.fromOffset(35, 2)
-    xAccent.BackgroundColor3 = ACCENT
-    xAccent.BorderSizePixel = 0
-    xAccent.Parent = card
-    local brandAccentCorner = Instance.new("UICorner")
-    brandAccentCorner.CornerRadius = UDim.new(1, 0)
-    brandAccentCorner.Parent = xAccent
-
     local subtitle = Instance.new("TextLabel")
-    subtitle.Position = UDim2.fromOffset(24, 58)
-    subtitle.Size = UDim2.new(1, -48, 0, 18)
+    subtitle.Name = "Subtitle"
+    subtitle.Position = UDim2.fromOffset(54, 52)
+    subtitle.Size = UDim2.new(1, -54, 0, 16)
     subtitle.BackgroundTransparency = 1
     subtitle.Font = Enum.Font.Gotham
     subtitle.Text = "Secure access gateway"
     subtitle.TextColor3 = MUTED
-    subtitle.TextSize = 11
+    subtitle.TextSize = 12
     subtitle.TextXAlignment = Enum.TextXAlignment.Left
     subtitle.Parent = card
 
+    local divider = Instance.new("Frame")
+    divider.Position = UDim2.fromOffset(0, 88)
+    divider.Size = UDim2.new(1, 0, 0, 1)
+    divider.BackgroundColor3 = BORDER
+    divider.BackgroundTransparency = 0.35
+    divider.BorderSizePixel = 0
+    divider.Parent = card
+
+    local fieldLabel = Instance.new("TextLabel")
+    fieldLabel.Position = UDim2.fromOffset(0, 104)
+    fieldLabel.Size = UDim2.new(1, 0, 0, 14)
+    fieldLabel.BackgroundTransparency = 1
+    fieldLabel.Font = Enum.Font.GothamBold
+    fieldLabel.Text = "ACCESS KEY"
+    fieldLabel.TextColor3 = MUTED
+    fieldLabel.TextSize = 10
+    fieldLabel.TextXAlignment = Enum.TextXAlignment.Left
+    fieldLabel.Parent = card
+
     local field = Instance.new("Frame")
     field.Name = "KeyField"
-    field.Position = UDim2.fromOffset(24, 91)
-    field.Size = UDim2.new(1, -48, 0, 44)
+    field.Position = UDim2.fromOffset(0, 124)
+    field.Size = UDim2.new(1, 0, 0, 46)
     field.BackgroundColor3 = PANEL
-    field.BackgroundTransparency = 0.02
     field.BorderSizePixel = 0
     field.Parent = card
     local fieldCorner = Instance.new("UICorner")
-    fieldCorner.CornerRadius = UDim.new(0, 8)
+    fieldCorner.CornerRadius = UDim.new(0, 10)
     fieldCorner.Parent = field
     local fieldStroke = Instance.new("UIStroke")
     fieldStroke.Color = BORDER
     fieldStroke.Thickness = 1
-    fieldStroke.Transparency = 0.06
     fieldStroke.Parent = field
 
     local keyBox = Instance.new("TextBox")
     keyBox.Name = "KeyInput"
-    keyBox.Position = UDim2.fromOffset(13, 0)
-    keyBox.Size = UDim2.new(1, -26, 1, 0)
+    keyBox.Position = UDim2.fromOffset(14, 0)
+    keyBox.Size = UDim2.new(1, -28, 1, 0)
     keyBox.BackgroundTransparency = 1
     keyBox.ClearTextOnFocus = false
     keyBox.Font = Enum.Font.GothamMedium
-    keyBox.PlaceholderText = "Enter access key"
+    keyBox.PlaceholderText = "Paste your key"
     keyBox.PlaceholderColor3 = MUTED
     keyBox.Text = ""
     keyBox.TextColor3 = TEXT
-    keyBox.TextSize = 12
+    keyBox.TextSize = 13
     keyBox.TextXAlignment = Enum.TextXAlignment.Left
+    keyBox.TextTruncate = Enum.TextTruncate.AtEnd
     keyBox.Parent = field
+
+    -- Status row: coloured dot plus message.
+    local statusDot = Instance.new("Frame")
+    statusDot.Name = "StatusDot"
+    statusDot.Position = UDim2.fromOffset(2, 189)
+    statusDot.Size = UDim2.fromOffset(8, 8)
+    statusDot.BackgroundColor3 = MUTED
+    statusDot.BorderSizePixel = 0
+    statusDot.Parent = card
+    local statusDotCorner = Instance.new("UICorner")
+    statusDotCorner.CornerRadius = UDim.new(1, 0)
+    statusDotCorner.Parent = statusDot
 
     local status = Instance.new("TextLabel")
     status.Name = "Status"
-    status.Position = UDim2.fromOffset(24, 143)
-    status.Size = UDim2.new(1, -48, 0, 19)
+    status.Position = UDim2.fromOffset(18, 183)
+    status.Size = UDim2.new(1, -18, 0, 20)
     status.BackgroundTransparency = 1
-    status.Font = Enum.Font.Gotham
+    status.Font = Enum.Font.GothamMedium
     status.Text = "Initializing secure session..."
     status.TextColor3 = MUTED
-    status.TextSize = 10
+    status.TextSize = 12
     status.TextXAlignment = Enum.TextXAlignment.Left
     status.TextTruncate = Enum.TextTruncate.AtEnd
     status.Parent = card
 
     local buttons = Instance.new("Frame")
-    buttons.Position = UDim2.fromOffset(24, 171)
-    buttons.Size = UDim2.new(1, -48, 0, 39)
+    buttons.Name = "Actions"
+    buttons.Position = UDim2.fromOffset(0, 218)
+    buttons.Size = UDim2.new(1, 0, 0, 44)
     buttons.BackgroundTransparency = 1
     buttons.Parent = card
 
     local getKey = Instance.new("TextButton")
     getKey.Name = "GetKey"
-    getKey.Size = UDim2.new(0.42, -4, 1, 0)
-    getKey.BackgroundColor3 = SIDEBAR
+    getKey.Size = UDim2.new(0.38, -5, 1, 0)
+    getKey.BackgroundColor3 = PANEL
     getKey.BorderSizePixel = 0
     getKey.AutoButtonColor = false
     getKey.Font = Enum.Font.GothamBold
     getKey.Text = "GET KEY"
     getKey.TextColor3 = TEXT
-    getKey.TextSize = 10
+    getKey.TextSize = 12
     getKey.Parent = buttons
     local getKeyCorner = Instance.new("UICorner")
-    getKeyCorner.CornerRadius = UDim.new(0, 8)
+    getKeyCorner.CornerRadius = UDim.new(0, 10)
     getKeyCorner.Parent = getKey
     local getKeyStroke = Instance.new("UIStroke")
     getKeyStroke.Color = BORDER
@@ -207,42 +268,110 @@ do
     unlock.Name = "Unlock"
     unlock.AnchorPoint = Vector2.new(1, 0)
     unlock.Position = UDim2.new(1, 0, 0, 0)
-    unlock.Size = UDim2.new(0.58, -4, 1, 0)
+    unlock.Size = UDim2.new(0.62, -5, 1, 0)
     unlock.BackgroundColor3 = ACCENT
     unlock.BorderSizePixel = 0
     unlock.AutoButtonColor = false
     unlock.Font = Enum.Font.GothamBold
     unlock.Text = "UNLOCK XOSE"
-    unlock.TextColor3 = Color3.fromRGB(18, 20, 14)
-    unlock.TextSize = 10
+    unlock.TextColor3 = ACCENT_INK
+    unlock.TextSize = 12
     unlock.Parent = buttons
     local unlockCorner = Instance.new("UICorner")
-    unlockCorner.CornerRadius = UDim.new(0, 8)
+    unlockCorner.CornerRadius = UDim.new(0, 10)
     unlockCorner.Parent = unlock
 
-    local footer = Instance.new("TextLabel")
-    footer.Position = UDim2.new(0, 24, 1, -27)
-    footer.Size = UDim2.new(1, -48, 0, 14)
-    footer.BackgroundTransparency = 1
-    footer.Font = Enum.Font.Gotham
-    footer.Text = "XOSE  |  protected session"
-    footer.TextColor3 = Color3.fromRGB(105, 105, 114)
-    footer.TextSize = 9
-    footer.TextXAlignment = Enum.TextXAlignment.Left
-    footer.Parent = card
+    -- Single progress bar used only while a key is being verified.
+    local loaderTrack = Instance.new("Frame")
+    loaderTrack.Name = "Loader"
+    loaderTrack.AnchorPoint = Vector2.new(0, 1)
+    loaderTrack.Position = UDim2.new(0, -28, 1, 0)
+    loaderTrack.Size = UDim2.new(1, 56, 0, 2)
+    loaderTrack.BackgroundTransparency = 1
+    loaderTrack.BorderSizePixel = 0
+    loaderTrack.ClipsDescendants = true
+    loaderTrack.Parent = card
+    local loaderBar = Instance.new("Frame")
+    loaderBar.Size = UDim2.new(0.28, 0, 1, 0)
+    loaderBar.Position = UDim2.fromScale(-0.3, 0)
+    loaderBar.BackgroundColor3 = ACCENT
+    loaderBar.BorderSizePixel = 0
+    loaderBar.Visible = false
+    loaderBar.Parent = loaderTrack
+    local loaderTween
 
-    local function tweenButton(button, color)
-        pcall(function()
-            TweenService:Create(button, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                BackgroundColor3 = color
-            }):Play()
-        end)
+    local footerLabel = Instance.new("TextLabel")
+    footerLabel.Name = "Footer"
+    footerLabel.AnchorPoint = Vector2.new(0, 1)
+    footerLabel.Position = UDim2.new(0, 0, 1, -14)
+    footerLabel.Size = UDim2.new(1, 0, 0, 14)
+    footerLabel.BackgroundTransparency = 1
+    footerLabel.Font = Enum.Font.Gotham
+    footerLabel.Text = "XOSE  \194\183  protected session"
+    footerLabel.TextColor3 = Color3.fromRGB(110, 111, 120)
+    footerLabel.TextSize = 10
+    footerLabel.TextXAlignment = Enum.TextXAlignment.Left
+    footerLabel.Parent = card
+
+    local function setLoading(active)
+        if loaderTween then
+            pcall(function() loaderTween:Cancel() end)
+            loaderTween = nil
+        end
+        loaderBar.Visible = active
+        loaderBar.Position = UDim2.fromScale(-0.3, 0)
+        if active then
+            local ok, created = pcall(function()
+                return TweenService:Create(loaderBar,
+                    TweenInfo.new(0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, false),
+                    {Position = UDim2.fromScale(1.02, 0)})
+            end)
+            if ok and created then
+                loaderTween = created
+                created:Play()
+            end
+        end
     end
 
-    unlock.MouseEnter:Connect(function() tweenButton(unlock, ACCENT_HOVER) end)
-    unlock.MouseLeave:Connect(function() tweenButton(unlock, ACCENT) end)
-    getKey.MouseEnter:Connect(function() tweenButton(getKey, PANEL:Lerp(TEXT, 0.08)) end)
-    getKey.MouseLeave:Connect(function() tweenButton(getKey, SIDEBAR) end)
+    -- Hover / press feedback (0.12s, one tween per state change).
+    local function bindButton(button, rest, hover, pressed)
+        table.insert(gatewayConnections, button.MouseEnter:Connect(function() tween(button, 0.12, {BackgroundColor3 = hover}) end))
+        table.insert(gatewayConnections, button.MouseLeave:Connect(function() tween(button, 0.12, {BackgroundColor3 = rest}) end))
+        table.insert(gatewayConnections, button.MouseButton1Down:Connect(function() tween(button, 0.08, {BackgroundColor3 = pressed}) end))
+        table.insert(gatewayConnections, button.MouseButton1Up:Connect(function() tween(button, 0.12, {BackgroundColor3 = hover}) end))
+    end
+    bindButton(unlock, ACCENT, ACCENT_HOVER, ACCENT:Lerp(Color3.new(0, 0, 0), 0.12))
+    bindButton(getKey, PANEL, PANEL_HOVER, PANEL:Lerp(Color3.new(0, 0, 0), 0.2))
+
+    table.insert(gatewayConnections, keyBox.Focused:Connect(function()
+        tween(fieldStroke, 0.15, {Color = ACCENT})
+    end))
+    table.insert(gatewayConnections, keyBox.FocusLost:Connect(function()
+        tween(fieldStroke, 0.15, {Color = BORDER})
+    end))
+
+    -- Keep the card above the phone keyboard.
+    local function repositionForKeyboard()
+        local ok = pcall(function()
+            if UserInputService.OnScreenKeyboardVisible then
+                local viewport = authGui.AbsoluteSize
+                local keyboardHeight = UserInputService.OnScreenKeyboardSize.Y
+                local free = math.max(CARD_HEIGHT, viewport.Y - keyboardHeight)
+                tween(card, 0.2, {Position = UDim2.new(0.5, 0, 0, math.floor(free / 2))}, Enum.EasingStyle.Quint)
+            else
+                tween(card, 0.2, {Position = UDim2.new(0.5, 0, 0.5, 0)}, Enum.EasingStyle.Quint)
+            end
+        end)
+        return ok
+    end
+    pcall(function()
+        table.insert(gatewayConnections,
+            UserInputService:GetPropertyChangedSignal("OnScreenKeyboardVisible"):Connect(repositionForKeyboard))
+    end)
+
+    -- Entrance (one-shot).
+    tween(shade, 0.26, {BackgroundTransparency = 0.38})
+    tween(card, 0.28, {Position = UDim2.new(0.5, 0, 0.5, 0)}, Enum.EasingStyle.Quint)
 
     local authEvent = Instance.new("BindableEvent")
     local validating = false
@@ -251,12 +380,33 @@ do
     local function setStatus(message, color)
         status.Text = tostring(message or "")
         status.TextColor3 = color or MUTED
+        tween(statusDot, 0.15, {BackgroundColor3 = color or MUTED})
+    end
+
+    local shaking = false
+    local function shakeCard()
+        if shaking then return end
+        shaking = true
+        task.spawn(function()
+            for _, offset in ipairs({-8, 8, -5, 5, 0}) do
+                tween(card, 0.045, {Position = UDim2.new(0.5, offset, 0.5, 0)})
+                task.wait(0.05)
+            end
+            shaking = false
+        end)
+        tween(cardStroke, 0.15, {Color = ERROR})
+        task.delay(0.9, function()
+            if cardStroke.Parent then tween(cardStroke, 0.3, {Color = BORDER}) end
+        end)
     end
 
     local function finish(ok, result, key)
         if ok then
             env.XOSE_AUTH_KEY = key
             env.XOSE_PREMIUM = result and result.isPremium == true or false
+            setLoading(false)
+            unlock.Text = "ACCESS GRANTED"
+            tween(cardStroke, 0.2, {Color = SUCCESS})
             setStatus("Access granted. Loading XOSE...", SUCCESS)
             task.wait(0.16)
             authEvent:Fire(true)
@@ -267,12 +417,14 @@ do
         key = tostring(key or ""):match("^%s*(.-)%s*$") or ""
         if key == "" then
             setStatus("Enter your access key first.", ERROR)
+            shakeCard()
             return
         end
         if validating or not PUSL then return end
         validating = true
         unlock.Text = "CHECKING..."
         unlock.Active = false
+        setLoading(true)
         setStatus("Verifying access...", MUTED)
 
         task.spawn(function()
@@ -284,13 +436,15 @@ do
                 return
             end
             validating = false
+            setLoading(false)
             unlock.Text = "UNLOCK XOSE"
             unlock.Active = true
             setStatus("Key rejected. Check it and try again.", ERROR)
+            shakeCard()
         end)
     end
 
-    getKey.MouseButton1Click:Connect(function()
+    table.insert(gatewayConnections, getKey.MouseButton1Click:Connect(function()
         if not PUSL then
             setStatus("Access service is still initializing.", ERROR)
             return
@@ -312,14 +466,14 @@ do
             setStatus("Clipboard is unavailable in this executor.", ERROR)
             pcall(function() print("[XOSE] Key URL:", url) end)
         end
-    end)
+    end))
 
-    unlock.MouseButton1Click:Connect(function()
+    table.insert(gatewayConnections, unlock.MouseButton1Click:Connect(function()
         validateKey(keyBox.Text)
-    end)
-    keyBox.FocusLost:Connect(function(enterPressed)
+    end))
+    table.insert(gatewayConnections, keyBox.FocusLost:Connect(function(enterPressed)
         if enterPressed then validateKey(keyBox.Text) end
-    end)
+    end))
 
     local initOk, initResult = pcall(function()
         local library = loadstring(game:HttpGet("https://secure.pandauth.com/pv4/lib"))()
@@ -333,6 +487,7 @@ do
     if not initOk or not initResult then
         setStatus("XOSE access service failed to initialize.", ERROR)
         warn("[XOSE] Authorization service failed to initialize.")
+        releaseConnections()
         return
     end
 
@@ -347,6 +502,8 @@ do
 
     local authenticated = authEvent.Event:Wait()
     authEvent:Destroy()
+    setLoading(false)
+    releaseConnections()
     if not authenticated then return end
     pcall(function() authGui:Destroy() end)
     print("[XOSE] Authenticated. Premium:", env.XOSE_PREMIUM == true)
@@ -416,15 +573,16 @@ local XCConfig = {
     customHandsYaw = 0,
     customHandsRoll = 0,
     uiScale = 1.0,
-    menuThemePreset = "Gamesense",
+    menuThemePreset = "XOSE Midnight",
     visualLookPreset = "Custom",
     menuTransparency = 0,
-    menuGlassEnabled = true,
-    menuGlassStrength = 0.58,
-    menuAccentR = 152, menuAccentG = 204, menuAccentB = 0,
-    menuBackgroundR = 17, menuBackgroundG = 17, menuBackgroundB = 17,
-    menuPanelR = 12, menuPanelG = 12, menuPanelB = 12,
-    menuTextR = 235, menuTextG = 235, menuTextB = 235,
+    menuGlassEnabled = false,
+    menuGlassStrength = 0.35,
+    uiAnimations = true,
+    menuAccentR = 179, menuAccentG = 212, menuAccentB = 106,
+    menuBackgroundR = 16, menuBackgroundG = 17, menuBackgroundB = 20,
+    menuPanelR = 28, menuPanelG = 29, menuPanelB = 33,
+    menuTextR = 241, menuTextG = 241, menuTextB = 243,
     linkMenuAndEspColor = false,
     espVisibleR = 152, espVisibleG = 204, espVisibleB = 0,
     espHiddenR = 112, espHiddenG = 116, espHiddenB = 122,
@@ -1055,6 +1213,24 @@ if sharedXCEnv then
         end
         sharedXCEnv.XOSE_GS_UI_V2 = true
     end
+
+    -- v79: adopt the Midnight Precision palette once, but only for users who
+    -- are still on the untouched stock Gamesense colours.
+    if rawget(sharedXCEnv, "XOSE_V79_UI") ~= true then
+        local stockGamesense = tostring(XCConfig.menuThemePreset or "") == "Gamesense"
+            and tonumber(XCConfig.menuAccentR) == 152 and tonumber(XCConfig.menuAccentG) == 204
+            and tonumber(XCConfig.menuAccentB) == 0 and tonumber(XCConfig.menuBackgroundR) == 17
+        if stockGamesense then
+            XCConfig.menuThemePreset = "XOSE Midnight"
+            XCConfig.menuAccentR, XCConfig.menuAccentG, XCConfig.menuAccentB = 179, 212, 106
+            XCConfig.menuBackgroundR, XCConfig.menuBackgroundG, XCConfig.menuBackgroundB = 16, 17, 20
+            XCConfig.menuPanelR, XCConfig.menuPanelG, XCConfig.menuPanelB = 28, 29, 33
+            XCConfig.menuTextR, XCConfig.menuTextG, XCConfig.menuTextB = 241, 241, 243
+            XCConfig.menuGlassEnabled = false
+            XCConfig.menuGlassStrength = 0.35
+        end
+        sharedXCEnv.XOSE_V79_UI = true
+    end
 end
 
 -- A reinjection must start from safe toggle defaults. Numeric/user settings
@@ -1245,6 +1421,28 @@ pcall(function()
 end)
 --// EXTENDED THEME & PALETTE SYSTEM
 local themeLibrary = {
+    ["XOSE Midnight"] = {
+        Name = "XOSE Midnight",
+        Background = Color3.fromRGB(16, 17, 20),
+        Sidebar = Color3.fromRGB(21, 22, 25),
+        CardBg = Color3.fromRGB(28, 29, 33),
+        Accent = Color3.fromRGB(179, 212, 106),
+        AccentHover = Color3.fromRGB(196, 225, 132),
+        TextPrimary = Color3.fromRGB(241, 241, 243),
+        TextSecondary = Color3.fromRGB(155, 156, 165),
+        Border = Color3.fromRGB(48, 49, 55),
+        GridSquare = Color3.fromRGB(25, 25, 30),
+        Enemy_Accent = Color3.fromRGB(152, 204, 0),
+        Enemy_Fill = Color3.fromRGB(112, 151, 0),
+        Enemy_Hidden = Color3.fromRGB(112, 116, 122),
+        NametagTextColor = Color3.fromRGB(152, 204, 0),
+        HealthHigh = Color3.fromRGB(152, 204, 0),
+        HealthMid = Color3.fromRGB(205, 170, 42),
+        HealthLow = Color3.fromRGB(205, 72, 72),
+        MolotovColor = Color3.fromRGB(255,95,35),
+        SmokeColor = Color3.fromRGB(180,185,195),
+        HEColor = Color3.fromRGB(255,45,55)
+    },
     ["XC Lime"] = {
         Name = "XC Lime",
         Background = Color3.fromRGB(18, 18, 22),
@@ -1271,7 +1469,7 @@ local themeLibrary = {
     }
 }
 
-local currentTheme = themeLibrary["XC Lime"]
+local currentTheme = themeLibrary["XOSE Midnight"]
 
 local function xcConfigColor(prefix, fallback)
     local r = tonumber(XCConfig[prefix .. "R"])
@@ -1289,9 +1487,9 @@ function syncXCUserTheme()
     local visible = XCConfig.linkMenuAndEspColor and menuAccent
         or xcConfigColor("espVisible", currentTheme.Enemy_Accent)
     currentTheme.Background = menuBackground
-    currentTheme.Sidebar = menuBackground:Lerp(Color3.new(0, 0, 0), 0.24)
+    currentTheme.Sidebar = menuBackground:Lerp(Color3.new(1, 1, 1), 0.02)
     currentTheme.CardBg = menuPanel
-    currentTheme.Border = menuPanel:Lerp(menuText, 0.17)
+    currentTheme.Border = menuPanel:Lerp(menuText, 0.095)
     currentTheme.TextPrimary = menuText
     currentTheme.TextSecondary = menuText:Lerp(menuBackground, 0.48)
     currentTheme.Accent = menuAccent
@@ -16467,7 +16665,7 @@ local function xcMenuLayoutForViewport(viewportX, viewportY, touch, requestedSca
     -- Touch input also exists on tablets and landscape phones. Choose the
     -- column layout from available space instead of the input device.
     if mobile == nil then mobile = viewportX < 760 and viewportX < viewportY * 1.3 end
-    local width, height = mobile and 430 or 820, mobile and 720 or 560
+    local width, height = mobile and 400 or 980, mobile and 760 or 620
     local preferred = math.max(0.65, math.min(1.25, tonumber(requestedScale) or 1))
     if compact then preferred = preferred * 0.88 end
     local scale = math.max(0.05, math.min(preferred,
@@ -16479,21 +16677,21 @@ function buildXCUI()
     setAntiAfkEnabled(XCConfig.antiAfkEnabled)
 
     local function configColor(prefix, fallback) return xcConfigColor(prefix, fallback) end
-    local initialMain = configColor("menuBackground", Color3.fromRGB(17, 17, 17))
-    local initialPanel = configColor("menuPanel", Color3.fromRGB(12, 12, 12))
-    local initialText = configColor("menuText", Color3.fromRGB(235, 235, 235))
+    local initialMain = configColor("menuBackground", Color3.fromRGB(16, 17, 20))
+    local initialPanel = configColor("menuPanel", Color3.fromRGB(28, 29, 33))
+    local initialText = configColor("menuText", Color3.fromRGB(241, 241, 243))
     local C = {
         Main = initialMain,
-        Sidebar = initialMain:Lerp(Color3.new(0, 0, 0), 0.24),
+        Sidebar = initialMain:Lerp(Color3.new(1, 1, 1), 0.02),
         Panel = initialPanel,
         Control = initialPanel:Lerp(initialText, 0.06),
         Control2 = initialPanel:Lerp(initialText, 0.11),
-        Border = initialPanel:Lerp(initialText, 0.17),
+        Border = initialPanel:Lerp(initialText, 0.095),
         Black = Color3.fromRGB(0, 0, 0),
-        Lime = configColor("menuAccent", Color3.fromRGB(152, 204, 0)),
+        Lime = configColor("menuAccent", Color3.fromRGB(179, 212, 106)),
         White = initialText,
-        Text = initialText:Lerp(initialMain, 0.14),
-        Muted = initialText:Lerp(initialMain, 0.53),
+        Text = initialText:Lerp(initialMain, 0.04),
+        Muted = initialText:Lerp(initialMain, 0.38),
     }
 
     local toggleGui = Instance.new("ScreenGui")
@@ -16529,13 +16727,14 @@ function buildXCUI()
     main.BorderColor3 = C.Border
     main.BorderSizePixel = 0
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 5)
+    mainCorner.CornerRadius = UDim.new(0, 16)
     mainCorner.Parent = main
+    main.ClipsDescendants = true
     main.Active = true
     main.Parent = screenGui
 
     local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = C.Black
+    mainStroke.Color = C.Border
     mainStroke.Thickness = 1
     mainStroke.Parent = main
 
@@ -16559,7 +16758,7 @@ function buildXCUI()
         for _, entry in ipairs(glassSurfaces) do
             local role = entry.role
             local surface = entry.surface
-            local normal = role == "chrome" and 0.04 or role == "main" and base or 0
+            local normal = role == "chrome" and 0 or role == "main" and base or 0
             surface.BackgroundTransparency = xcGlassOpacity(role, enabled, strength, normal)
             entry.sheen.Enabled = enabled
             if enabled then
@@ -16572,9 +16771,9 @@ function buildXCUI()
                 })
             end
             if entry.stroke then
-                entry.stroke.Color = enabled and C.White or (role == "main" and C.Black or C.Border)
+                entry.stroke.Color = enabled and C.White or C.Border
                 entry.stroke.Transparency = enabled and (role == "main" and 0.58 or 0.82) or 0
-                entry.stroke.Thickness = role == "main" and 1.3 or 1
+                entry.stroke.Thickness = 1
                 entry.rim.Enabled = enabled
                 if enabled then
                     entry.rim.Color = ColorSequence.new({
@@ -16615,92 +16814,251 @@ function buildXCUI()
     topLine.BorderSizePixel = 0
     topLine.BackgroundColor3 = C.Lime
     topLine.ZIndex = 40
+    topLine.Visible = false -- v79: superseded by the sidebar/header structure
     topLine.Parent = main
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new(C.Lime, C.Lime:Lerp(C.Main, 0.68))
     gradient.Parent = topLine
 
-    local header = Instance.new("Frame")
-    header.Name = "MenuHeader"
-    header.Size = UDim2.new(1, 0, 0, 52)
-    header.BackgroundColor3 = C.Sidebar
-    header.BorderSizePixel = 0
-    header.Parent = main
-    registerGlassSurface(header, "chrome")
+    --// XOSE Midnight Precision: animation helpers shared by every component.
+    local function xcAnimEnabled() return XCConfig.uiAnimations ~= false end
+    -- One-shot tween with a direct-assignment fallback (animations disabled,
+    -- or the object is not parented yet). Never creates per-frame work.
+    local function tw(object, properties, seconds, style, direction)
+        if not object then return end
+        if not object.Parent or not xcAnimEnabled() then
+            for property, value in pairs(properties) do object[property] = value end
+            return
+        end
+        TweenService:Create(object, TweenInfo.new(seconds or 0.16, style or Enum.EasingStyle.Quad,
+            direction or Enum.EasingDirection.Out), properties):Play()
+    end
+    local TOUCH = UserInputService.TouchEnabled
+    local ROW_PAD = 10
+    local SIDE_W = isMobileLayout and 60 or 224
+    local HEADER_H = isMobileLayout and 60 or 84
+    local PAD = isMobileLayout and 14 or 28
+    local CLUSTER_W = isMobileLayout and 62 or 414
+
+    local sideBg = Instance.new("Frame")
+    sideBg.Name = "SideRail"
+    sideBg.Size = UDim2.new(0, SIDE_W, 1, 0)
+    sideBg.BackgroundColor3 = C.Sidebar
+    sideBg.BorderSizePixel = 0
+    sideBg.Parent = main
+    registerGlassSurface(sideBg, "chrome")
+    do
+        local sideDivider = Instance.new("Frame")
+        sideDivider.Name = "SideDivider"
+        sideDivider.Size = UDim2.new(0, 1, 1, 0)
+        sideDivider.Position = UDim2.new(1, -1, 0, 0)
+        sideDivider.BackgroundColor3 = C.Border
+        sideDivider.BorderSizePixel = 0
+        sideDivider.Parent = sideBg
+    end
+
+    -- Brand: accent monogram + wordmark.
+    do
+    local logoMark = Instance.new("Frame")
+    logoMark.Name = "LogoMark"
+    logoMark.Size = UDim2.fromOffset(isMobileLayout and 36 or 40, isMobileLayout and 36 or 40)
+    logoMark.Position = isMobileLayout and UDim2.fromOffset(12, 12) or UDim2.fromOffset(20, 24)
+    logoMark.BackgroundColor3 = C.Lime
+    logoMark.BorderSizePixel = 0
+    logoMark.Parent = sideBg
+    Instance.new("UICorner", logoMark).CornerRadius = UDim.new(0, 12)
+    local logoGlyph = Instance.new("TextLabel")
+    logoGlyph.Size = UDim2.fromScale(1, 1)
+    logoGlyph.BackgroundTransparency = 1
+    logoGlyph.Text = "X"
+    logoGlyph.TextColor3 = C.Main
+    logoGlyph.Font = Enum.Font.GothamBold
+    logoGlyph.TextSize = isMobileLayout and 20 or 22
+    logoGlyph.Parent = logoMark
     local brand = Instance.new("TextLabel")
     brand.Name = "Brand"
-    brand.Position = UDim2.fromOffset(16, 12)
-    brand.Size = UDim2.fromOffset(isMobileLayout and 106 or 136, 28)
+    brand.Position = UDim2.fromOffset(70, 22)
+    brand.Size = UDim2.new(1, -82, 0, 24)
     brand.BackgroundTransparency = 1
     brand.Text = "XOSE"
-    brand.TextColor3 = C.Lime
+    brand.TextColor3 = C.White
     brand.Font = Enum.Font.GothamBold
-    brand.TextSize = 15
+    brand.TextSize = 22
     brand.TextXAlignment = Enum.TextXAlignment.Left
-    brand.Parent = header
-    local brandAccent = Instance.new("Frame")
-    brandAccent.Size = UDim2.fromOffset(3, 22)
-    brandAccent.Position = UDim2.fromOffset(9, 15)
-    brandAccent.BorderSizePixel = 0
-    brandAccent.BackgroundColor3 = C.Lime
-    brandAccent.Parent = header
+    brand.Visible = not isMobileLayout
+    brand.Parent = sideBg
+    local brandTag = Instance.new("TextLabel")
+    brandTag.Name = "BrandTag"
+    brandTag.Position = UDim2.fromOffset(70, 47)
+    brandTag.Size = UDim2.new(1, -82, 0, 14)
+    brandTag.BackgroundTransparency = 1
+    brandTag.Text = "MIDNIGHT PRECISION"
+    brandTag.TextColor3 = C.Muted
+    brandTag.Font = Enum.Font.GothamMedium
+    brandTag.TextSize = 9
+    brandTag.TextXAlignment = Enum.TextXAlignment.Left
+    brandTag.Visible = not isMobileLayout
+    brandTag.Parent = sideBg
+    end
+
+    -- Header: section title, description, status, search (desktop) and close.
+    local header = Instance.new("Frame")
+    header.Name = "MenuHeader"
+    header.Position = UDim2.fromOffset(SIDE_W, 0)
+    header.Size = UDim2.new(1, -SIDE_W, 0, HEADER_H)
+    header.BackgroundTransparency = 1
+    header.BorderSizePixel = 0
+    header.Parent = main
+    do
+        local headerLine = Instance.new("Frame")
+        headerLine.Name = "HeaderLine"
+        headerLine.Size = UDim2.new(1, 0, 0, 1)
+        headerLine.Position = UDim2.new(0, 0, 1, -1)
+        headerLine.BackgroundColor3 = C.Border
+        headerLine.BackgroundTransparency = 0.45
+        headerLine.BorderSizePixel = 0
+        headerLine.Parent = header
+    end
+
     local pageTitle = Instance.new("TextLabel")
-    pageTitle.Position = UDim2.fromOffset(isMobileLayout and 132 or 176, 8)
-    pageTitle.Size = UDim2.new(1, isMobileLayout and -182 or -222, 0, 22)
+    pageTitle.Name = "PageTitle"
+    pageTitle.Position = UDim2.fromOffset(PAD, isMobileLayout and 8 or 17)
+    pageTitle.Size = UDim2.new(1, -(PAD + CLUSTER_W), 0, isMobileLayout and 22 or 28)
     pageTitle.BackgroundTransparency = 1
     pageTitle.TextColor3 = C.White
     pageTitle.Font = Enum.Font.GothamBold
-    pageTitle.TextSize = 14
+    pageTitle.TextSize = isMobileLayout and 17 or 20
+    pageTitle.TextTruncate = Enum.TextTruncate.AtEnd
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.Parent = header
     local pageSubtitle = Instance.new("TextLabel")
-    pageSubtitle.Position = UDim2.fromOffset(isMobileLayout and 132 or 176, 29)
-    pageSubtitle.Size = UDim2.new(1, isMobileLayout and -182 or -222, 0, 14)
+    pageSubtitle.Name = "PageSubtitle"
+    pageSubtitle.Position = UDim2.fromOffset(PAD, isMobileLayout and 32 or 47)
+    pageSubtitle.Size = UDim2.new(1, -(PAD + CLUSTER_W), 0, 16)
     pageSubtitle.BackgroundTransparency = 1
     pageSubtitle.TextColor3 = C.Muted
-    pageSubtitle.Font = Enum.Font.GothamMedium
-    pageSubtitle.TextSize = 9.5
+    pageSubtitle.Font = Enum.Font.Gotham
+    pageSubtitle.TextSize = isMobileLayout and 11 or 12
     pageSubtitle.TextTruncate = Enum.TextTruncate.AtEnd
     pageSubtitle.TextXAlignment = Enum.TextXAlignment.Left
     pageSubtitle.Parent = header
+
+    if not isMobileLayout then
+        local premiumSession = false
+        if type(getgenv) == "function" then
+            pcall(function() premiumSession = getgenv().XOSE_PREMIUM == true end)
+        end
+        local statusPill = Instance.new("Frame")
+        statusPill.Name = "StatusPill"
+        statusPill.Size = UDim2.fromOffset(104, 30)
+        statusPill.Position = UDim2.new(1, -(20 + 34 + 10 + 224 + 10 + 104), 0, 27)
+        statusPill.BackgroundColor3 = C.Panel
+        statusPill.BorderSizePixel = 0
+        statusPill.Parent = header
+        Instance.new("UICorner", statusPill).CornerRadius = UDim.new(0, 10)
+        local pillStroke = Instance.new("UIStroke", statusPill)
+        pillStroke.Color = C.Border
+        pillStroke.Thickness = 1
+        local pillDot = Instance.new("Frame", statusPill)
+        pillDot.Size = UDim2.fromOffset(6, 6)
+        pillDot.Position = UDim2.new(0, 12, 0.5, -3)
+        pillDot.BackgroundColor3 = C.Lime
+        pillDot.BorderSizePixel = 0
+        Instance.new("UICorner", pillDot).CornerRadius = UDim.new(1, 0)
+        local pillText = Instance.new("TextLabel", statusPill)
+        pillText.Position = UDim2.fromOffset(26, 0)
+        pillText.Size = UDim2.new(1, -32, 1, 0)
+        pillText.BackgroundTransparency = 1
+        pillText.Text = premiumSession and "PREMIUM" or "ACTIVE"
+        pillText.TextColor3 = C.Text
+        pillText.Font = Enum.Font.GothamBold
+        pillText.TextSize = 10
+        pillText.TextXAlignment = Enum.TextXAlignment.Left
+    end
+
     local closeMenuButton = Instance.new("TextButton")
     closeMenuButton.Name = "CloseMenu"
-    closeMenuButton.Position = UDim2.new(1, -38, 0, 12)
-    closeMenuButton.Size = UDim2.fromOffset(25, 25)
-    closeMenuButton.BackgroundColor3 = C.Control2
+    closeMenuButton.AnchorPoint = Vector2.new(0, 0)
+    closeMenuButton.Size = isMobileLayout and UDim2.fromOffset(40, 40) or UDim2.fromOffset(34, 34)
+    closeMenuButton.Position = isMobileLayout and UDim2.new(1, -50, 0, 10) or UDim2.new(1, -54, 0, 25)
+    closeMenuButton.BackgroundColor3 = C.Control
+    closeMenuButton.BackgroundTransparency = 1
     closeMenuButton.BorderSizePixel = 0
-    closeMenuButton.Text = "X"
-    closeMenuButton.TextColor3 = C.Muted
-    closeMenuButton.Font = Enum.Font.GothamBold
-    closeMenuButton.TextSize = 16
+    closeMenuButton.Text = ""
+    closeMenuButton.AutoButtonColor = false
     closeMenuButton.ZIndex = 30
     closeMenuButton.Parent = header
-    Instance.new("UICorner", closeMenuButton).CornerRadius = UDim.new(0, 3)
+    Instance.new("UICorner", closeMenuButton).CornerRadius = UDim.new(0, 10)
+    do
+    local closeBars = {}
+    for _, angle in ipairs({45, -45}) do
+        local bar = Instance.new("Frame")
+        bar.AnchorPoint = Vector2.new(0.5, 0.5)
+        bar.Position = UDim2.fromScale(0.5, 0.5)
+        bar.Size = UDim2.fromOffset(14, 1.5)
+        bar.Rotation = angle
+        bar.BackgroundColor3 = C.Muted
+        bar.BorderSizePixel = 0
+        bar.ZIndex = 31
+        bar.Parent = closeMenuButton
+        table.insert(closeBars, bar)
+    end
+    closeMenuButton.MouseEnter:Connect(function()
+        tw(closeMenuButton, {BackgroundTransparency = 0}, 0.14)
+        for _, bar in ipairs(closeBars) do tw(bar, {BackgroundColor3 = C.White}, 0.14) end
+    end)
+    closeMenuButton.MouseLeave:Connect(function()
+        tw(closeMenuButton, {BackgroundTransparency = 1}, 0.14)
+        for _, bar in ipairs(closeBars) do tw(bar, {BackgroundColor3 = C.Muted}, 0.14) end
+    end)
+    end
 
+    -- The whole header strip (minus the controls) drags the window.
     local dragBar = Instance.new("Frame")
     dragBar.Name = "DragBar"
-    dragBar.Size = UDim2.new(1, -52, 0, 10)
-    dragBar.Position = UDim2.fromOffset(0, 0)
+    dragBar.Size = UDim2.new(1, -(SIDE_W + CLUSTER_W), 0, HEADER_H)
+    dragBar.Position = UDim2.fromOffset(SIDE_W, 0)
     dragBar.BackgroundTransparency = 1
     dragBar.Active = true
     dragBar.ZIndex = 20
     dragBar.Parent = main
 
+    -- Navigation: scrolling primary list + pinned Settings/Configs block.
     local sidebar = Instance.new("ScrollingFrame")
+    local sideBottom = Instance.new("Frame")
+    do
+    local NAV_TOP = isMobileLayout and 68 or 98
+    local NAV_RESERVE = isMobileLayout and 122 or 136
     sidebar.Name = "IconBar"
-    sidebar.Size = isMobileLayout and UDim2.new(0, 54, 1, -66) or UDim2.new(0, 152, 1, -66)
-    sidebar.Position = UDim2.fromOffset(8, 58)
-    sidebar.BackgroundColor3 = C.Sidebar
-    sidebar.BackgroundTransparency = math.clamp(XCConfig.menuTransparency * 0.7, 0, 0.4)
+    sidebar.Size = UDim2.new(0, SIDE_W - (isMobileLayout and 8 or 24), 1, -(NAV_TOP + NAV_RESERVE))
+    sidebar.Position = UDim2.fromOffset(isMobileLayout and 4 or 12, NAV_TOP)
+    sidebar.BackgroundTransparency = 1
     sidebar.BorderSizePixel = 0
     sidebar.ScrollingDirection = Enum.ScrollingDirection.Y
     sidebar.ScrollBarThickness = 0
     sidebar.ScrollBarImageColor3 = C.Lime
+    sidebar.AutomaticCanvasSize = Enum.AutomaticSize.Y
     sidebar.CanvasSize = UDim2.new()
-    sidebar.Parent = main
-    Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 4)
-    local sidebarRim = Instance.new("UIStroke", sidebar)
-    registerGlassSurface(sidebar, "chrome", sidebarRim)
+    sidebar.Parent = sideBg
+
+    sideBottom.Name = "NavBottom"
+    sideBottom.AnchorPoint = Vector2.new(0, 1)
+    sideBottom.Size = UDim2.new(0, SIDE_W - (isMobileLayout and 8 or 24), 0, 0)
+    sideBottom.Position = UDim2.new(0, isMobileLayout and 4 or 12, 1, isMobileLayout and -8 or -14)
+    sideBottom.AutomaticSize = Enum.AutomaticSize.Y
+    sideBottom.BackgroundTransparency = 1
+    sideBottom.Parent = sideBg
+    local sideBottomLayout = Instance.new("UIListLayout", sideBottom)
+    sideBottomLayout.Padding = UDim.new(0, 4)
+    sideBottomLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    local sideBottomDivider = Instance.new("Frame", sideBottom)
+    sideBottomDivider.Name = "BottomDivider"
+    sideBottomDivider.LayoutOrder = 0
+    sideBottomDivider.Size = UDim2.new(1, 0, 0, 1)
+    sideBottomDivider.BackgroundColor3 = C.Border
+    sideBottomDivider.BackgroundTransparency = 0.45
+    sideBottomDivider.BorderSizePixel = 0
+    end
 
     -- Filled after the floating XC button is created. Keeping this callback
     -- here lets live theme changes recolor both letters without rebuilding UI.
@@ -16716,10 +17074,10 @@ function buildXCUI()
         local newPanel = configColor("menuPanel", old.Panel)
         local newText = configColor("menuText", old.White)
         local nextColors = {
-            Main=newMain, Sidebar=newMain:Lerp(Color3.new(0,0,0),0.24), Panel=newPanel,
+            Main=newMain, Sidebar=newMain:Lerp(Color3.new(1,1,1),0.02), Panel=newPanel,
             Control=newPanel:Lerp(newText,0.06), Control2=newPanel:Lerp(newText,0.11),
-            Border=newPanel:Lerp(newText,0.17), Lime=configColor("menuAccent",old.Lime),
-            White=newText, Text=newText:Lerp(newMain,0.14), Muted=newText:Lerp(newMain,0.53),
+            Border=newPanel:Lerp(newText,0.095), Lime=configColor("menuAccent",old.Lime),
+            White=newText, Text=newText:Lerp(newMain,0.04), Muted=newText:Lerp(newMain,0.38),
         }
         local function replaceColor(value)
             for role, previous in pairs(old) do if value == previous then return nextColors[role] end end
@@ -16765,31 +17123,34 @@ function buildXCUI()
 
     local sideLayout = Instance.new("UIListLayout")
     sideLayout.FillDirection = Enum.FillDirection.Vertical
-    sideLayout.Padding = UDim.new(0, isMobileLayout and 4 or 3)
+    sideLayout.Padding = UDim.new(0, isMobileLayout and 4 or 2)
     sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
     sideLayout.Parent = sidebar
-    local sidePadding = Instance.new("UIPadding", sidebar)
-    sidePadding.PaddingLeft = UDim.new(0, isMobileLayout and 2 or 7)
-    sidePadding.PaddingTop = UDim.new(0, 4)
 
+    local CONTENT_TOP = isMobileLayout and (HEADER_H + 56) or (HEADER_H + 16)
+    local CONTENT_PAD = isMobileLayout and 8 or 20
     local content = Instance.new("Frame")
     content.Name = "Content"
-    content.Size = isMobileLayout and UDim2.new(1, -82, 1, -132) or UDim2.new(1, -178, 1, -132)
-    content.Position = UDim2.fromOffset(isMobileLayout and 70 or 166, 104)
+    content.Size = UDim2.new(1, -(SIDE_W + CONTENT_PAD * 2), 1, -(CONTENT_TOP + CONTENT_PAD))
+    content.Position = UDim2.fromOffset(SIDE_W + CONTENT_PAD, CONTENT_TOP)
     content.BackgroundTransparency = 1
     content.Parent = main
 
-    local footer = Instance.new("TextLabel", main)
+    do
+    local footer = Instance.new("TextLabel")
     footer.Name = "MenuFooter"
-    footer.Size = UDim2.new(1, -28, 0, 18)
-    footer.Position = UDim2.new(0, 14, 1, -22)
+    footer.LayoutOrder = 99
+    footer.Size = UDim2.new(1, 0, 0, 18)
     footer.BackgroundTransparency = 1
-    footer.Text = "XOSE    LOCAL SESSION                                           GLASS UI    QUICK SEARCH"
+    footer.Text = "v79  \194\183  Midnight Precision"
     footer.TextColor3 = C.Muted
     footer.Font = Enum.Font.Gotham
-    footer.TextSize = 9
-    footer.TextTruncate = Enum.TextTruncate.AtEnd
+    footer.TextSize = 10
     footer.TextXAlignment = Enum.TextXAlignment.Left
+    footer.Visible = not isMobileLayout
+    footer.Parent = sideBottom
+    Instance.new("UIPadding", footer).PaddingLeft = UDim.new(0, 10)
+    end
 
     local pages = {}
     local tabData = {}
@@ -16806,45 +17167,71 @@ function buildXCUI()
 
     local searchBar = Instance.new("Frame")
     searchBar.Name = "QuickSearch"
-    searchBar.Size = isMobileLayout and UDim2.new(1, -82, 0, 32) or UDim2.new(1, -178, 0, 32)
-    searchBar.Position = UDim2.fromOffset(isMobileLayout and 70 or 166, 64)
+    if isMobileLayout then
+        searchBar.Size = UDim2.new(1, -(SIDE_W + 16), 0, 40)
+        searchBar.Position = UDim2.fromOffset(SIDE_W + 8, HEADER_H + 8)
+        searchBar.Parent = main
+    else
+        searchBar.Size = UDim2.fromOffset(224, 36)
+        searchBar.Position = UDim2.new(1, -(20 + 34 + 10 + 224), 0, 24)
+        searchBar.Parent = header
+    end
     searchBar.BackgroundColor3 = C.Control
     searchBar.BorderSizePixel = 0
-    searchBar.Parent = main
-    Instance.new("UICorner", searchBar).CornerRadius = UDim.new(0, 7)
+    Instance.new("UICorner", searchBar).CornerRadius = UDim.new(0, 10)
     local searchRim = Instance.new("UIStroke", searchBar)
     registerGlassSurface(searchBar, "chrome", searchRim)
-    local searchIcon = Instance.new("TextLabel")
-    searchIcon.Size = UDim2.fromOffset(30, 30)
+    -- Vector magnifier: ring + handle.
+    do
+    local searchIcon = Instance.new("Frame")
+    searchIcon.Name = "SearchIcon"
+    searchIcon.Size = UDim2.fromOffset(32, 32)
+    searchIcon.Position = UDim2.new(0, 2, 0.5, -16)
     searchIcon.BackgroundTransparency = 1
-    searchIcon.Text = ""
-    searchIcon.TextColor3 = C.Lime
-    searchIcon.Font = Enum.Font.GothamBold
-    searchIcon.TextSize = 19
     searchIcon.Parent = searchBar
+    local lensRing = Instance.new("Frame", searchIcon)
+    lensRing.AnchorPoint = Vector2.new(0.5, 0.5)
+    lensRing.Position = UDim2.fromOffset(15, 15)
+    lensRing.Size = UDim2.fromOffset(10, 10)
+    lensRing.BackgroundTransparency = 1
+    Instance.new("UICorner", lensRing).CornerRadius = UDim.new(1, 0)
+    local lensStroke = Instance.new("UIStroke", lensRing)
+    lensStroke.Color = C.Muted
+    lensStroke.Thickness = 1.5
+    local lensHandle = Instance.new("Frame", searchIcon)
+    lensHandle.AnchorPoint = Vector2.new(0.5, 0.5)
+    lensHandle.Position = UDim2.fromOffset(21, 21)
+    lensHandle.Size = UDim2.fromOffset(5, 1.5)
+    lensHandle.Rotation = 45
+    lensHandle.BackgroundColor3 = C.Muted
+    lensHandle.BorderSizePixel = 0
+    end
     local searchBox = Instance.new("TextBox")
-    searchBox.Size = UDim2.new(1, -65, 1, 0)
-    searchBox.Position = UDim2.fromOffset(32, 0)
+    searchBox.Size = UDim2.new(1, -68, 1, 0)
+    searchBox.Position = UDim2.fromOffset(34, 0)
     searchBox.BackgroundTransparency = 1
     searchBox.ClearTextOnFocus = false
-    searchBox.PlaceholderText = "Find settings in this tab..."
+    searchBox.PlaceholderText = "Search settings"
     searchBox.PlaceholderColor3 = C.Muted
     searchBox.Text = ""
     searchBox.TextColor3 = C.Text
-    searchBox.Font = Enum.Font.Gotham
-    searchBox.TextSize = 12
+    searchBox.Font = Enum.Font.GothamMedium
+    searchBox.TextSize = TOUCH and 14 or 13
     searchBox.TextXAlignment = Enum.TextXAlignment.Left
+    searchBox.TextTruncate = Enum.TextTruncate.AtEnd
     searchBox.Parent = searchBar
     local clearSearch = Instance.new("TextButton")
-    clearSearch.Size = UDim2.fromOffset(30, 30)
-    clearSearch.Position = UDim2.new(1, -31, 0, 0)
+    clearSearch.Size = UDim2.new(0, 30, 1, 0)
+    clearSearch.Position = UDim2.new(1, -32, 0, 0)
     clearSearch.BackgroundTransparency = 1
     clearSearch.Text = "X"
     clearSearch.TextColor3 = C.Muted
     clearSearch.Font = Enum.Font.GothamBold
-    clearSearch.TextSize = 15
+    clearSearch.TextSize = 12
     clearSearch.Parent = searchBar
     clearSearch.Activated:Connect(function() searchBox.Text = "" end)
+    searchBox.Focused:Connect(function() tw(searchRim, {Color = C.Lime}, 0.15) end)
+    searchBox.FocusLost:Connect(function() tw(searchRim, {Color = C.Border}, 0.15) end)
 
     local CONTROL_HELP = {
         aimbotEnabled = "Tracks a valid target inside the configured field of view.",
@@ -16874,6 +17261,7 @@ function buildXCUI()
         noSpreadEnabled = "Requests zero spread from supported weapon calculations.",
         fireRateEnabled = "Adjusts the active supported weapon's fire interval. WAIT means no supported active weapon; FALL means a legacy table fallback.",
         fireRate = "Requested seconds between shots. The effective minimum is 0.03 s or 40% of the original interval, whichever is greater.",
+        uiAnimations = "Enables window, tab, toggle, dropdown and section transitions. Turn off for the lowest UI overhead; state changes then apply instantly.",
         menuGlassEnabled = "Applies translucent layered navigation and static glass highlights without full-screen blur.",
         menuGlassStrength = "Controls the transparency and highlight strength of the menu glass surfaces.",
         silentAimAutoWallEnabled = "Auto Wall selects obstructed Silent Aim targets only when the equipped weapon's native penetration can reach them.",
@@ -16972,11 +17360,14 @@ function buildXCUI()
 
     local helpPopup = Instance.new("Frame")
     helpPopup.Name = "ContextHelp"
-    helpPopup.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 260 or 235, 0)
+    helpPopup.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 280 or 260, 0)
     helpPopup.AutomaticSize = Enum.AutomaticSize.Y
-    helpPopup.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-    helpPopup.BorderColor3 = C.Lime
-    helpPopup.BorderSizePixel = 1
+    helpPopup.BackgroundColor3 = C.Control
+    helpPopup.BorderSizePixel = 0
+    Instance.new("UICorner", helpPopup).CornerRadius = UDim.new(0, 10)
+    local helpStroke = Instance.new("UIStroke", helpPopup)
+    helpStroke.Color = C.Border
+    helpStroke.Thickness = 1
     helpPopup.Visible = false
     helpPopup.ZIndex = 300
     helpPopup.Parent = screenGui
@@ -16991,8 +17382,8 @@ function buildXCUI()
     helpText.AutomaticSize = Enum.AutomaticSize.Y
     helpText.BackgroundTransparency = 1
     helpText.TextColor3 = C.Text
-    helpText.Font = Enum.Font.Code
-    helpText.TextSize = UserInputService.TouchEnabled and 11 or 10
+    helpText.Font = Enum.Font.GothamMedium
+    helpText.TextSize = UserInputService.TouchEnabled and 12 or 11
     helpText.TextWrapped = true
     helpText.TextXAlignment = Enum.TextXAlignment.Left
     helpText.TextYAlignment = Enum.TextYAlignment.Top
@@ -17063,11 +17454,11 @@ function buildXCUI()
         if isMobileLayout then
             page.BorderSizePixel = 0
             page.ScrollBarThickness = 2
-            page.ScrollBarImageColor3 = C.Lime
+            page.ScrollBarImageColor3 = C.Control2
             page.AutomaticCanvasSize = Enum.AutomaticSize.Y
             page.CanvasSize = UDim2.new()
             local pageLayout = Instance.new("UIListLayout", page)
-            pageLayout.Padding = UDim.new(0, 8)
+            pageLayout.Padding = UDim.new(0, 12)
             pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
         end
         page.Visible = false
@@ -17076,18 +17467,23 @@ function buildXCUI()
         return page
     end
 
+    local PANEL_HEAD = 52
     local function createPanel(page, title, x, width)
         local panel = Instance.new("Frame")
         panel.Name = title
-        panel.Size = isMobileLayout and UDim2.new(1, -5, 0, 510) or UDim2.new(width, 0, 1, 0)
-        panel.Position = isMobileLayout and UDim2.new() or UDim2.new(x, 0, 0, 0)
+        local full = width >= 1
+        -- Two columns share a 16 px gutter (8 px each side of the centre line).
+        panel.Size = isMobileLayout and UDim2.new(1, -4, 0, 510)
+            or UDim2.new(full and 1 or 0.5, full and 0 or -8, 1, 0)
+        panel.Position = isMobileLayout and UDim2.new()
+            or UDim2.new(x > 0 and 0.5 or 0, x > 0 and 8 or 0, 0, 0)
         panel.LayoutOrder = x > 0 and 2 or 1
         panel.BackgroundColor3 = C.Panel
         panel.BorderColor3 = C.Border
         panel.BorderSizePixel = 0
         panel.Parent = page
         local panelCorner = Instance.new("UICorner")
-        panelCorner.CornerRadius = UDim.new(0, 10)
+        panelCorner.CornerRadius = UDim.new(0, 14)
         panelCorner.Parent = panel
         local panelStroke = Instance.new("UIStroke")
         panelStroke.Color = C.Border
@@ -17095,30 +17491,39 @@ function buildXCUI()
         panelStroke.Parent = panel
         registerGlassSurface(panel, "panel", panelStroke)
 
+        local titleDot = Instance.new("Frame", panel)
+        titleDot.Name = "TitleDot"
+        titleDot.Size = UDim2.fromOffset(6, 6)
+        titleDot.Position = UDim2.fromOffset(18, 22)
+        titleDot.BackgroundColor3 = C.Lime
+        titleDot.BorderSizePixel = 0
+        Instance.new("UICorner", titleDot).CornerRadius = UDim.new(1, 0)
         local titleLabel = Instance.new("TextLabel")
-        titleLabel.Size = UDim2.new(1, -34, 0, 30)
-        titleLabel.Position = UDim2.fromOffset(16, 6)
+        titleLabel.Size = UDim2.new(1, -52, 0, 22)
+        titleLabel.Position = UDim2.fromOffset(32, 14)
         titleLabel.BackgroundTransparency = 1
         titleLabel.Text = title
-        titleLabel.TextColor3 = C.Text
+        titleLabel.TextColor3 = C.White
         titleLabel.Font = Enum.Font.GothamBold
-        titleLabel.TextSize = 12
+        titleLabel.TextSize = 14
+        titleLabel.TextTruncate = Enum.TextTruncate.AtEnd
         titleLabel.TextXAlignment = Enum.TextXAlignment.Left
         titleLabel.Parent = panel
         local titleDivider = Instance.new("Frame", panel)
-        titleDivider.Size = UDim2.new(1, -26, 0, 1)
-        titleDivider.Position = UDim2.fromOffset(13, 37)
+        titleDivider.Size = UDim2.new(1, -32, 0, 1)
+        titleDivider.Position = UDim2.fromOffset(16, PANEL_HEAD - 6)
         titleDivider.BackgroundColor3 = C.Border
+        titleDivider.BackgroundTransparency = 0.4
         titleDivider.BorderSizePixel = 0
 
         local scroll = Instance.new("ScrollingFrame")
         scroll.Name = "Controls"
-        scroll.Size = UDim2.new(1, -18, 1, -47)
-        scroll.Position = UDim2.fromOffset(9, 41)
+        scroll.Size = UDim2.new(1, -16, 1, -(PANEL_HEAD + 4))
+        scroll.Position = UDim2.fromOffset(8, PANEL_HEAD)
         scroll.BackgroundTransparency = 1
         scroll.BorderSizePixel = 0
         scroll.ScrollBarThickness = 3
-        scroll.ScrollBarImageColor3 = C.Border
+        scroll.ScrollBarImageColor3 = C.Control2
         scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
         scroll.CanvasSize = UDim2.new()
         scroll.Parent = panel
@@ -17128,9 +17533,9 @@ function buildXCUI()
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         layout.Parent = scroll
         local padding = Instance.new("UIPadding")
-        padding.PaddingLeft = UDim.new(0, 7)
-        padding.PaddingRight = UDim.new(0, 9)
-        padding.PaddingBottom = UDim.new(0, 14)
+        padding.PaddingLeft = UDim.new(0, 4)
+        padding.PaddingRight = UDim.new(0, 8)
+        padding.PaddingBottom = UDim.new(0, 16)
         padding.Parent = scroll
         if isMobileLayout then
             -- A single page scroller keeps the second column reachable on touch.
@@ -17145,8 +17550,8 @@ function buildXCUI()
                     resizePending = false
                     if not panel.Parent then return end
                     local bodyHeight = math.max(52, layout.AbsoluteContentSize.Y + 22)
-                    scroll.Size = UDim2.new(1, -18, 0, bodyHeight)
-                    panel.Size = UDim2.new(1, -5, 0, bodyHeight + 47)
+                    scroll.Size = UDim2.new(1, -16, 0, bodyHeight)
+                    panel.Size = UDim2.new(1, -4, 0, bodyHeight + PANEL_HEAD + 4)
                 end)
             end
             table.insert(connections, layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(resizeMobilePanel))
@@ -17163,49 +17568,70 @@ function buildXCUI()
         outer.BackgroundTransparency = 1
         outer.Parent = parent
         local outerLayout = Instance.new("UIListLayout")
-        outerLayout.Padding = UDim.new(0, 5)
+        outerLayout.Padding = UDim.new(0, 2)
         outerLayout.SortOrder = Enum.SortOrder.LayoutOrder
         outerLayout.Parent = outer
+        local outerPadding = Instance.new("UIPadding", outer)
+        outerPadding.PaddingBottom = UDim.new(0, 8)
 
         local header = Instance.new("TextButton")
-        header.Size = UDim2.new(1, 0, 0, 28)
+        header.Size = UDim2.new(1, 0, 0, TOUCH and 42 or 34)
         header.LayoutOrder = 1
+        header.BackgroundColor3 = C.Control
         header.BackgroundTransparency = 1
         header.BorderSizePixel = 0
         header.Text = ""
         header.AutoButtonColor = false
         header.Parent = outer
-        Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
+        Instance.new("UICorner", header).CornerRadius = UDim.new(0, 8)
+
+        local tick = Instance.new("Frame")
+        tick.Name = "SectionTick"
+        tick.Size = UDim2.fromOffset(3, 13)
+        tick.Position = UDim2.new(0, 4, 0.5, -6)
+        tick.BackgroundColor3 = C.Lime
+        tick.BorderSizePixel = 0
+        tick.Parent = header
+        Instance.new("UICorner", tick).CornerRadius = UDim.new(1, 0)
 
         local title = Instance.new("TextLabel")
         title.Name = "SectionTitle"
-        title.Size = UDim2.new(1, -38, 1, 0)
-        title.Position = UDim2.fromOffset(12, 0)
+        title.Size = UDim2.new(1, -52, 1, 0)
+        title.Position = UDim2.fromOffset(16, 0)
         title.BackgroundTransparency = 1
         title.Text = text:upper()
-        title.TextColor3 = C.Muted
+        title.TextColor3 = C.Text
         title.Font = Enum.Font.GothamBold
-        title.TextSize = 10
+        title.TextSize = 12
+        title.TextTruncate = Enum.TextTruncate.AtEnd
         title.TextXAlignment = Enum.TextXAlignment.Left
         title.Parent = header
 
-        local collapseIcon = Instance.new("TextLabel")
+        -- Vector chevron (rotates instead of swapping glyphs).
+        local collapseIcon = Instance.new("Frame")
         collapseIcon.Name = "CollapseIcon"
-        collapseIcon.Size = UDim2.fromOffset(24, 28)
-        collapseIcon.Position = UDim2.new(1, -26, 0, 0)
+        collapseIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+        collapseIcon.Size = UDim2.fromOffset(14, 14)
+        collapseIcon.Position = UDim2.new(1, -16, 0.5, 0)
         collapseIcon.BackgroundTransparency = 1
-        collapseIcon.Text = "v"
-        collapseIcon.TextColor3 = C.Lime
-        collapseIcon.Font = Enum.Font.GothamBold
-        collapseIcon.TextSize = 11
         collapseIcon.Parent = header
+        for _, info in ipairs({{-4, 42}, {4, -42}}) do
+            local arm = Instance.new("Frame")
+            arm.AnchorPoint = Vector2.new(0.5, 0.5)
+            arm.Position = UDim2.new(0.5, info[1], 0.5, 0)
+            arm.Size = UDim2.fromOffset(8, 1.6)
+            arm.Rotation = info[2]
+            arm.BackgroundColor3 = C.Muted
+            arm.BorderSizePixel = 0
+            arm.Parent = collapseIcon
+        end
 
         local accentLine = Instance.new("Frame")
         accentLine.Name = "LimeDivider"
-        accentLine.Size = UDim2.new(1, -2, 0, 1)
-        accentLine.Position = UDim2.new(0, 1, 1, -2)
+        accentLine.Size = UDim2.new(1, -8, 0, 1)
+        accentLine.Position = UDim2.new(0, 4, 1, -1)
         accentLine.BackgroundColor3 = C.Border
-        accentLine.BackgroundTransparency = 0.4
+        accentLine.BackgroundTransparency = 0.5
         accentLine.BorderSizePixel = 0
         accentLine.Parent = header
 
@@ -17217,19 +17643,53 @@ function buildXCUI()
         body.BackgroundTransparency = 1
         body.Parent = outer
         local bodyLayout = Instance.new("UIListLayout")
-        bodyLayout.Padding = UDim.new(0, 4)
+        bodyLayout.Padding = UDim.new(0, 2)
         bodyLayout.SortOrder = Enum.SortOrder.LayoutOrder
         bodyLayout.Parent = body
 
         local group = {outer = outer, body = body, header = header, collapsed = false}
         table.insert(sectionGroups, group)
         activeSectionByParent[parent] = body
+        local animationToken = 0
+        if not TOUCH then
+            header.MouseEnter:Connect(function() tw(header, {BackgroundTransparency = 0.5}, 0.14) end)
+            header.MouseLeave:Connect(function() tw(header, {BackgroundTransparency = 1}, 0.14) end)
+        end
         header.Activated:Connect(function()
             group.collapsed = not group.collapsed
-            body.Visible = not group.collapsed
-            collapseIcon.Text = group.collapsed and ">" or "v"
+            animationToken = animationToken + 1
+            local token = animationToken
+            tw(collapseIcon, {Rotation = group.collapsed and -90 or 0}, 0.16)
             title.TextColor3 = group.collapsed and C.Muted or C.Text
-            accentLine.BackgroundTransparency = group.collapsed and 0.7 or 0.4
+            accentLine.BackgroundTransparency = group.collapsed and 0.75 or 0.5
+            if not xcAnimEnabled() then
+                body.AutomaticSize = Enum.AutomaticSize.Y
+                body.Size = UDim2.new(1, 0, 0, 0)
+                body.Visible = not group.collapsed
+                return
+            end
+            local startHeight = body.Visible and body.AbsoluteSize.Y or 0
+            body.ClipsDescendants = true
+            body.AutomaticSize = Enum.AutomaticSize.None
+            local info = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            local goal
+            if group.collapsed then
+                body.Size = UDim2.new(1, 0, 0, startHeight)
+                goal = 0
+            else
+                body.Visible = true
+                body.Size = UDim2.new(1, 0, 0, startHeight)
+                goal = bodyLayout.AbsoluteContentSize.Y
+            end
+            local tween = TweenService:Create(body, info, {Size = UDim2.new(1, 0, 0, goal)})
+            tween.Completed:Connect(function()
+                if token ~= animationToken then return end
+                body.ClipsDescendants = false
+                body.AutomaticSize = Enum.AutomaticSize.Y
+                body.Size = UDim2.new(1, 0, 0, 0)
+                body.Visible = not group.collapsed
+            end)
+            tween:Play()
         end)
         return body
     end
@@ -17266,45 +17726,49 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local row = Instance.new("TextButton")
         row.Name = key
-        row.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 40 or 32)
+        row.Size = UDim2.new(1, 0, 0, TOUCH and 46 or 36)
+        row.BackgroundColor3 = C.Control
         row.BackgroundTransparency = 1
+        row.BorderSizePixel = 0
         row.Text = ""
         row.AutoButtonColor = false
         row.Parent = parent
+        Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+        local textFull = UDim2.new(1, -(ROW_PAD + 36 + 12), 1, 0)
+        local textShort = UDim2.new(1, -(ROW_PAD + 36 + 12 + 46), 1, 0)
         local text = Instance.new("TextLabel")
-        text.Size = UDim2.new(1, -76, 1, 0)
-        text.Position = UDim2.fromOffset(0, 0)
+        text.Size = textFull
+        text.Position = UDim2.fromOffset(ROW_PAD, 0)
         text.BackgroundTransparency = 1
         text.Text = label
         text.TextColor3 = C.Text
         text.Font = Enum.Font.GothamMedium
-        text.TextSize = 12
+        text.TextSize = 13
         text.TextXAlignment = Enum.TextXAlignment.Left
         text.TextTruncate = Enum.TextTruncate.AtEnd
         text.Parent = row
 
         local statusText = Instance.new("TextLabel")
         statusText.Name = "RuntimeStatus"
-        statusText.Size = UDim2.fromOffset(34, 14)
-        statusText.Position = UDim2.new(1, -67, 0.5, -7)
+        statusText.Size = UDim2.fromOffset(40, 18)
+        statusText.Position = UDim2.new(1, -(ROW_PAD + 36 + 8 + 40), 0.5, -9)
         statusText.BackgroundColor3 = C.Control
         statusText.BackgroundTransparency = 0.15
         statusText.BorderSizePixel = 0
         statusText.Font = Enum.Font.GothamBold
-        statusText.TextSize = 8
+        statusText.TextSize = 9
         statusText.TextXAlignment = Enum.TextXAlignment.Center
         statusText.Parent = row
         local statusCorner = Instance.new("UICorner")
-        statusCorner.CornerRadius = UDim.new(0, 3)
+        statusCorner.CornerRadius = UDim.new(0, 6)
         statusCorner.Parent = statusText
 
         local track = Instance.new("Frame")
         track.Name = "SwitchTrack"
-        track.Size = UDim2.fromOffset(27, 13)
-        track.Position = UDim2.new(1, -28, 0.5, -6)
+        track.Size = UDim2.fromOffset(36, 20)
+        track.Position = UDim2.new(1, -(ROW_PAD + 36), 0.5, -10)
         track.BackgroundColor3 = C.Control2
-        track.BorderColor3 = C.Black
-        track.BorderSizePixel = 1
+        track.BorderSizePixel = 0
         track.Parent = row
         local trackCorner = Instance.new("UICorner")
         trackCorner.CornerRadius = UDim.new(1, 0)
@@ -17312,8 +17776,8 @@ function buildXCUI()
 
         local knob = Instance.new("Frame")
         knob.Name = "Knob"
-        knob.Size = UDim2.fromOffset(9, 9)
-        knob.Position = UDim2.new(0, 2, 0.5, -4)
+        knob.Size = UDim2.fromOffset(14, 14)
+        knob.Position = UDim2.new(0, 3, 0.5, -7)
         knob.BackgroundColor3 = C.Muted
         knob.BorderSizePixel = 0
         knob.Parent = track
@@ -17323,17 +17787,33 @@ function buildXCUI()
 
         local function refreshStatus()
             local state, color = getModuleRuntimeStatus(key)
-            statusText.Visible = state == "WAIT" or state == "FALL" or state == "ERR"
+            local showBadge = state == "WAIT" or state == "FALL" or state == "ERR"
+            if statusText.Visible ~= showBadge then statusText.Visible = showBadge end
+            local nextTextSize = showBadge and textShort or textFull
+            if text.Size ~= nextTextSize then text.Size = nextTextSize end
             local background = state == "ERR" and Color3.fromRGB(45, 18, 18)
                 or (state == "WAIT" or state == "FALL") and Color3.fromRGB(43, 34, 17) or C.Control
             if statusText.Text ~= state then statusText.Text = state end
             if statusText.TextColor3 ~= color then statusText.TextColor3 = color end
             if statusText.BackgroundColor3 ~= background then statusText.BackgroundColor3 = background end
         end
+        local lastValue
         local function refresh(value)
-            track.BackgroundColor3 = value and C.Lime or C.Control2
-            knob.BackgroundColor3 = value and C.White or C.Muted
-            knob.Position = value and UDim2.new(1, -11, 0.5, -4) or UDim2.new(0, 2, 0.5, -4)
+            value = value == true
+            -- Animate only real ON/OFF transitions of a visible control.
+            local animate = lastValue ~= nil and lastValue ~= value and xcGuiIsVisible(row)
+            lastValue = value
+            local trackColor = value and C.Lime or C.Control2
+            local knobColor = value and C.Main or C.Muted
+            local knobPosition = value and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+            if animate then
+                tw(track, {BackgroundColor3 = trackColor}, 0.18)
+                tw(knob, {BackgroundColor3 = knobColor, Position = knobPosition}, 0.2, Enum.EasingStyle.Quint)
+            else
+                track.BackgroundColor3 = trackColor
+                knob.BackgroundColor3 = knobColor
+                knob.Position = knobPosition
+            end
             text.TextColor3 = value and C.White or C.Text
             refreshStatus()
         end
@@ -17344,6 +17824,12 @@ function buildXCUI()
         table.insert(moduleStatusRefreshers, function()
             if xcGuiIsVisible(row) then refreshStatus() end
         end)
+        if not TOUCH then
+            row.MouseEnter:Connect(function() tw(row, {BackgroundTransparency = 0.45}, 0.14) end)
+            row.MouseLeave:Connect(function() tw(row, {BackgroundTransparency = 1}, 0.14) end)
+        end
+        row.MouseButton1Down:Connect(function() tw(row, {BackgroundTransparency = 0.15}, 0.08) end)
+        row.MouseButton1Up:Connect(function() tw(row, {BackgroundTransparency = TOUCH and 1 or 0.45}, 0.12) end)
         row.Activated:Connect(function()
             if os.clock() < (row:GetAttribute("XCLongPressUntil") or 0) then return end
             XCConfig[key] = not XCConfig[key]
@@ -17363,40 +17849,46 @@ function buildXCUI()
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
         holder.Name = key
-        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 44 or 36)
+        holder.Size = UDim2.new(1, 0, 0, TOUCH and 58 or 48)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
         local name = Instance.new("TextLabel")
-        name.Size = UDim2.new(0.56, 0, 1, 0)
+        name.Size = UDim2.new(1, -(ROW_PAD * 2 + 84), 0, 24)
+        name.Position = UDim2.fromOffset(ROW_PAD, 3)
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.GothamMedium
-        name.TextSize = 12
+        name.TextSize = 13
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
-        local valueLabel = Instance.new("TextLabel")
-        valueLabel.Size = UDim2.new(0.38, 0, 0, 14)
-        valueLabel.Position = UDim2.new(0.6, 0, 0, 0)
-        valueLabel.BackgroundTransparency = 1
+        -- Editable numeric readout: drag for speed, type for precision.
+        local valueLabel = Instance.new("TextBox")
+        valueLabel.AnchorPoint = Vector2.new(1, 0)
+        valueLabel.Size = UDim2.fromOffset(78, 24)
+        valueLabel.Position = UDim2.new(1, -ROW_PAD, 0, 3)
+        valueLabel.BackgroundColor3 = C.Control
+        valueLabel.BorderSizePixel = 0
+        valueLabel.ClearTextOnFocus = false
         valueLabel.TextColor3 = C.Text
         valueLabel.Font = Enum.Font.GothamBold
-        valueLabel.TextSize = 10
-        valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+        valueLabel.TextSize = 12
+        valueLabel.TextXAlignment = Enum.TextXAlignment.Center
+        valueLabel.TextTruncate = Enum.TextTruncate.AtEnd
         valueLabel.Parent = holder
+        Instance.new("UICorner", valueLabel).CornerRadius = UDim.new(0, 8)
         local bar = Instance.new("Frame")
-        bar.Size = UDim2.new(0.38, 0, 0, 20)
-        bar.Position = UDim2.new(0.6, 0, 0, UserInputService.TouchEnabled and 20 or 14)
+        bar.Size = UDim2.new(1, -(ROW_PAD * 2), 0, TOUCH and 26 or 18)
+        bar.Position = UDim2.new(0, ROW_PAD, 0, TOUCH and 30 or 28)
         bar.BackgroundTransparency = 1
-        bar.BorderColor3 = C.Black
         bar.BorderSizePixel = 0
         bar.Active = true
         bar.Parent = holder
         local track = Instance.new("Frame", bar)
-        track.Size = UDim2.new(1, 0, 0, 6)
-        track.Position = UDim2.new(0, 0, 0.5, -3)
+        track.Size = UDim2.new(1, 0, 0, 4)
+        track.Position = UDim2.new(0, 0, 0.5, -2)
         track.BackgroundColor3 = C.Control2
         track.BorderSizePixel = 0
         Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
@@ -17405,27 +17897,51 @@ function buildXCUI()
         fill.BackgroundColor3 = C.Lime
         fill.Parent = track
         Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
-        local function refresh(value)
-            value = math.clamp(tonumber(value) or minValue, minValue, maxValue)
-            fill.Size = UDim2.new((value - minValue) / (maxValue - minValue), 0, 1, 0)
+        local knob = Instance.new("Frame", bar)
+        knob.Name = "Thumb"
+        knob.AnchorPoint = Vector2.new(0.5, 0.5)
+        knob.Size = UDim2.fromOffset(TOUCH and 18 or 14, TOUCH and 18 or 14)
+        knob.BackgroundColor3 = C.White
+        knob.BorderSizePixel = 0
+        Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+        local knobRing = Instance.new("UIStroke", knob)
+        knobRing.Color = C.Lime
+        knobRing.Thickness = 2
+        local function formatValue(value)
             local shown = step < 0.01 and string.format("%.3f", value)
                 or step < 1 and string.format("%.2f", value)
                 or tostring(math.floor(value + 0.5))
-            valueLabel.Text = shown .. (suffix or "")
+            return shown .. (suffix or "")
         end
-        local function setFromX(x)
-            if bar.AbsoluteSize.X <= 0 then return end
-            local pct = math.clamp((x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-            local raw = minValue + (maxValue - minValue) * pct
-            local value = math.floor(raw / step + 0.5) * step
+        local function refresh(value)
+            value = math.clamp(tonumber(value) or minValue, minValue, maxValue)
+            local pct = (value - minValue) / (maxValue - minValue)
+            fill.Size = UDim2.new(pct, 0, 1, 0)
+            knob.Position = UDim2.new(pct, 0, 0.5, 0)
+            if not valueLabel:IsFocused() then valueLabel.Text = formatValue(value) end
+        end
+        local function commit(value)
+            value = math.clamp(math.floor(value / step + 0.5) * step, minValue, maxValue)
+            -- Skip identical values so dragging never re-fires callbacks.
+            if XCConfig[key] == value then return end
             XCConfig[key] = value
             refreshConfigControls(key, value)
             if onChanged then onChanged(value) end
             scheduleConfigAutoSave()
         end
+        local function setFromX(x)
+            if bar.AbsoluteSize.X <= 0 then return end
+            local pct = math.clamp((x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+            commit(minValue + (maxValue - minValue) * pct)
+        end
         refresh(XCConfig[key])
         refreshers[key] = refreshers[key] or {}
         table.insert(refreshers[key], refresh)
+        valueLabel.FocusLost:Connect(function()
+            local typed = tonumber(valueLabel.Text:match("-?%d*%.?%d+"))
+            if typed then commit(typed) end
+            refresh(XCConfig[key])
+        end)
         bar.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 activeSliderInput = input
@@ -17485,37 +18001,46 @@ function buildXCUI()
         end
         closeDropdown()
 
-        local rowHeight = UserInputService.TouchEnabled and 28 or 23
-        local visibleRows = math.min(#values, UserInputService.TouchEnabled and 5 or 7)
-        local popupHeight = visibleRows * rowHeight + 2
-        local buttonPos, buttonSize = button.AbsolutePosition, button.AbsoluteSize
         local viewport = getViewportSize()
-        local belowY = buttonPos.Y + buttonSize.Y + 2
-        local aboveY = buttonPos.Y - popupHeight - 2
-        local openAbove = belowY + popupHeight > viewport.Y - 6 and aboveY >= 6
+        local rowHeight = TOUCH and 40 or 30
+        local rowGap = 2
+        local fitRows = math.max(1, math.floor((viewport.Y - 32) / (rowHeight + rowGap)))
+        local visibleRows = math.min(#values, TOUCH and 6 or 8, fitRows)
+        local popupHeight = visibleRows * (rowHeight + rowGap) - rowGap + 8
+        local buttonPos, buttonSize = button.AbsolutePosition, button.AbsoluteSize
+        local width = math.min(math.max(buttonSize.X, 150), viewport.X - 12)
+        local x = math.clamp(buttonPos.X + buttonSize.X - width, 6, math.max(6, viewport.X - width - 6))
+        local belowY = buttonPos.Y + buttonSize.Y + 4
+        local aboveY = buttonPos.Y - 4
+        local openAbove = belowY + popupHeight > viewport.Y - 6 and aboveY - popupHeight >= 6
+        local y = openAbove and aboveY or math.max(6, math.min(belowY, viewport.Y - popupHeight - 6))
 
         local popup = Instance.new("ScrollingFrame")
         popup.Name = "SmartDropdown_" .. key
-        popup.Position = UDim2.fromOffset(
-            math.clamp(buttonPos.X, 6, math.max(6, viewport.X - buttonSize.X - 6)),
-            openAbove and aboveY or math.min(belowY, viewport.Y - popupHeight - 6)
-        )
-        popup.Size = UDim2.fromOffset(buttonSize.X, popupHeight)
-        popup.BackgroundColor3 = C.Panel
+        popup.AnchorPoint = Vector2.new(0, openAbove and 1 or 0)
+        popup.Position = UDim2.fromOffset(x, y)
+        popup.Size = UDim2.fromOffset(width, 0)
+        popup.BackgroundColor3 = C.Control
         popup.BorderSizePixel = 0
-        popup.ScrollBarThickness = #values > visibleRows and 2 or 0
+        popup.ScrollBarThickness = #values > visibleRows and 3 or 0
         popup.ScrollBarImageColor3 = C.Lime
-        popup.CanvasSize = UDim2.fromOffset(0, #values * rowHeight)
+        popup.CanvasSize = UDim2.fromOffset(0, #values * (rowHeight + rowGap) - rowGap + 8)
         popup.ZIndex = 200
         popup.Parent = screenGui
-        Instance.new("UICorner", popup).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", popup).CornerRadius = UDim.new(0, 12)
 
         local popupStroke = Instance.new("UIStroke")
         popupStroke.Color = C.Border
         popupStroke.Thickness = 1
         popupStroke.Parent = popup
 
+        local popupPadding = Instance.new("UIPadding", popup)
+        popupPadding.PaddingTop = UDim.new(0, 4)
+        popupPadding.PaddingBottom = UDim.new(0, 4)
+        popupPadding.PaddingLeft = UDim.new(0, 4)
+        popupPadding.PaddingRight = UDim.new(0, 4)
         local layout = Instance.new("UIListLayout")
+        layout.Padding = UDim.new(0, rowGap)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
         layout.Parent = popup
 
@@ -17525,46 +18050,46 @@ function buildXCUI()
             optionButton.Name = tostring(option)
             optionButton.LayoutOrder = index
             optionButton.Size = UDim2.new(1, 0, 0, rowHeight)
-            optionButton.BackgroundColor3 = selected and C.Control:Lerp(C.Lime, 0.2) or C.Panel
+            optionButton.BackgroundColor3 = selected and C.Control2 or C.Control
             optionButton.BorderSizePixel = 0
             optionButton.Text = ""
-            optionButton.Font = Enum.Font.GothamMedium
-            optionButton.TextSize = UserInputService.TouchEnabled and 13 or 12
             optionButton.AutoButtonColor = false
             optionButton.ZIndex = 201
             optionButton.Parent = popup
+            Instance.new("UICorner", optionButton).CornerRadius = UDim.new(0, 8)
 
             local optionText = Instance.new("TextLabel")
-            optionText.Size = UDim2.new(1, -28, 1, 0)
-            optionText.Position = UDim2.fromOffset(19, 0)
+            optionText.Size = UDim2.new(1, -34, 1, 0)
+            optionText.Position = UDim2.fromOffset(12, 0)
             optionText.BackgroundTransparency = 1
             optionText.Text = tostring(option)
             optionText.TextColor3 = selected and C.White or C.Text
-            optionText.Font = Enum.Font.GothamMedium
-            optionText.TextSize = UserInputService.TouchEnabled and 13 or 12
+            optionText.Font = selected and Enum.Font.GothamBold or Enum.Font.GothamMedium
+            optionText.TextSize = TOUCH and 14 or 13
             optionText.TextTruncate = Enum.TextTruncate.AtEnd
             optionText.TextXAlignment = Enum.TextXAlignment.Left
             optionText.ZIndex = 202
             optionText.Parent = optionButton
 
-            local marker = Instance.new("Frame")
-            marker.Name = "SelectionMarker"
-            marker.Size = UDim2.fromOffset(selected and 7 or 4, selected and 7 or 4)
-            marker.Position = UDim2.new(0, 7, 0.5, selected and -3 or -2)
-            marker.BackgroundColor3 = selected and C.Lime or C.Border
-            marker.BorderSizePixel = 0
-            marker.ZIndex = 202
-            marker.Parent = optionButton
-            local markerCorner = Instance.new("UICorner")
-            markerCorner.CornerRadius = UDim.new(1, 0)
-            markerCorner.Parent = marker
+            if selected then
+                local marker = Instance.new("Frame")
+                marker.Name = "SelectionMarker"
+                marker.AnchorPoint = Vector2.new(0, 0.5)
+                marker.Size = UDim2.fromOffset(6, 6)
+                marker.Position = UDim2.new(1, -16, 0.5, 0)
+                marker.BackgroundColor3 = C.Lime
+                marker.BorderSizePixel = 0
+                marker.ZIndex = 202
+                marker.Parent = optionButton
+                Instance.new("UICorner", marker).CornerRadius = UDim.new(1, 0)
+            end
 
             optionButton.MouseEnter:Connect(function()
-                optionButton.BackgroundColor3 = selected and C.Control:Lerp(C.Lime, 0.28) or C.Control2
+                tw(optionButton, {BackgroundColor3 = C.Control2}, 0.12)
                 optionText.TextColor3 = C.White
             end)
             optionButton.MouseLeave:Connect(function()
-                optionButton.BackgroundColor3 = selected and C.Control:Lerp(C.Lime, 0.2) or C.Panel
+                tw(optionButton, {BackgroundColor3 = selected and C.Control2 or C.Control}, 0.12)
                 optionText.TextColor3 = selected and C.White or C.Text
             end)
             optionButton.Activated:Connect(function()
@@ -17577,41 +18102,46 @@ function buildXCUI()
         end
 
         local selectedIndex = table.find(values, XCConfig[key]) or 1
-        popup.CanvasPosition = Vector2.new(0, math.max(0, (selectedIndex - 2) * rowHeight))
+        popup.CanvasPosition = Vector2.new(0, math.max(0, (selectedIndex - 2) * (rowHeight + rowGap)))
+        tw(popup, {Size = UDim2.fromOffset(width, popupHeight)}, 0.16, Enum.EasingStyle.Quint)
         activeDropdown = {popup = popup, button = button, key = key}
     end
 
     local function addChoice(parent, label, key, values, onChanged)
         parent = activeSectionByParent[parent] or parent
         local holder = Instance.new("Frame")
-        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 42 or 34)
+        holder.Size = UDim2.new(1, 0, 0, TOUCH and 52 or 42)
         holder.BackgroundTransparency = 1
         holder.Active = true
         holder.Parent = parent
         local name = Instance.new("TextLabel")
-        name.Size = UDim2.new(0.46, 0, 1, 0)
+        name.Size = UDim2.new(0.42, -ROW_PAD, 1, 0)
+        name.Position = UDim2.fromOffset(ROW_PAD, 0)
         name.BackgroundTransparency = 1
         name.Text = label
         name.TextColor3 = C.Text
         name.Font = Enum.Font.GothamMedium
-        name.TextSize = 12
+        name.TextSize = 13
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextTruncate = Enum.TextTruncate.AtEnd
         name.Parent = holder
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(0.53, 0, 0, UserInputService.TouchEnabled and 34 or 28)
-        button.Position = UDim2.new(0.47, 0, 0, 4)
+        button.AnchorPoint = Vector2.new(1, 0.5)
+        button.Size = UDim2.new(0.58, -ROW_PAD, 0, TOUCH and 40 or 32)
+        button.Position = UDim2.new(1, -ROW_PAD, 0.5, 0)
         button.BackgroundColor3 = C.Control
-        button.BorderColor3 = C.Black
         button.BorderSizePixel = 0
         button.Text = ""
         button.AutoButtonColor = false
         button.Parent = holder
-        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 5)
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+        local buttonStroke = Instance.new("UIStroke", button)
+        buttonStroke.Color = C.Border
+        buttonStroke.Thickness = 1
 
         local valueText = Instance.new("TextLabel")
-        valueText.Size = UDim2.new(1, -30, 1, 0)
-        valueText.Position = UDim2.fromOffset(8, 0)
+        valueText.Size = UDim2.new(1, -36, 1, 0)
+        valueText.Position = UDim2.fromOffset(12, 0)
         valueText.BackgroundTransparency = 1
         valueText.TextColor3 = C.Text
         valueText.Font = Enum.Font.GothamMedium
@@ -17623,7 +18153,7 @@ function buildXCUI()
         local arrow = Instance.new("Frame")
         arrow.Name = "Chevron"
         arrow.Size = UDim2.fromOffset(14, 12)
-        arrow.Position = UDim2.new(1, -20, 0.5, -6)
+        arrow.Position = UDim2.new(1, -22, 0.5, -6)
         arrow.BackgroundTransparency = 1
         arrow.Parent = button
         local arrowLeft = Instance.new("Frame")
@@ -17655,6 +18185,10 @@ function buildXCUI()
         refresh(XCConfig[key] or initialValues[1])
         refreshers[key] = refreshers[key] or {}
         table.insert(refreshers[key], refresh)
+        if not TOUCH then
+            button.MouseEnter:Connect(function() tw(button, {BackgroundColor3 = C.Control2}, 0.14) end)
+            button.MouseLeave:Connect(function() tw(button, {BackgroundColor3 = C.Control}, 0.14) end)
+        end
         button.Activated:Connect(function()
             openDropdown(button, key, resolvedValues(), onChanged, refresh)
         end)
@@ -17662,22 +18196,64 @@ function buildXCUI()
         registerSearch(holder, label .. " " .. key)
     end
 
-    local function addButton(parent, label, callback)
+    -- Buttons: variant is "primary", "secondary" or "destructive". When the
+    -- caller does not pass one it is inferred from the (unchanged) label.
+    local function addButton(parent, label, callback, variant)
         parent = activeSectionByParent[parent] or parent
+        if not variant then
+            local lowered = tostring(label):lower()
+            if lowered:find("delete", 1, true) or lowered:find("reset", 1, true) or lowered:find("panic", 1, true) then
+                variant = "destructive"
+            elseif lowered:find("save", 1, true) or lowered:find("publish", 1, true) or lowered:find("apply", 1, true) then
+                variant = "primary"
+            else
+                variant = "secondary"
+            end
+        end
+        local function palette()
+            if variant == "primary" then
+                return C.Lime, C.Lime:Lerp(C.White, 0.16), C.Lime:Lerp(C.Black, 0.16), C.Main, C.Lime
+            elseif variant == "destructive" then
+                return Color3.fromRGB(50, 28, 31), Color3.fromRGB(66, 34, 38), Color3.fromRGB(40, 22, 25),
+                    Color3.fromRGB(235, 128, 128), Color3.fromRGB(96, 50, 55)
+            end
+            return C.Control, C.Control2, C.Panel, C.Text, C.Border
+        end
+        local rest, _, _, textColor, strokeColor = palette()
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, 0, 0, 30)
-        button.BackgroundColor3 = C.Control
-        button.BorderColor3 = C.Black
+        button.Size = UDim2.new(1, 0, 0, TOUCH and 44 or 36)
+        button.BackgroundColor3 = rest
         button.BorderSizePixel = 0
         button.Text = label
-        button.TextColor3 = C.Text
+        button.TextColor3 = textColor
         button.Font = Enum.Font.GothamBold
-        button.TextSize = 10
+        button.TextSize = 12
+        button.TextTruncate = Enum.TextTruncate.AtEnd
         button.AutoButtonColor = false
         button.Parent = parent
-        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
-        button.MouseEnter:Connect(function() button.BackgroundColor3 = C.Control2 end)
-        button.MouseLeave:Connect(function() button.BackgroundColor3 = C.Control end)
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+        local buttonStroke = Instance.new("UIStroke", button)
+        buttonStroke.Color = strokeColor
+        buttonStroke.Thickness = 1
+        buttonStroke.Transparency = variant == "primary" and 1 or 0
+        if not TOUCH then
+            button.MouseEnter:Connect(function()
+                local _, hover = palette()
+                tw(button, {BackgroundColor3 = hover}, 0.14)
+            end)
+        end
+        button.MouseLeave:Connect(function()
+            local idle = palette()
+            tw(button, {BackgroundColor3 = idle}, 0.14)
+        end)
+        button.MouseButton1Down:Connect(function()
+            local _, _, pressed = palette()
+            tw(button, {BackgroundColor3 = pressed}, 0.08)
+        end)
+        button.MouseButton1Up:Connect(function()
+            local idle, hover = palette()
+            tw(button, {BackgroundColor3 = TOUCH and idle or hover}, 0.12)
+        end)
         button.Activated:Connect(callback)
         registerSearch(button, label)
         return button
@@ -17689,24 +18265,41 @@ function buildXCUI()
         note.Size = UDim2.new(1, 0, 0, 30)
         note.AutomaticSize = Enum.AutomaticSize.Y
         note.BackgroundColor3 = C.Control
-        note.BorderColor3 = C.Border
+        note.BackgroundTransparency = 0.35
         note.BorderSizePixel = 0
         note.Text = message
         note.TextColor3 = C.Muted
         note.Font = Enum.Font.Gotham
-        note.TextSize = 10
+        note.TextSize = 11
         note.TextWrapped = true
         note.TextXAlignment = Enum.TextXAlignment.Left
         note.Parent = parent
-        Instance.new("UICorner", note).CornerRadius = UDim.new(0, 6)
+        Instance.new("UICorner", note).CornerRadius = UDim.new(0, 8)
         local padding = Instance.new("UIPadding")
-        padding.PaddingLeft = UDim.new(0, 6)
-        padding.PaddingRight = UDim.new(0, 6)
-        padding.PaddingTop = UDim.new(0, 6)
-        padding.PaddingBottom = UDim.new(0, 6)
+        padding.PaddingLeft = UDim.new(0, 10)
+        padding.PaddingRight = UDim.new(0, 10)
+        padding.PaddingTop = UDim.new(0, 8)
+        padding.PaddingBottom = UDim.new(0, 8)
         padding.Parent = note
         registerSearch(note, message)
         return note
+    end
+
+    -- Shared look for free-text inputs (Configs tab).
+    local function styleInput(box, height)
+        box.BackgroundColor3 = C.Control
+        box.BorderSizePixel = 0
+        box.Font = Enum.Font.GothamMedium
+        box.TextSize = 12
+        box.PlaceholderColor3 = C.Muted
+        box.TextColor3 = C.Text
+        box.Size = UDim2.new(1, 0, 0, height or (TOUCH and 42 or 36))
+        Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
+        local stroke = Instance.new("UIStroke", box)
+        stroke.Color = C.Border
+        stroke.Thickness = 1
+        box.Focused:Connect(function() tw(stroke, {Color = C.Lime}, 0.15) end)
+        box.FocusLost:Connect(function() tw(stroke, {Color = C.Border}, 0.15) end)
     end
 
     local activeColorPopup
@@ -17719,38 +18312,43 @@ function buildXCUI()
 
     local function addColorPicker(parent, label, prefix, onChanged)
         parent = activeSectionByParent[parent] or parent
+        local swatchW, swatchH = TOUCH and 40 or 32, TOUCH and 30 or 22
         local holder = Instance.new("Frame")
         holder.Name = prefix .. "ColorPicker"
-        holder.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 32 or 26)
+        holder.Size = UDim2.new(1, 0, 0, TOUCH and 46 or 36)
         holder.BackgroundTransparency = 1
         holder.Parent = parent
         local title = Instance.new("TextLabel")
-        title.Size = UDim2.new(1, -94, 1, 0)
+        title.Size = UDim2.new(1, -(ROW_PAD * 2 + swatchW + 76), 1, 0)
+        title.Position = UDim2.fromOffset(ROW_PAD, 0)
         title.BackgroundTransparency = 1
         title.Text = label
         title.TextColor3 = C.Text
-        title.Font = Enum.Font.Code
-        title.TextSize = 10
+        title.Font = Enum.Font.GothamMedium
+        title.TextSize = 13
+        title.TextTruncate = Enum.TextTruncate.AtEnd
         title.TextXAlignment = Enum.TextXAlignment.Left
         title.Parent = holder
         local hexLabel = Instance.new("TextLabel")
-        hexLabel.Size = UDim2.fromOffset(58, 18)
-        hexLabel.Position = UDim2.new(1, -88, 0.5, -9)
+        hexLabel.Size = UDim2.fromOffset(64, 18)
+        hexLabel.Position = UDim2.new(1, -(ROW_PAD + swatchW + 8 + 64), 0.5, -9)
         hexLabel.BackgroundTransparency = 1
         hexLabel.TextColor3 = C.Muted
-        hexLabel.Font = Enum.Font.Code
-        hexLabel.TextSize = 9
+        hexLabel.Font = Enum.Font.GothamMedium
+        hexLabel.TextSize = 11
         hexLabel.TextXAlignment = Enum.TextXAlignment.Right
         hexLabel.Parent = holder
         local swatch = Instance.new("TextButton")
-        swatch.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 27 or 23, UserInputService.TouchEnabled and 27 or 19)
-        swatch.Position = UDim2.new(1, -(UserInputService.TouchEnabled and 27 or 23), 0.5, -(UserInputService.TouchEnabled and 13 or 9))
-        swatch.BorderColor3 = C.Black
-        swatch.BorderSizePixel = 1
+        swatch.Size = UDim2.fromOffset(swatchW, swatchH)
+        swatch.Position = UDim2.new(1, -(ROW_PAD + swatchW), 0.5, -swatchH / 2)
+        swatch.BorderSizePixel = 0
         swatch.Text = ""
         swatch.AutoButtonColor = false
         swatch.Parent = holder
-        Instance.new("UICorner", swatch).CornerRadius = UDim.new(0, 3)
+        Instance.new("UICorner", swatch).CornerRadius = UDim.new(0, 7)
+        local swatchStroke = Instance.new("UIStroke", swatch)
+        swatchStroke.Color = C.Border
+        swatchStroke.Thickness = 1
 
         local function readColor()
             return configColor(prefix, Color3.fromRGB(255, 255, 255))
@@ -17770,69 +18368,84 @@ function buildXCUI()
 
         swatch.Activated:Connect(function()
             closeColorPopup()
+            closeDropdown()
+            local popupW, popupH = 252, 214
             local popup = Instance.new("Frame")
             activeColorPopup = popup
             popup.Name = "Palette_" .. prefix
-            popup.Size = UDim2.fromOffset(238, 180)
+            popup.Size = UDim2.fromOffset(popupW, popupH)
             local absolute = swatch.AbsolutePosition
             local viewport = getViewportSize()
-            popup.Position = UDim2.fromOffset(
-                math.clamp(absolute.X - 205, 6, math.max(6, viewport.X - 244)),
-                math.clamp(absolute.Y + swatch.AbsoluteSize.Y + 4, 6, math.max(6, viewport.Y - 186)))
-            popup.BackgroundColor3 = C.Panel
-            popup.BorderColor3 = C.Border
-            popup.BorderSizePixel = 1
+            -- Keep the picker fully on screen (phones included): prefer below
+            -- the swatch, flip above when it would overflow.
+            local px = math.clamp(absolute.X + swatch.AbsoluteSize.X - popupW, 6, math.max(6, viewport.X - popupW - 6))
+            local below = absolute.Y + swatch.AbsoluteSize.Y + 6
+            local py = below + popupH <= viewport.Y - 6 and below or math.max(6, absolute.Y - popupH - 6)
+            py = math.clamp(py, 6, math.max(6, viewport.Y - popupH - 6))
+            popup.Position = UDim2.fromOffset(px, py + 6)
+            popup.BackgroundColor3 = C.Control
+            popup.BorderSizePixel = 0
             popup.ZIndex = 300
             popup.Parent = screenGui
+            tw(popup, {Position = UDim2.fromOffset(px, py)}, 0.16, Enum.EasingStyle.Quint)
+            Instance.new("UICorner", popup).CornerRadius = UDim.new(0, 14)
             local popupStroke = Instance.new("UIStroke", popup)
-            popupStroke.Color = C.Black
+            popupStroke.Color = C.Border
             popupStroke.Thickness = 1
             local popupTitle = Instance.new("TextLabel", popup)
-            popupTitle.Position = UDim2.fromOffset(8, 3)
-            popupTitle.Size = UDim2.new(1, -34, 0, 20)
+            popupTitle.Position = UDim2.fromOffset(14, 8)
+            popupTitle.Size = UDim2.new(1, -56, 0, 22)
             popupTitle.BackgroundTransparency = 1
-            popupTitle.Text = label:upper()
-            popupTitle.TextColor3 = C.Text
-            popupTitle.Font = Enum.Font.Code
-            popupTitle.TextSize = 9
+            popupTitle.Text = label
+            popupTitle.TextColor3 = C.White
+            popupTitle.Font = Enum.Font.GothamBold
+            popupTitle.TextSize = 13
+            popupTitle.TextTruncate = Enum.TextTruncate.AtEnd
             popupTitle.TextXAlignment = Enum.TextXAlignment.Left
             popupTitle.ZIndex = 301
             local close = Instance.new("TextButton", popup)
-            close.Size = UDim2.fromOffset(22, 20)
-            close.Position = UDim2.new(1, -25, 0, 2)
+            close.Size = UDim2.fromOffset(30, 30)
+            close.Position = UDim2.new(1, -36, 0, 4)
             close.BackgroundTransparency = 1
             close.Text = "X"
             close.TextColor3 = C.Muted
-            close.Font = Enum.Font.Code
-            close.TextSize = 16
+            close.Font = Enum.Font.GothamBold
+            close.TextSize = 13
             close.ZIndex = 302
             close.Activated:Connect(closeColorPopup)
 
             local selected = readColor()
             local hue, saturation, value = selected:ToHSV()
             local sv = Instance.new("Frame", popup)
-            sv.Position = UDim2.fromOffset(8, 25)
-            sv.Size = UDim2.fromOffset(170, 108)
+            sv.Position = UDim2.fromOffset(14, 38)
+            sv.Size = UDim2.fromOffset(popupW - 28, 108)
             sv.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
             sv.BorderSizePixel = 0
             sv.Active = true
             sv.ZIndex = 301
+            Instance.new("UICorner", sv).CornerRadius = UDim.new(0, 8)
             local white = Instance.new("Frame", sv)
             white.Size = UDim2.fromScale(1, 1); white.BorderSizePixel = 0; white.BackgroundColor3 = Color3.new(1,1,1); white.ZIndex = 302
+            Instance.new("UICorner", white).CornerRadius = UDim.new(0, 8)
             local whiteGradient = Instance.new("UIGradient", white)
             whiteGradient.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,1)})
             local black = Instance.new("Frame", sv)
             black.Size = UDim2.fromScale(1, 1); black.BorderSizePixel = 0; black.BackgroundColor3 = Color3.new(0,0,0); black.ZIndex = 303
+            Instance.new("UICorner", black).CornerRadius = UDim.new(0, 8)
             local blackGradient = Instance.new("UIGradient", black)
             blackGradient.Rotation = 90
             blackGradient.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(1,0)})
             local cursor = Instance.new("Frame", sv)
-            cursor.AnchorPoint = Vector2.new(0.5,0.5); cursor.Size = UDim2.fromOffset(8,8); cursor.BackgroundTransparency = 1
-            cursor.BorderColor3 = Color3.new(1,1,1); cursor.BorderSizePixel = 1; cursor.ZIndex = 305
+            cursor.AnchorPoint = Vector2.new(0.5,0.5); cursor.Size = UDim2.fromOffset(12,12); cursor.BackgroundTransparency = 1
+            cursor.BorderSizePixel = 0; cursor.ZIndex = 305
+            Instance.new("UICorner", cursor).CornerRadius = UDim.new(1, 0)
+            local cursorStroke = Instance.new("UIStroke", cursor)
+            cursorStroke.Color = Color3.new(1,1,1); cursorStroke.Thickness = 2
 
             local hueBar = Instance.new("Frame", popup)
-            hueBar.Position = UDim2.fromOffset(8, 141); hueBar.Size = UDim2.fromOffset(170, 14)
+            hueBar.Position = UDim2.fromOffset(14, 156); hueBar.Size = UDim2.fromOffset(popupW - 28, 12)
             hueBar.BorderSizePixel = 0; hueBar.Active = true; hueBar.ZIndex = 301
+            Instance.new("UICorner", hueBar).CornerRadius = UDim.new(1, 0)
             local hueGradient = Instance.new("UIGradient", hueBar)
             hueGradient.Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0,Color3.fromRGB(255,0,0)), ColorSequenceKeypoint.new(0.17,Color3.fromRGB(255,255,0)),
@@ -17840,18 +18453,31 @@ function buildXCUI()
                 ColorSequenceKeypoint.new(0.67,Color3.fromRGB(0,0,255)), ColorSequenceKeypoint.new(0.83,Color3.fromRGB(255,0,255)),
                 ColorSequenceKeypoint.new(1,Color3.fromRGB(255,0,0))})
             local hueCursor = Instance.new("Frame", hueBar)
-            hueCursor.AnchorPoint = Vector2.new(0.5,0.5); hueCursor.Size = UDim2.fromOffset(3,18)
+            hueCursor.AnchorPoint = Vector2.new(0.5,0.5); hueCursor.Size = UDim2.fromOffset(6,18)
             hueCursor.Position = UDim2.new(hue,0,0.5,0); hueCursor.BackgroundColor3 = Color3.new(1,1,1)
-            hueCursor.BorderColor3 = Color3.new(0,0,0); hueCursor.BorderSizePixel = 1; hueCursor.ZIndex = 304
+            hueCursor.BorderSizePixel = 0; hueCursor.ZIndex = 304
+            Instance.new("UICorner", hueCursor).CornerRadius = UDim.new(1, 0)
+            local hueCursorStroke = Instance.new("UIStroke", hueCursor)
+            hueCursorStroke.Color = Color3.new(0,0,0); hueCursorStroke.Thickness = 1; hueCursorStroke.Transparency = 0.4
 
             local preview = Instance.new("Frame", popup)
-            preview.Position = UDim2.fromOffset(187, 26); preview.Size = UDim2.fromOffset(42,42)
-            preview.BorderColor3 = C.Black; preview.BorderSizePixel = 1; preview.ZIndex = 301
-            Instance.new("UICorner", preview).CornerRadius = UDim.new(0,4)
+            preview.Position = UDim2.fromOffset(14, 174); preview.Size = UDim2.fromOffset(28, 28)
+            preview.BorderSizePixel = 0; preview.ZIndex = 301
+            Instance.new("UICorner", preview).CornerRadius = UDim.new(0, 8)
+            local previewStroke = Instance.new("UIStroke", preview)
+            previewStroke.Color = C.Border; previewStroke.Thickness = 1
+            local hashLabel = Instance.new("TextLabel", popup)
+            hashLabel.Position = UDim2.fromOffset(52, 174); hashLabel.Size = UDim2.fromOffset(14, 28)
+            hashLabel.BackgroundTransparency = 1; hashLabel.Text = "#"; hashLabel.TextColor3 = C.Muted
+            hashLabel.Font = Enum.Font.GothamBold; hashLabel.TextSize = 13; hashLabel.ZIndex = 301
             local hex = Instance.new("TextBox", popup)
-            hex.Position = UDim2.fromOffset(184, 78); hex.Size = UDim2.fromOffset(47,24)
-            hex.BackgroundColor3 = C.Control; hex.BorderColor3 = C.Black; hex.BorderSizePixel = 1
-            hex.ClearTextOnFocus = false; hex.TextColor3 = C.Text; hex.Font = Enum.Font.Code; hex.TextSize = 9; hex.ZIndex = 301
+            hex.Position = UDim2.fromOffset(68, 174); hex.Size = UDim2.fromOffset(popupW - 82, 28)
+            hex.BackgroundColor3 = C.Panel; hex.BorderSizePixel = 0
+            hex.ClearTextOnFocus = false; hex.TextColor3 = C.Text; hex.Font = Enum.Font.GothamMedium; hex.TextSize = 13
+            hex.PlaceholderText = "RRGGBB"; hex.PlaceholderColor3 = C.Muted
+            hex.TextXAlignment = Enum.TextXAlignment.Left; hex.ZIndex = 301
+            Instance.new("UICorner", hex).CornerRadius = UDim.new(0, 8)
+            Instance.new("UIPadding", hex).PaddingLeft = UDim.new(0, 10)
 
             local function commitColor(color)
                 XCConfig[prefix.."R"] = math.floor(color.R*255+0.5)
@@ -18210,7 +18836,7 @@ function buildXCUI()
         holder.BackgroundColor3 = C.Main:Lerp(C.Panel, 0.42)
         holder.BorderSizePixel = 0
         local galleryCorner = Instance.new("UICorner", holder)
-        galleryCorner.CornerRadius = UDim.new(0, 10)
+        galleryCorner.CornerRadius = UDim.new(0, 14)
         local studioStroke = Instance.new("UIStroke", holder)
         studioStroke.Color = C.Border
         studioStroke.Thickness = 1
@@ -19054,7 +19680,7 @@ function buildXCUI()
                 local card=Instance.new("TextButton",grid)
                 card.Name="Skin_"..skinName;card.LayoutOrder=index;card.BackgroundColor3=C.Panel
                 card.BorderSizePixel=0;card.Text="";card.AutoButtonColor=false;cards[skinName]=card
-                Instance.new("UICorner",card).CornerRadius=UDim.new(0,8)
+                Instance.new("UICorner",card).CornerRadius=UDim.new(0,10)
                 local stroke=Instance.new("UIStroke",card)
                 stroke.Name="SelectionStroke";stroke.Color=C.Border;stroke.Thickness=1
                 local modelPreview=XCConfig.skinPreviewMode=="Models"
@@ -19437,108 +20063,148 @@ function buildXCUI()
         {"World", "world"}, {"Skins", "skins"}, {"Misc", "misc"},
         {"Settings", "settings"}, {"Configs", "configs"},
     }
+    -- Internal ids (Rage, AntiAim, Misc...) stay untouched; only labels change.
+    local tabTitles = {
+        Rage = "Combat", AntiAim = "Movement", Visuals = "Visuals", Players = "Players",
+        World = "World", Skins = "Skins", Misc = "Utilities", Settings = "Settings", Configs = "Configs",
+    }
+    local tabRailLabels = {AntiAim = "Move", Misc = "Utility"}
     local pageDescriptions = {
-        Rage = "Aim, targeting & weapons", AntiAim = "Movement, camera & anti-aim",
-        Visuals = "ESP & on-screen effects", Players = "Target filtering & overlays",
-        World = "Environment & lighting", Skins = "Weapon finishes & gloves",
-        Misc = "Viewmodel & utilities", Settings = "Appearance & preferences",
-        Configs = "Profiles & community",
+        Rage = "Aim assistance, targeting and weapon mechanics",
+        AntiAim = "Movement, camera and anti-aim",
+        Visuals = "ESP, chams and on-screen effects",
+        Players = "Target rules and player overlays",
+        World = "Lighting, weather and environment",
+        Skins = "Weapon finishes, knives and gloves",
+        Misc = "Viewmodel and session utilities",
+        Settings = "Appearance, palette and preferences",
+        Configs = "Local profiles and community library",
     }
     local function switchPage(name)
         closeDropdown()
+        closeColorPopup()
         hideHelp()
+        local changed = currentPage ~= name
         currentPage = name
-        pageTitle.Text = name == "AntiAim" and "MOVEMENT" or string.upper(name)
+        pageTitle.Text = tabTitles[name] or name
         pageSubtitle.Text = pageDescriptions[name] or "Customize your session"
-        for pageName, page in pairs(pages) do page.Visible = pageName == name end
+        for pageName, page in pairs(pages) do
+            if pageName == name then
+                if changed then
+                    page.Visible = true
+                    if xcAnimEnabled() then
+                        page.Position = UDim2.fromOffset(0, 10)
+                        tw(page, {Position = UDim2.new()}, 0.22, Enum.EasingStyle.Quint)
+                    else
+                        page.Position = UDim2.new()
+                    end
+                else
+                    page.Visible = true
+                end
+            else
+                page.Visible = false
+                page.Position = UDim2.new()
+            end
+        end
         for tabName, data in pairs(tabData) do
-            data.active.Visible = tabName == name
-            data.button.BackgroundColor3 = tabName == name and C.Control2:Lerp(C.Lime, 0.08) or C.Sidebar
-            data.button.BackgroundTransparency = tabName == name and 0 or 1
-            data.label.TextColor3 = tabName == name and C.White or C.Muted
-            recolorTabIcon(data.icon, tabName == name and C.Lime or C.Muted)
+            local active = tabName == name
+            data.active.Visible = active
+            data.button.BackgroundColor3 = C.Control
+            tw(data.button, {BackgroundTransparency = active and 0 or 1}, 0.18)
+            tw(data.label, {TextColor3 = active and C.White or C.Muted}, 0.18)
+            recolorTabIcon(data.icon, active and C.Lime or C.Muted)
         end
         if applySearch then applySearch() end
     end
     refreshNavTheme = function() if currentPage then switchPage(currentPage) end end
     for index, info in ipairs(tabs) do
+        local pinned = index >= 8
         if not isMobileLayout and (index == 1 or index == 3 or index == 7) then
             local group = Instance.new("TextLabel", sidebar)
             group.Name = "NavGroup"
-            group.Size = UDim2.new(1, -8, 0, 21)
+            group.Size = UDim2.new(1, 0, 0, 28)
             group.LayoutOrder = index * 2 - 1
             group.BackgroundTransparency = 1
-            group.Text = index == 1 and "COMBAT" or index == 3 and "VISUALS" or "SYSTEM"
+            group.Text = index == 1 and "COMBAT" or index == 3 and "VISUALS" or "UTILITY"
             group.TextColor3 = C.Muted
             group.Font = Enum.Font.GothamBold
-            group.TextSize = 9
+            group.TextSize = 10
             group.TextXAlignment = Enum.TextXAlignment.Left
+            group.TextYAlignment = Enum.TextYAlignment.Bottom
+            local groupPadding = Instance.new("UIPadding", group)
+            groupPadding.PaddingLeft = UDim.new(0, 10)
+            groupPadding.PaddingBottom = UDim.new(0, 4)
         end
         local holder = Instance.new("Frame")
-        holder.Size = isMobileLayout and UDim2.new(1, -4, 0, 44) or UDim2.new(1, -8, 0, 40)
-        holder.LayoutOrder = index * 2
+        holder.Name = "Tab_" .. info[1]
+        holder.Size = isMobileLayout and UDim2.new(1, 0, 0, 50) or UDim2.new(1, 0, 0, 40)
+        holder.LayoutOrder = pinned and index or index * 2
         holder.BackgroundTransparency = 1
-        holder.Parent = sidebar
-        local active = Instance.new("Frame")
-        active.Size = UDim2.fromOffset(2, 22)
-        active.Position = UDim2.new(0, 0, 0.5, -11)
-        active.BackgroundColor3 = C.Lime
-        active.BorderSizePixel = 0
-        active.Visible = false
-        active.Parent = holder
+        holder.Parent = pinned and sideBottom or sidebar
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, -5, 1, -4)
-        button.Position = UDim2.fromOffset(4, 0)
+        button.Size = UDim2.fromScale(1, 1)
+        button.BackgroundColor3 = C.Control
         button.BackgroundTransparency = 1
+        button.BorderSizePixel = 0
         button.Text = ""
         button.AutoButtonColor = false
         button.Parent = holder
-        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 3)
+        Instance.new("UICorner", button).CornerRadius = UDim.new(0, 10)
+        local active = Instance.new("Frame")
+        active.Name = "ActiveBar"
+        active.Size = isMobileLayout and UDim2.fromOffset(3, 22) or UDim2.fromOffset(3, 18)
+        active.Position = isMobileLayout and UDim2.new(0, 0, 0.5, -11) or UDim2.new(0, 0, 0.5, -9)
+        active.BackgroundColor3 = C.Lime
+        active.BorderSizePixel = 0
+        active.Visible = false
+        active.ZIndex = 3
+        active.Parent = holder
+        Instance.new("UICorner", active).CornerRadius = UDim.new(1, 0)
         local icon = drawTabIcon(button, info[2], ICON_OFF)
         icon.AnchorPoint = isMobileLayout and Vector2.new(0.5, 0.5) or Vector2.new(0, 0.5)
-        icon.Position = isMobileLayout and UDim2.new(0.5, 0, 0, 14) or UDim2.new(0, 9, 0.5, 0)
+        icon.Position = isMobileLayout and UDim2.new(0.5, 0, 0, 17) or UDim2.new(0, 14, 0.5, 0)
         local label = Instance.new("TextLabel", button)
-        label.Position = UDim2.fromOffset(37, 0)
-        label.Size = UDim2.new(1, -40, 1, 0)
         label.BackgroundTransparency = 1
-        label.Text = string.lower(info[1] == "AntiAim" and "Movement" or info[1])
-        label.Visible = true
-        if isMobileLayout then
-            label.Position = UDim2.new(0, 1, 1, -14)
-            label.Size = UDim2.new(1, -2, 0, 12)
-            label.TextXAlignment = Enum.TextXAlignment.Center
-        end
+        label.Text = isMobileLayout and (tabRailLabels[info[1]] or tabTitles[info[1]]) or tabTitles[info[1]]
         label.TextColor3 = C.Muted
         label.Font = Enum.Font.GothamMedium
-        label.TextSize = isMobileLayout and 9 or 12
         label.TextTruncate = Enum.TextTruncate.AtEnd
-        label.TextXAlignment = isMobileLayout and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
-        button.MouseEnter:Connect(function()
-            if currentPage ~= info[1] then
-                recolorTabIcon(icon, C.White)
-                button.BackgroundColor3 = C.Control
-                button.BackgroundTransparency = 0.25
-                label.TextColor3 = C.White
-            end
-        end)
-        button.MouseLeave:Connect(function()
-            if currentPage ~= info[1] then
-                recolorTabIcon(icon, C.Muted)
-                button.BackgroundTransparency = 1
-                label.TextColor3 = C.Muted
-            end
-        end)
-        button.Activated:Connect(function() switchPage(info[1]) end)
+        if isMobileLayout then
+            label.Position = UDim2.new(0, 0, 1, -17)
+            label.Size = UDim2.new(1, 0, 0, 13)
+            label.TextSize = 10
+            label.TextXAlignment = Enum.TextXAlignment.Center
+        else
+            label.Position = UDim2.fromOffset(48, 0)
+            label.Size = UDim2.new(1, -56, 1, 0)
+            label.TextSize = 13
+            label.TextXAlignment = Enum.TextXAlignment.Left
+        end
+        if not TOUCH then
+            button.MouseEnter:Connect(function()
+                if currentPage ~= info[1] then
+                    recolorTabIcon(icon, C.White)
+                    tw(button, {BackgroundTransparency = 0.55}, 0.14)
+                    tw(label, {TextColor3 = C.White}, 0.14)
+                end
+            end)
+            button.MouseLeave:Connect(function()
+                if currentPage ~= info[1] then
+                    recolorTabIcon(icon, C.Muted)
+                    tw(button, {BackgroundTransparency = 1}, 0.14)
+                    tw(label, {TextColor3 = C.Muted}, 0.14)
+                end
+            end)
+        end
+        button.Activated:Connect(function() if currentPage ~= info[1] then switchPage(info[1]) end end)
         attachHelp(button, "tab_" .. info[1])
         tabData[info[1]] = {button = button, active = active, icon = icon, label = label}
         createPage(info[1])
     end
-    sidebar.CanvasSize = isMobileLayout and UDim2.fromOffset(0, #tabs * 48 + 12)
-        or UDim2.fromOffset(0, #tabs * 43 + 76)
 
     local function columns(name, leftTitle, rightTitle)
         local page = pages[name]
-        return createPanel(page, leftTitle, 0, 0.49), createPanel(page, rightTitle, 0.51, 0.49)
+        return createPanel(page, leftTitle, 0, 0.5), createPanel(page, rightTitle, 0.5, 0.5)
     end
 
     local function currentPlayerChoices()
@@ -20085,6 +20751,7 @@ function buildXCUI()
     task.wait()
     L, R = columns("Settings", "Interface", "Advanced settings")
     local menuPresets={
+        ["XOSE Midnight"]={16,17,20,28,29,33,179,212,106,241,241,243},
         ["Liquid Glass"]={16,17,26,25,26,38,126,139,255,238,239,249},
         ["NeverLose"]={10,17,25,7,12,19,65,180,235,230,240,250},
         ["Video Blue"]={10,17,25,7,12,19,89,115,255,230,240,250},
@@ -20104,10 +20771,11 @@ function buildXCUI()
         applyMenuTheme();scheduleConfigAutoSave()
     end
     section(L,"menu appearance")
-    addChoice(L,"Theme preset","menuThemePreset",{"Liquid Glass","NeverLose","XC Lime","Video Blue","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
+    addChoice(L,"Theme preset","menuThemePreset",{"XOSE Midnight","Liquid Glass","NeverLose","XC Lime","Video Blue","Gamesense","NixWare","Midnight","Violet","Crimson","Ice"},applyMenuPreset)
     addSlider(L,"Interface scale","uiScale",0.65,1.25,0.05,"x",applyMenuTheme)
     addSlider(L,"Menu transparency","menuTransparency",0,0.45,0.05,"",applyMenuTheme)
-    addToggle(L,"Liquid glass","menuGlassEnabled",applyMenuTheme)
+    addToggle(L,"Interface animations","uiAnimations")
+    addToggle(L,"Glass highlights","menuGlassEnabled",applyMenuTheme)
     local glassRefreshRevision = 0
     addSlider(L,"Glass strength","menuGlassStrength",0,1,0.05,"",function()
         glassRefreshRevision = glassRefreshRevision + 1
@@ -20199,23 +20867,20 @@ function buildXCUI()
         return value ~= "" and value or "Default"
     end
     local nameBox = Instance.new("TextBox")
-    nameBox.Size = UDim2.new(1, 0, 0, 24)
-    nameBox.BackgroundColor3 = C.Control
-    nameBox.BorderColor3 = C.Black
-    nameBox.BorderSizePixel = 1
     nameBox.PlaceholderText = "Config name"
     nameBox.Text = configName
-    nameBox.TextColor3 = C.Text
-    nameBox.Font = Enum.Font.Code
-    nameBox.TextSize = 10
+    nameBox.TextXAlignment = Enum.TextXAlignment.Left
+    nameBox.ClearTextOnFocus = false
+    styleInput(nameBox)
+    Instance.new("UIPadding", nameBox).PaddingLeft = UDim.new(0, 12)
     nameBox.Parent = activeSectionByParent[ConfigLocal] or ConfigLocal
     local status = Instance.new("TextLabel")
-    status.Size = UDim2.new(1, 0, 0, 20)
+    status.Size = UDim2.new(1, 0, 0, 22)
     status.BackgroundTransparency = 1
     status.Text = "XCConfigs/Default.json"
     status.TextColor3 = C.Muted
-    status.Font = Enum.Font.Code
-    status.TextSize = 9
+    status.Font = Enum.Font.GothamMedium
+    status.TextSize = 11
     status.TextXAlignment = Enum.TextXAlignment.Left
     status.Parent = activeSectionByParent[ConfigLocal] or ConfigLocal
     local function configPath() return "XCConfigs/" .. safeName(nameBox.Text) .. ".json" end
@@ -20351,25 +21016,19 @@ function buildXCUI()
     section(ConfigCommunity, "publish current settings")
     local function publicTextBox(parent, placeholder, value, height)
         local box = Instance.new("TextBox")
-        box.Size = UDim2.new(1, 0, 0, height or 24)
-        box.BackgroundColor3 = C.Control
-        box.BorderColor3 = C.Black
-        box.BorderSizePixel = 1
         box.ClearTextOnFocus = false
         box.PlaceholderText = placeholder
-        box.PlaceholderColor3 = C.Muted
         box.Text = value or ""
-        box.TextColor3 = C.Text
-        box.Font = Enum.Font.Code
-        box.TextSize = 10
-        box.TextWrapped = (height or 24) > 30
+        local multiline = (height or 0) > 30
+        styleInput(box, multiline and 72 or nil)
+        box.TextWrapped = multiline
         box.TextXAlignment = Enum.TextXAlignment.Left
-        box.TextYAlignment = Enum.TextYAlignment.Top
+        box.TextYAlignment = multiline and Enum.TextYAlignment.Top or Enum.TextYAlignment.Center
         box.Parent = activeSectionByParent[parent] or parent
         local padding = Instance.new("UIPadding")
-        padding.PaddingLeft = UDim.new(0, 7)
-        padding.PaddingRight = UDim.new(0, 7)
-        padding.PaddingTop = UDim.new(0, 5)
+        padding.PaddingLeft = UDim.new(0, 12)
+        padding.PaddingRight = UDim.new(0, 12)
+        padding.PaddingTop = UDim.new(0, multiline and 10 or 0)
         padding.Parent = box
         return box
     end
@@ -20496,14 +21155,40 @@ function buildXCUI()
     switchPage("Rage")
 
     local menuVisible = true
+    -- Window intro: a short slide, cancelled cleanly if the menu is toggled again.
+    local introTween, introTarget
+    local function finishIntro()
+        if introTween then
+            pcall(function() introTween:Cancel() end)
+            introTween = nil
+            if introTarget then main.Position = introTarget end
+        end
+        introTarget = nil
+    end
+    local function playMenuIntro()
+        finishIntro()
+        if not xcAnimEnabled() then return end
+        introTarget = main.Position
+        main.Position = introTarget + UDim2.fromOffset(0, 14)
+        introTween = TweenService:Create(main, TweenInfo.new(0.26, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+            {Position = introTarget})
+        local created = introTween
+        created.Completed:Connect(function()
+            if introTween == created then introTween = nil; introTarget = nil end
+        end)
+        created:Play()
+    end
     local function toggleMenu()
         closeDropdown()
+        closeColorPopup()
         hideHelp()
+        finishIntro()
         main.Visible = not main.Visible
         menuVisible = main.Visible
         XCFeatureState.menuOpen = main.Visible
         if main.Visible then
             for _, refreshStatus in ipairs(moduleStatusRefreshers) do pcall(refreshStatus) end
+            playMenuIntro()
         end
     end
     closeMenuButton.Activated:Connect(function()
@@ -20542,6 +21227,7 @@ function buildXCUI()
         end))
     end
     dragObject(dragBar, main, false)
+    playMenuIntro()
 
     local openBtn = Instance.new("TextButton")
     openBtn.Name = "XCButton"
@@ -20569,7 +21255,7 @@ function buildXCUI()
     openBtn.Active = true
     openBtn.Parent = toggleGui
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 7)
+    corner.CornerRadius = UDim.new(0, 14)
     corner.Parent = openBtn
     dragObject(openBtn, openBtn, true)
 end
